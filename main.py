@@ -23,8 +23,8 @@ downloader = Downloader()
 #    time.sleep(5)
 
 dbManager = DbManager()
-#dbManager.addSong(Song("songname", "byme", "spotifylink...", "youtubelink", None))
-#dbManager.addSong(Song("songname", "byme", "spotifylink2", "youtubelink", None))
+#dbManager.addSong(Song("songname", "byme", "spotifylink...", "youtubelink"))
+#dbManager.addSong(Song("songname", "byme", "spotifylink2", "youtubelink"))
 #dbManager.addPlaylist(Playlist("playlistname", [1, 2, 3, 5]))
 for row in dbManager.getSongByCustomFilter("spotify = 'spotifylink2'"):
     print(row)

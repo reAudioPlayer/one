@@ -28,8 +28,7 @@ class DbManager:
             name TEXT,
             artist TEXT,
             spotify TEXT,
-            youtube TEXT,
-            soundcloud TEXT);"""
+            source TEXT);"""
         with self._db:
             self._db.execute(sql)
 
@@ -43,7 +42,7 @@ class DbManager:
 
     def addSong(self, song: Song) -> None:
         with self._db:
-            sql = 'INSERT INTO Songs (name, artist, spotify, youtube, soundcloud) values(?, ?, ?, ?, ?)'
+            sql = 'INSERT INTO Songs (name, artist, spotify, source) values(?, ?, ?, ?)'
             data = [
                 song.sql()
             ]
