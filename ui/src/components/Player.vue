@@ -1,0 +1,146 @@
+<template>
+  <div class="player">
+    <div class="left">
+      <img src="https://i.scdn.co/image/ab67616d0000b273fea56fcedffa0cbe0203c987">
+      <div class="titleartist">
+        <span class="title">Shivers</span>
+        <span class="artist">Mave, LauraBrown</span>
+      </div>
+    </div>
+    <div class="centre">
+      <div class="upper">
+        <span class="material-icons-round defaultbtn">shuffle</span>
+        <span @click="get('last')" class="material-icons-round defaultbtn">skip_previous</span>
+        <span @click="get('playPause')" class="material-icons-round circle">play_circle</span>
+        <span @click="get('next')" class="material-icons-round defaultbtn">skip_next</span>
+        <span class="material-icons-round defaultbtn">repeat</span>
+      </div>
+      <div class="lower">
+        <span class="positionLabel">0:00</span>
+        <input type="range" class="progress">
+        <span class="positionLabel">-3:00</span>
+      </div>
+    </div>
+    <div class="right">
+      <span class="material-icons-round defaultbtn">volume_up</span>
+      <input type="range" class="volume">
+    </div>
+  </div>
+</template>
+
+<script>
+  export default {
+    name: 'Player',
+    methods: {
+      get(endpoint) {
+        fetch(`http://localhost:1234/${endpoint}`)
+      }
+    }
+  }
+</script>
+
+<style scoped>
+  div.player {
+    background: var(--glass-gradient);
+    height: var(--player-height);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px;
+    height: 100%;
+  }
+
+  .left {
+    max-height: calc(var(--player-height) - 40px);
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+  }
+
+  .left>img {
+    height: calc(var(--player-height) - 40px);
+    border-radius: 5px;
+  }
+
+  .left>.titleartist {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+    justify-content: center;
+  }
+
+  .left>.titleartist>.title {
+    font-size: 0.9em;
+  }
+
+  .left>.titleartist>.artist {
+    font-size: 0.7em;
+    color: var(--font-darker);
+  }
+
+  .centre {
+    max-height: calc(var(--player-height) - 20px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+
+  .centre>.upper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .centre>.lower {
+    line-height: 25px;
+    height: 25px;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .positionLabel {
+    font-size: 0.7em;
+    color: var(--font-darker)
+  }
+
+  input[type="range"].progress {
+    width: 40vw;
+  }
+
+  input[type="range"]:hover {
+    cursor: pointer;
+  }
+
+  .defaultbtn {
+    font-size: 1.4em;
+    color: var(--font-darker);
+  }
+
+  .defaultbtn:hover {
+    color: var(--font);
+    cursor: pointer;
+  }
+
+  .circle {
+    font-size: 2.4em;
+    width: 40px;
+  }
+
+  .defaultbtn,
+  .circle {
+    line-height: 24px;
+    text-align: center;
+  }
+
+  .circle:hover {
+    font-size: 2.5em;
+    cursor: pointer;
+  }
+
+  .right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+</style>

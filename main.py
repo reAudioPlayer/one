@@ -5,9 +5,14 @@ from dataModels.song import Song
 from db.dbManager import DbManager
 from downloader.downloader import Downloader
 from handler.playerHandler import PlayerHandler
+from handler.playlistHandler import PlaylistHandler
 from player.player import Player
 from aiohttp import web
 import asyncio
+import aiohttp_cors
+from aiohttp_index import IndexMiddleware
+
+from player.playlistManager import PlaylistManager
 
 downloader = Downloader()
 #downloader.downloadSong("https://www.youtube.com/watch?v=6iRJFfEVUB8", "upNow")
@@ -28,17 +33,35 @@ for row in dbManager.getPlaylists():
 
 ee = EventEmitter()
 player = Player(ee, dbManager, downloader)
+playlistManager = PlaylistManager(dbManager)
 
 playerHandler = PlayerHandler(player)
+playlistHandler = PlaylistHandler(playlistManager)
 
-app = web.Application()
+player.loadPlaylist(playlistManager.get(0))
+
+app = web.Application(middlewares=[IndexMiddleware()])
 
 app.router.add_get('/last', playerHandler.getLast)
 app.router.add_get('/next', playerHandler.getNext)
+app.router.add_get('/playPause', playerHandler.getPlayPause)
 app.router.add_get('/pause', playerHandler.getPause)
 app.router.add_get('/play', playerHandler.getPlay)
+app.router.add_post('/add', playlistHandler.addSong)
 
-app.router.add_static('/', './ui')
+# Configure default CORS settings.
+"""cors = aiohttp_cors.setup(app, defaults={
+    "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )
+})"""
+
+#for route in list(app.router.routes()):
+#    cors.add(route)
+
+app.router.add_static('/', './ui/dist')
 asyncio.run ( web._run_app(app, port=1234) )
 
 player.unload()

@@ -14,21 +14,18 @@ class Player:
         self._playing: bool = False
         self._ee = ee
         self._downloader = downloader
-        self._playerPlaylist = PlayerPlaylist(dbManager)
+        self._playerPlaylist: Optional[PlayerPlaylist] = None
         self._songLength: float = -1
         self._preloaded: Optional[str] = None
-        self._playerPlaylist.load([
-            "https://soundcloud.com/musicof-destiny/our-time-bootleg",
-            "https://www.youtube.com/watch?v=6iRJFfEVUB8",
-            "https://www.youtube.com/watch?v=l5s7h3yiWeY",
-            "https://www.youtube.com/watch?v=Xk0q5Zwi1n4"
-        ])
+
+    def loadPlaylist(self, playlist: PlayerPlaylist) -> None:
+        self._playerPlaylist = playlist
 
     def playPause(self) -> None:
         if self._playing:
             pygame.mixer.music.pause()
         else:
-            pygame.mixer.music.pause()
+            pygame.mixer.music.unpause()
         self._playing = not self._playing
 
     def pause(self) -> None:
@@ -65,3 +62,4 @@ class Player:
             sound = pygame.mixer.Sound(f"./_cache/upNow.mp3")
             self._songLength = sound.get_length()
             pygame.mixer.music.play()
+            self._playing = True

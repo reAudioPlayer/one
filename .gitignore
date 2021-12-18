@@ -1,3 +1,4 @@
 _cache
 __pycache__
 *.db
+ui/node_modules

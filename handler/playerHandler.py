@@ -13,6 +13,10 @@ class PlayerHandler:
         self._player.pause()
         return web.Response(status = 200, text = "success!")
 
+    async def getPlayPause(self, _: web.Request):
+        self._player.playPause()
+        return web.Response(status = 200, text = "success!")
+
     async def getNext(self, _: web.Request):
         self._player.next()
         return web.Response(status = 200, text = "success!")

@@ -1,16 +1,20 @@
-from typing import List
+from typing import List, Optional, Set
 from pymitter import EventEmitter
 from db.dbManager import DbManager
+from ordered_set import OrderedSet
 
 
 class PlayerPlaylist:
-    def __init__(self, dbManager: DbManager) -> None:
+    def __init__(self, dbManager: DbManager, playlistIndex: int) -> None:
         self._dbManager = dbManager
-        self._playlist: List[str] = [ ]
+        self._playlist: OrderedSet[str] = OrderedSet()
         self._index: int = -1
+        self._playlistIndex = playlistIndex
+        self._load(playlistIndex)
 
-    def load(self, playlist: List[str]) -> None:
-        self._playlist = playlist
+    def _load(self, playlistIndex: int) -> None: # TODO implement
+        """loads from database"""
+        pass
 
     @property
     def index(self) -> int:
@@ -19,6 +23,11 @@ class PlayerPlaylist:
     @property
     def playlistLength(self) -> int:
         return len(self._playlist)
+
+    def at(self, index: int) -> Optional[str]:
+        if index < 0 or index >= self.playlistLength:
+            return None
+        return self._playlist[index]
 
     def current(self) -> str:
         return self._playlist[self._index]
@@ -44,3 +53,6 @@ class PlayerPlaylist:
             self._index = x
 
         return self._playlist[x]
+
+    def add(self, link: str) -> None: # TODO save to db
+        self._playlist.add(link)
