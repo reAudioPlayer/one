@@ -15,8 +15,10 @@ from aiohttp_index import IndexMiddleware
 from player.playlistManager import PlaylistManager
 
 downloader = Downloader()
-#downloader.downloadSong("https://www.youtube.com/watch?v=6iRJFfEVUB8", "upNow")
+#downloader.downloadSong("https://audius.co/ANGDJS/kiss-i-was-made-for-loving-you-ang-festival-edit")
 #downloader.downloadSong("https://www.youtube.com/watch?v=l5s7h3yiWeY")
+#downloader.downloadSong("https://soundcloud.com/basshouse-music/castion-reeva-never-be-forgotten-bhm044")
+#downloader.downloadSong("https://open.spotify.com/track/6WXbZykcCejVs36zmIfxh5") # needs to be implemented first
 
 #while True:
 #    import time
