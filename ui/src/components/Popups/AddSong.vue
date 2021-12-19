@@ -31,9 +31,12 @@
         methods: {
             add() {
                 console.log("fetch")
-                fetch("http://localhost:1234/add", {
+                fetch("http://localhost:1234/api/add", {
                     method: "POST",
-                    body: this.$refs.input.value
+                    body: JSON.stringify({ 
+                        id: Number(this.$route.params.id),
+                        link: this.$refs.input.value
+                    })
                 }).then(x => console.log(x))
                 this.showModal = false
             }

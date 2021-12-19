@@ -1,5 +1,8 @@
+import json
 from typing import List, Optional, Set
 from pymitter import EventEmitter
+from dataModels.playlist import Playlist
+from dataModels.song import Song
 from db.dbManager import DbManager
 from ordered_set import OrderedSet
 
@@ -7,14 +10,19 @@ from ordered_set import OrderedSet
 class PlayerPlaylist:
     def __init__(self, dbManager: DbManager, playlistIndex: int) -> None:
         self._dbManager = dbManager
-        self._playlist: OrderedSet[str] = OrderedSet()
+        self._playlist: OrderedSet[Song] = OrderedSet()
         self._index: int = -1
         self._playlistIndex = playlistIndex
+        self._name: str = "N/A"
         self._load(playlistIndex)
 
     def _load(self, playlistIndex: int) -> None: # TODO implement
         """loads from database"""
-        pass
+        playlist = self._dbManager.getPlaylistById(playlistIndex)
+        if not playlist:
+            return
+        self._playlist.update(self._dbManager.getSongsByIdList(playlist.songs))
+        self._name = playlist.name
 
     @property
     def index(self) -> int:
@@ -27,10 +35,10 @@ class PlayerPlaylist:
     def at(self, index: int) -> Optional[str]:
         if index < 0 or index >= self.playlistLength:
             return None
-        return self._playlist[index]
+        return self._playlist[index].source
 
     def current(self) -> str:
-        return self._playlist[self._index]
+        return self._playlist[self._index].source
 
     def next(self, preview: bool = False, increment: int = 1) -> str:
         if self._index < self.playlistLength - increment:
@@ -41,7 +49,7 @@ class PlayerPlaylist:
         if not preview:
             self._index = x
 
-        return self._playlist[x]
+        return self._playlist[x].source
 
     def last(self, preview: bool = False, increment: int = 1) -> str:
         if self._index >= increment:
@@ -52,7 +60,21 @@ class PlayerPlaylist:
         if not preview:
             self._index = x
 
-        return self._playlist[x]
+        return self._playlist[x].source
 
-    def add(self, link: str) -> None: # TODO save to db
-        self._playlist.add(link)
+    def add(self, link: str) -> None:
+        self._dbManager.addSong(Song("N/A", "N/A", source=link))
+        x = self._dbManager.getSongByCustomFilter(f"source='{link}'")[0]
+        self._playlist.add(x)
+        songs = list(map(lambda x: x.id, self._playlist))
+        self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex))
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def toDict(self) -> dict:
+        return {
+            "name": self._name,
+            "songs": list(map(lambda x: x.toDict(), self._playlist))
+        }

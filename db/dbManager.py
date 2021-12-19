@@ -1,6 +1,6 @@
 import sqlite3 as sl
 import json
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from dataModels.playlist import Playlist
 
 from dataModels.song import Song
@@ -16,7 +16,6 @@ class DbManager:
         cursor = self._db.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
         tables = cursor.fetchall()
-        print(tables)
         cursor.close()
 
     def shutdown(self):
@@ -56,6 +55,10 @@ class DbManager:
         with self._db:
             return DbManager._castToSongList(self._db.execute("SELECT * FROM Songs"))
 
+    def getSongsByIdList(self, idList: List[int]) -> List[Song]:
+        with self._db:
+            return DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs WHERE id IN ({ ','.join([str(int) for int in idList]) })"))
+
     def getSongByCustomFilter(self, filter) -> List[Song]:
         with self._db:
             return DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs WHERE {filter}"))
@@ -71,3 +74,21 @@ class DbManager:
     def getPlaylists(self) -> List[Playlist]:
         with self._db:
             return list(map(Playlist.FromSql, self._db.execute("SELECT * FROM Playlists")))
+
+    def getPlaylistById(self, id: int) -> Optional[Playlist]:
+        with self._db:
+            rows = self._db.execute(f"SELECT * FROM Playlists WHERE id={id}")
+            for row in rows:
+                return Playlist.FromSql(row)
+            return None
+
+    def updatePlaylist(self, newPlaylist: Playlist) -> None:
+        with self._db:
+            name, songs = newPlaylist.sql()
+            sql = f"UPDATE Playlists SET name='{name}', songs='{songs}' WHERE id={newPlaylist.id}"
+            self._db.execute(sql)
+
+    def updateSongsOfPlaylist(self, id: int, songs: List[int]) -> None:
+        with self._db:
+            sql = f"UPDATE Playlists SET songs='{str(songs)}' WHERE id={id}"
+            self._db.execute(sql)

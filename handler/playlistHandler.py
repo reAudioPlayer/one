@@ -6,7 +6,13 @@ class PlaylistHandler:
         self._playlistManager = playlistManager
 
     async def addSong(self, request: web.Request):
-        text = await request.text()
-        print(text)
-        self._playlistManager.addToPlaylist(0, text)
+        jdata = await request.json()
+        self._playlistManager.addToPlaylist(jdata["id"], jdata["link"])
         return web.Response(status = 200, text = "success!")
+
+    async def getPlaylist(self, request: web.Request):
+        jdata = await request.json()
+        return web.json_response(self._playlistManager.get(jdata["id"]).toDict())
+
+    async def getPlaylists(self, _: web.Request):
+        return web.json_response(list(map(lambda x: x.name, self._playlistManager._playlists)))

@@ -10,7 +10,8 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "vue-final-modal": "^3.4.3",
-    "vue-observe-visibility": "^1.0.0"
+    "vue-observe-visibility": "^1.0.0",
+    "vue-router": "^4.0.12"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

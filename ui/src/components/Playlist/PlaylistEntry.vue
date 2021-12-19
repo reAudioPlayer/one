@@ -15,13 +15,27 @@
 <script>
 export default {
   name: 'PlaylistEntry',
+  props: {
+      id: Number,
+      artist: {
+          type: String,
+          default: "N/A"
+      },
+      cover: {
+          type: String,
+          default: "/assets/img/music_placeholder.png"
+      },
+      title: {
+          type: String,
+          default: "N/A"
+      },
+      album: {
+          type: String,
+          default: "N/A"
+      }
+  },
   data() {
       return {
-          id: 145,
-          cover: "https://i.scdn.co/image/ab67616d0000b273fea56fcedffa0cbe0203c987",
-          title: "Shivers",
-          artist: "Mave, LauraBrown",
-          album: "Shivers",
           highlighted: false
       }
   },
@@ -32,12 +46,12 @@ export default {
       displayPlay() {
           const element = this.$refs.idOrPlay
           element.innerHTML = "play_arrow"
-          element.classList.add("material-icons-outlined")
+          element.classList.add("material-icons-round")
       },
       displayId() {
           const element = this.$refs.idOrPlay
           element.innerHTML = this.id
-          element.classList.remove("material-icons-outlined")
+          element.classList.remove("material-icons-round")
       }
   }
 }
@@ -95,6 +109,7 @@ export default {
         height: 40px;
         margin-right: 10px;
         display: inline;
+        border-radius: 5px;
     }
 
     .trackwrapper {

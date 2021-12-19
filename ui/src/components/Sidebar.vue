@@ -2,38 +2,15 @@
   <div class="sidebar">
     <h2>reAudioPlayer Online</h2>
     <br>
-    <nav-entry icon="home" name="Home" />
-    <nav-entry icon="search" name="Search" />
-    <nav-entry icon="library_music" name="Your Library" />
+    <nav-entry href="/" icon="home" name="Home" />
+    <nav-entry href="/search" icon="search" name="Search" />
+    <nav-entry href="/collection/playlists" icon="library_music" name="Your Library" />
     <br>
-    <nav-entry icon="add_circle" name="Create Playlist" />
-    <nav-entry icon="favorite" name="Liked Songs" />
+    <nav-entry href="/playlist/create" icon="add_circle" name="Create Playlist" />
+    <nav-entry href="/collection/tracks" icon="favorite" name="Liked Songs" />
     <hr>
     <div class="playlistList">
-      <a href="/">Mainstage 21</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
-      <a href="/">Mainstage 22</a>
+      <router-link v-for="(element, index) in playlists" :key="index" :to="element.href">{{element.name}}</router-link>
     </div>
   </div>
 </template>
@@ -44,6 +21,23 @@ export default {
   name: 'Sidebar',
   components: {
     NavEntry
+  },
+  data() {
+    fetch("http://localhost:1234/api/playlists")
+      .then(x => x.json())
+      .then(jdata => {
+        for (let i = 0; i < jdata.length; i++)
+        {
+          this.playlists.push({
+            "name": jdata[i],
+            "href": `/playlist/${i}`
+          })
+        }
+      })
+
+    return {
+      playlists: [ ]
+    }
   }
 }
 </script>

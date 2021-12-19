@@ -14,42 +14,35 @@ from aiohttp_index import IndexMiddleware
 
 from player.playlistManager import PlaylistManager
 
-downloader = Downloader()
-#downloader.downloadSong("https://audius.co/ANGDJS/kiss-i-was-made-for-loving-you-ang-festival-edit")
+#downloader.downloadSong("https://audius.co/Xdmrecords/broz-rodriguez-tequila")
 #downloader.downloadSong("https://www.youtube.com/watch?v=l5s7h3yiWeY")
 #downloader.downloadSong("https://soundcloud.com/basshouse-music/castion-reeva-never-be-forgotten-bhm044")
 #downloader.downloadSong("https://open.spotify.com/track/6WXbZykcCejVs36zmIfxh5") # needs to be implemented first
 
-#while True:
-#    import time
-#    time.sleep(5)
-
 dbManager = DbManager()
-#dbManager.addSong(Song("songname", "byme", "spotifylink...", "youtubelink"))
-#dbManager.addSong(Song("songname", "byme", "spotifylink2", "youtubelink"))
-#dbManager.addPlaylist(Playlist("playlistname", [1, 2, 3, 5]))
-for row in dbManager.getSongByCustomFilter("spotify = 'spotifylink2'"):
-    print(row)
-for row in dbManager.getPlaylists():
-    print(row)
 
 ee = EventEmitter()
+
+downloader = Downloader()
+
 player = Player(ee, dbManager, downloader)
+
 playlistManager = PlaylistManager(dbManager)
 
-playerHandler = PlayerHandler(player)
+playerHandler = PlayerHandler(player, playlistManager)
 playlistHandler = PlaylistHandler(playlistManager)
-
-player.loadPlaylist(playlistManager.get(0))
 
 app = web.Application(middlewares=[IndexMiddleware()])
 
-app.router.add_get('/last', playerHandler.getLast)
-app.router.add_get('/next', playerHandler.getNext)
-app.router.add_get('/playPause', playerHandler.getPlayPause)
-app.router.add_get('/pause', playerHandler.getPause)
-app.router.add_get('/play', playerHandler.getPlay)
-app.router.add_post('/add', playlistHandler.addSong)
+app.router.add_get('/api/last', playerHandler.getLast)
+app.router.add_get('/api/next', playerHandler.getNext)
+app.router.add_get('/api/playPause', playerHandler.getPlayPause)
+app.router.add_get('/api/pause', playerHandler.getPause)
+app.router.add_get('/api/play', playerHandler.getPlay)
+app.router.add_post('/api/loadPlaylist', playerHandler.loadPlaylist)
+app.router.add_post('/api/add', playlistHandler.addSong)
+app.router.add_post('/api/playlist', playlistHandler.getPlaylist)
+app.router.add_get('/api/playlists', playlistHandler.getPlaylists)
 
 # Configure default CORS settings.
 """cors = aiohttp_cors.setup(app, defaults={

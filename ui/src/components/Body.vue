@@ -1,13 +1,11 @@
 <template>
   <div class="body">
-      <playlist ref="playlist" />
+      <router-view />
   </div>
 </template>
 
 <script>
-import Playlist from './body/Playlist.vue'
 export default {
-  components: { Playlist },
   name: 'Body'
 }
 </script>

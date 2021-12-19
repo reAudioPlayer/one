@@ -29,3 +29,18 @@ class Song:
 
     def __repr__(self) -> str:
         return f"(DataModel.Song) id=[{self._id}] name=[{self._name}] artist=[{self._artist}] spotify=[{self._spotify}] source=[{self._source}]"
+
+    @property
+    def source(self) -> str:
+        return self._source
+
+    @property
+    def id(self) -> int:
+        return self._id
+
+    def toDict(self) -> dict:
+        return {
+            "title": self._name,
+            "artist": self._artist,
+            "spotify": self._spotify
+        }

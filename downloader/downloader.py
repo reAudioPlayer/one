@@ -1,15 +1,16 @@
 from yt_dlp import YoutubeDL, postprocessor
 
 
+"""
 class OnDownloadFinishedPP(postprocessor.PostProcessor):
-    def __init__(self, msg, downloader=None):
+    def __init__(self, player: Player, downloader=None):
         super().__init__(downloader=downloader)
-        self._msg = msg
+        self._player = player
 
     def run(self, info):
-        print(info["filepath"], self._msg)
-        #startSong(info["filepath"])
+        self._player.next()
         return [], info
+"""
 
 class Downloader:
     def __init__(self) -> None:
@@ -22,7 +23,7 @@ class Downloader:
             }]
         }
         self._ydl = YoutubeDL(self._ydl_opts)
-        self._ydl.add_post_processor(OnDownloadFinishedPP("Hello World!"))
+        #self._ydl.add_post_processor(OnDownloadFinishedPP(player))
 
     def downloadSong(self, link, filename = "upNow"):
         self._ydl.outtmpl_dict["default"] = f"./_cache/{filename}.%(ext)s"

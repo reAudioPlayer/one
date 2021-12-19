@@ -1,36 +1,21 @@
 <template>
     <div class="playlist">
         <AddSong ref="addSongPopup" />
-        <fixed-playlist-header ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }" title="My Playlist" />
+        <fixed-playlist-header @click="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }" :title="playlistName" />
         <div class="padding-20" v-observe-visibility="headerVisibilityChanged">
             <h7>Playlist</h7>
-            <h1>My Playlist</h1>
+            <h1>{{playlistName}}</h1>
             <h5>My Description</h5>
         </div>
         <hr>
         <div class="padding-20">
-            <span id="loadPlaylist" class="material-icons-outlined">play_circle_filled</span>
+            <span id="loadPlaylist" @click="loadPlaylist" class="material-icons-outlined">play_circle_filled</span>
             <span id="addToPlaylist" @click="addToPlaylist" class="material-icons-outlined">add_circle</span>
             <div class="grid">
                 <grid-header />
                 <hr>
                 <div class="playlistEntries">
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
-                    <playlist-entry />
+                    <playlist-entry v-for="(element, index) in playlist" :key="index" :id="index + 1" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" />
                 </div>
             </div>
         </div>
@@ -52,17 +37,44 @@
         },
         name: 'Playlist',
         data() {
+            this.updatePlaylist()
             return {
-                fixedHeaderHidden: true
+                fixedHeaderHidden: false,
+                playlist: [],
+                playlistName: "N/A"
             }
         },
         methods: {
             headerVisibilityChanged(a) {
                 this.fixedHeaderHidden = a
-                console.log("x", a)
             },
             addToPlaylist() {
                 this.$refs.addSongPopup.showModal = true
+            },
+            updatePlaylist() {
+                fetch("http://localhost:1234/api/playlist", {
+                    method: "POST",
+                    body: JSON.stringify({ 
+                        id: Number(this.$route.params.id)
+                    })
+                }).then(x => x.json()).then(jdata => {
+                    this.playlist = jdata.songs
+                    this.playlistName = jdata.name
+                    console.log(this.playlist)
+                })
+            },
+            loadPlaylist() {
+                fetch("http://localhost:1234/api/loadPlaylist", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        id: Number(this.$route.params.id)
+                    })
+                })
+            }
+        },
+        watch:{
+            $route (){
+                this.updatePlaylist()
             }
         }
     }

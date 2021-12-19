@@ -2,9 +2,9 @@ from typing import Optional
 import pygame
 from pymitter import EventEmitter
 from db.dbManager import DbManager
-from downloader.downloader import Downloader
 from player.playerPlaylist import PlayerPlaylist
 import os
+from downloader.downloader import Downloader
 
 
 class Player:
@@ -20,6 +20,7 @@ class Player:
 
     def loadPlaylist(self, playlist: PlayerPlaylist) -> None:
         self._playerPlaylist = playlist
+        self.next()
 
     def playPause(self) -> None:
         if self._playing:
@@ -56,7 +57,6 @@ class Player:
         self._downloader.downloadSong(link)
 
     def _loadSong(self, link: str) -> None:
-        print(link, self._preloaded)
         if self._preloaded == link:
             pygame.mixer.music.load(f"./_cache/upNow.mp3")
             sound = pygame.mixer.Sound(f"./_cache/upNow.mp3")

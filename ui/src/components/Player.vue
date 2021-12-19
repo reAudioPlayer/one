@@ -1,10 +1,10 @@
 <template>
   <div class="player">
     <div class="left">
-      <img src="https://i.scdn.co/image/ab67616d0000b273fea56fcedffa0cbe0203c987">
+      <img src="/assets/img/music_placeholder.png">
       <div class="titleartist">
-        <span class="title">Shivers</span>
-        <span class="artist">Mave, LauraBrown</span>
+        <span class="title">N/A</span>
+        <span class="artist">N/A</span>
       </div>
     </div>
     <div class="centre">
@@ -33,7 +33,7 @@
     name: 'Player',
     methods: {
       get(endpoint) {
-        fetch(`http://localhost:1234/${endpoint}`)
+        fetch(`http://localhost:1234/api/${endpoint}`)
       }
     }
   }
@@ -42,12 +42,12 @@
 <style scoped>
   div.player {
     background: var(--glass-gradient);
-    height: var(--player-height);
+    height: calc(var(--player-height) - 20px);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     padding: 10px;
-    height: 100%;
+    /*height: 100%;*/
   }
 
   .left {
@@ -115,6 +115,8 @@
   .defaultbtn {
     font-size: 1.4em;
     color: var(--font-darker);
+    margin-left: 10px;
+    margin-right: 10px;
   }
 
   .defaultbtn:hover {

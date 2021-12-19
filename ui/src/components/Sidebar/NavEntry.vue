@@ -1,8 +1,10 @@
 <template>
-    <div class="navEntry">
-        <span class="material-icons-round icon">{{icon}}</span>
-        <span class="name">{{name}}</span>
-    </div>
+    <router-link class="link" :to="href">
+        <div class="navEntry">
+            <span class="material-icons-round icon">{{icon}}</span>
+            <span class="name">{{name}}</span>
+        </div>
+    </router-link>
 </template>
 
 <script>
@@ -10,12 +12,17 @@ export default {
   name: 'NavEntry',
   props: {
       icon: String,
-      name: String
+      name: String,
+      href: String
   }
 }
 </script>
 
 <style scoped>
+    .link {
+        text-decoration: none;
+    }
+
     div.navEntry {
         display: flex;
         flex-direction: row;
