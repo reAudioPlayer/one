@@ -1,6 +1,6 @@
 <template>
-  <div @click="onselect" class="playlistEntry" :class="{ 'selected': highlighted }">
-        <span ref="idOrPlay" @mouseover="displayPlay" @mouseleave="displayId" class="id">{{id}}</span>
+  <div @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry" :class="{ 'selected': highlighted }">
+        <span ref="idOrPlay" class="id">{{id}}</span>
         <div class="track">
             <img :src="cover">
             <div class="trackwrapper">
