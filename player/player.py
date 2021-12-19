@@ -52,6 +52,11 @@ class Player:
         self._preloadSong(self._playerPlaylist.next(True))
         self._loadSong(self._playerPlaylist.next())
 
+    def at(self, index: int) -> None:
+        self.unload()
+        self._preloadSong(self._playerPlaylist.at(index))
+        self._loadSong(self._playerPlaylist.at(index))
+
     def _preloadSong(self, link: str) -> None:
         self._preloaded = link
         self._downloader.downloadSong(link)

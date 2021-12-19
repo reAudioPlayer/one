@@ -32,3 +32,8 @@ class PlayerHandler:
         x = await request.json()
         self._player.loadPlaylist(self._playlistManager.get(x["id"]))
         return web.Response(status = 200, text = "success!")
+
+    async def loadSongAt(self, request: web.Request):
+        x = await request.json()
+        self._player.at(x["index"])
+        return web.Response(status = 200, text = "success!")

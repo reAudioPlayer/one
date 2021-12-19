@@ -1,6 +1,7 @@
 <template>
-  <div @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry" :class="{ 'selected': highlighted }">
-        <span ref="idOrPlay" class="id">{{id}}</span>
+    <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry"
+        :class="{ 'selected': highlighted }">
+        <span @click="playAt" ref="idOrPlay" class="id">{{id + 1}}</span>
         <div class="track">
             <img :src="cover">
             <div class="trackwrapper">
@@ -9,52 +10,60 @@
             </div>
         </div>
         <span class="album">{{album}}</span>
-  </div>
+    </div>
 </template>
 
 <script>
-export default {
-  name: 'PlaylistEntry',
-  props: {
-      id: Number,
-      artist: {
-          type: String,
-          default: "N/A"
-      },
-      cover: {
-          type: String,
-          default: "/assets/img/music_placeholder.png"
-      },
-      title: {
-          type: String,
-          default: "N/A"
-      },
-      album: {
-          type: String,
-          default: "N/A"
-      }
-  },
-  data() {
-      return {
-          highlighted: false
-      }
-  },
-  methods: {
-      onselect() {
-          this.highlighted = !this.highlighted
-      },
-      displayPlay() {
-          const element = this.$refs.idOrPlay
-          element.innerHTML = "play_arrow"
-          element.classList.add("material-icons-round")
-      },
-      displayId() {
-          const element = this.$refs.idOrPlay
-          element.innerHTML = this.id
-          element.classList.remove("material-icons-round")
-      }
-  }
-}
+    export default {
+        name: 'PlaylistEntry',
+        props: {
+            id: Number,
+            artist: {
+                type: String,
+                default: "N/A"
+            },
+            cover: {
+                type: String,
+                default: "/assets/img/music_placeholder.png"
+            },
+            title: {
+                type: String,
+                default: "N/A"
+            },
+            album: {
+                type: String,
+                default: "N/A"
+            }
+        },
+        data() {
+            return {
+                highlighted: false
+            }
+        },
+        methods: {
+            onselect() {
+                this.highlighted = !this.highlighted
+            },
+            displayPlay() {
+                const element = this.$refs.idOrPlay
+                element.innerHTML = "play_arrow"
+                element.classList.add("material-icons-round")
+            },
+            displayId() {
+                const element = this.$refs.idOrPlay
+                element.innerHTML = this.id
+                element.classList.remove("material-icons-round")
+            },
+            playAt() {
+                fetch("http://localhost:1234/api/at", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        index: this.id
+                    })
+                })
+            }
+        }
+    }
 </script>
 
 <style scoped>
