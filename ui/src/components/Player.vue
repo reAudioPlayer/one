@@ -6,7 +6,8 @@
         <span class="title">N/A</span>
         <span class="artist">N/A</span>
       </div>
-      <span @click="favourited = !favourited" class="favourite material-icons-round">{{favourited ? "favorite" : "favorite_border"}}</span>
+      <span @click="favourited = !favourited"
+        class="favourite material-icons-round">{{favourited ? "favorite" : "favorite_border"}}</span>
     </div>
     <div class="centre">
       <div class="upper">
@@ -24,7 +25,7 @@
     </div>
     <div class="right">
       <span class="material-icons-round defaultbtn">volume_up</span>
-      <input type="range" class="volume">
+      <input @change="volumechange" ref="volume" type="range" class="volume">
     </div>
   </div>
 </template>
@@ -46,6 +47,14 @@
     methods: {
       get(endpoint) {
         fetch(`http://localhost:1234/api/${endpoint}`)
+      },
+      volumechange() {
+        fetch("http://localhost:1234/api/setVolume", {
+          method: "POST",
+          body: JSON.stringify({
+            value: this.$refs.volume.value
+          })
+        })
       }
     }
   }

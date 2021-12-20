@@ -1,7 +1,8 @@
 from aiohttp import web
 from player.player import Player
-from player.playerPlaylist import PlayerPlaylist
 from player.playlistManager import PlaylistManager
+import pygame
+
 
 class PlayerHandler:
     def __init__(self, player: Player, playlistManager: PlaylistManager) -> None:
@@ -31,6 +32,11 @@ class PlayerHandler:
     async def loadPlaylist(self, request: web.Request):
         x = await request.json()
         self._player.loadPlaylist(self._playlistManager.get(x["id"]))
+        return web.Response(status = 200, text = "success!")
+
+    async def setVolume(self, request: web.Request):
+        x = await request.json()
+        pygame.mixer.music.set_volume(int(x["value"]) / 100.0)
         return web.Response(status = 200, text = "success!")
 
     async def loadSongAt(self, request: web.Request):

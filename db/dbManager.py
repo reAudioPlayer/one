@@ -9,14 +9,8 @@ from dataModels.song import Song
 class DbManager:
     def __init__(self) -> None:
         self._db = sl.connect('./db/db/main.db')
-
         self._createSongTable()
         self._createPlaylistTable()
-
-        cursor = self._db.cursor()
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = cursor.fetchall()
-        cursor.close()
 
     def shutdown(self):
         self._db.close()
@@ -96,3 +90,7 @@ class DbManager:
         with self._db:
             sql = f"UPDATE Playlists SET songs='{str(songs)}' WHERE id={id}"
             self._db.execute(sql)
+
+    def updateSongMetadata(self, id: int, values: str) -> None:
+        with self._db:
+            self._db.execute(f"UPDATE Songs SET {values} WHERE id={id}")

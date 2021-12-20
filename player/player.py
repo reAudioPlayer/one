@@ -1,6 +1,7 @@
 from typing import Optional
 import pygame
 from pymitter import EventEmitter
+from dataModels.song import Song
 from db.dbManager import DbManager
 from player.playerPlaylist import PlayerPlaylist
 import os
@@ -11,6 +12,7 @@ class Player:
     def __init__(self, ee: EventEmitter, dbManager: DbManager, downloader: Downloader) -> None:
         pygame.init()
         pygame.mixer.init()
+        self._dbManager = dbManager
         self._playing: bool = False
         self._ee = ee
         self._downloader = downloader
@@ -57,14 +59,16 @@ class Player:
         self._preloadSong(self._playerPlaylist.at(index))
         self._loadSong(self._playerPlaylist.at(index))
 
-    def _preloadSong(self, link: str) -> None:
-        self._preloaded = link
-        self._downloader.downloadSong(link)
+    def _preloadSong(self, song: Song) -> None:
+        self._preloaded = song.source
+        self._downloader.downloadSong(song.source)
 
-    def _loadSong(self, link: str) -> None:
-        if self._preloaded == link:
+    def _loadSong(self, song: Song) -> None:
+        if self._preloaded == song.source:
             pygame.mixer.music.load(f"./_cache/upNow.mp3")
             sound = pygame.mixer.Sound(f"./_cache/upNow.mp3")
             self._songLength = sound.get_length()
+            song.duration = int(self._songLength)
+            self._dbManager.updateSongMetadata(song.id, f"duration='{int(self._songLength)}'")
             pygame.mixer.music.play()
             self._playing = True

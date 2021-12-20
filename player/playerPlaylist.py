@@ -32,15 +32,17 @@ class PlayerPlaylist:
     def playlistLength(self) -> int:
         return len(self._playlist)
 
-    def at(self, index: int) -> Optional[str]:
+    def at(self, index: int) -> Optional[Song]:
         if index < 0 or index >= self.playlistLength:
             return None
-        return self._playlist[index].source
+        return self._playlist[index]
 
-    def current(self) -> str:
-        return self._playlist[self._index].source
+    def current(self) -> Optional[Song]:
+        if self._index < 0 or self._index >= self.playlistLength:
+            return None
+        return self._playlist[self._index]
 
-    def next(self, preview: bool = False, increment: int = 1) -> str:
+    def next(self, preview: bool = False, increment: int = 1) -> Optional[Song]:
         if self._index < self.playlistLength - increment:
             x = self._index + increment
         else:
@@ -49,9 +51,9 @@ class PlayerPlaylist:
         if not preview:
             self._index = x
 
-        return self._playlist[x].source
+        return self._playlist[x]
 
-    def last(self, preview: bool = False, increment: int = 1) -> str:
+    def last(self, preview: bool = False, increment: int = 1) -> Optional[Song]:
         if self._index >= increment:
             x = self._index - increment
         else:
@@ -60,7 +62,7 @@ class PlayerPlaylist:
         if not preview:
             self._index = x
 
-        return self._playlist[x].source
+        return self._playlist[x]
 
     def add(self, song: Song) -> None:
         self._dbManager.addSong(song)

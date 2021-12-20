@@ -155,7 +155,9 @@
     }
 
     .duration {
+        text-align: right;
         margin-right: 20px;
         line-height: var(--playlistEntry-height);
+        width: 40px;
     }
 </style>

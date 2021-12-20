@@ -64,3 +64,11 @@ class Song:
     @staticmethod
     def FromDict(data: dict) -> Song:
         return Song(data.get("title"), data.get("artist"), data.get("spotify"), data.get("source"), album = data.get("album"), cover = data.get("cover"), duration = data.get("duration"), favourite = data.get("favourite"))
+
+    @property
+    def duration(self) -> int:
+        return self._duration
+
+    @duration.setter
+    def duration(self, value: int) -> None:
+        self._duration = value
