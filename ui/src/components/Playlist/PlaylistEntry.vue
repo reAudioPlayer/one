@@ -3,13 +3,15 @@
         :class="{ 'selected': highlighted }">
         <span @click="playAt" ref="idOrPlay" class="id">{{id + 1}}</span>
         <div class="track">
-            <img :src="cover">
+            <img :src="cover || '/assets/img/music_placeholder.png'">
             <div class="trackwrapper">
                 <span class="title">{{title}}</span>
                 <span class="artist">{{artist}}</span>
             </div>
         </div>
         <span class="album">{{album}}</span>
+        <span @click="favourited = !favourited" class="favourite material-icons-round" :class="{ 'showfavourite': favourited || highlighted }">{{favourited ? "favorite" : "favorite_border"}}</span>
+        <span class="duration">{{duration}}</span>
     </div>
 </template>
 
@@ -33,11 +35,20 @@
             album: {
                 type: String,
                 default: "N/A"
+            },
+            duration: {
+                type: String,
+                default: "N/A"
+            },
+            favourite: {
+                type: Boolean,
+                default: false
             }
         },
         data() {
             return {
-                highlighted: false
+                highlighted: false,
+                favourited: this.favourite
             }
         },
         methods: {
@@ -51,7 +62,7 @@
             },
             displayId() {
                 const element = this.$refs.idOrPlay
-                element.innerHTML = this.id
+                element.innerHTML = this.id + 1
                 element.classList.remove("material-icons-round")
             },
             playAt() {
@@ -92,6 +103,23 @@
         line-height: var(--playlistEntry-height);
     }
 
+    .favourite {
+        width: 50px;
+        text-align: right;
+        line-height: var(--playlistEntry-height);
+        margin-right: 20px;
+        visibility: hidden;
+        font-size: 1.4em;
+    }
+
+    div.playlistEntry:hover .favourite, .showfavourite {
+        visibility: visible;
+    }
+
+    .favourite:hover {
+        cursor: pointer;
+    }
+
     .id:hover {
         cursor: pointer;
     }
@@ -124,5 +152,10 @@
     .trackwrapper {
         display: flex;
         flex-direction: column;
+    }
+
+    .duration {
+        margin-right: 20px;
+        line-height: var(--playlistEntry-height);
     }
 </style>

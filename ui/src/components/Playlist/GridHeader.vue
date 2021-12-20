@@ -3,6 +3,7 @@
         <span class="id">#</span>
         <span class="title">Title</span>
         <span class="album">Album</span>
+        <span class="clock material-icons-round">schedule</span>
     </div>
 </template>
 
@@ -30,6 +31,13 @@ export default {
     .gridHeader>.title {
         width: 40vw;
         margin-left: 10px;
+    }
+
+    .gridHeader>.clock {
+        text-align: right;
+        width: 40px;
+        margin-right: 20px;
+        flex-shrink: 0;
     }
 
     .gridHeader>.album {

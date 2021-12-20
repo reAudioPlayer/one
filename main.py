@@ -1,3 +1,4 @@
+from typing import Optional
 import pygame
 from pymitter import EventEmitter
 from dataModels.playlist import Playlist
@@ -11,6 +12,10 @@ from aiohttp import web
 import asyncio
 import aiohttp_cors
 from aiohttp_index import IndexMiddleware
+from aiohttp.web import middleware
+
+import logging
+import time
 
 from player.playlistManager import PlaylistManager
 
@@ -20,6 +25,8 @@ from player.playlistManager import PlaylistManager
 #downloader.downloadSong("https://open.spotify.com/track/6WXbZykcCejVs36zmIfxh5") # needs to be implemented first
 
 dbManager = DbManager()
+
+#dbManager.addPlaylist(Playlist("My Playlist", [], 0))
 
 ee = EventEmitter()
 
@@ -32,7 +39,23 @@ playlistManager = PlaylistManager(dbManager)
 playerHandler = PlayerHandler(player, playlistManager)
 playlistHandler = PlaylistHandler(playlistManager)
 
-app = web.Application(middlewares=[IndexMiddleware()])
+logging.basicConfig(level = logging.INFO)
+
+@middleware
+async def exceptionMiddleware(request: web.Request, handler):
+    logger = logging.getLogger()
+    t1 = time.time()
+    resp: Optional[web.Response] = None
+    try:
+        resp = await handler(request)
+    except Exception as e:
+        logger.exception(e)
+        resp  = web.Response(status = 500, text = str(e))
+    logger.info(f"{request.method} {request.path} ({time.time() - t1} s)")
+    return resp
+
+app = web.Application(middlewares=[IndexMiddleware(), exceptionMiddleware])
+
 
 app.router.add_get('/api/last', playerHandler.getLast)
 app.router.add_get('/api/next', playerHandler.getNext)
@@ -46,16 +69,16 @@ app.router.add_post('/api/playlist', playlistHandler.getPlaylist)
 app.router.add_get('/api/playlists', playlistHandler.getPlaylists)
 
 # Configure default CORS settings.
-"""cors = aiohttp_cors.setup(app, defaults={
+cors = aiohttp_cors.setup(app, defaults={
     "*": aiohttp_cors.ResourceOptions(
             allow_credentials=True,
             expose_headers="*",
             allow_headers="*",
         )
-})"""
+})
 
-#for route in list(app.router.routes()):
-#    cors.add(route)
+for route in list(app.router.routes()):
+    cors.add(route)
 
 app.router.add_static('/', './ui/dist')
 asyncio.run ( web._run_app(app, port=1234) )

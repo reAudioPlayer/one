@@ -26,6 +26,10 @@ class DbManager:
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             artist TEXT,
+            album TEXT,
+            cover TEXT,
+            favourite INTEGER,
+            duration INTEGER,
             spotify TEXT,
             source TEXT);"""
         with self._db:
@@ -41,7 +45,7 @@ class DbManager:
 
     def addSong(self, song: Song) -> None:
         with self._db:
-            sql = 'INSERT INTO Songs (name, artist, spotify, source) values(?, ?, ?, ?)'
+            sql = 'INSERT INTO Songs (name, artist, album, cover, duration, favourite, spotify, source) values(?, ?, ?, ?, ?, ?, ?, ?)'
             data = [
                 song.sql()
             ]

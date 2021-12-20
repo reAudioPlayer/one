@@ -15,7 +15,7 @@
                 <grid-header />
                 <hr>
                 <div class="playlistEntries">
-                    <playlist-entry v-for="(element, index) in playlist" :key="index" :id="index" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" />
+                    <playlist-entry v-for="(element, index) in playlist" :key="index" :id="index" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
                 </div>
             </div>
         </div>

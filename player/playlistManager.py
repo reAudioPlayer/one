@@ -1,3 +1,4 @@
+from dataModels.song import Song
 from db.dbManager import DbManager
 from player.playerPlaylist import PlayerPlaylist
 from ordered_set import OrderedSet
@@ -13,9 +14,9 @@ class PlaylistManager:
         playlists = self._dbManager.getPlaylists()
         self._playlists.update(map(lambda x: PlayerPlaylist(self._dbManager, x.id), playlists))
 
-    def addToPlaylist(self, playlistIndex: int, link: str) -> None:
-        if len(self._dbManager.getSongByCustomFilter(f"source='{link}'")) == 0:
-            self._playlists[playlistIndex].add(link)
+    def addToPlaylist(self, playlistIndex: int, song: Song) -> None:
+        if len(self._dbManager.getSongByCustomFilter(f"source='{song.source}'")) == 0:
+            self._playlists[playlistIndex].add(song)
 
     def get(self, playlistIndex) -> PlayerPlaylist:
         return self._playlists[playlistIndex]

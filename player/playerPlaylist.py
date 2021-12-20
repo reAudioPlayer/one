@@ -62,9 +62,9 @@ class PlayerPlaylist:
 
         return self._playlist[x].source
 
-    def add(self, link: str) -> None:
-        self._dbManager.addSong(Song("N/A", "N/A", source=link))
-        x = self._dbManager.getSongByCustomFilter(f"source='{link}'")[0]
+    def add(self, song: Song) -> None:
+        self._dbManager.addSong(song)
+        x = self._dbManager.getSongByCustomFilter(f"source='{song.source}'")[0]
         self._playlist.add(x)
         songs = list(map(lambda x: x.id, self._playlist))
         self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex))

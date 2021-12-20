@@ -10,8 +10,25 @@
                         </span>
                     </button>
                 </div>
+                <h4>Source</h4>
                 <div class="content">
-                    <input type="text" ref="input">
+                    <input type="text" ref="source">
+                </div>
+                <h4>Title</h4>
+                <div class="content">
+                    <input type="text" ref="title">
+                </div>
+                <h4>Album</h4>
+                <div class="content">
+                    <input type="text" ref="album">
+                </div>
+                <h4>Artist</h4>
+                <div class="content">
+                    <input type="text" ref="artist">
+                </div>
+                <h4>Cover</h4>
+                <div class="content">
+                    <input type="text" ref="cover">
                 </div>
                 <div class="confirm">
                     <button @click="add" class="negative">Add</button>
@@ -35,7 +52,11 @@
                     method: "POST",
                     body: JSON.stringify({ 
                         id: Number(this.$route.params.id),
-                        link: this.$refs.input.value
+                        source: this.$refs.source.value,
+                        title: this.$refs.title.value,
+                        artist: this.$refs.artist.value,
+                        album: this.$refs.album.value,
+                        cover: this.$refs.cover.value
                     })
                 }).then(x => console.log(x))
                 this.showModal = false

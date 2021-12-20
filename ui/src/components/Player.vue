@@ -6,6 +6,7 @@
         <span class="title">N/A</span>
         <span class="artist">N/A</span>
       </div>
+      <span @click="favourited = !favourited" class="favourite material-icons-round">{{favourited ? "favorite" : "favorite_border"}}</span>
     </div>
     <div class="centre">
       <div class="upper">
@@ -31,6 +32,17 @@
 <script>
   export default {
     name: 'Player',
+    props: {
+      favourite: {
+        type: Boolean,
+        default: false
+      }
+    },
+    data() {
+      return {
+        favourited: this.favourite
+      }
+    },
     methods: {
       get(endpoint) {
         fetch(`http://localhost:1234/api/${endpoint}`)
@@ -48,6 +60,16 @@
     justify-content: space-between;
     padding: 10px;
     /*height: 100%;*/
+  }
+
+  .favourite {
+    line-height: calc(var(--player-height) - 40px);
+    margin-left: 20px;
+    font-size: 1.2em;
+  }
+
+  .favourite:hover {
+    cursor: pointer;
   }
 
   .left {
