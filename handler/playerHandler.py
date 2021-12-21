@@ -1,4 +1,5 @@
 from aiohttp import web
+from dataModels.song import Song
 from player.player import Player
 from player.playlistManager import PlaylistManager
 import pygame
@@ -42,4 +43,9 @@ class PlayerHandler:
     async def loadSongAt(self, request: web.Request):
         x = await request.json()
         self._player.at(x["index"])
+        return web.Response(status = 200, text = "success!")
+
+    async def updateSong(self, request: web.Request) -> None:
+        jdata = await request.json()
+        self._player.updateSongMetadata(jdata["id"], Song.FromDict(jdata))
         return web.Response(status = 200, text = "success!")

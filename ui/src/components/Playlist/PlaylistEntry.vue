@@ -1,7 +1,7 @@
 <template>
     <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry"
         :class="{ 'selected': highlighted }">
-        <span @click="playAt" ref="idOrPlay" class="id">{{id + 1}}</span>
+        <span @click="playAt" ref="idOrPlay" class="id">{{index + 1}}</span>
         <div class="track">
             <img :src="cover || '/assets/img/music_placeholder.png'">
             <div class="trackwrapper">
@@ -12,6 +12,7 @@
         <span class="album">{{album}}</span>
         <span @click="favourited = !favourited" class="favourite material-icons-round" :class="{ 'showfavourite': favourited || highlighted }">{{favourited ? "favorite" : "favorite_border"}}</span>
         <span class="duration">{{duration}}</span>
+        <span class="more material-icons-round">more_horiz</span>
     </div>
 </template>
 
@@ -19,6 +20,7 @@
     export default {
         name: 'PlaylistEntry',
         props: {
+            index: Number,
             id: Number,
             artist: {
                 type: String,
@@ -62,16 +64,40 @@
             },
             displayId() {
                 const element = this.$refs.idOrPlay
-                element.innerHTML = this.id + 1
+                element.innerHTML = this.index + 1
                 element.classList.remove("material-icons-round")
             },
             playAt() {
                 fetch("http://localhost:1234/api/at", {
                     method: "POST",
                     body: JSON.stringify({
-                        index: this.id
+                        index: this.index
                     })
                 })
+            },
+            setFavourite() {
+                fetch("http://localhost:1234/api/updateSong", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        id: this.id,
+                        favourite: this.favourited,
+                        album: this.album,
+                        artist: this.artist,
+                        title: this.title,
+                        duration: this.duration,
+                        cover: this.cover
+                    })
+                })
+            }
+        },
+        watch: {
+            favourited() {
+                this.setFavourite()
+            },
+            favourite() {
+                console.log("mounted", this.title, this.favourite, this.favourited)
+                this.favourited = this.favourite
+                this.highlighted = false
             }
         }
     }
@@ -107,7 +133,7 @@
         width: 50px;
         text-align: right;
         line-height: var(--playlistEntry-height);
-        margin-right: 20px;
+        margin-right: 10px;
         visibility: hidden;
         font-size: 1.4em;
     }
@@ -158,6 +184,16 @@
         text-align: right;
         margin-right: 20px;
         line-height: var(--playlistEntry-height);
-        width: 40px;
+        width: 50px;
+    }
+
+    .more {
+        line-height: var(--playlistEntry-height);
+        width: 20px;
+        margin-right: 20px;
+    }
+
+    .more:hover {
+        cursor: pointer;
     }
 </style>

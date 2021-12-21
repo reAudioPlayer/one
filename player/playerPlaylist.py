@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 from typing import List, Optional, Set
 from pymitter import EventEmitter
@@ -8,16 +9,24 @@ from ordered_set import OrderedSet
 
 
 class PlayerPlaylist:
-    def __init__(self, dbManager: DbManager, playlistIndex: int) -> None:
+    def __init__(self,
+                 dbManager: DbManager,
+                 playlistIndex: Optional[int] = None,
+                 songs: Optional[List[Song]] = None,
+                 name: Optional[str] = None) -> None:
         self._dbManager = dbManager
         self._playlist: OrderedSet[Song] = OrderedSet()
         self._index: int = -1
         self._playlistIndex = playlistIndex
-        self._name: str = "N/A"
-        self._load(playlistIndex)
+        self._name: str = name or "N/A"
+        self._load(playlistIndex, songs)
 
-    def _load(self, playlistIndex: int) -> None: # TODO implement
+    def _load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
         """loads from database"""
+        if playlistIndex is None and songs is not None:
+            self._playlist.update(songs)
+            return
+
         playlist = self._dbManager.getPlaylistById(playlistIndex)
         if not playlist:
             return
@@ -80,3 +89,15 @@ class PlayerPlaylist:
             "name": self._name,
             "songs": list(map(lambda x: x.toDict(), self._playlist))
         }
+
+    def byId(self, id: int) -> List[Song]:
+        x = filter(lambda x: x.id == id, self._playlist)
+        print(type(x))
+        print(x)
+        return x
+
+    def __eq__(self, other: PlayerPlaylist) -> bool:
+        return self._playlistIndex == other._playlistIndex
+
+    def __hash__(self) -> str:
+        return hash((self._name, self._playlistIndex))

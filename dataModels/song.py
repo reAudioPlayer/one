@@ -35,6 +35,9 @@ class Song:
                  self._spotify,
                  self._source )
 
+    def sqlUpdate(self) -> str:
+        return f"name='{self._name}', artist='{self._artist}', album='{self._album}', cover='{self._cover}', duration={self._duration}, favourite={1 if self._favourite else 0}"
+
     @staticmethod
     def FromSql(row: Tuple) -> Song:
         id, name, artist, album, cover, favourite, duration, spotify, source = row
@@ -56,14 +59,20 @@ class Song:
             "title": self._name,
             "artist": self._artist,
             "album": self._album,
-            "duration": f"{math.floor(self._duration / 60)}:{self._duration % 60}",
+            "duration": f"{math.floor(self._duration / 60)}:{str(self._duration % 60).zfill(2)}",
             "cover": self._cover,
-            "favourite": self._favourite
+            "favourite": self._favourite,
+            "id": self._id
         }
 
     @staticmethod
     def FromDict(data: dict) -> Song:
-        return Song(data.get("title"), data.get("artist"), data.get("spotify"), data.get("source"), album = data.get("album"), cover = data.get("cover"), duration = data.get("duration"), favourite = data.get("favourite"))
+        def castDuration(string: str) -> int:
+            try:
+                return int(string.split(":")[0]) * 60 + int(string.split(":")[1])
+            except:
+                return -1
+        return Song(data.get("title"), data.get("artist"), data.get("spotify"), data.get("source"), album = data.get("album"), cover = data.get("cover"), duration = castDuration(data.get("duration")), favourite = data.get("favourite"))
 
     @property
     def duration(self) -> int:
@@ -72,3 +81,11 @@ class Song:
     @duration.setter
     def duration(self, value: int) -> None:
         self._duration = value
+
+    def update(self, newSong: Song) -> None:
+        self._album = newSong._album
+        self._artist = newSong._artist
+        self._name = newSong._name
+        self._duration = newSong._duration
+        self._cover = newSong._cover
+        self._favourite = newSong._favourite

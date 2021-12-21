@@ -1,6 +1,8 @@
 from aiohttp import web
 from dataModels.song import Song
+from dataModels.playlist import Playlist
 from player.playlistManager import PlaylistManager
+from db.dbManager import DbManager
 
 class PlaylistHandler:
     def __init__(self, playlistManager: PlaylistManager) -> None:
@@ -17,3 +19,6 @@ class PlaylistHandler:
 
     async def getPlaylists(self, _: web.Request):
         return web.json_response(list(map(lambda x: x.name, self._playlistManager._playlists)))
+
+    async def createPlaylist(self, _: web.Request):
+        return web.Response(status = 200, text = f"/playlist/{self._playlistManager.addPlaylist()}")

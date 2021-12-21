@@ -15,7 +15,7 @@
                 <grid-header />
                 <hr>
                 <div class="playlistEntries">
-                    <playlist-entry v-for="(element, index) in playlist" :key="index" :id="index" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                    <playlist-entry v-for="(element, index) in playlist" :key="index" :index="index" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
                 </div>
             </div>
         </div>
@@ -52,6 +52,15 @@
                 this.$refs.addSongPopup.showModal = true
             },
             updatePlaylist() {
+                if (this.$route.params.id == "create")
+                {
+                    fetch("http://localhost:1234/api/playlist/create")
+                        .then(x => x.text()).then(y => {
+                            console.log(y)
+                            this.$router.push(y)
+                        })
+                    return
+                }
                 fetch("http://localhost:1234/api/playlist", {
                     method: "POST",
                     body: JSON.stringify({ 

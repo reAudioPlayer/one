@@ -36,7 +36,7 @@ export default {
     .gridHeader>.clock {
         text-align: right;
         width: 40px;
-        margin-right: 20px;
+        margin-right: 60px;
         flex-shrink: 0;
     }
 

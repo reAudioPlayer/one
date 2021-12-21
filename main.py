@@ -1,12 +1,10 @@
 from typing import Optional
-import pygame
 from pymitter import EventEmitter
-from dataModels.playlist import Playlist
-from dataModels.song import Song
 from db.dbManager import DbManager
 from downloader.downloader import Downloader
 from handler.playerHandler import PlayerHandler
 from handler.playlistHandler import PlaylistHandler
+from handler.collectionHandler import CollectionHandler
 from player.player import Player
 from aiohttp import web
 import asyncio
@@ -26,18 +24,17 @@ from player.playlistManager import PlaylistManager
 
 dbManager = DbManager()
 
-#dbManager.addPlaylist(Playlist("My Playlist", [], 0))
-
 ee = EventEmitter()
 
 downloader = Downloader()
 
-player = Player(ee, dbManager, downloader)
-
 playlistManager = PlaylistManager(dbManager)
+
+player = Player(ee, dbManager, downloader, playlistManager)
 
 playerHandler = PlayerHandler(player, playlistManager)
 playlistHandler = PlaylistHandler(playlistManager)
+collectionHandler = CollectionHandler(dbManager)
 
 logging.basicConfig(level = logging.INFO)
 
@@ -56,7 +53,6 @@ async def exceptionMiddleware(request: web.Request, handler):
 
 app = web.Application(middlewares=[IndexMiddleware(), exceptionMiddleware])
 
-
 app.router.add_get('/api/last', playerHandler.getLast)
 app.router.add_get('/api/next', playerHandler.getNext)
 app.router.add_get('/api/playPause', playerHandler.getPlayPause)
@@ -65,7 +61,12 @@ app.router.add_get('/api/play', playerHandler.getPlay)
 app.router.add_post('/api/at', playerHandler.loadSongAt)
 app.router.add_post('/api/setVolume', playerHandler.setVolume)
 app.router.add_post('/api/loadPlaylist', playerHandler.loadPlaylist)
+app.router.add_post('/api/updateSong', playerHandler.updateSong)
+
+app.router.add_get('/api/collection/tracks', collectionHandler.tracks)
+
 app.router.add_post('/api/add', playlistHandler.addSong)
+app.router.add_get('/api/playlist/create', playlistHandler.createPlaylist)
 app.router.add_post('/api/playlist', playlistHandler.getPlaylist)
 app.router.add_get('/api/playlists', playlistHandler.getPlaylists)
 
