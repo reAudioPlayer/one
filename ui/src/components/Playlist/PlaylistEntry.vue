@@ -13,7 +13,7 @@
             <span class="album">{{album}}</span>
             <span @click="favourited = !favourited" class="favourite material-icons-round" :class="{ 'showfavourite': favourited || highlighted }">{{favourited ? "favorite" : "favorite_border"}}</span>
             <span class="duration">{{duration}}</span>
-            <span @click="showCtxMenu" class="more material-icons-round">more_horiz</span>
+            <span @click="showCtxMenu" class="more material-icons-round" :class="{ 'hidden': !highlighted }">more_horiz</span>
         </div>
     </SongCtx>
 </template>
@@ -153,7 +153,11 @@
         font-size: 1.4em;
     }
 
-    div.playlistEntry:hover .favourite, .showfavourite {
+    .hidden {
+        visibility: hidden;
+    }
+
+    div.playlistEntry:hover .favourite, .showfavourite, div.playlistEntry:hover .more {
         visibility: visible;
     }
 
