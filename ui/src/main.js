@@ -14,6 +14,8 @@ import Playlists from "./components/body/Collection/Playlists.vue"
 import Releases from "./components/body/Collection/Releases.vue"
 import Tracks from "./components/body/Collection/Tracks.vue"
 
+import contextmenu from "v-contextmenu";
+
 const app = createApp(App)
 app.directive("observe-visibility", {
     beforeMount: (el, binding, vnode) => {
@@ -24,6 +26,7 @@ app.directive("observe-visibility", {
     unmounted: ObserveVisibility.unbind,
   })
 app.use(VueFinalModal())
+app.use(contextmenu);
 
 const routes = [
   { path: '/', component: Home },

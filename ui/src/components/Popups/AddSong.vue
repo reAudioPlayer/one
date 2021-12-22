@@ -1,9 +1,9 @@
 <template>
     <div>
-        <vue-final-modal v-model="showModal" classes="modal-container" content-class="modal-content">
+        <vue-final-modal @click="hideFindSourcesCtx" v-model="showModal" classes="modal-container" content-class="modal-content">
             <div class="wrapper">
                 <div class="header">
-                    <h3>Add Song</h3>
+                    <h3>Add song</h3>
                     <button class="modal-close" @click="showModal = false">
                         <span class="material-icons-round">
                             close
@@ -11,12 +11,15 @@
                     </button>
                 </div>
                 <h4>Source</h4>
-                <div class="content">
-                    <input type="text" ref="source">
-                </div>
+                <FindSources ref="findSources" :title="title" :artist="artist">
+                    <div class="content">
+                        <input @change="loadMetadata" type="text" ref="source">
+                        <span class="material-icons-round more" ref="sourceMore" @click="opencontextmenu">more_vert</span>
+                    </div>
+                </FindSources>
                 <h4>Title</h4>
                 <div class="content">
-                    <input type="text" ref="title">
+                    <input v-model="title" type="text">
                 </div>
                 <h4>Album</h4>
                 <div class="content">
@@ -24,11 +27,13 @@
                 </div>
                 <h4>Artist</h4>
                 <div class="content">
-                    <input type="text" ref="artist">
+                    <input v-model="artist" type="text">
                 </div>
                 <h4>Cover</h4>
                 <div class="content">
-                    <input type="text" ref="cover">
+                    <input type="text" class="addSong cover" v-model="cover" ref="cover">
+                    <img @click="openInNewTab" class="addSong cover"
+                        :src="cover ? cover : '/assets/img/music_placeholder.png'">
                 </div>
                 <div class="confirm">
                     <button @click="add" class="negative">Add</button>
@@ -38,28 +43,61 @@
     </div>
 </template>
 <script>
+import FindSources from '../ContextMenus/FindSources.vue'
     export default {
         name: "AddSong",
+        components: {
+            FindSources
+        },
         data() {
             return {
-                showModal: false
+                showModal: false,
+                cover: "",
+                artist: "",
+                title: ""
             }
         },
         methods: {
+            opencontextmenu(evt) {                
+                this.$refs.findSources.show(evt)
+            },
+            hideFindSourcesCtx() {
+                this.$refs.findSources.hide()
+            },
             add() {
                 console.log("fetch")
                 fetch("http://localhost:1234/api/add", {
                     method: "POST",
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         id: Number(this.$route.params.id),
                         source: this.$refs.source.value,
-                        title: this.$refs.title.value,
-                        artist: this.$refs.artist.value,
+                        title: this.title,
+                        artist: this.artist,
                         album: this.$refs.album.value,
-                        cover: this.$refs.cover.value
+                        cover: this.cover
                     })
                 }).then(x => console.log(x))
                 this.showModal = false
+            },
+            loadMetadata() {
+                fetch("http://localhost:1234/api/metadata", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            url: this.$refs.source.value
+                        })
+                    })
+                    .then(x => x.json())
+                    .then(jdata => {
+                        console.log(jdata)
+                        this.title = jdata.title
+                        this.$refs.album.value = jdata.album
+                        this.artist = jdata.artists.join(", ")
+                        this.cover = jdata.cover
+                        this.$refs.source.value = jdata.src
+                    })
+            },
+            openInNewTab() {
+                window.open(this.cover ? this.cover : '/assets/img/music_placeholder.png')
             }
         }
     }
@@ -76,8 +114,8 @@
 
     .modal-content {
         position: relative;
-        width: 30%;
-        max-height: 60vh;
+        width: 40%;
+        max-height: 70vh;
         padding: 16px;
         overflow: auto;
         background: var(--hover-4);
@@ -106,6 +144,10 @@
         color: var(--font);
     }
 
+</style>
+
+<style scoped>
+
     .wrapper {
         display: flex;
         flex-direction: column;
@@ -131,7 +173,8 @@
         border-radius: 5px;
         color: var(--font);
         padding: 10px;
-        width: 100%;
+        width: auto;
+        flex-grow: 1;
         font-family: var(--font-family);
     }
 
@@ -168,5 +211,31 @@
         cursor: pointer;
         padding: 11px 26px 11px 26px;
         border-radius: 21px;
+    }
+
+    input[type="text"].addSong.cover {
+        width: auto;
+        flex-grow: 1;
+    }
+
+    img.addSong.cover {
+        height: 42px;
+        width: 42px;
+        margin-left: 10px;
+        border-radius: 5px;
+    }
+
+    img.addSong.cover:hover {
+        cursor: pointer;
+        filter: grayscale(0.4) blur(2px);
+    }
+
+    span.more {
+        width: 20px;
+        line-height: 42px;
+    }
+
+    span.more:hover {
+        cursor: pointer;
     }
 </style>

@@ -1,10 +1,13 @@
 from typing import Optional
 from pymitter import EventEmitter
+from spotipy.client import Spotify
+from spotipy.oauth2 import SpotifyClientCredentials
 from db.dbManager import DbManager
 from downloader.downloader import Downloader
 from handler.playerHandler import PlayerHandler
 from handler.playlistHandler import PlaylistHandler
 from handler.collectionHandler import CollectionHandler
+from handler.metaHandler import MetaHandler
 from player.player import Player
 from aiohttp import web
 import asyncio
@@ -32,9 +35,12 @@ playlistManager = PlaylistManager(dbManager)
 
 player = Player(ee, dbManager, downloader, playlistManager)
 
+spotify = Spotify(client_credentials_manager=SpotifyClientCredentials(client_id="c8e963f8a6a942b58712cc34e2ccc76d", client_secret="6ec48f7d1b574bd6b340384c50675447"))
+
 playerHandler = PlayerHandler(player, playlistManager)
 playlistHandler = PlaylistHandler(playlistManager)
 collectionHandler = CollectionHandler(dbManager)
+metaHandler = MetaHandler(spotify)
 
 logging.basicConfig(level = logging.INFO)
 
@@ -62,6 +68,8 @@ app.router.add_post('/api/at', playerHandler.loadSongAt)
 app.router.add_post('/api/setVolume', playerHandler.setVolume)
 app.router.add_post('/api/loadPlaylist', playerHandler.loadPlaylist)
 app.router.add_post('/api/updateSong', playerHandler.updateSong)
+
+app.router.add_post('/api/metadata', metaHandler.get)
 
 app.router.add_get('/api/collection/tracks', collectionHandler.tracks)
 

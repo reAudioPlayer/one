@@ -1,24 +1,31 @@
 <template>
-    <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry"
-        :class="{ 'selected': highlighted }">
-        <span @click="playAt" ref="idOrPlay" class="id">{{index + 1}}</span>
-        <div class="track">
-            <img :src="cover || '/assets/img/music_placeholder.png'">
-            <div class="trackwrapper">
-                <span class="title">{{title}}</span>
-                <span class="artist">{{artist}}</span>
+    <SongCtx ref="ctxMenu">
+        <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry"
+            :class="{ 'selected': highlighted }">
+            <span @click="playAt" ref="idOrPlay" class="id">{{index + 1}}</span>
+            <div class="track">
+                <img :src="cover || '/assets/img/music_placeholder.png'">
+                <div class="trackwrapper">
+                    <span class="title">{{title}}</span>
+                    <span class="artist">{{artist}}</span>
+                </div>
             </div>
+            <span class="album">{{album}}</span>
+            <span @click="favourited = !favourited" class="favourite material-icons-round" :class="{ 'showfavourite': favourited || highlighted }">{{favourited ? "favorite" : "favorite_border"}}</span>
+            <span class="duration">{{duration}}</span>
+            <span @click="showCtxMenu" class="more material-icons-round">more_horiz</span>
         </div>
-        <span class="album">{{album}}</span>
-        <span @click="favourited = !favourited" class="favourite material-icons-round" :class="{ 'showfavourite': favourited || highlighted }">{{favourited ? "favorite" : "favorite_border"}}</span>
-        <span class="duration">{{duration}}</span>
-        <span class="more material-icons-round">more_horiz</span>
-    </div>
+    </SongCtx>
 </template>
 
 <script>
+    import SongCtx from '../ContextMenus/SongCtx.vue'
+
     export default {
         name: 'PlaylistEntry',
+        components: {
+            SongCtx
+        },
         props: {
             index: Number,
             id: Number,
@@ -54,8 +61,16 @@
             }
         },
         methods: {
+            hideCtxMenu() {
+                this.$refs.ctxMenu.hide()
+            },
+            showCtxMenu(evt) {
+                console.log("show")
+                this.$refs.ctxMenu.show(evt)
+            },
             onselect() {
                 this.highlighted = !this.highlighted
+                this.hideCtxMenu()
             },
             displayPlay() {
                 const element = this.$refs.idOrPlay

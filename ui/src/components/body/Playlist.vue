@@ -1,11 +1,12 @@
 <template>
     <div class="playlist">
         <AddSong ref="addSongPopup" />
+        <EditPlaylist ref="editPlaylistPopup" />
         <fixed-playlist-header @click="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }" :title="playlistName" />
-        <div class="padding-20" v-observe-visibility="headerVisibilityChanged">
+        <div class="padding-20 playlisteditor" @click="editPlaylist" v-observe-visibility="headerVisibilityChanged">
             <h7>Playlist</h7>
             <h1>{{playlistName}}</h1>
-            <h5>My Description</h5>
+            <h5>{{playlistDescription}}</h5>
         </div>
         <hr>
         <div class="padding-20">
@@ -27,13 +28,15 @@
     import GridHeader from '../Playlist/GridHeader.vue'
     import PlaylistEntry from '../Playlist/PlaylistEntry.vue'
     import AddSong from "../Popups/AddSong.vue"
+    import EditPlaylist from '../Popups/EditPlaylist.vue'
 
     export default {
         components: {
             PlaylistEntry,
             FixedPlaylistHeader,
             GridHeader,
-            AddSong
+            AddSong,
+            EditPlaylist
         },
         name: 'Playlist',
         data() {
@@ -41,7 +44,8 @@
             return {
                 fixedHeaderHidden: false,
                 playlist: [],
-                playlistName: "N/A"
+                playlistName: "N/A",
+                playlistDescription: "My Description"
             }
         },
         methods: {
@@ -50,6 +54,9 @@
             },
             addToPlaylist() {
                 this.$refs.addSongPopup.showModal = true
+            },
+            editPlaylist() {
+                this.$refs.editPlaylistPopup.showModal = true
             },
             updatePlaylist() {
                 if (this.$route.params.id == "create")
@@ -90,6 +97,10 @@
 </script>
 
 <style scoped>
+    .playlisteditor:hover {
+        cursor: pointer;
+    }
+
     .playlistEntries {
         display: flex;
         flex-direction: column;
