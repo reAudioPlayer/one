@@ -1,10 +1,10 @@
 <template>
   <div class="player">
     <div class="left">
-      <img src="/assets/img/music_placeholder.png">
+      <img :src="cover">
       <div class="titleartist">
-        <span class="title">N/A</span>
-        <span class="artist">N/A</span>
+        <span class="title">{{title}}</span>
+        <span class="artist">{{artist}}</span>
       </div>
       <span @click="favourited = !favourited"
         class="favourite material-icons-round">{{favourited ? "favorite" : "favorite_border"}}</span>
@@ -20,7 +20,7 @@
       <div class="lower">
         <span class="positionLabel">0:00</span>
         <input type="range" class="progress">
-        <span class="positionLabel">-3:00</span>
+        <span class="positionLabel">{{durationStr}}</span>
       </div>
     </div>
     <div class="right">
@@ -40,8 +40,20 @@
       }
     },
     data() {
+      let ws = new WebSocket('ws://localhost:1234/ws');
+      const ctx = this
+
+      ws.onmessage = function(msg) {
+        const jdata = JSON.parse(msg.data);
+        ctx.updateData(jdata)
+      }
+
       return {
-        favourited: this.favourite
+        favourited: this.favourite,
+        title: "N/A",
+        artist: "N/A",
+        durationStr: "0:00",
+        cover: "/assets/img/music_placeholder.png"
       }
     },
     methods: {
@@ -55,6 +67,12 @@
             value: this.$refs.volume.value
           })
         })
+      },
+      updateData(jdata) {
+        this.title = jdata?.title || "N/A"
+        this.artist = jdata?.artist || "N/A"
+        this.durationStr = jdata?.duration || "N/A"
+        this.cover = jdata?.cover || "/assets/img/music_placeholder.png"
       }
     }
   }
@@ -86,6 +104,7 @@
     display: flex;
     flex-direction: row;
     padding: 10px;
+    width: 25vw;
   }
 
   .left>img {
@@ -98,10 +117,15 @@
     flex-direction: column;
     margin-left: 10px;
     justify-content: center;
+
+    max-width: 20vw;
   }
 
   .left>.titleartist>.title {
     font-size: 0.9em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .left>.titleartist>.artist {
@@ -175,5 +199,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: flex-end;
+    width: 25vw;
   }
 </style>

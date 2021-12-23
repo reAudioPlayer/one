@@ -171,7 +171,6 @@
 
     .track {
         width: 40vw;
-        margin: auto;
         margin-left: 10px;
         display: flex;
         flex-direction: row;
@@ -179,12 +178,20 @@
 
     .title {
         color: var(--font);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 100%;
     }
 
     .album {
         flex-grow: 1;
         margin-left: 5px;
         line-height: var(--playlistEntry-height);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 20vw;
     }
 
     img {
@@ -197,6 +204,8 @@
     .trackwrapper {
         display: flex;
         flex-direction: column;
+        width: 35vw;
+        margin-right: 100px;
     }
 
     .duration {

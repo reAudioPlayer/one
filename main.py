@@ -8,6 +8,7 @@ from handler.playerHandler import PlayerHandler
 from handler.playlistHandler import PlaylistHandler
 from handler.collectionHandler import CollectionHandler
 from handler.metaHandler import MetaHandler
+from handler.websocket import Websocket
 from player.player import Player
 from aiohttp import web
 import asyncio
@@ -43,6 +44,7 @@ playerHandler = PlayerHandler(player, playlistManager)
 playlistHandler = PlaylistHandler(playlistManager)
 collectionHandler = CollectionHandler(dbManager)
 metaHandler = MetaHandler(spotify)
+websocket = Websocket(player)
 
 logging.basicConfig(level = logging.INFO)
 
@@ -79,6 +81,8 @@ app.router.add_post('/api/add', playlistHandler.addSong)
 app.router.add_get('/api/playlist/create', playlistHandler.createPlaylist)
 app.router.add_post('/api/playlist', playlistHandler.getPlaylist)
 app.router.add_get('/api/playlists', playlistHandler.getPlaylists)
+
+app.add_routes([web.get('/ws', websocket.websocket_handler)])
 
 # Configure default CORS settings.
 cors = aiohttp_cors.setup(app, defaults={

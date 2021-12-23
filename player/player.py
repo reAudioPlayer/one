@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Awaitable, Callable, Optional
 import pygame
 from pymitter import EventEmitter
 from dataModels.song import Song
@@ -21,6 +21,13 @@ class Player:
         self._playerPlaylist: Optional[PlayerPlaylist] = None
         self._song: Optional[Song] = None
         self._preloaded: Optional[str] = None
+
+        self._songChangeCallback: Optional[Callable[[Song], Awaitable[None]]] = None
+
+    async def _onSongChange(self, newSong: Song):
+        if not self._songChangeCallback:
+            return
+        await self._songChangeCallback(newSong)
 
     async def loadPlaylist(self, playlist: PlayerPlaylist) -> None:
         self._playerPlaylist = playlist
@@ -49,17 +56,17 @@ class Player:
     async def last(self) -> None:
         self.unload()
         await self._preloadSong(self._playerPlaylist.last(True))
-        self._loadSong(self._playerPlaylist.last())
+        await self._loadSong(self._playerPlaylist.last())
 
     async def next(self) -> None:
         self.unload()
         await self._preloadSong(self._playerPlaylist.next(True))
-        self._loadSong(self._playerPlaylist.next())
+        await self._loadSong(self._playerPlaylist.next())
 
     async def at(self, index: int) -> None:
         self.unload()
         await self._preloadSong(self._playerPlaylist.at(index))
-        self._loadSong(self._playerPlaylist.at(index))
+        await self._loadSong(self._playerPlaylist.at(index))
 
     async def _preloadSong(self, song: Song) -> None:
         self._preloaded = song.source
@@ -71,13 +78,13 @@ class Player:
 
         self._playlistManager.updateSong(id, lambda x: song)
 
-    def _loadSong(self, song: Song) -> None:
+    async def _loadSong(self, song: Song) -> None:
         if self._preloaded == song.source:
             pygame.mixer.music.load(f"./_cache/upNow.mp3")
             sound = pygame.mixer.Sound(f"./_cache/upNow.mp3")
             self._song = song
-            print(song)
             song.duration = int(sound.get_length())
             self._dbManager.updateSongMetadata(song.id, f"duration='{int(song.duration)}'")
             pygame.mixer.music.play()
             self._playing = True
+            await self._onSongChange(self._song)
