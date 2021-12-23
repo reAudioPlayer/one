@@ -60,6 +60,10 @@ export default {
   color: var(--font) !important;
 }
 
+hr {
+  border-color: var(--font-darker)
+}
+
 div.interface {
   display: flex;
   flex-direction: row;
