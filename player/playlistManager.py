@@ -35,6 +35,7 @@ class PlaylistManager:
 
     def addPlaylist(self, name: Optional[str] = None) -> int:
         plId = self.playlistLength
-        self._dbManager.addPlaylist(Playlist(f"My Playlist #{plId + 1}", [], plId))
+        name = name or f"My Playlist #{plId + 1}"
+        self._dbManager.addPlaylist(Playlist(name, [], plId))
         self._loadPlaylists()
         return plId

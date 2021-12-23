@@ -101,3 +101,6 @@ class PlayerPlaylist:
 
     def __hash__(self) -> str:
         return hash((self._name, self._playlistIndex))
+
+    def __repr__(self) -> str:
+        return f"(Player.PlayerPlaylist) name=[{self._name}] id=[{self._index}]"

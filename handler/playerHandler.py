@@ -3,6 +3,7 @@ from dataModels.song import Song
 from player.player import Player
 from player.playlistManager import PlaylistManager
 import pygame
+import asyncio
 
 
 class PlayerHandler:
@@ -23,16 +24,16 @@ class PlayerHandler:
         return web.Response(status = 200, text = "success!")
 
     async def getNext(self, _: web.Request):
-        self._player.next()
+        asyncio.create_task(self._player.next())
         return web.Response(status = 200, text = "success!")
 
     async def getLast(self, _: web.Request):
-        self._player.last()
+        asyncio.create_task(self._player.last())
         return web.Response(status = 200, text = "success!")
 
     async def loadPlaylist(self, request: web.Request):
         x = await request.json()
-        self._player.loadPlaylist(self._playlistManager.get(x["id"]))
+        asyncio.create_task(self._player.loadPlaylist(self._playlistManager.get(x["id"])))
         return web.Response(status = 200, text = "success!")
 
     async def setVolume(self, request: web.Request):
@@ -42,7 +43,7 @@ class PlayerHandler:
 
     async def loadSongAt(self, request: web.Request):
         x = await request.json()
-        self._player.at(x["index"])
+        asyncio.create_task(self._player.at(x["index"]))
         return web.Response(status = 200, text = "success!")
 
     async def updateSong(self, request: web.Request) -> None:

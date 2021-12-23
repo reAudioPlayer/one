@@ -106,7 +106,7 @@ async def main() -> None:
         await asyncio.sleep(1)
         event = pygame.event.poll()
         if event.type == MUSIC_END:
-            player.next()
+            await player.next()
 
 asyncio.run(main())
 

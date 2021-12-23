@@ -22,9 +22,9 @@ class Player:
         self._song: Optional[Song] = None
         self._preloaded: Optional[str] = None
 
-    def loadPlaylist(self, playlist: PlayerPlaylist) -> None:
+    async def loadPlaylist(self, playlist: PlayerPlaylist) -> None:
         self._playerPlaylist = playlist
-        self.next()
+        await self.next()
 
     def playPause(self) -> None:
         if self._playing:
@@ -46,24 +46,24 @@ class Player:
         if os.path.exists("./_cache/upNow.mp3"):
             os.remove("./_cache/upNow.mp3")
 
-    def last(self) -> None:
+    async def last(self) -> None:
         self.unload()
-        self._preloadSong(self._playerPlaylist.last(True))
+        await self._preloadSong(self._playerPlaylist.last(True))
         self._loadSong(self._playerPlaylist.last())
 
-    def next(self) -> None:
+    async def next(self) -> None:
         self.unload()
-        self._preloadSong(self._playerPlaylist.next(True))
+        await self._preloadSong(self._playerPlaylist.next(True))
         self._loadSong(self._playerPlaylist.next())
 
-    def at(self, index: int) -> None:
+    async def at(self, index: int) -> None:
         self.unload()
-        self._preloadSong(self._playerPlaylist.at(index))
+        await self._preloadSong(self._playerPlaylist.at(index))
         self._loadSong(self._playerPlaylist.at(index))
 
-    def _preloadSong(self, song: Song) -> None:
+    async def _preloadSong(self, song: Song) -> None:
         self._preloaded = song.source
-        self._downloader.downloadSong(song.source)
+        await self._downloader.downloadSong(song.source)
 
     def updateSongMetadata(self, id: int, song: Song) -> None:
         #self._playerPlaylist.at(index)._favourite = 1 if favourite else 0
