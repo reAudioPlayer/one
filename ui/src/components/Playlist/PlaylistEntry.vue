@@ -176,6 +176,7 @@
         margin-left: 10px;
         display: flex;
         flex-direction: row;
+        align-items: center;
     }
 
     .title {
