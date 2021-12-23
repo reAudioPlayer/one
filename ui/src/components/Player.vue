@@ -93,6 +93,7 @@
     line-height: calc(var(--player-height) - 40px);
     margin-left: 20px;
     font-size: 1.2em;
+    color: var(--font-darker);
   }
 
   .favourite:hover {
