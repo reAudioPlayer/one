@@ -12,15 +12,15 @@ class PlayerHandler:
         self._playlistManager = playlistManager
 
     async def getPlay(self, _: web.Request):
-        self._player.play()
+        asyncio.create_task(self._player.play())
         return web.Response(status = 200, text = "success!")
 
     async def getPause(self, _: web.Request):
-        self._player.pause()
+        asyncio.create_task(self._player.pause())
         return web.Response(status = 200, text = "success!")
 
     async def getPlayPause(self, _: web.Request):
-        self._player.playPause()
+        asyncio.create_task(self._player.playPause())
         return web.Response(status = 200, text = "success!")
 
     async def getNext(self, _: web.Request):

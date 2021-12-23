@@ -13,13 +13,13 @@
       <div class="upper">
         <span class="material-icons-round defaultbtn">shuffle</span>
         <span @click="get('last')" class="material-icons-round defaultbtn">skip_previous</span>
-        <span @click="get('playPause')" class="material-icons-round circle">play_circle</span>
+        <span @click="get('playPause')" class="material-icons-round circle">{{playing ? "pause_circle" : "play_circle"}}</span>
         <span @click="get('next')" class="material-icons-round defaultbtn">skip_next</span>
         <span class="material-icons-round defaultbtn">repeat</span>
       </div>
       <div class="lower">
-        <span class="positionLabel">0:00</span>
-        <input type="range" class="progress">
+        <span class="positionLabel">{{progresslbl}}</span>
+        <input v-model="progress" max="1000" type="range" class="progress">
         <span class="positionLabel">{{durationStr}}</span>
       </div>
     </div>
@@ -40,20 +40,52 @@
       }
     },
     data() {
-      let ws = new WebSocket('ws://localhost:1234/ws');
       const ctx = this
 
-      ws.onmessage = function(msg) {
-        const jdata = JSON.parse(msg.data);
-        ctx.updateData(jdata)
+      function connect() {
+        console.log("attempting reconnect")
+        let ws = new WebSocket('ws://localhost:1234/ws');
+
+        ws.onclose = function() {
+          console.log("ws closed")
+
+          setTimeout(connect, 1000);
+        }
+        
+        ws.onopen = () => {
+          console.log("ws connected")
+        }
+
+        ws.onmessage = function(msg) {
+          const jdata = JSON.parse(msg.data);
+          ctx.updateData(jdata)
+        }
       }
+      connect()
+
+      const zeroPad = (num, places) => String(num).padStart(places, '0')
+
+      setInterval(() => {
+        if (!ctx.playing)
+        {
+          return;
+        }
+        const duration = Number(ctx.durationStr.split(':')[0]) * 60 + Number(ctx.durationStr.split(':')[1])
+        let progress = Number(ctx.progresslbl.split(':')[0]) * 60 + Number(ctx.progresslbl.split(':')[1])
+        progress+=1;
+        ctx.progress = progress / duration * 1000;
+        ctx.progresslbl = `${Math.floor(progress / 60)}:${zeroPad(progress % 60, 2)}`
+      }, 1000)
 
       return {
         favourited: this.favourite,
         title: "N/A",
         artist: "N/A",
         durationStr: "0:00",
-        cover: "/assets/img/music_placeholder.png"
+        cover: "/assets/img/music_placeholder.png",
+        playing: false,
+        progress: 0,
+        progresslbl: "0:00"
       }
     },
     methods: {
@@ -69,10 +101,19 @@
         })
       },
       updateData(jdata) {
-        this.title = jdata?.title || "N/A"
-        this.artist = jdata?.artist || "N/A"
-        this.durationStr = jdata?.duration || "N/A"
-        this.cover = jdata?.cover || "/assets/img/music_placeholder.png"
+        if (jdata.path == "player.song")
+        {
+          this.title = jdata?.data?.title || "N/A"
+          this.artist = jdata?.data?.artist || "N/A"
+          this.durationStr = jdata?.data?.duration || "N/A"
+          this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
+          this.progresslbl = "0:00"
+          return;
+        }
+        if (jdata.path == "player.playState")
+        {
+          this.playing = jdata?.data || false
+        }
       }
     }
   }

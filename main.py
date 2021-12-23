@@ -113,5 +113,3 @@ async def main() -> None:
             await player.next()
 
 asyncio.run(main())
-
-player.unload()

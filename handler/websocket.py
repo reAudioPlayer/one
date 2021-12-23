@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 import aiohttp
 import json
 
@@ -19,7 +19,7 @@ class Message(dict):
         return self.get("path")
 
     @property
-    def data(self) -> Optional[str]:
+    def data(self) -> Optional[Any]:
         return self.get("data")
 
     @property
@@ -31,9 +31,19 @@ class Websocket:
         self._connections: List[WebSocketResponse] = [ ]
         self._player = player
         self._player._songChangeCallback = self._onSongChange
+        self._player._playStateChangeCallback = self._onPlayStateChange
 
     async def _onSongChange(self, song: Song) -> None:
-        await self.publish(Message(song.toDict()))
+        await self.publish(Message({
+            "path": "player.song",
+            "data": song.toDict()
+        }))
+
+    async def _onPlayStateChange(self, playing: bool) -> None:
+        await self.publish(Message({
+            "path": "player.playState",
+            "data": playing
+        }))
 
     async def websocket_handler(self, request):
         ws = WebSocketResponse()
@@ -41,7 +51,8 @@ class Websocket:
         await ws.prepare(request)
 
         if self._player._song:
-            await ws.send_json(Message(self._player._song.toDict()))
+            await self._onSongChange(self._player._song)
+        await self._onPlayStateChange(self._player._playing)
 
         async for msg in ws:
             if msg.type == aiohttp.WSMsgType.TEXT:

@@ -23,48 +23,59 @@ class Player:
         self._preloaded: Optional[str] = None
 
         self._songChangeCallback: Optional[Callable[[Song], Awaitable[None]]] = None
+        self._playStateChangeCallback: Optional[Callable[[bool], Awaitable[None]]] = None
 
     async def _onSongChange(self, newSong: Song):
         if not self._songChangeCallback:
             return
         await self._songChangeCallback(newSong)
 
+    async def _onPlayStateChange(self):
+        if not self._playStateChangeCallback:
+            return
+        await self._playStateChangeCallback(self._playing)
+
     async def loadPlaylist(self, playlist: PlayerPlaylist) -> None:
         self._playerPlaylist = playlist
         await self.next()
 
-    def playPause(self) -> None:
+    async def playPause(self) -> None:
         if self._playing:
             pygame.mixer.music.pause()
         else:
             pygame.mixer.music.unpause()
         self._playing = not self._playing
+        await self._onPlayStateChange()
 
-    def pause(self) -> None:
+    async def pause(self) -> None:
         self._playing = False
+        await self._onPlayStateChange()
         pygame.mixer.music.pause()
 
-    def play(self) -> None:
+    async def play(self) -> None:
         self._playing = True
+        await self._onPlayStateChange()
         pygame.mixer.music.unpause()
 
-    def unload(self) -> None:
+    async def unload(self) -> None:
         pygame.mixer.music.unload()
+        self._playing = False
+        await self._onPlayStateChange()
         if os.path.exists("./_cache/upNow.mp3"):
             os.remove("./_cache/upNow.mp3")
 
     async def last(self) -> None:
-        self.unload()
+        await self.unload()
         await self._preloadSong(self._playerPlaylist.last(True))
         await self._loadSong(self._playerPlaylist.last())
 
     async def next(self) -> None:
-        self.unload()
+        await self.unload()
         await self._preloadSong(self._playerPlaylist.next(True))
         await self._loadSong(self._playerPlaylist.next())
 
     async def at(self, index: int) -> None:
-        self.unload()
+        await self.unload()
         await self._preloadSong(self._playerPlaylist.at(index))
         await self._loadSong(self._playerPlaylist.at(index))
 
@@ -73,9 +84,7 @@ class Player:
         await self._downloader.downloadSong(song.source)
 
     def updateSongMetadata(self, id: int, song: Song) -> None:
-        #self._playerPlaylist.at(index)._favourite = 1 if favourite else 0
         self._dbManager.updateSongMetadata(id, song.sqlUpdate())
-
         self._playlistManager.updateSong(id, lambda x: song)
 
     async def _loadSong(self, song: Song) -> None:
@@ -87,4 +96,13 @@ class Player:
             self._dbManager.updateSongMetadata(song.id, f"duration='{int(song.duration)}'")
             pygame.mixer.music.play()
             self._playing = True
+            await self._onPlayStateChange()
             await self._onSongChange(self._song)
+
+    @property
+    def playing(self) -> bool:
+        return self._playing
+
+    @property
+    def currentSong(self) -> Song:
+        return self._song

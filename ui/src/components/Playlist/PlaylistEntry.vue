@@ -142,6 +142,7 @@
         width: 50px;
         text-align: right;
         line-height: var(--playlistEntry-height);
+        flex-shrink: 0;
     }
 
     .favourite {
@@ -151,6 +152,7 @@
         margin-right: 10px;
         visibility: hidden;
         font-size: 1.4em;
+        flex-shrink: 0;
     }
 
     .hidden {
@@ -191,7 +193,6 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        max-width: 20vw;
     }
 
     img {
@@ -213,6 +214,7 @@
         margin-right: 20px;
         line-height: var(--playlistEntry-height);
         width: 50px;
+        flex-shrink: 0;
     }
 
     .more {

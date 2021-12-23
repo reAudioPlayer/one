@@ -55,7 +55,7 @@ export default {
     .fixedPlaylistHeader {
         position: fixed;
         top: 0;
-        left: calc(var(--sidebar-width) + 40px);
+        left: calc(var(--sidebar-width) + 16px);
         right: 0;
         padding-right: 3px;
 
