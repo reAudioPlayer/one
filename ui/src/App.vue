@@ -32,10 +32,15 @@ export default {
   border: none !important;
   box-shadow: 2px 2px 8px 0 var(--hover-4) !important;
   --webkit-box-shadow: 2px 2px 8px 0 var(--hover-4) !important;
+  color: var(--font-darker) !important;
+}
+
+.v-contextmenu-divider {
+  border-color: var(--font-darker);
 }
 
 .v-contextmenu-item {
-  color: var(--font) !important;
+  color: var(--font-darker) !important;
   margin: 5px;
   padding: 10px 22px 10px 15px;
   border-radius: 5px;
