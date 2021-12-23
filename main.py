@@ -15,6 +15,8 @@ import aiohttp_cors
 from aiohttp_index import IndexMiddleware
 from aiohttp.web import middleware
 
+import pygame
+
 import logging
 import time
 
@@ -91,6 +93,21 @@ for route in list(app.router.routes()):
     cors.add(route)
 
 app.router.add_static('/', './ui/dist')
-asyncio.run ( web._run_app(app, port=1234) )
+
+MUSIC_END = pygame.USEREVENT+1
+pygame.mixer.music.set_endevent(MUSIC_END)
+
+async def main() -> None:
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, port=1234)
+    await site.start()
+    while True:
+        await asyncio.sleep(1)
+        event = pygame.event.poll()
+        if event.type == MUSIC_END:
+            player.next()
+
+asyncio.run(main())
 
 player.unload()

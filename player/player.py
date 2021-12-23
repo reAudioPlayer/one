@@ -76,6 +76,7 @@ class Player:
             pygame.mixer.music.load(f"./_cache/upNow.mp3")
             sound = pygame.mixer.Sound(f"./_cache/upNow.mp3")
             self._song = song
+            print(song)
             song.duration = int(sound.get_length())
             self._dbManager.updateSongMetadata(song.id, f"duration='{int(song.duration)}'")
             pygame.mixer.music.play()
