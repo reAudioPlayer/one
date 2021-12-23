@@ -1,7 +1,7 @@
 <template>
     <div class="playlist">
         <AddSong ref="addSongPopup" />
-        <EditPlaylist ref="editPlaylistPopup" />
+        <EditPlaylist :playlistName="playlistName" :playlistDescription="playlistDescription" ref="editPlaylistPopup" />
         <fixed-playlist-header @click="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }" :title="playlistName" />
         <div class="padding-20 playlisteditor" @click="editPlaylist" v-observe-visibility="headerVisibilityChanged">
             <h7>Playlist</h7>

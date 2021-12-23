@@ -41,10 +41,16 @@
             }
         },
         methods: {
-            apply() {
-                console.log("fetch")
-                
+            apply() {                
                 this.showModal = false
+            }
+        },
+        watch: {
+            playlistName() {
+                this.name = this.playlistName
+            },
+            playlistDescription() {
+                this.description = this.playlistDescription
             }
         }
     }
