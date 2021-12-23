@@ -1,5 +1,5 @@
 <template>
-    <SongCtx ref="ctxMenu">
+    <SongCtx @like="favourited = !favourited" :liked="favourited" ref="ctxMenu">
         <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry"
             :class="{ 'selected': highlighted }">
             <span @click="playAt" ref="idOrPlay" class="id">{{index + 1}}</span>

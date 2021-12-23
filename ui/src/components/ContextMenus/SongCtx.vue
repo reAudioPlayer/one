@@ -2,11 +2,11 @@
     <div ref="box" v-contextmenu:contextmenu>
         <slot />
         <v-contextmenu ref="contextmenu">
-            <v-contextmenu-item @click="openSoundcloud">Save to your Liked Songs</v-contextmenu-item>
-            <v-contextmenu-item @click="openAudius">Remove from this playlist</v-contextmenu-item>
-            <v-contextmenu-item @click="openAudius">Add to playlist</v-contextmenu-item>
+            <v-contextmenu-item @click="like">{{(liked ? 'Remove from' : 'Save to') + ' your Liked Songs'}}</v-contextmenu-item>
+            <v-contextmenu-item @click="remove">Remove from this playlist</v-contextmenu-item>
+            <v-contextmenu-item @click="addto">Add to playlist</v-contextmenu-item>
             <v-contextmenu-divider />
-            <v-contextmenu-item @click="openYoutubeMusic">Share</v-contextmenu-item>
+            <v-contextmenu-item @click="share">Share</v-contextmenu-item>
         </v-contextmenu>
     </div>
 </template>
@@ -16,7 +16,8 @@
         name: "SongCtx",
         props: {
             artist: String,
-            title: String
+            title: String,
+            liked: Boolean
         },
         methods: {
             hide() {
@@ -37,17 +38,17 @@
                 this.$refs.contextmenu.show(position)
                 evt?.stopPropagation();
             },
-            openSoundcloud() {
-                window.open(`https://soundcloud.com/search?q=${this.artist} ${this.title}`)
+            like() {
+                this.$emit("like")
             },
-            openAudius() {
-                window.open(`https://audius.co/search/${this.artist} ${this.title}`)
+            remove() {
+                this.$emit("remove")
             },
-            openYoutubeMusic() {
-                window.open(`https://music.youtube.com/search?q=${this.artist} ${this.title}`)
+            addto() {
+                this.$emit("addto")
             },
-            openSpotify() {
-                window.open(`https://open.spotify.com/search/${this.artist} ${this.title}`)
+            share() {
+                this.$emit("share")
             }
         }
     }
