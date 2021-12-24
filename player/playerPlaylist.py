@@ -44,6 +44,7 @@ class PlayerPlaylist:
     def at(self, index: int) -> Optional[Song]:
         if index < 0 or index >= self.playlistLength:
             return None
+        self._index = index
         return self._playlist[index]
 
     def current(self) -> Optional[Song]:
