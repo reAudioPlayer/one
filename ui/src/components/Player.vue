@@ -19,7 +19,7 @@
       </div>
       <div class="lower">
         <span class="positionLabel">{{progresslbl}}</span>
-        <input v-model="progress" max="1000" type="range" class="progress">
+        <input @change="progresschange" v-model="progress" max="1000" type="range" class="progress">
         <span class="positionLabel">{{durationStr}}</span>
       </div>
     </div>
@@ -63,8 +63,6 @@
       }
       connect()
 
-      const zeroPad = (num, places) => String(num).padStart(places, '0')
-
       setInterval(() => {
         if (!ctx.playing)
         {
@@ -74,8 +72,14 @@
         let progress = Number(ctx.progresslbl.split(':')[0]) * 60 + Number(ctx.progresslbl.split(':')[1])
         progress+=1;
         ctx.progress = progress / duration * 1000;
-        ctx.progresslbl = `${Math.floor(progress / 60)}:${zeroPad(progress % 60, 2)}`
+        ctx.progresslbl = `${Math.floor(progress / 60)}:${ctx.zeroPad(progress % 60, 2)}`
       }, 1000)
+
+      fetch("http://localhost:1234/api/getVolume")
+        .then(x => x.text())
+        .then(value => {
+          this.$refs.volume.value = value
+        })
 
       return {
         favourited: this.favourite,
@@ -100,6 +104,20 @@
           })
         })
       },
+      zeroPad(num, places) {
+        return String(num).padStart(places, '0')
+      },
+      progresschange() {
+        let duration = Number(this.durationStr.split(':')[0]) * 60 + Number(this.durationStr.split(':')[1])
+        let value = this.progress * duration / 1000
+        this.progresslbl = `${Math.floor(value / 60)}:${this.zeroPad(Math.round(value % 60), 2)}`
+        fetch("http://localhost:1234/api/setPos", {
+          method: "POST",
+          body: JSON.stringify({
+            value
+          })
+        })
+      },
       updateData(jdata) {
         if (jdata.path == "player.song")
         {
@@ -113,6 +131,12 @@
         if (jdata.path == "player.playState")
         {
           this.playing = jdata?.data || false
+          return
+        }
+        if (jdata.path == "player.posSync")
+        {
+          let value = jdata?.data || 0
+          this.progresslbl = `${Math.floor(value / 60)}:${this.zeroPad(Math.round(value % 60), 2)}`
         }
       }
     }

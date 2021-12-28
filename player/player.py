@@ -1,3 +1,4 @@
+from asyncio.tasks import Task
 from typing import Awaitable, Callable, Optional
 import pygame
 from pymitter import EventEmitter
@@ -7,12 +8,16 @@ from player.playerPlaylist import PlayerPlaylist
 import os
 from downloader.downloader import Downloader
 from player.playlistManager import PlaylistManager
+import asyncio
+import time
+import math
 
 
 class Player:
     def __init__(self, ee: EventEmitter, dbManager: DbManager, downloader: Downloader, playlistManager: PlaylistManager) -> None:
         pygame.init()
         pygame.mixer.init()
+        pygame.mixer.music.set_volume(1.0)
         self._dbManager = dbManager
         self._playlistManager = playlistManager
         self._playing: bool = False
@@ -21,16 +26,32 @@ class Player:
         self._playerPlaylist: Optional[PlayerPlaylist] = None
         self._song: Optional[Song] = None
         self._preloaded: Optional[str] = None
+        self._offset: float = 0 # in s
+
+        self._updatePositionTask: Optional[Task] = None
 
         self._songChangeCallback: Optional[Callable[[Song], Awaitable[None]]] = None
         self._playStateChangeCallback: Optional[Callable[[bool], Awaitable[None]]] = None
+        self._positionSyncCallback: Optional[Callable[[float], Awaitable[None]]] = None
 
-    async def _onSongChange(self, newSong: Song):
+    async def _updatePosition(self) -> None:
+        while True:
+            await asyncio.sleep(5)
+            await self._positionSyncCallback(self.getPos())
+
+    def getPos(self) -> float:
+        return pygame.mixer.music.get_pos() / 1000.0 + self._offset
+
+    def setPos(self, posInS: float) -> None:
+        self._offset = posInS - (pygame.mixer.music.get_pos() / 1000.0)
+        pygame.mixer.music.set_pos(posInS)
+
+    async def _onSongChange(self, newSong: Song) -> None:
         if not self._songChangeCallback:
             return
         await self._songChangeCallback(newSong)
 
-    async def _onPlayStateChange(self):
+    async def _onPlayStateChange(self) -> None:
         if not self._playStateChangeCallback:
             return
         await self._playStateChangeCallback(self._playing)
@@ -95,9 +116,13 @@ class Player:
             song.duration = int(sound.get_length())
             self._dbManager.updateSongMetadata(song.id, f"duration='{int(song.duration)}'")
             pygame.mixer.music.play()
+            if not self._updatePositionTask:
+                self._updatePositionTask = asyncio.create_task(self._updatePosition())
             self._playing = True
             await self._onPlayStateChange()
             await self._onSongChange(self._song)
+
+            self._offset = 0
 
     @property
     def playing(self) -> bool:

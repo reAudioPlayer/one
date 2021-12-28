@@ -41,6 +41,9 @@ class PlayerHandler:
         pygame.mixer.music.set_volume(int(x["value"]) / 100.0)
         return web.Response(status = 200, text = "success!")
 
+    async def getVolume(self, _: web.Request):
+        return web.Response(status = 200, text = str(round(pygame.mixer.music.get_volume() * 100.0)))
+
     async def loadSongAt(self, request: web.Request):
         x = await request.json()
         asyncio.create_task(self._player.at(x["index"]))
@@ -50,3 +53,11 @@ class PlayerHandler:
         jdata = await request.json()
         self._player.updateSongMetadata(jdata["id"], Song.FromDict(jdata))
         return web.Response(status = 200, text = "success!")
+
+    async def setPos(self, request: web.Request):
+        x = await request.json()
+        self._player.setPos(x["value"])
+        return web.Response(status = 200, text = "success!")
+
+    async def getPos(self, _: web.Request):
+        return web.Response(status = 200, text = str(self._player.getPos()))

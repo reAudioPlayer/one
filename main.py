@@ -70,8 +70,11 @@ app.router.add_get('/api/pause', playerHandler.getPause)
 app.router.add_get('/api/play', playerHandler.getPlay)
 app.router.add_post('/api/at', playerHandler.loadSongAt)
 app.router.add_post('/api/setVolume', playerHandler.setVolume)
+app.router.add_get('/api/getVolume', playerHandler.getVolume)
 app.router.add_post('/api/loadPlaylist', playerHandler.loadPlaylist)
 app.router.add_post('/api/updateSong', playerHandler.updateSong)
+app.router.add_post('/api/setPos', playerHandler.setPos)
+app.router.add_get('/api/getPos', playerHandler.getPos)
 
 app.router.add_post('/api/metadata', metaHandler.get)
 

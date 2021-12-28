@@ -32,6 +32,7 @@ class Websocket:
         self._player = player
         self._player._songChangeCallback = self._onSongChange
         self._player._playStateChangeCallback = self._onPlayStateChange
+        self._player._positionSyncCallback = self._onPositionSync
 
     async def _onSongChange(self, song: Song) -> None:
         await self.publish(Message({
@@ -45,6 +46,12 @@ class Websocket:
             "data": playing
         }))
 
+    async def _onPositionSync(self, pos: float) -> None:
+        await self.publish(Message({
+            "path": "player.posSync",
+            "data": pos
+        }))
+
     async def websocket_handler(self, request):
         ws = WebSocketResponse()
         self._connections.append(ws)
@@ -53,6 +60,7 @@ class Websocket:
         if self._player._song:
             await self._onSongChange(self._player._song)
         await self._onPlayStateChange(self._player._playing)
+        await self._onPositionSync(self._player.getPos())
 
         async for msg in ws:
             if msg.type == aiohttp.WSMsgType.TEXT:
