@@ -6,6 +6,8 @@
             <v-contextmenu-item @click="remove">Remove from this playlist</v-contextmenu-item>
             <v-contextmenu-item @click="addto">Add to playlist</v-contextmenu-item>
             <v-contextmenu-divider />
+            <v-contextmenu-item @click="update">Update Metadata</v-contextmenu-item>
+            <v-contextmenu-divider />
             <v-contextmenu-item @click="share">Share</v-contextmenu-item>
         </v-contextmenu>
     </div>
@@ -49,6 +51,9 @@
             },
             share() {
                 this.$emit("share")
+            },
+            update() {
+                this.$emit("update")
             }
         }
     }
