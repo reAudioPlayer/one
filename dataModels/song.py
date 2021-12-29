@@ -36,7 +36,9 @@ class Song:
                  self._source )
 
     def sqlUpdate(self) -> str:
-        return f"name='{self._name}', artist='{self._artist}', album='{self._album}', cover='{self._cover}', duration={self._duration}, favourite={1 if self._favourite else 0}"
+        def toSetter(string: str) -> str:
+            return string.replace("'", "''")
+        return f"name='{toSetter(self._name)}', artist='{toSetter(self._artist)}', album='{toSetter(self._album)}', cover='{self._cover}', source='{self._source}', duration={self._duration}, favourite={1 if self._favourite else 0}"
 
     @staticmethod
     def FromSql(row: Tuple) -> Song:
@@ -62,7 +64,8 @@ class Song:
             "duration": f"{math.floor(self._duration / 60)}:{str(self._duration % 60).zfill(2)}",
             "cover": self._cover,
             "favourite": self._favourite,
-            "id": self._id
+            "id": self._id,
+            "source": self._source
         }
 
     @staticmethod
@@ -89,3 +92,4 @@ class Song:
         self._duration = newSong._duration
         self._cover = newSong._cover
         self._favourite = newSong._favourite
+        self._source = newSong._source

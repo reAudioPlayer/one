@@ -83,7 +83,10 @@ class Websocket:
 
     async def publish(self, msg: Message) -> None:
         for ws in self._connections:
-            await ws.send_json(msg)
+            try:
+                await ws.send_json(msg)
+            except:
+                pass
 
     async def _handle(self, ws: WebSocketResponse, msg: Message) -> None:
         await self.publish(msg)

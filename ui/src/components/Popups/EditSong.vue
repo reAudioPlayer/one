@@ -3,7 +3,7 @@
         <vue-final-modal @click="hideFindSourcesCtx" v-model="showModal" classes="modal-container" content-class="modal-content">
             <div class="wrapper">
                 <div class="header">
-                    <h3>Add song</h3>
+                    <h3>Edit song</h3>
                     <button class="modal-close" @click="showModal = false">
                         <span class="material-icons-round">
                             close
@@ -11,32 +11,32 @@
                     </button>
                 </div>
                 <h4>Source</h4>
-                <FindSources ref="findSources" :title="title" :artist="artist">
+                <FindSources ref="findSourcesEdit" :title="title" :artist="artist">
                     <div class="content">
-                        <input @change="loadMetadata" type="text" ref="source">
+                        <input v-model="dSource" @change="loadMetadata" type="text" ref="source">
                         <span class="material-icons-round more" ref="sourceMore" @click="opencontextmenu">more_vert</span>
                     </div>
                 </FindSources>
                 <h4>Title</h4>
                 <div class="content">
-                    <input v-model="title" type="text">
+                    <input v-model="dTitle" type="text">
                 </div>
                 <h4>Album</h4>
                 <div class="content">
-                    <input type="text" ref="album">
+                    <input v-model="dAlbum" type="text" ref="album">
                 </div>
                 <h4>Artist</h4>
                 <div class="content">
-                    <input v-model="artist" type="text">
+                    <input v-model="dArtist" type="text">
                 </div>
                 <h4>Cover</h4>
                 <div class="content">
-                    <input type="text" class="addSong cover" v-model="cover" ref="cover">
+                    <input type="text" class="addSong cover" v-model="dCover" ref="cover">
                     <img @click="openInNewTab" class="addSong cover"
                         :src="cover ? cover : '/assets/img/music_placeholder.png'">
                 </div>
                 <div class="confirm">
-                    <button @click="add" class="negative">Add</button>
+                    <button @click="add" class="negative">Save</button>
                 </div>
             </div>
         </vue-final-modal>
@@ -45,37 +45,47 @@
 <script>
 import FindSources from '../ContextMenus/FindSources.vue'
     export default {
-        name: "AddSong",
+        name: "EditSong",
         components: {
             FindSources
+        },
+        props: {
+            cover: String,
+            album: String,
+            artist: String,
+            source: String,
+            title: String,
+            id: Number
         },
         data() {
             return {
                 showModal: false,
-                cover: "",
-                artist: "",
-                title: ""
+                dCover: this.cover,
+                dAlbum: this.album,
+                dArtist: this.artist,
+                dTitle: this.title,
+                dSource: this.source
             }
         },
         methods: {
             opencontextmenu(evt) {                
-                this.$refs.findSources.show(evt)
+                this.$refs.findSourcesEdit.show(evt)
             },
             hideFindSourcesCtx() {
-                this.$refs.findSources.hide()
+                this.$refs.findSourcesEdit.hide()
             },
             add() {
                 this.showModal = false
                 console.log("fetch")
-                fetch("http://localhost:1234/api/add", {
+                fetch("http://localhost:1234/api/updateSong", {
                     method: "POST",
                     body: JSON.stringify({
-                        id: Number(this.$route.params.id),
-                        source: this.$refs.source.value,
-                        title: this.title,
-                        artist: this.artist,
-                        album: this.$refs.album.value,
-                        cover: this.cover
+                        id: this.id,
+                        source: this.dSource,
+                        title: this.dTitle,
+                        artist: this.dArtist,
+                        album: this.dAlbum,
+                        cover: this.dCover
                     })
                 }).then(x => {
                     console.log(x)
@@ -92,15 +102,24 @@ import FindSources from '../ContextMenus/FindSources.vue'
                     .then(x => x.json())
                     .then(jdata => {
                         console.log(jdata)
-                        this.title = jdata.title
-                        this.$refs.album.value = jdata.album
-                        this.artist = jdata.artists.join(", ")
-                        this.cover = jdata.cover
-                        this.$refs.source.value = jdata.src
+                        this.dTitle = jdata.title
+                        this.dAlbum = jdata.album
+                        this.dArtist = jdata.artists.join(", ")
+                        this.dCover = jdata.cover
+                        this.dSource = jdata.src
                     })
             },
             openInNewTab() {
                 window.open(this.cover ? this.cover : '/assets/img/music_placeholder.png')
+            }
+        },
+        watch:{
+            id (){
+                this.dCover = this.cover
+                this.dAlbum = this.album,
+                this.dArtist = this.artist,
+                this.dTitle = this.title,
+                this.dSource = this.source
             }
         }
     }
