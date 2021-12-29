@@ -16,7 +16,7 @@
                 <grid-header />
                 <hr>
                 <div class="playlistEntries">
-                    <playlist-entry v-for="(element, index) in playlist" :key="index" :index="index" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                    <playlist-entry v-for="(element, index) in playlist" :key="index" :index="index" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
                 </div>
             </div>
         </div>
@@ -41,6 +41,7 @@
         name: 'Playlist',
         data() {
             this.updatePlaylist()
+            
             return {
                 fixedHeaderHidden: false,
                 playlist: [],
@@ -49,6 +50,26 @@
             }
         },
         methods: {
+            connect() {
+                const ctx = this
+                console.log("attempting reconnect")
+                let ws = new WebSocket('ws://localhost:1234/ws');
+
+                ws.onclose = function() {
+                    console.log("ws closed")
+
+                    setTimeout(this.connect, 1000);
+                }
+                
+                ws.onopen = () => {
+                    console.log("ws connected")
+                }
+
+                ws.onmessage = function(msg) {
+                    const jdata = JSON.parse(msg.data);
+                    ctx.updateData(jdata)
+                }
+            },
             headerVisibilityChanged(a) {
                 this.fixedHeaderHidden = a
             },
@@ -57,6 +78,19 @@
             },
             editPlaylist() {
                 this.$refs.editPlaylistPopup.showModal = true
+            },
+            updateData(jdata) {
+                if (jdata.path == "player.song")
+                {
+                    console.log(this.playlist.length, jdata)
+
+                    let title = jdata?.data?.title || "N/A"
+
+                    for (const entry of this.playlist)
+                    {
+                        entry.playing = entry.title == title;
+                    }
+                }
             },
             updatePlaylist() {
                 if (this.$route.params.id == "create")
@@ -77,6 +111,7 @@
                     this.playlist = jdata.songs
                     this.playlistName = jdata.name
                     console.log(this.playlist)
+                    this.connect()
                 })
             },
             loadPlaylist() {

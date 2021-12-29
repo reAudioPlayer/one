@@ -2,15 +2,15 @@
     <SongCtx @like="favourited = !favourited" :liked="favourited" ref="ctxMenu">
         <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry"
             :class="{ 'selected': highlighted }">
-            <span @click="playAt" ref="idOrPlay" class="id">{{index + 1}}</span>
+            <span @click="playAt" ref="idOrPlay" :class="{ 'playing': playing }" class="id">{{index + 1}}</span>
             <div class="track">
                 <img :src="cover || '/assets/img/music_placeholder.png'">
                 <div class="trackwrapper">
-                    <span class="title">{{title}}</span>
-                    <span class="artist">{{artist}}</span>
+                    <span class="title" :class="{ 'playing': playing }">{{title}}</span>
+                    <span class="artist" :class="{ 'playing': playing }">{{artist}}</span>
                 </div>
             </div>
-            <span class="album">{{album}}</span>
+            <span class="album" :class="{ 'playing': playing }">{{album}}</span>
             <span @click="favourited = !favourited" class="favourite material-icons-round" :class="{ 'showfavourite': favourited || highlighted }">{{favourited ? "favorite" : "favorite_border"}}</span>
             <span class="duration">{{duration}}</span>
             <span @click="showCtxMenu" class="more material-icons-round" :class="{ 'hidden': !highlighted }">more_horiz</span>
@@ -50,6 +50,10 @@
                 default: "N/A"
             },
             favourite: {
+                type: Boolean,
+                default: false
+            },
+            playing: {
                 type: Boolean,
                 default: false
             }
@@ -180,11 +184,19 @@
     }
 
     .title {
-        color: var(--font);
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         max-width: 100%;
+        color: var(--font);
+    }
+
+    .title.playing, .id.playing {
+        color: var(--hover-colour-1);
+    }
+
+    .id.playing.material-icons-round {
+        color: var(--font-darker);
     }
 
     .album {
@@ -194,6 +206,15 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+    }
+
+    div.playlistEntry:hover .album,
+    div.playlistEntry:hover .artist,
+    div.playlistEntry:hover .id,
+    div.playlistEntry.selected .album,
+    div.playlistEntry.selected .artist,
+    div.playlistEntry.selected .id {
+        color: var(--font);
     }
 
     img {
