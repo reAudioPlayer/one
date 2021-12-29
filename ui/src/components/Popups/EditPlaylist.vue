@@ -43,6 +43,18 @@
         methods: {
             apply() {                
                 this.showModal = false
+                console.log("fetch")
+                fetch("http://localhost:1234/api/updatePlaylist", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        id: Number(this.$route.params.id),
+                        name: this.name,
+                        description: this.description
+                    })
+                }).then(x => {
+                    console.log(x)
+                    this.$emit("close")
+                })
             }
         },
         watch: {

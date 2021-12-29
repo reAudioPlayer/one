@@ -84,6 +84,7 @@ app.router.add_post('/api/add', playlistHandler.addSong)
 app.router.add_get('/api/playlist/create', playlistHandler.createPlaylist)
 app.router.add_post('/api/playlist', playlistHandler.getPlaylist)
 app.router.add_get('/api/playlists', playlistHandler.getPlaylists)
+app.router.add_post('/api/updatePlaylist', playlistHandler.updatePlaylist)
 
 app.add_routes([web.get('/ws', websocket.websocket_handler)])
 

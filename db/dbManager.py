@@ -33,6 +33,7 @@ class DbManager:
         sql = """create table if not exists Playlists (
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             name TEXT,
+            description TEXT,
             songs TEXT);"""
         with self._db:
             self._db.execute(sql)
@@ -63,7 +64,7 @@ class DbManager:
 
     def addPlaylist(self, playlist: Playlist) -> None:
         with self._db:
-            sql = 'INSERT INTO Playlists (name, songs) values(?, ?)'
+            sql = 'INSERT INTO Playlists (name, description, songs) values(?, ?, ?)'
             data = [
                 playlist.sql()
             ]
@@ -82,8 +83,8 @@ class DbManager:
 
     def updatePlaylist(self, newPlaylist: Playlist) -> None:
         with self._db:
-            name, songs = newPlaylist.sql()
-            sql = f"UPDATE Playlists SET name='{name}', songs='{songs}' WHERE id={newPlaylist.id}"
+            name, description, songs = newPlaylist.sql()
+            sql = f"UPDATE Playlists SET name='{name}', description='{description}', songs='{songs}' WHERE id={newPlaylist.id}"
             self._db.execute(sql)
 
     def updateSongsOfPlaylist(self, id: int, songs: List[int]) -> None:
@@ -94,3 +95,7 @@ class DbManager:
     def updateSongMetadata(self, id: int, values: str) -> None:
         with self._db:
             self._db.execute(f"UPDATE Songs SET {values} WHERE id={id}")
+
+    def updatePlaylistMetadata(self, id: int, values: str) -> None:
+        with self._db:
+            self._db.execute(f"UPDATE Playlists SET {values} WHERE id={id}")

@@ -29,6 +29,12 @@ class PlaylistManager:
             for song in songs:
                 song.update(updateFunction(song))
 
+    def updatePlaylist(self, id: int, name: str, description: str) -> None:
+        playlist: PlayerPlaylist = self._playlists[id]
+        playlist.name = name
+        playlist.description = description
+        self._dbManager.updatePlaylist(playlist.ToDMPlaylist())
+
     @property
     def playlistLength(self) -> int:
         return len(self._playlists)
@@ -36,6 +42,6 @@ class PlaylistManager:
     def addPlaylist(self, name: Optional[str] = None) -> int:
         plId = self.playlistLength
         name = name or f"My Playlist #{plId + 1}"
-        self._dbManager.addPlaylist(Playlist(name, [], plId))
+        self._dbManager.addPlaylist(Playlist(name, [], plId, ""))
         self._loadPlaylists()
         return plId

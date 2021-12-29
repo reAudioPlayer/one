@@ -13,12 +13,14 @@ class PlayerPlaylist:
                  dbManager: DbManager,
                  playlistIndex: Optional[int] = None,
                  songs: Optional[List[Song]] = None,
-                 name: Optional[str] = None) -> None:
+                 name: Optional[str] = None,
+                 description: Optional[str] = None) -> None:
         self._dbManager = dbManager
         self._playlist: OrderedSet[Song] = OrderedSet()
         self._index: int = -1
         self._playlistIndex = playlistIndex
         self._name: str = name or "N/A"
+        self._description: str = description or "N/A"
         self._load(playlistIndex, songs)
 
     def _load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
@@ -32,6 +34,7 @@ class PlayerPlaylist:
             return
         self._playlist.update(self._dbManager.getSongsByIdList(playlist.songs))
         self._name = playlist.name
+        self._description = playlist.description
 
     @property
     def index(self) -> int:
@@ -85,16 +88,27 @@ class PlayerPlaylist:
     def name(self) -> str:
         return self._name
 
+    @name.setter
+    def name(self, value) -> None:
+        self._name = value
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @description.setter
+    def description(self, value) -> None:
+        self._description = value
+
     def toDict(self) -> dict:
         return {
             "name": self._name,
+            "description": self._description,
             "songs": list(map(lambda x: x.toDict(), self._playlist))
         }
 
     def byId(self, id: int) -> List[Song]:
         x = filter(lambda x: x.id == id, self._playlist)
-        print(type(x))
-        print(x)
         return x
 
     def __eq__(self, other: PlayerPlaylist) -> bool:
@@ -105,3 +119,6 @@ class PlayerPlaylist:
 
     def __repr__(self) -> str:
         return f"(Player.PlayerPlaylist) name=[{self._name}] id=[{self._index}]"
+
+    def ToDMPlaylist(self) -> Playlist:
+        return Playlist(self.name, list(map(lambda x: x.id, self._playlist)), self._playlistIndex, self.description)
