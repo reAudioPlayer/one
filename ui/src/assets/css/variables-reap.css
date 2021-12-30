@@ -1,0 +1,21 @@
+:root {
+    --gradient-c2: hsl(214, 80%, 24%);
+    --gradient-c1: #522783;
+    --font: whitesmoke;
+    --font-darker: #b3b3b3;
+    --hover-colour-1: #bb80ff;
+    --hover-4: #242424;
+    --hover-3: hsla(0,0%,100%,0.3);
+    --hover-2: hsla(0,0%,100%,0.1);
+    --hover-1: hsla(0,0%,100%,0.04);
+    --background-gradient: linear-gradient(to right top, var(--gradient-c1), var(--gradient-c2));
+    --glass-gradient: linear-gradient(to right bottom,
+            rgba(0, 0, 0, 0.8),
+            rgba(0, 0, 0, 0.3));
+    --font-background: linear-gradient(to right top, #8ea1f3, hsl(214, 94%, 68%));
+    --font-family: "Poppins", sans-serif;
+    
+    --playlistEntry-height: 50px;
+    --player-height: 88px;
+    --sidebar-width: 200px;
+}
