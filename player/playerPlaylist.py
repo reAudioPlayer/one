@@ -82,7 +82,14 @@ class PlayerPlaylist:
         x = self._dbManager.getSongByCustomFilter(f"source='{song.source}'")[0]
         self._playlist.add(x)
         songs = list(map(lambda x: x.id, self._playlist))
-        self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex))
+        self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex, self._description))
+
+    def remove(self, songId: int) -> None:
+        x = self._dbManager.getSongById(songId)
+        self._playlist.remove(x)
+        songs = list(map(lambda x: x.id, self._playlist))
+        self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex, self._description))
+        self._dbManager.removeSong(songId)
 
     @property
     def name(self) -> str:

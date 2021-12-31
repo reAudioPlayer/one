@@ -48,6 +48,12 @@ class Song:
     def __repr__(self) -> str:
         return f"(DataModel.Song) id=[{self._id}] name=[{self._name}] artist=[{self._artist}] album=[{self._album}] cover=[{self._cover}] duration=[{self._duration}] favourite=[{self._favourite}] spotify=[{self._spotify}] source=[{self._source}]"
 
+    def __eq__(self, other: Song) -> bool:
+        return self._id == other.id
+
+    def __hash__(self) -> int:
+        return hash((self._id, self._source, self._album, self._artist, self._name))
+
     @property
     def source(self) -> str:
         return self._source

@@ -14,11 +14,16 @@ class PlaylistManager:
 
     def _loadPlaylists(self) -> None:
         playlists = self._dbManager.getPlaylists()
-        self._playlists.update(set(map(lambda x: PlayerPlaylist(self._dbManager, x.id), playlists)))
+        for playlist in playlists:
+            self._playlists.add(PlayerPlaylist(self._dbManager, playlist.id))
+        print(self._playlists[0].name)
 
     def addToPlaylist(self, playlistIndex: int, song: Song) -> None:
-        if len(self._dbManager.getSongByCustomFilter(f"source='{song.source}'")) == 0:
+        if len(self._dbManager.getSongByCustomFilter(f"source='{song.source}'")) == 0: # only new
             self._playlists[playlistIndex].add(song)
+
+    def removeFromPlaylist(self, playlistIndex: int, songId: int) -> None:
+        self._playlists[playlistIndex].remove(songId)
 
     def get(self, playlistIndex) -> PlayerPlaylist:
         return self._playlists[playlistIndex]

@@ -46,6 +46,15 @@ class DbManager:
             ]
             self._db.executemany(sql, data)
 
+    def removeSong(self, songId: int) -> None:
+        """remove if song in no playlist"""
+        playlists = self.getPlaylists()
+        for playlist in playlists:
+            if songId in playlist.songs:
+                return
+        with self._db:
+            self._db.execute(f"DELETE FROM Songs WHERE id={songId}")
+
     @staticmethod
     def _castToSongList(rows: List[Tuple]) -> List[Song]:
         return list(map(Song.FromSql, rows))
@@ -53,6 +62,10 @@ class DbManager:
     def getSongs(self) -> List[Song]:
         with self._db:
             return DbManager._castToSongList(self._db.execute("SELECT * FROM Songs"))
+
+    def getSongById(self, id: int) -> Song:
+        with self._db:
+            return self.getSongByCustomFilter(f"id={id}")[0]
 
     def getSongsByIdList(self, idList: List[int]) -> List[Song]:
         with self._db:

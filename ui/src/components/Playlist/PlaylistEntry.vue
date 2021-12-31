@@ -1,5 +1,5 @@
 <template>
-    <SongCtx @update="update" @like="favourited = !favourited" :liked="favourited" ref="ctxMenu">
+    <SongCtx @remove="remove" @update="update" @like="favourited = !favourited" :liked="favourited" ref="ctxMenu">
         <EditSong @close="updatePlaylist" ref="editSongPopup" :cover="cover" :id="id" :title="title" :album="album" :artist="artist" :source="source" />
         <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry"
             :class="{ 'selected': highlighted }">
@@ -69,6 +69,15 @@
             }
         },
         methods: {
+            remove() {
+                fetch("http://localhost:1234/api/remove", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        playlistId: Number(this.$route.params.id),
+                        songId: this.id
+                    })
+                })
+            },
             update() {
                 this.$refs.editSongPopup.showModal = true
             },

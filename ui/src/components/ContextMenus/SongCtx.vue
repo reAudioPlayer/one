@@ -17,8 +17,6 @@
     export default {
         name: "SongCtx",
         props: {
-            artist: String,
-            title: String,
             liked: Boolean
         },
         methods: {
