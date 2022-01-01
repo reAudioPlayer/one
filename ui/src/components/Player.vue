@@ -145,7 +145,7 @@
 
 <style scoped>
   div.player {
-    background: var(--glass-gradient);
+    background: var(--player-background);
     height: calc(var(--player-height) - 20px);
     display: flex;
     flex-direction: row;

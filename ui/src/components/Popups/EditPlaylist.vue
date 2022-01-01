@@ -74,7 +74,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background-color: var(--glass-gradient);
+        background-color: #0000;
     }
 
     .modal-content {

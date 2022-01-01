@@ -67,7 +67,7 @@ export default {
       width: 100%;
     }
     div.sidebar {
-        background: var(--glass-gradient);
+        background: var(--sidebar-background);
         width: var(--sidebar-width);
         min-width: var(--sidebar-width);
         display: flex;

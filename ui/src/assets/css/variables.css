@@ -1,14 +1,18 @@
 :root {
-    --gradient-c1: #A5004D;
-    --font: whitesmoke;
-    --font-darker: #c2bebe;
-    --hover-colour-1: #bb80ff;
+    --gradient-c1: #217e41;
+    --font: white;
+    --font-darker: #a7a7a7;
+    --hover-colour-1: #1ed760;
     --hover-4: #242424;
-    --hover-3: hsla(0,0%,100%,0.3);
-    --hover-2: hsla(0,0%,100%,0.1);
-    --hover-1: hsla(0,0%,100%,0.04);
-    --background-gradient: linear-gradient(to left bottom, #A5004D, #6105B0);
-    --glass-gradient: linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3));
+    --hover-3: hsla(0,0%,100%,0.04);
+    --hover-2: hsla(0,0%,100%,0.3);
+    --hover-1: hsla(0,0%,100%,0.1);
+    --background-gradient: #121212;
+    --glass-gradient: #181818;
+    
+    --sidebar-background: black;
+    --player-background: #181818;
+
     --font-family: "Poppins", sans-serif;
     
     --playlistEntry-height: 50px;
