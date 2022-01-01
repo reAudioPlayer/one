@@ -32,9 +32,13 @@ export default {
     }
 
     div.navEntry:hover, .router-link-active div.navEntry {
-        background-color: var(--hover-2);
+        background-color: var(--hover-1);
         cursor: pointer;
         color: var(--font);
+    }
+
+    .router-link-active div.navEntry {
+        background-color: var(--hover-2);
     }
 
     .name {
