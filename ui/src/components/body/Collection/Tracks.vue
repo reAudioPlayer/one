@@ -1,6 +1,5 @@
 <template>
     <div class="playlist">
-        <AddSong ref="addSongPopup" />
         <fixed-playlist-header @click="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }" :title="playlistName" />
         <div class="padding-20" v-observe-visibility="headerVisibilityChanged">
             <h7>Playlist</h7>
@@ -25,14 +24,12 @@
     import FixedPlaylistHeader from '../../Playlist/FixedPlaylistHeader.vue'
     import GridHeader from '../../Playlist/GridHeader.vue'
     import PlaylistEntry from '../../Playlist/PlaylistEntry.vue'
-    import AddSong from "../../Popups/AddSong.vue"
 
     export default {
         components: {
             PlaylistEntry,
             FixedPlaylistHeader,
-            GridHeader,
-            AddSong
+            GridHeader
         },
         name: 'Tracks',
         data() {

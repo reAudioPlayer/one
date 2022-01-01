@@ -3,7 +3,7 @@
         <slot />
         <v-contextmenu ref="contextmenu">
             <v-contextmenu-item @click="like">{{(liked ? 'Remove from' : 'Save to') + ' your Liked Songs'}}</v-contextmenu-item>
-            <v-contextmenu-item @click="remove">Remove from this playlist</v-contextmenu-item>
+            <v-contextmenu-item v-if="!isAutoPlaylist" @click="remove">Remove from this playlist</v-contextmenu-item>
             <v-contextmenu-item @click="addto">Add to playlist</v-contextmenu-item>
             <v-contextmenu-divider />
             <v-contextmenu-item @click="update">Update Metadata</v-contextmenu-item>
@@ -17,7 +17,8 @@
     export default {
         name: "SongCtx",
         props: {
-            liked: Boolean
+            liked: Boolean,
+            isAutoPlaylist: Boolean
         },
         methods: {
             hide() {

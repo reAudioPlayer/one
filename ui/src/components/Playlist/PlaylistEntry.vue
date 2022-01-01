@@ -1,5 +1,5 @@
 <template>
-    <SongCtx @remove="remove" @update="update" @like="favourited = !favourited" :liked="favourited" ref="ctxMenu">
+    <SongCtx @remove="remove" @update="update" @like="favourited = !favourited" :isAutoPlaylist="isAutoPlaylist" :liked="favourited" ref="ctxMenu">
         <EditSong @close="updatePlaylist" ref="editSongPopup" :cover="cover" :id="id" :title="title" :album="album" :artist="artist" :source="source" />
         <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry"
             :class="{ 'selected': highlighted }">
@@ -65,7 +65,8 @@
         data() {
             return {
                 highlighted: false,
-                favourited: this.favourite
+                favourited: this.favourite,
+                isAutoPlaylist: this.$route.path == "/collection/tracks"
             }
         },
         methods: {

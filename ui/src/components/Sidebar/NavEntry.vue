@@ -31,8 +31,8 @@ export default {
         color: var(--font-darker);
     }
 
-    div.navEntry:hover {
-        background-color: var(--hover-1);
+    div.navEntry:hover, .router-link-active div.navEntry {
+        background-color: var(--hover-2);
         cursor: pointer;
         color: var(--font);
     }
