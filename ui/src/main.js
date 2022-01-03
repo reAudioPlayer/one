@@ -31,6 +31,7 @@ app.use(contextmenu);
 const routes = [
   { path: '/', component: Home },
   { path: '/search', component: Search },
+  { path: '/search/:query', component: Search },
   { path: '/collection/albums', component: Albums },
   { path: '/collection/artists', component: Artists },
   { path: '/collection/playlists', component: Playlists },

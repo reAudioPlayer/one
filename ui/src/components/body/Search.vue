@@ -1,186 +1,86 @@
 <template>
     <div class="search">
-        <div class="shelf">
-            <div class="header">
-                <h2>Songs</h2>
-                <h5>See All</h5>
-            </div>
-            <div class="items">
-                <div class="item">
-                    Song 1
-                </div>
-                <div class="item">
-                    Song 2
-                </div>
-                <div class="item">
-                    Song 3
-                </div>
-                <div class="item">
-                    Song 4
-                </div>
-                <div class="item">
-                    Song 5
-                </div>
-                <div class="item">
-                    Song 6
-                </div>
-                <div class="item">
-                    Song 7
-                </div>
-                <div class="item">
-                    Song 8
-                </div>
-                <div class="item">
-                    Song 9
-                </div>
-            </div>
-        </div>
-        <div class="shelf">
-            <div class="header">
-                <h2>Artists</h2>
-                <h5>See All</h5>
-            </div>
-            <div class="items">
-                <div class="item">
-                    Song 1
-                </div>
-                <div class="item">
-                    Song 2
-                </div>
-                <div class="item">
-                    Song 3
-                </div>
-                <div class="item">
-                    Song 4
-                </div>
-                <div class="item">
-                    Song 5
-                </div>
-                <div class="item">
-                    Song 6
-                </div>
-                <div class="item">
-                    Song 7
-                </div>
-                <div class="item">
-                    Song 8
-                </div>
-                <div class="item">
-                    Song 9
-                </div>
-            </div>
-        </div>
-        <div class="shelf">
-            <div class="header">
-                <h2>Songs (Spotify)</h2>
-                <h5>See All</h5>
-            </div>
-            <div class="items">
-                <div class="item">
-                    Song 1
-                </div>
-                <div class="item">
-                    Song 2
-                </div>
-                <div class="item">
-                    Song 3
-                </div>
-                <div class="item">
-                    Song 4
-                </div>
-                <div class="item">
-                    Song 5
-                </div>
-                <div class="item">
-                    Song 6
-                </div>
-                <div class="item">
-                    Song 7
-                </div>
-                <div class="item">
-                    Song 8
-                </div>
-                <div class="item">
-                    Song 9
-                </div>
-            </div>
-        </div>
-        <div class="shelf">
-            <div class="header">
-                <h2>Artists (Spotify)</h2>
-                <h5>See All</h5>
-            </div>
-            <div class="items">
-                <div class="item">
-                    Song 1
-                </div>
-                <div class="item">
-                    Song 2
-                </div>
-                <div class="item">
-                    Song 3
-                </div>
-                <div class="item">
-                    Song 4
-                </div>
-                <div class="item">
-                    Song 5
-                </div>
-                <div class="item">
-                    Song 6
-                </div>
-                <div class="item">
-                    Song 7
-                </div>
-                <div class="item">
-                    Song 8
-                </div>
-                <div class="item">
-                    Song 9
-                </div>
-            </div>
-        </div>
-        <div class="shelf">
-            <div class="header">
-                <h2>Songs (Youtube)</h2>
-                <h5>See All</h5>
-            </div>
-            <div class="items">
-                <div class="item">
-                    Song 1
-                </div>
-                <div class="item">
-                    Song 2
-                </div>
-                <div class="item">
-                    Song 3
-                </div>
-                <div class="item">
-                    Song 4
-                </div>
-                <div class="item">
-                    Song 5
-                </div>
-                <div class="item">
-                    Song 6
-                </div>
-                <div class="item">
-                    Song 7
-                </div>
-                <div class="item">
-                    Song 8
-                </div>
-                <div class="item">
-                    Song 9
-                </div>
-            </div>
-        </div>
+        <input @keyup="enterText" v-model="query" type="text">
+        <Shelf v-if="tracks.length" heading="Songs">
+            <Item v-for="element in tracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+        </Shelf>
+        <Shelf v-if="spotifyTracks.length" heading="Songs (Spotify)">
+            <Item v-for="element in spotifyTracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+        </Shelf>
+        <Shelf v-if="youtubeTracks.length" heading="Songs (Youtube)">
+            <Item v-for="element in youtubeTracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+        </Shelf>
+        <Shelf v-if="artists.length" heading="Artists">
+            <Item v-for="element in artists" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+        </Shelf>
+        <Shelf v-if="spotifyArtists.length" heading="Artists (Spotify)">
+            <Item v-for="element in spotifyArtists" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+        </Shelf>
     </div>
 </template>
 
 <script>
+    import Item from '../Catalogue/Item.vue'
+    import Shelf from "../Catalogue/Shelf.vue"
+
     export default {
         name: 'Search',
+        components: {
+            Shelf,
+            Item
+        },
+        data() {
+            return {
+                query: "",
+                spotifyTracks: [ ],
+                spotifyArtists: [ ],
+                tracks: [ ],
+                artists: [ ],
+                youtubeTracks: [ ]
+            }
+        },
+        methods: {
+            search() {
+                const query = this.$route.params.query
+
+                if (!query)
+                {
+                    return
+                }
+
+                fetch("http://localhost:1234/api/search", {
+                    method: "POST",
+                    body: JSON.stringify({ query })
+                }).then(x => x.json())
+                  .then(jdata => {
+                        this.spotifyTracks.length = 0;
+                        this.spotifyArtists.length = 0;
+                        this.tracks.length = 0;
+                        this.artists.length = 0;
+                        this.youtubeTracks.length = 0;
+
+                        this.spotifyTracks.push(... (jdata.spotifyTracks || []) )
+                        this.spotifyArtists.push(... (jdata.spotifyArtists || []) )
+                        this.tracks.push(... (jdata.tracks || []) )
+                        this.artists.push(... (jdata.artists || []) )
+                        this.youtubeTracks.push(... (jdata.youtubeTracks || []) )
+                  })
+
+            },
+            enterText(event) {
+                if (event.key === "Enter") {
+                    this.$router.push("/search/" + this.query)
+                }
+            }
+        },
+        watch: {
+            $route() {
+                this.search()
+            }
+        },
+        mounted() {
+            this.search()
+        }
     }
 </script>
 
@@ -189,42 +89,17 @@
         padding: 20px;
     }
 
-    .header {
-        margin: 10px 10px 0px 10px;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
+    input {
+        margin-left: 10px;
+        margin-bottom: 20px;
+        border-radius: 40px;
+        border: none;
+        padding: 10px;
+        font-family: var(--font-family);
+        width: 20vw;
     }
 
-    .header>h2 {
-        align-self: flex-start;
-        margin-top: 0;
-        margin-bottom: 10px;
-    }
-
-    .header>h5 {
-        text-transform: uppercase;
-        align-self: center;
-        margin: 0;
-    }
-
-    .header>h5:hover {
-        cursor: pointer;
-    }
-
-    .items {
-        display: grid;
-        grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
-        grid-auto-rows: 0;
-        grid-template-rows: 1fr;
-        overflow-y: hidden;
-    }
-
-    .item {
-        background: var(--glass-gradient);
-        padding: 20px;
-        margin: 10px;
-        border-radius: 5px;
-        min-height: 10vh;
+    input:focus {
+        outline: none;
     }
 </style>

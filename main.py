@@ -1,5 +1,6 @@
 from typing import Optional
 from pymitter import EventEmitter
+import spotipy
 from spotipy.client import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
 from db.dbManager import DbManager
@@ -77,6 +78,7 @@ app.router.add_post('/api/setPos', playerHandler.setPos)
 app.router.add_get('/api/getPos', playerHandler.getPos)
 
 app.router.add_post('/api/metadata', metaHandler.get)
+app.router.add_post('/api/search', metaHandler.search)
 
 app.router.add_get('/api/collection/tracks', collectionHandler.tracks)
 
