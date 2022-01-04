@@ -4,7 +4,7 @@
             <span id="loadPlaylist" @click="this.$emit('click')" class="material-icons-outlined">play_circle_filled</span>
             <h3>{{title}}</h3>
         </div>
-        <grid-header class="padding-20" />
+        <grid-header class="padding-20 darkback" />
     </div>
 </template>
 <script>
@@ -27,10 +27,18 @@ export default {
         padding-right: 20px;
     }
 
+    .darkback {
+        background: var(--player-background);
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #303030;
+    }
+
     .upperWrapper {
         padding: 10px;
         display: flex;
         flex-direction: row;
+        background: var(--gradient-c1);
     }
 
     #loadPlaylist {
@@ -59,7 +67,6 @@ export default {
         right: 0;
         padding-right: 3px;
 
-        background: var(--gradient-c1);
         z-index: 100;
         height: 80px;
         padding-bottom: 10px;

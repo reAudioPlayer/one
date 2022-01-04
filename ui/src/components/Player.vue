@@ -31,6 +31,8 @@
 </template>
 
 <script>
+  import { useKeypress } from 'vue3-keypress'
+
   export default {
     name: 'Player',
     props: {
@@ -38,6 +40,17 @@
         type: Boolean,
         default: false
       }
+    },
+    setup() {
+      useKeypress({
+        keyEvent: "keydown",
+        keyBinds: [
+          {
+            keyCode: "space",
+            success: () => fetch(`http://localhost:1234/api/playPause`),
+          },
+        ]
+      })
     },
     data() {
       const ctx = this
@@ -93,6 +106,10 @@
       }
     },
     methods: {
+      playPause() {
+        console.log("playpause")
+        this.get('playPause')
+      },
       get(endpoint) {
         fetch(`http://localhost:1234/api/${endpoint}`)
       },
@@ -146,11 +163,12 @@
 <style scoped>
   div.player {
     background: var(--player-background);
-    height: calc(var(--player-height) - 20px);
+    height: calc(var(--player-height) - 21px);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     padding: 10px;
+    border-top: 1px solid #303030;
     /*height: 100%;*/
   }
 

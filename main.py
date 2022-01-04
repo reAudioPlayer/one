@@ -2,7 +2,7 @@ from typing import Optional
 from pymitter import EventEmitter
 import spotipy
 from spotipy.client import Spotify
-from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 from db.dbManager import DbManager
 from downloader.downloader import Downloader
 from handler.playerHandler import PlayerHandler
@@ -24,11 +24,6 @@ import time
 
 from player.playlistManager import PlaylistManager
 
-#downloader.downloadSong("https://audius.co/Xdmrecords/broz-rodriguez-tequila")
-#downloader.downloadSong("https://www.youtube.com/watch?v=l5s7h3yiWeY")
-#downloader.downloadSong("https://soundcloud.com/basshouse-music/castion-reeva-never-be-forgotten-bhm044")
-#downloader.downloadSong("https://open.spotify.com/track/6WXbZykcCejVs36zmIfxh5") # needs to be implemented first
-
 dbManager = DbManager()
 
 ee = EventEmitter()
@@ -39,7 +34,9 @@ playlistManager = PlaylistManager(dbManager)
 
 player = Player(ee, dbManager, downloader, playlistManager)
 
-spotify = Spotify(client_credentials_manager=SpotifyClientCredentials(client_id="c8e963f8a6a942b58712cc34e2ccc76d", client_secret="6ec48f7d1b574bd6b340384c50675447"))
+scope = "user-library-read user-follow-read"
+
+spotify = spotipy.Spotify(auth_manager=SpotifyOAuth("c8e963f8a6a942b58712cc34e2ccc76d", "6ec48f7d1b574bd6b340384c50675447", "http://reap.ml/", scope=scope))
 
 playerHandler = PlayerHandler(player, playlistManager)
 playlistHandler = PlaylistHandler(playlistManager)
@@ -79,6 +76,7 @@ app.router.add_get('/api/getPos', playerHandler.getPos)
 
 app.router.add_post('/api/metadata', metaHandler.get)
 app.router.add_post('/api/search', metaHandler.search)
+app.router.add_get('/api/releases', metaHandler.releases)
 
 app.router.add_get('/api/collection/tracks', collectionHandler.tracks)
 

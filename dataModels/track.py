@@ -15,6 +15,9 @@ class SpotifyTrack:
         if album:
             self._album = album.get("name")
             self._cover = album.get("images")[0]["url"]
+        elif "images" in track: # probably album
+            self._cover = track.get("images")[0]["url"]
+            self._release_date = track.get("release_date")
         self._artists = [x.get("name") for x in track.get("artists")]
         self._id = track.get("id")
 
@@ -30,6 +33,19 @@ class SpotifyTrack:
     @staticmethod
     def FromUrl(spotify: spotipy.Spotify, url: str) -> SpotifyTrack:
         return SpotifyTrack(spotify.track(url))
+
+class SpotifyAlbum:
+    def __init__(self, album: dict) -> None:
+        self._title = album.get("name")
+        if "images" in album: # probably album
+            self._cover = album.get("images")[0]["url"]
+            self._release_date = album.get("release_date")
+        self._artists = [x.get("name") for x in album.get("artists")]
+        self._id = album.get("id")
+
+    @property
+    def url(self) -> str:
+        return f"https://open.spotify.com/album/{self._id}"
 
 class YoutubeTrack:
     def __init__(self, track: dict) -> None:
