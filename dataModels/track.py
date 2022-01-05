@@ -18,7 +18,7 @@ class SpotifyTrack:
         elif "images" in track: # probably album
             self._cover = track.get("images")[0]["url"]
             self._release_date = track.get("release_date")
-        self._artists = [x.get("name") for x in track.get("artists")]
+        self._artists = [x.get("name") for x in track.get("artists")] if track.get("artists") else [ ]
         self._id = track.get("id")
 
     @property
@@ -31,8 +31,37 @@ class SpotifyTrack:
         return [ SpotifyTrack(track) for track in tracks ]
 
     @staticmethod
+    def FromAlbum(spotify: spotipy.Spotify, id: str) -> List[SpotifyTrack]:
+        tracks = spotify.album_tracks(id)["items"]
+        return [ SpotifyTrack(track) for track in tracks ]
+
+    @staticmethod
     def FromUrl(spotify: spotipy.Spotify, url: str) -> SpotifyTrack:
         return SpotifyTrack(spotify.track(url))
+
+    @staticmethod
+    def FromPlaylist(spotify: spotipy.Spotify, id: str) -> List[SpotifyTrack]:
+        tracks = spotify.playlist_tracks(id)
+        return [ SpotifyTrack(track["track"]) for track in tracks["items"] ]
+
+class SpotifyPlaylist:
+    def __init__(self, playlist: dict) -> None:
+        self._name = playlist.get("name")
+        self._description = playlist.get("description")
+        self._cover = playlist.get("images")[0]["url"]
+        self._id = playlist.get("id")
+        self._owner = playlist.get("owner")
+        self._trackCount = playlist.get("tracks").get("total")
+
+    def toDict(self) -> dict:
+        return {
+            "name": self._name,
+            "description": self._description,
+            "cover": self._cover,
+            "id": self._id,
+            "owner": self._owner,
+            "length": self._trackCount
+        }
 
 class SpotifyAlbum:
     def __init__(self, album: dict) -> None:

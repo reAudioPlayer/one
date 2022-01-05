@@ -30,8 +30,10 @@ export default {
   background: var(--hover-4) !important;
   font-family: var(--font-family) !important;
   border: none !important;
-  box-shadow: 2px 2px 8px 0 var(--hover-4) !important;
-  --webkit-box-shadow: 2px 2px 8px 0 var(--hover-4) !important;
+  /*box-shadow: 2px 2px 8px 0 var(--hover-4) !important;
+  --webkit-box-shadow: 2px 2px 8px 0 var(--hover-4) !important;*/
+  box-shadow: none;
+  --webkit-box-shadow: none;
   color: var(--font-darker) !important;
 }
 
@@ -47,7 +49,7 @@ export default {
 }
 
 .v-contextmenu-item--hover {
-  background: var(--hover-3) !important;
+  background: var(--hover-1) !important;
 }
 
 </style>

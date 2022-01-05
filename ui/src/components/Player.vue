@@ -32,6 +32,7 @@
 
 <script>
   import { useKeypress } from 'vue3-keypress'
+  import { useRouter } from 'vue-router'
 
   export default {
     name: 'Player',
@@ -42,12 +43,75 @@
       }
     },
     setup() {
+      const router = useRouter()
+
       useKeypress({
         keyEvent: "keydown",
         keyBinds: [
           {
             keyCode: "space",
             success: () => fetch(`http://localhost:1234/api/playPause`),
+            modifiers: ["ctrlKey"],
+          },
+          {
+            keyCode: "right",
+            success: () => fetch(`http://localhost:1234/api/next`),
+            modifiers: ["ctrlKey"],
+          },
+          {
+            keyCode: "left",
+            success: () => fetch(`http://localhost:1234/api/last`),
+            modifiers: ["ctrlKey"],
+          },
+          {
+            keyCode: 49,
+            success: () => router.push("/playlist/0"),
+            modifiers: ["altKey"],
+          },
+          {
+            keyCode: 50,
+            success: () => router.push("/playlist/1"),
+            modifiers: ["altKey"],
+          },
+          {
+            keyCode: 51,
+            success: () => router.push("/playlist/2"),
+            modifiers: ["altKey"],
+          },
+          {
+            keyCode: 52,
+            success: () => router.push("/playlist/3"),
+            modifiers: ["altKey"],
+          },
+          {
+            keyCode: 53,
+            success: () => router.push("/playlist/4"),
+            modifiers: ["altKey"],
+          },
+          {
+            keyCode: 54,
+            success: () => router.push("/playlist/5"),
+            modifiers: ["altKey"],
+          },
+          {
+            keyCode: 55,
+            success: () => router.push("/playlist/6"),
+            modifiers: ["altKey"],
+          },
+          {
+            keyCode: 56,
+            success: () => router.push("/playlist/7"),
+            modifiers: ["altKey"],
+          },
+          {
+            keyCode: 57,
+            success: () => router.push("/playlist/8"),
+            modifiers: ["altKey"],
+          },
+          {
+            keyCode: 58,
+            success: () => router.push("/playlist/9"),
+            modifiers: ["altKey"],
           },
         ]
       })

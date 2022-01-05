@@ -6,7 +6,7 @@
                 <item-big v-for="element in outSoon" :key="element.url" :releaseDate="element.releaseDate" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
             </full-shelf>
             <full-shelf v-if="outNow.length" heading="Out Now">
-                <Item v-for="element in outNow" :key="element.url" :releaseDate="element.releaseDate" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+                <ItemBig v-for="element in outNow" :key="element.url" :releaseDate="element.releaseDate" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
             </full-shelf>
             <full-shelf v-if="outAlready.length" heading="Releases">
                 <Item v-for="element in outAlready" :key="element.url" :releaseDate="element.releaseDate" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
@@ -17,8 +17,8 @@
 
 <script>
 import FullShelf from '../../Catalogue/FullShelf.vue'
-import Item from '../../Catalogue/Item.vue'
-import ItemBig from '../../Catalogue/ItemBig.vue'
+import Item from '../../Catalogue/Items/Release/ReleaseItem.vue'
+import ItemBig from '../../Catalogue/Items/Release/ReleaseItemBig.vue'
 import CollectionHeader from './CollectionHeader.vue'
     export default {
         components: { CollectionHeader, FullShelf, Item, ItemBig },

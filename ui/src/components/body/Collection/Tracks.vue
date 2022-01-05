@@ -35,7 +35,7 @@
         data() {
             this.updateTracks()
             return {
-                fixedHeaderHidden: false,
+                fixedHeaderHidden: true,
                 playlist: [],
                 playlistName: "N/A"
             }

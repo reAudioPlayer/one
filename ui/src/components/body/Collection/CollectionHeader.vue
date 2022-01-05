@@ -10,12 +10,12 @@
                 Releases
             </div>
         </router-link>
-        <router-link class="link" to="/collection/artists">
+        <router-link v-if="false" class="link" to="/collection/artists">
             <div class="collection">
                 Artists
             </div>
         </router-link>
-        <router-link class="link" to="/collection/albums">
+        <router-link v-if="false" class="link" to="/collection/albums">
             <div class="collection">
                 Albums
             </div>

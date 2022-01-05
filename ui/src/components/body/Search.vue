@@ -20,7 +20,7 @@
 </template>
 
 <script>
-    import Item from '../Catalogue/Item.vue'
+    import Item from '../Catalogue/Items/Release/ReleaseItem.vue'
     import Shelf from "../Catalogue/Shelf.vue"
 
     export default {

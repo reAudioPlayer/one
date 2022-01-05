@@ -20,7 +20,10 @@ class PlaylistHandler:
 
     async def getPlaylist(self, request: web.Request):
         jdata = await request.json()
-        return web.json_response(self._playlistManager.get(jdata["id"]).toDict())
+        index = jdata["id"]
+        if index >= self._playlistManager.playlistLength:
+            return web.Response(status = 404)
+        return web.json_response(self._playlistManager.get(index).toDict())
 
     async def getPlaylists(self, _: web.Request):
         return web.json_response(list(map(lambda x: x.name, self._playlistManager._playlists)))

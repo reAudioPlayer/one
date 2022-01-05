@@ -1,28 +1,38 @@
 <template>
     <div class="wrapper">
+        <add-playlist-to-playlist :cover="cover" :title="title" :description="description" :id="id" ref="import" v-if="spotify" />
         <div class="item" @click="redirect">
             <img :src="cover" />
             <h4>{{title}}</h4>
-            <p>{{artist}}</p>
-            <p class="note" v-if="releaseDate">Released on {{releaseDate}}</p>
+            <p v-html="description" />
         </div>
     </div>
 </template>
 
 <script>
+    import AddPlaylistToPlaylist from '../../../Popups/AddPlaylistToPlaylist.vue'
     export default {
-        name: 'Item',
+        components: { AddPlaylistToPlaylist },
+        name: 'PlaylistItem',
         methods: {
             redirect() {
-                this.$router.push(`/album/spotify/${this.href.replace("https://open.spotify.com/album/", "")}`)
+                if (!this.spotify)
+                {
+                    this.$router.push(this.href)
+                }
+                else
+                {
+                    this.$refs.import.showModal = true
+                }
             }
         },
         props: {
             cover: String,
             title: String,
-            artist: String,
+            description: String,
             href: String,
-            releaseDate: String
+            spotify: Boolean,
+            id: String
         }
     }
 </script>
@@ -62,5 +72,10 @@
         margin: 0;
         color: var(--font-darker);
         font-size: .8em;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 </style>

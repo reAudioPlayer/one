@@ -49,6 +49,7 @@ export default {
       display: flex;
       flex-direction: column;
       overflow-y: auto;
+      padding: 0px 10px;
     }
 
     .playlistList>a {
@@ -68,15 +69,16 @@ export default {
     }
     div.sidebar {
         background: var(--sidebar-background);
-        width: var(--sidebar-width);
-        min-width: var(--sidebar-width);
+        width: calc(var(--sidebar-width) + 20px);
+        min-width: calc(var(--sidebar-width) + 20px);
         display: flex;
         flex-direction: column;
-        padding: 20px;
-        max-height: calc(100vh - var(--player-height) - 40px);
+        padding: 10px;
+        max-height: calc(100vh - var(--player-height) - 20px);
     }
 
     h2 {
       margin: 0;
+      padding: 10px;
     }
 </style>

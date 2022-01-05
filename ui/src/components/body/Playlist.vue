@@ -43,7 +43,7 @@
             this.updatePlaylist()
             
             return {
-                fixedHeaderHidden: false,
+                fixedHeaderHidden: true,
                 playlist: [],
                 playlistName: "N/A",
                 playlistDescription: ""
@@ -93,6 +93,11 @@
                 }
             },
             updatePlaylist() {
+                if (!this.$route.params.id)
+                {
+                    return
+                }
+
                 if (this.$route.params.id == "create")
                 {
                     fetch("http://localhost:1234/api/playlist/create")
@@ -107,7 +112,14 @@
                     body: JSON.stringify({ 
                         id: Number(this.$route.params.id)
                     })
-                }).then(x => x.json()).then(jdata => {
+                }).then(async x => {
+                    if (x.status == 404)
+                    {
+                        this.$router.push("/")
+                        return
+                    }
+
+                    const jdata = await x.json()
                     this.playlist = jdata.songs
                     this.playlistName = jdata.name
                     this.playlistDescription = jdata.description

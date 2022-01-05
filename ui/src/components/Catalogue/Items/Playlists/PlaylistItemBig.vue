@@ -1,30 +1,29 @@
 <template>
     <div class="itemBig">
+        <add-album-to-playlist :id="this.href.replace('https://open.spotify.com/album/', '')" :cover="cover" :title="title" :artist="artist" ref="addAlbum" />
         <div class="item" @click="redirect">
-            <img :src="cover" />
             <div class="wrapper">
                 <h4>{{title}}</h4>
-                <p>{{artist}}</p>
-                <p class="note" v-if="releaseDate">Released on {{releaseDate}}</p>
+            <p>{{description}}</p>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
     export default {
-        name: 'ItemBig',
+  components: { AddAlbumToPlaylist },
+        name: 'ReleaseItemBig',
         methods: {
             redirect() {
-                this.$router.push(`/album/spotify/${this.href.replace("https://open.spotify.com/album/", "")}`)
+                this.$router.push(this.href)
             }
         },
         props: {
-            cover: String,
             title: String,
-            artist: String,
-            href: String,
-            releaseDate: String
+            description: String,
+            href: String
         }
     }
 </script>
@@ -35,8 +34,8 @@
     }
 
     .itemBig {
-        grid-column: span 3;
-        background: var(--glass-gradient);
+        grid-column: span 2;
+        background: linear-gradient(to bottom right, #450bf5, #8d8ce5);
         border-radius: 5px;
         min-height: 10vh;
         margin: 10px;
@@ -44,13 +43,13 @@
 
     .item {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
+        justify-content: flex-end;
         padding: 20px;
         height: calc(100% - 40px);
     }
 
     .wrapper {
-        margin-left: 20px;
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
@@ -58,7 +57,6 @@
 
     .itemBig:hover {
         cursor: pointer;
-        background: var(--hover-1);
     }
 
     img {
@@ -68,12 +66,11 @@
 
     h4 {
         margin: 0;
-        font-size: 1.2em;
+        font-size: 2em;
     }
 
     p {
         margin: 0;
-        color: var(--font-darker);
-        font-size: .9em;
+        color: var(--font);
     }
 </style>

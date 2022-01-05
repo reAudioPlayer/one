@@ -16,7 +16,9 @@ class Metadata:
             self._track = YoutubeTrack.FromUrl(url)
         elif "spotify" in url:
             self._track = SpotifyTrack.FromUrl(spotify, url)
-            self._src = f"https://music.youtube.com/watch?v={YoutubeTrack.FromSpotifyTrack(self._track)._id}"
+            ytTrack = YoutubeTrack.FromSpotifyTrack(self._track)
+            if ytTrack:
+                self._src = f"https://music.youtube.com/watch?v={ytTrack._id}"
         elif "soundcloud" in url:
             self._src = url
             self._track = SoundcloudTrack.FromUrl(url)

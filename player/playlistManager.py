@@ -16,7 +16,6 @@ class PlaylistManager:
         playlists = self._dbManager.getPlaylists()
         for playlist in playlists:
             self._playlists.add(PlayerPlaylist(self._dbManager, playlist.id))
-        print(self._playlists[0].name)
 
     def addToPlaylist(self, playlistIndex: int, song: Song) -> None:
         if len(self._dbManager.getSongByCustomFilter(f"source='{song.source}'")) == 0: # only new
