@@ -323,7 +323,7 @@
   }
 
   .defaultbtn:hover {
-    color: var(--font);
+    color: var(--font-colour);
     cursor: pointer;
   }
 

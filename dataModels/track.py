@@ -1,4 +1,5 @@
 from __future__ import annotations
+from os import stat
 import spotipy
 from ytmusicapi import YTMusic
 
@@ -41,8 +42,13 @@ class SpotifyTrack:
 
     @staticmethod
     def FromPlaylist(spotify: spotipy.Spotify, id: str) -> List[SpotifyTrack]:
-        tracks = spotify.playlist_tracks(id)
-        return [ SpotifyTrack(track["track"]) for track in tracks["items"] ]
+        tracks = spotify.playlist_tracks(id)["items"]
+        return [ SpotifyTrack(track["track"]) for track in tracks ]
+
+    @staticmethod
+    def FromArtist(spotify: spotipy.Spotify, id: str) -> List[SpotifyTrack]:
+        tracks = spotify.artist_top_tracks(id)["tracks"]
+        return [ SpotifyTrack(track) for track in tracks ]
 
 class SpotifyPlaylist:
     def __init__(self, playlist: dict) -> None:
@@ -61,6 +67,22 @@ class SpotifyPlaylist:
             "id": self._id,
             "owner": self._owner,
             "length": self._trackCount
+        }
+
+
+class SpotifyArtist:
+    def __init__(self, artist: dict) -> None:
+        self._name = artist.get("name")
+        self._id = artist.get("id")
+        self._cover = artist.get("images")[0]["url"]
+        self._description = f"{artist.get('followers')['total']:,} followers"
+    
+    def toDict(self) -> dict:
+        return {
+            "name": self._name,
+            "description": self._description,
+            "cover": self._cover,
+            "id": self._id
         }
 
 class SpotifyAlbum:

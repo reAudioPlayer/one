@@ -82,8 +82,6 @@
             updateData(jdata) {
                 if (jdata.path == "player.song")
                 {
-                    console.log(this.playlist.length, jdata)
-
                     let title = jdata?.data?.title || "N/A"
 
                     for (const entry of this.playlist)

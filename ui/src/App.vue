@@ -2,6 +2,7 @@
   <div class="appRoot">
     <div class="interface">
       <Sidebar />
+
       <Body />
     </div>
     <Player />
@@ -9,83 +10,121 @@
 </template>
 
 <script>
-import Body from './components/Body.vue'
-import Player from './components/Player.vue'
-import Sidebar from './components/Sidebar.vue'
-import "v-contextmenu/dist/themes/dark.css";
+  import Body from './components/Body.vue'
+  import Player from './components/Player.vue'
+  import Sidebar from './components/Sidebar.vue'
+  import "v-contextmenu/dist/themes/dark.css";
 
-export default {
-  name: 'App',
-  components: {
-    Sidebar,
-    Body,
-    Player
+  // November 2021, dxstiny (https://github.com/dxstiny)
+  // check out the README.md!
+
+  import themes from "./assets/themes.json";
+  //fetch("/assets/themes/themes.json").then(x => x.json()).then(json => themes = json) // in case you can't use import
+
+
+  const LOCAL_STORAGE_KEY = "theme" // change it to whatever you like
+
+  window.getThemes = () => { // returns a string array of all available themes
+    window.themes = []
+    for (const key of Object.keys(themes)) {
+      for (const theme of Object.keys(themes[key])) {
+        if (!window.themes.includes(theme)) {
+          window.themes.push(theme)
+        }
+      }
+    }
+    return window.themes;
   }
-}
+
+  window.getCurrentTheme = () => {
+    return window.localStorage.getItem(LOCAL_STORAGE_KEY) || "default"
+  }
+
+  window.setTheme = (theme) => { // accepts a string (theme name)
+    if (!window.getThemes().includes(theme)) {
+      return;
+    }
+
+    window.localStorage.setItem(LOCAL_STORAGE_KEY, theme)
+    for (const key of Object.keys(themes)) {
+      const value = themes[key]
+      document.documentElement.style.setProperty(`--${key}`, value[theme] || value.default);
+    }
+  }
+
+  window.setTheme(window.localStorage.getItem(LOCAL_STORAGE_KEY) || "default") // optional, loads the default theme
+
+  export default {
+    name: 'App',
+    components: {
+      Sidebar,
+      Body,
+      Player
+    }
+  }
 </script>
 
 <style>
-
-.v-contextmenu {
-  background: var(--hover-4) !important;
-  font-family: var(--font-family) !important;
-  border: none !important;
-  /*box-shadow: 2px 2px 8px 0 var(--hover-4) !important;
+  .v-contextmenu {
+    background: var(--hover-4) !important;
+    font-family: var(--font-family) !important;
+    border: none !important;
+    /*box-shadow: 2px 2px 8px 0 var(--hover-4) !important;
   --webkit-box-shadow: 2px 2px 8px 0 var(--hover-4) !important;*/
-  box-shadow: none;
-  --webkit-box-shadow: none;
-  color: var(--font-darker) !important;
-}
+    box-shadow: none;
+    --webkit-box-shadow: none;
+    color: var(--font-darker) !important;
+  }
 
-.v-contextmenu-divider {
-  border-color: var(--font-darker);
-}
+  .v-contextmenu-divider {
+    border-color: var(--font-darker);
+  }
 
-.v-contextmenu-item {
-  color: var(--font-darker) !important;
-  margin: 5px;
-  padding: 10px 22px 10px 15px;
-  border-radius: 5px;
-}
+  .v-contextmenu-item {
+    color: var(--font-darker) !important;
+    margin: 5px;
+    padding: 10px 22px 10px 15px;
+    border-radius: 5px;
+  }
 
-.v-contextmenu-item--hover {
-  background: var(--hover-1) !important;
-}
-
+  .v-contextmenu-item--hover {
+    background: var(--hover-1) !important;
+  }
 </style>
 
 <style>
-@import "./assets/css/variables.css";
-@import "./assets/css/scrollbars.css";
+  /*@import "./assets/css/variables.css";*/
+  @import "./assets/css/scrollbars.css";
 
-#app {
-  font-family: var(--font-family) !important;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  #app {
+    font-family: var(--font-family) !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 
-  background: var(--background-gradient);
-  color: var(--font) !important;
-}
+    background: var(--background);
+    color: var(--font-colour) !important;
+  }
 
-hr {
-  border-color: var(--font-darker)
-}
+  hr {
+    border-color: var(--font-darker)
+  }
 
-div.interface {
-  display: flex;
-  flex-direction: row;
-  flex-grow: 1;
-}
+  div.interface {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+  }
 
-div.appRoot {
-  display: flex;
-  flex-direction: column;
-  width: 100vw;
-  height: 100vh;
-}
+  div.appRoot {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+  }
 
-html, body {
-  margin: 0;
-  padding: 0;
-}
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
 </style>

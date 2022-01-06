@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import FullShelf from '../../Catalogue/FullShelf.vue'
+    import FullShelf from '../../Catalogue/FullShelf.vue'
     import PlaylistItem from '../../Catalogue/Items/Playlists/PlaylistItem.vue'
-import PlaylistItemBig from '../../Catalogue/Items/Playlists/PlaylistItemBig.vue'
+    import PlaylistItemBig from '../../Catalogue/Items/Playlists/PlaylistItemBig.vue'
     import CollectionHeader from './CollectionHeader.vue'
     export default {
         components: {

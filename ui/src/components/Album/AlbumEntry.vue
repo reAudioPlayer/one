@@ -146,11 +146,11 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         max-width: 100%;
-        color: var(--font);
+        color: var(--font-colour);
     }
 
     .title.playing, .id.playing {
-        color: var(--hover-colour-1);
+        color: var(--accent);
     }
 
     .id.playing.material-icons-round {
@@ -163,7 +163,7 @@
     div.playlistEntry.selected .album,
     div.playlistEntry.selected .artist,
     div.playlistEntry.selected .id {
-        color: var(--font);
+        color: var(--font-colour);
     }
 
     img {

@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar">
-    <h2>reAudioPlayer Online</h2>
+    <h2 @click="onLogoClick">reAudioPlayer Online</h2>
     <br>
     <nav-entry href="/" icon="home" name="Home" />
     <nav-entry href="/search" icon="search" name="Search" />
@@ -38,6 +38,11 @@ export default {
     return {
       playlists: [ ]
     }
+  },
+  methods: {
+    onLogoClick() {
+      this.$router.push("/preferences")
+    }
   }
 }
 </script>
@@ -61,7 +66,7 @@ export default {
     }
 
     .playlistList>a:hover {
-      color: var(--font)
+      color: var(--font-colour)
     }
 
     hr {
@@ -75,6 +80,10 @@ export default {
         flex-direction: column;
         padding: 10px;
         max-height: calc(100vh - var(--player-height) - 20px);
+    }
+
+    h2:hover {
+      cursor: pointer;
     }
 
     h2 {

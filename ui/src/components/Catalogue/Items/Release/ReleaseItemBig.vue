@@ -40,7 +40,7 @@ import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
 
     .itemBig {
         grid-column: span 2;
-        background: var(--glass-gradient);
+        background: var(--background-light);
         border-radius: 5px;
         min-height: 10vh;
         margin: 10px;

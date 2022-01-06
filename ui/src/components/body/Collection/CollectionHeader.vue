@@ -10,7 +10,7 @@
                 Releases
             </div>
         </router-link>
-        <router-link v-if="false" class="link" to="/collection/artists">
+        <router-link class="link" to="/collection/artists">
             <div class="collection">
                 Artists
             </div>
@@ -48,7 +48,7 @@
         padding: 10px;
         border-radius: 5px;
         font-weight: bold;
-        color: var(--font);
+        color: var(--font-colour);
         margin-right: 10px;
         font-size: .85em;
     }

@@ -79,6 +79,8 @@ app.router.add_post('/api/search', metaHandler.search)
 app.router.add_get('/api/releases', metaHandler.releases)
 
 app.router.add_post('/api/spotify/album', metaHandler.spotifyAlbum)
+app.router.add_post('/api/spotify/artist', metaHandler.spotifyArtist)
+app.router.add_get('/api/spotify/artists', metaHandler.spotifyArtists)
 app.router.add_post('/api/spotify/playlist', metaHandler.spotifyPlaylist)
 app.router.add_get('/api/spotify/playlists', metaHandler.spotifyPlaylists)
 

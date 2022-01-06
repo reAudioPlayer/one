@@ -1,7 +1,7 @@
 <template>
     <div>
         <vue-final-modal @click="hideFindSourcesCtx" v-model="showModal" classes="modal-containerr"
-            content-class="modal-content">
+            content-class="addAlbumToPlaylistPopup">
             <div class="wrapper">
                 <div class="header">
                     <h3>Add song</h3>
@@ -11,35 +11,21 @@
                         </span>
                     </button>
                 </div>
-                <h4>Playlist</h4>
-                <select v-model="playlist">
+                <h4>To Playlist</h4>
+                <select v-model="selectedPlaylist">
                     <option v-for="element in playlists" :key="element">{{element}}</option>
                 </select>
-                <h4>Source</h4>
-                <FindSources ref="findSources" :title="title" :artist="artist">
-                    <div class="content">
-                        <input type="text" v-model="dSource" ref="source">
-                        <span class="material-icons-round more" ref="sourceMore"
-                            @click="opencontextmenu">more_vert</span>
+                <br>
+                <div>
+                    <div class="padding-20 playlisteditor" @click="editPlaylist"
+                        v-observe-visibility="headerVisibilityChanged">
+                        <img class="cover" :src="cover" />
+                        <div class="details">
+                            <h7>Song</h7>
+                            <h1>{{title}}</h1>
+                            <h5>{{artist}}</h5>
+                        </div>
                     </div>
-                </FindSources>
-                <h4>Title</h4>
-                <div class="content">
-                    <input v-model="dTitle" type="text">
-                </div>
-                <h4>Album</h4>
-                <div class="content">
-                    <input v-model="dAlbum" type="text" ref="album">
-                </div>
-                <h4>Artist</h4>
-                <div class="content">
-                    <input v-model="dArtist" type="text">
-                </div>
-                <h4>Cover</h4>
-                <div class="content">
-                    <input type="text" class="addSong cover" v-model="dCover" ref="cover">
-                    <img @click="openInNewTab" class="addSong cover"
-                        :src="dCover ? dCover : '/assets/img/music_placeholder.png'">
                 </div>
                 <div class="confirm">
                     <button @click="add" class="negative">Add</button>
@@ -49,12 +35,8 @@
     </div>
 </template>
 <script>
-    import FindSources from '../ContextMenus/FindSources.vue'
     export default {
         name: "AddSongToPlaylist",
-        components: {
-            FindSources
-        },
         props: {
             cover: String,
             artist: String,
@@ -62,25 +44,11 @@
             href: String
         },
         data() {
-            //this.$refs.source.value = this.href
-            //this.$refs.album.value = this.cover
-
-            fetch("http://localhost:1234/api/playlists")
-                .then(x => x.json())
-                .then(jdata => {
-                    this.playlists.length = 0;
-                    this.playlists.push(...jdata)
-                })
-
             return {
                 showModal: false,
-                dCover: this.cover,
-                dArtist: this.artist,
-                dTitle: this.title,
-                dSource: this.href,
-                dAlbum: this.album,
-                playlists: [],
-                playlist: 0,
+                selectedPlaylist: -1,
+                track: { },
+                playlists: [ ]
             }
         },
         methods: {
@@ -88,53 +56,63 @@
                 this.showModal = false
                 this.$emit("close")
             },
-            opencontextmenu(evt) {
-                this.$refs.findSources.show(evt)
-            },
-            hideFindSourcesCtx() {
-                this.$refs.findSources.hide()
-            },
-            add() {
-                this.showModal = false
-                console.log("fetch")
-                fetch("http://localhost:1234/api/add", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        id: this.playlist,
-                        source: this.$refs.source.value,
-                        title: this.dTitle,
-                        artist: this.dArtist,
-                        album: this.$refs.album.value,
-                        cover: this.dCover
-                    })
-                }).then(x => {
-                    console.log(x)
-                    this.$emit("close")
-                })
-            },
             loadMetadata() {
                 fetch("http://localhost:1234/api/metadata", {
                         method: "POST",
                         body: JSON.stringify({
-                            url: this.$refs.source.value
+                            url: this.href
                         })
                     })
                     .then(x => x.json())
                     .then(jdata => {
-                        console.log(jdata)
-                        this.dTitle = jdata.title
-                        this.$refs.album.value = jdata.album
-                        this.dArtist = jdata.artists.join(", ")
-                        this.dCover = jdata.cover
-                        this.$refs.source.value = jdata.src
+                        this.track = jdata
                     })
             },
             openInNewTab() {
                 window.open(this.cover ? this.cover : '/assets/img/music_placeholder.png')
+            },
+            add() {
+                const track = this.track
+                const id = this.playlists.findIndex(x => x == this.selectedPlaylist)
+
+                console.log(track, id)
+
+                if (id < 0) {
+                    alert("no playlist selected")
+                    return
+                }
+
+                fetch("http://localhost:1234/api/add", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        id: id,
+                        source: track.src,
+                        title: track.title,
+                        artist: track.artists.join(", "),
+                        album: this.title,
+                        cover: this.cover
+                    })
+                }).then(x => {
+                    if (x.status == 200) {
+                        track.added = true
+                        this.close()
+                    }
+                })
             }
         },
         watch: {
-            dSource() {
+            showModal() {
+                if (!this.showModal)
+                {
+                    return
+                }
+
+                fetch("http://localhost:1234/api/playlists")
+                    .then(x => x.json())
+                    .then(jdata => {
+                        this.playlists.length = 0;
+                        this.playlists.push(...jdata)
+                    })
                 this.loadMetadata()
             }
         }
@@ -148,17 +126,18 @@
         justify-content: center;
         align-items: center;
         background-color: #0000;
+        cursor: default;
     }
 
-    .modal-content {
+    .addAlbumToPlaylistPopup {
         position: relative;
-        width: 40%;
+        width: 60%;
         max-height: 70vh;
         padding: 16px;
         overflow: auto;
         background: var(--hover-4);
         border-radius: 10px;
-        color: var(--font);
+        color: var(--font-colour);
     }
 
     .modal-close {
@@ -179,7 +158,7 @@
     }
 
     .modal-close:hover {
-        color: var(--font);
+        color: var(--font-colour);
     }
 </style>
 
@@ -194,7 +173,6 @@
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 20px;
     }
 
     .content {
@@ -207,7 +185,7 @@
         background: var(--hover-2);
         border: 1px solid var(--hover-3);
         border-radius: 5px;
-        color: var(--font);
+        color: var(--font-colour);
         padding: 10px;
         width: auto;
         flex-grow: 1;
@@ -220,12 +198,12 @@
 
     input[type="text"]:hover {
         background: var(--hover-1);
-        border: 1px solid var(--font);
+        border: 1px solid var(--font-colour);
     }
 
     button.negative {
         color: var(--hover-4);
-        background-color: var(--font);
+        background-color: var(--font-colour);
         border: none;
         border-radius: 20px;
         padding: 10px 25px 10px 25px;
@@ -279,21 +257,60 @@
         background: var(--hover-2);
         border: 1px solid var(--hover-3);
         border-radius: 5px;
-        color: var(--font);
+        color: var(--font-colour);
         padding: 10px;
         width: auto;
         flex-grow: 1;
         font-family: var(--font-family);
     }
 
+    h7 {
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
     option {
         background: var(--hover-4);
         border: 1px solid var(--hover-3);
         border-radius: 5px;
-        color: var(--font);
+        color: var(--font-colour);
         padding: 10px;
         width: auto;
         flex-grow: 1;
         font-family: var(--font-family);
+    }
+
+    .playlisteditor {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 20px;
+    }
+
+    .playlisteditor>img {
+        width: 20%;
+        margin-right: 20px;
+        border-radius: 5px;
+    }
+
+    .playlisteditor>.details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .playlisteditor>.details>h1 {
+        font-size: 1.1em;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .playlisteditor>.details>h7 {
+        font-size: .8em;
+    }
+
+    .playlisteditor>.details>h5 {
+        font-size: .8em;
+        margin: 0;
     }
 </style>

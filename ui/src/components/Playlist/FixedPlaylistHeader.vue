@@ -28,17 +28,17 @@ export default {
     }
 
     .darkback {
-        background: var(--player-background);
+        background: var(--fixedplaylistheader-background);
         padding-top: 10px;
         padding-bottom: 10px;
-        border-bottom: 1px solid #303030;
+        border-bottom: 1px solid var(--fixedplaylistheader-border);
     }
 
     .upperWrapper {
         padding: 10px;
         display: flex;
         flex-direction: row;
-        background: var(--gradient-c1);
+        background: var(--accent-dark);
     }
 
     #loadPlaylist {
@@ -64,7 +64,7 @@ export default {
         position: fixed;
         top: 0;
         left: calc(var(--sidebar-width) + 40px);
-        right: 0;
+        right: -3px;
         padding-right: 3px;
 
         z-index: 100;

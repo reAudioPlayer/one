@@ -2,16 +2,29 @@
     <div class="padding-20">
         <CollectionHeader />
         <div class="artists">
-            Artists
+            <full-shelf heading="Following on Spotify">
+                <artist-item v-for="(element, index) in spotifyArtists" :key="index" :cover="element.cover"
+                    :description="element.description" :name="element.name" :id="element.id" />
+            </full-shelf>
         </div>
     </div>
 </template>
 
 <script>
+import FullShelf from '../../Catalogue/FullShelf.vue'
+import ArtistItem from '../../Catalogue/Items/Artist/ArtistItem.vue'
 import CollectionHeader from './CollectionHeader.vue'
     export default {
-        components: { CollectionHeader },
+        components: { CollectionHeader, ArtistItem, FullShelf },
         name: 'Artists',
+        data() {
+            fetch("http://localhost:1234/api/spotify/artists")
+                .then(x => x.json())
+                .then(jdata => this.spotifyArtists.push(...jdata))
+            return {
+                spotifyArtists: [ ]
+            }
+        }
     }
 </script>
 

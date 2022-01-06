@@ -71,6 +71,6 @@ import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
 
     p {
         margin: 0;
-        color: var(--font);
+        color: var(--font-colour);
     }
 </style>

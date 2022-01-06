@@ -34,7 +34,7 @@ export default {
     div.navEntry:hover, .router-link-active div.navEntry {
         background-color: var(--hover-1);
         cursor: pointer;
-        color: var(--font);
+        color: var(--font-colour);
     }
 
     .router-link-active div.navEntry {

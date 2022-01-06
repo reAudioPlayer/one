@@ -85,7 +85,7 @@
         overflow: auto;
         background: var(--hover-4);
         border-radius: 10px;
-        color: var(--font);
+        color: var(--font-colour);
     }
 
     .modal-close {
@@ -106,7 +106,7 @@
     }
 
     .modal-close:hover {
-        color: var(--font);
+        color: var(--font-colour);
     }
 
 </style>
@@ -136,7 +136,7 @@
         background: var(--hover-2);
         border: 1px solid var(--hover-3);
         border-radius: 5px;
-        color: var(--font);
+        color: var(--font-colour);
         padding: 10px;
         width: 100%;
         font-family: var(--font-family);
@@ -148,12 +148,12 @@
 
     input[type="text"]:hover {
         background: var(--hover-1);
-        border: 1px solid var(--font);
+        border: 1px solid var(--font-colour);
     }
 
     button.negative {
         color: var(--hover-4);
-        background-color: var(--font);
+        background-color: var(--font-colour);
         border: none;
         border-radius: 20px;
         padding: 10px 25px 10px 25px;

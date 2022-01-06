@@ -5,10 +5,10 @@
             <Item v-for="element in tracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
         </Shelf>
         <Shelf v-if="spotifyTracks.length" heading="Songs (Spotify)">
-            <Item v-for="element in spotifyTracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+            <search-item v-for="element in spotifyTracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
         </Shelf>
         <Shelf v-if="youtubeTracks.length" heading="Songs (Youtube)">
-            <Item v-for="element in youtubeTracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+            <search-item v-for="element in youtubeTracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
         </Shelf>
         <Shelf v-if="artists.length" heading="Artists">
             <Item v-for="element in artists" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
@@ -21,13 +21,15 @@
 
 <script>
     import Item from '../Catalogue/Items/Release/ReleaseItem.vue'
+    import SearchItem from '../Catalogue/Items/Search/SearchItem.vue'
     import Shelf from "../Catalogue/Shelf.vue"
 
     export default {
         name: 'Search',
         components: {
             Shelf,
-            Item
+            Item,
+            SearchItem
         },
         data() {
             return {

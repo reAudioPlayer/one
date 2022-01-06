@@ -6,7 +6,7 @@ from meta.metadata import Metadata
 from meta.releases import Releases
 from meta.search import Search
 
-from dataModels.track import SpotifyPlaylist, SpotifyTrack
+from dataModels.track import SpotifyArtist, SpotifyPlaylist, SpotifyTrack
 
 
 class MetaHandler:
@@ -51,3 +51,13 @@ class MetaHandler:
             asyncio.create_task(invalidateCache())
 
         return web.json_response(data = self._releaseCache.toDict())
+
+    async def spotifyArtists(self, _: web.Request):
+        artists = Releases.followedArtists(self._spotify)
+        return web.json_response(data = [ SpotifyArtist(artist).toDict() for artist in artists ])
+
+    async def spotifyArtist(self, request: web.Request):
+        jdata = await request.json()
+        tracks = SpotifyTrack.FromArtist(self._spotify, jdata["artistId"])
+        metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
+        return web.json_response(data = [ metadata.toDict() for metadata in metadatas ])

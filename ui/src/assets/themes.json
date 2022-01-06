@@ -1,0 +1,135 @@
+{
+    "accent-dark": {
+        "default": "#217e41",
+        "ruby": "#601717",
+        "royal": "#30305a",
+        "reap": "#522783",
+        "tink": "#A5004D",
+        "neon": "#892b68",
+        "night-jade": "#00c48b",
+        "night-ruby": "#e85454",
+        "night-cobalt": "#189de4",
+        "night-fire": "#c7aa19"
+    },
+    "accent": {
+        "default": "#1ed760",
+        "ruby": "#bd4c62",
+        "royal": "#7169ff",
+        "reap": "#c18bff",
+        "tink": "#e7619f",
+        "neon": "#ffd100",
+        "night-jade": "#00c48b",
+        "night-ruby": "#e85454",
+        "night-cobalt": "#189de4",
+        "night-fire": "#c7aa19"
+    },
+    "font-colour": {
+        "default": "white",
+        "reap": "whitesmoke",
+        "tink": "whitesmoke",
+        "neon": "whitesmoke",
+        "night-jade": "whitesmoke",
+        "night-ruby": "whitesmoke",
+        "night-cobalt": "whitesmoke",
+        "night-fire": "whitesmoke"
+    },
+    "font-darker": {
+        "default": "#a7a7a7",
+        "reap": "#c2bebe",
+        "tink": "#c2bebe",
+        "neon": "#d7d7d7",
+        "night-jade": "#c2bebe",
+        "night-ruby": "#c2bebe",
+        "night-cobalt": "#c2bebe",
+        "night-fire": "#c2bebe"
+    },
+    "hover-4": {
+        "default": "#242424"
+    },
+    "hover-3": {
+        "default": "hsla(0,0%,100%,0.04)",
+        "reap": "hsla(0,0%,100%,0.3)"
+    },
+    "hover-2": {
+        "default": "hsla(0,0%,100%,0.3)",
+        "reap": "hsla(0,0%,100%,0.1)",
+        "night-jade": "#374148",
+        "night-ruby": "#374148",
+        "night-cobalt": "#374148",
+        "night-fire": "#374148"
+    },
+    "hover-1": {
+        "default": "hsla(0,0%,100%,0.1)",
+        "reap": "hsla(0,0%,100%,0.04)",
+        "night-jade": "#37414877",
+        "night-ruby": "#37414877",
+        "night-cobalt": "#37414877",
+        "night-fire": "#37414877"
+    },
+    "background": {
+        "default": "#121212",
+        "reap": "linear-gradient(to right top, #522783, hsl(214, 80%, 24%))",
+        "tink": "linear-gradient(to left bottom, #A5004D, #6105B0)",
+        "neon": "linear-gradient(to right bottom, #F956B3, #e68114)",
+        "night-jade": "#1e1e1e",
+        "night-ruby": "#1e1e1e",
+        "night-cobalt": "#1e1e1e",
+        "night-fire": "#1e1e1e"
+    },
+    "background-light": {
+        "default": "#181818",
+        "reap": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3))",
+        "tink": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
+        "neon": "#3d3d3db0",
+        "night-jade": "#374148",
+        "night-ruby": "#374148",
+        "night-cobalt": "#374148",
+        "night-fire": "#374148"
+    },
+    "sidebar-background": {
+        "default": "black",
+        "reap": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3))",
+        "tink": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
+        "neon": "#3d3d3db0",
+        "night-jade": "#374148",
+        "night-ruby": "#374148",
+        "night-cobalt": "#374148",
+        "night-fire": "#374148"
+    },
+    "player-background": {
+        "default": "#181818",
+        "reap": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3))",
+        "tink": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
+        "neon": "#3d3d3db0",
+        "night-jade": "#374148",
+        "night-ruby": "#374148",
+        "night-cobalt": "#374148",
+        "night-fire": "#374148"
+    },    
+    "fixedplaylistheader-background": {
+        "default": "var(--player-background)",
+        "reap": "#522783",
+        "tink": "#A5004D",
+        "neon": "#892b68"
+    },
+    "fixedplaylistheader-border": {
+        "default": "#303030",
+        "reap": "#522783",
+        "tink": "#A5004D",
+        "neon": "#892b68"
+    },
+
+    "font-family": {
+        "default": "Poppins, sans-serif"
+    },
+
+    "playlistEntry-height": {
+        "default": "50px"
+    },
+    "player-height": {
+        "default": "88px"
+    },
+    "sidebar-width": {
+        "default": "200px"
+    }
+}
