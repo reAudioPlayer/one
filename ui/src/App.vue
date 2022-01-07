@@ -1,11 +1,10 @@
 <template>
   <div class="appRoot">
     <div class="interface">
-      <Sidebar />
-
+      <Sidebar @expandCover="expandCover" :expandCover="shallExpandCover" />
       <Body />
     </div>
-    <Player />
+    <Player @expandCover="expandCover" :expandCover="!shallExpandCover" />
   </div>
 </template>
 
@@ -60,6 +59,16 @@
       Sidebar,
       Body,
       Player
+    },
+    data() {
+      return {
+        shallExpandCover: false
+      }
+    },
+    methods: {
+      expandCover(shallExpand) {
+        this.shallExpandCover = shallExpand
+      }
     }
   }
 </script>

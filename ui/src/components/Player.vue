@@ -1,7 +1,7 @@
 <template>
   <div class="player">
     <div class="left">
-      <img :src="cover">
+      <img v-if="expandCover" @click="onExpandCover" :src="cover">
       <div class="titleartist">
         <span class="title">{{title}}</span>
         <span class="artist">{{artist}}</span>
@@ -40,7 +40,8 @@
       favourite: {
         type: Boolean,
         default: false
-      }
+      },
+      expandCover: Boolean
     },
     setup() {
       const router = useRouter()
@@ -170,6 +171,9 @@
       }
     },
     methods: {
+      onExpandCover() {
+        this.$emit('expandCover', true)
+      },
       playPause() {
         console.log("playpause")
         this.get('playPause')
@@ -258,12 +262,12 @@
   .left>img {
     height: calc(var(--player-height) - 40px);
     border-radius: 5px;
+    margin-right: 10px;
   }
 
   .left>.titleartist {
     display: flex;
     flex-direction: column;
-    margin-left: 10px;
     justify-content: center;
 
     max-width: 20vw;

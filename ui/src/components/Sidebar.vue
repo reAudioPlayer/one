@@ -12,82 +12,127 @@
     <div class="playlistList">
       <router-link v-for="(element, index) in playlists" :key="index" :to="element.href">{{element.name}}</router-link>
     </div>
+    <img v-if="expandCover" @click="hideCover" :src="cover" class="cover" />
   </div>
 </template>
 
 <script>
-import NavEntry from './Sidebar/NavEntry.vue'
-export default {
-  name: 'Sidebar',
-  components: {
-    NavEntry
-  },
-  data() {
-    fetch("http://localhost:1234/api/playlists")
-      .then(x => x.json())
-      .then(jdata => {
-        for (let i = 0; i < jdata.length; i++)
-        {
-          this.playlists.push({
-            "name": jdata[i],
-            "href": `/playlist/${i}`
-          })
-        }
-      })
+  import NavEntry from './Sidebar/NavEntry.vue'
 
-    return {
-      playlists: [ ]
-    }
-  },
-  methods: {
-    onLogoClick() {
-      this.$router.push("/preferences")
+  export default {
+    name: 'Sidebar',
+    components: {
+      NavEntry
+    },
+    props: {
+      expandCover: Boolean
+    },
+    data() {
+      fetch("http://localhost:1234/api/playlists")
+        .then(x => x.json())
+        .then(jdata => {
+          for (let i = 0; i < jdata.length; i++) {
+            this.playlists.push({
+              "name": jdata[i],
+              "href": `/playlist/${i}`
+            })
+          }
+        })
+
+      const ctx = this
+
+      function connect() {
+        console.log("attempting reconnect")
+        let ws = new WebSocket('ws://localhost:1234/ws');
+
+        ws.onclose = function() {
+          console.log("ws closed")
+
+          setTimeout(connect, 1000);
+        }
+        
+        ws.onopen = () => {
+          console.log("ws connected")
+        }
+
+        ws.onmessage = function(msg) {
+          const jdata = JSON.parse(msg.data);
+          ctx.updateData(jdata)
+        }
+      }
+      connect()
+
+      return {
+        playlists: [],
+        cover: "/assets/img/music_placeholder.png"
+      }
+    },
+    methods: {
+      hideCover() {
+        this.$emit("expandCover", false)
+      },
+      onLogoClick() {
+        this.$router.push("/preferences")
+      },
+      updateData(jdata) {
+        if (jdata.path == "player.song")
+        {
+          this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
+          return;
+        }
+      }
     }
   }
-}
 </script>
 
 <style scoped>
-    .playlistList {
-      flex-grow: 1;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      padding: 0px 10px;
-    }
+  .cover {
+    height: calc(var(--sidebar-width) + 40px);
+    width: calc(var(--sidebar-width) + 40px);
+    transform: translate(-10px, 10px);
+  }
 
-    .playlistList>a {
-      font-size: 0.92em;
-      text-decoration: none;
-      color: var(--font-darker);
-      margin-bottom: 4px;
-      margin-top: 4px;
-    }
+  .playlistList {
+    flex-grow: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 0px 10px;
+  }
 
-    .playlistList>a:hover {
-      color: var(--font-colour)
-    }
+  .playlistList>a {
+    font-size: 0.92em;
+    text-decoration: none;
+    color: var(--font-darker);
+    margin-bottom: 4px;
+    margin-top: 4px;
+  }
 
-    hr {
-      width: 100%;
-    }
-    div.sidebar {
-        background: var(--sidebar-background);
-        width: calc(var(--sidebar-width) + 20px);
-        min-width: calc(var(--sidebar-width) + 20px);
-        display: flex;
-        flex-direction: column;
-        padding: 10px;
-        max-height: calc(100vh - var(--player-height) - 20px);
-    }
+  .playlistList>a:hover {
+    color: var(--font-colour)
+  }
 
-    h2:hover {
-      cursor: pointer;
-    }
+  hr {
+    width: 100%;
+  }
 
-    h2 {
-      margin: 0;
-      padding: 10px;
-    }
+  div.sidebar {
+    background: var(--sidebar-background);
+    width: calc(var(--sidebar-width) + 20px);
+    min-width: calc(var(--sidebar-width) + 20px);
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    max-height: calc(100vh - var(--player-height) - 20px);
+  }
+
+  h2:hover {
+    cursor: pointer;
+  }
+
+  h2 {
+    margin: 0;
+    padding: 10px;
+  }
 </style>
