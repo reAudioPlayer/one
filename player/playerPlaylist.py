@@ -109,8 +109,9 @@ class PlayerPlaylist:
     def move(self, songIndex: int, newSongIndex: int) -> None:
         self._playlist.changeIndex(songIndex, newSongIndex)
         songs = list(map(lambda x: x.id, self._playlist))
-        print(songs)
         self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex, self._description))
+        if self._index == songIndex:
+            self._index = newSongIndex
 
     @property
     def name(self) -> str:
