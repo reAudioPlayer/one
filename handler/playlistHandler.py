@@ -13,6 +13,11 @@ class PlaylistHandler:
         self._playlistManager.addToPlaylist(jdata["id"], Song.FromDict(jdata))
         return web.Response(status = 200, text = "success!")
 
+    async def moveSong(self, request: web.Request):
+        jdata = await request.json()
+        self._playlistManager.moveInPlaylist(jdata["playlistIndex"], jdata["songOldIndex"], jdata["songNewIndex"])
+        return web.Response(status = 200, text = "success!")
+
     async def removeSong(self, request: web.Request):
         jdata = await request.json()
         self._playlistManager.removeFromPlaylist(jdata.get("playlistId"), jdata.get("songId"))

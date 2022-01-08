@@ -16,7 +16,11 @@
                 <grid-header />
                 <hr>
                 <div class="playlistEntries">
-                    <playlist-entry v-for="(element, index) in playlist" :key="index" :index="index" :source="element.source" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                    <draggable v-model="playlist" @change="onPlaylistRearrange">
+                        <template #item="{element}">
+                            <playlist-entry :index="playlist.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                        </template>
+                    </draggable>
                 </div>
             </div>
         </div>
@@ -29,6 +33,7 @@
     import PlaylistEntry from '../Playlist/PlaylistEntry.vue'
     import AddSong from "../Popups/AddSong.vue"
     import EditPlaylist from '../Popups/EditPlaylist.vue'
+    import draggable from 'vuedraggable'
 
     export default {
         components: {
@@ -36,7 +41,8 @@
             FixedPlaylistHeader,
             GridHeader,
             AddSong,
-            EditPlaylist
+            EditPlaylist,
+            draggable
         },
         name: 'Playlist',
         data() {
@@ -50,6 +56,23 @@
             }
         },
         methods: {
+            onPlaylistRearrange(type) {
+                const moved = type.moved
+                
+                if (!moved)
+                {
+                    return;
+                }
+
+                fetch("http://localhost:1234/api/rearrange", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        playlistIndex: Number(this.$route.params.id),
+                        songOldIndex: moved.oldIndex,
+                        songNewIndex: moved.newIndex
+                    })
+                })
+            },
             connect() {
                 const ctx = this
                 console.log("attempting reconnect")

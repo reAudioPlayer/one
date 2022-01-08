@@ -1,11 +1,25 @@
 from __future__ import annotations
 import json
-from typing import List, Optional, Set
-from pymitter import EventEmitter
+from typing import List, Optional
 from dataModels.playlist import Playlist
 from dataModels.song import Song
 from db.dbManager import DbManager
 from ordered_set import OrderedSet
+
+
+class OrderedUniqueList(list):
+    def append(self, __object) -> None:
+        if __object in self:
+            return None
+        return super().append(__object)
+
+    def update(self, objects: list) -> None:
+        [ self.append(obj) for obj in objects ]
+
+    def changeIndex(self, old: int, new: int) -> None:
+        elem = self[old]
+        self.remove(self[old])
+        self.insert(new, elem)
 
 
 class PlayerPlaylist:
@@ -16,7 +30,7 @@ class PlayerPlaylist:
                  name: Optional[str] = None,
                  description: Optional[str] = None) -> None:
         self._dbManager = dbManager
-        self._playlist: OrderedSet[Song] = OrderedSet()
+        self._playlist: OrderedUniqueList[Song] = OrderedUniqueList()
         self._index: int = -1
         self._playlistIndex = playlistIndex
         self._name: str = name or "N/A"
@@ -77,10 +91,11 @@ class PlayerPlaylist:
 
         return self._playlist[x]
 
-    def add(self, song: Song) -> None:
-        self._dbManager.addSong(song)
+    def add(self, song: Song, alreadyInDb: bool = False) -> None:
+        if not alreadyInDb:
+            self._dbManager.addSong(song)
         x = self._dbManager.getSongByCustomFilter(f"source='{song.source}'")[0]
-        self._playlist.add(x)
+        self._playlist.append(x)
         songs = list(map(lambda x: x.id, self._playlist))
         self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex, self._description))
 
@@ -90,6 +105,12 @@ class PlayerPlaylist:
         songs = list(map(lambda x: x.id, self._playlist))
         self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex, self._description))
         self._dbManager.removeSong(songId)
+
+    def move(self, songIndex: int, newSongIndex: int) -> None:
+        self._playlist.changeIndex(songIndex, newSongIndex)
+        songs = list(map(lambda x: x.id, self._playlist))
+        print(songs)
+        self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex, self._description))
 
     @property
     def name(self) -> str:

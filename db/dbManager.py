@@ -57,7 +57,7 @@ class DbManager:
 
     @staticmethod
     def _castToSongList(rows: List[Tuple]) -> List[Song]:
-        return list(map(Song.FromSql, rows))
+        return [ Song.FromSql(row) for row in rows ]
 
     def getSongs(self) -> List[Song]:
         with self._db:
@@ -69,7 +69,8 @@ class DbManager:
 
     def getSongsByIdList(self, idList: List[int]) -> List[Song]:
         with self._db:
-            return DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs WHERE id IN ({ ','.join([str(int) for int in idList]) })"))
+            songs = DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs WHERE id IN ({ ','.join([str(int) for int in idList]) })"))
+            return [ next((x for x in songs if x.id == songId), None) for songId in idList ] # sort based on id list
 
     def getSongByCustomFilter(self, filter) -> List[Song]:
         with self._db:

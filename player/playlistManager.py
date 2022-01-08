@@ -18,8 +18,11 @@ class PlaylistManager:
             self._playlists.add(PlayerPlaylist(self._dbManager, playlist.id))
 
     def addToPlaylist(self, playlistIndex: int, song: Song) -> None:
-        if len(self._dbManager.getSongByCustomFilter(f"source='{song.source}'")) == 0: # only new
-            self._playlists[playlistIndex].add(song)
+        songsInDb = self._dbManager.getSongByCustomFilter(f"source='{song.source}'")
+        self._playlists[playlistIndex].add(song, len(songsInDb) > 0)
+
+    def moveInPlaylist(self, playlistIndex: int, songIndex: int, newSongIndex: int) -> None:
+        self._playlists[playlistIndex].move(songIndex, newSongIndex)
 
     def removeFromPlaylist(self, playlistIndex: int, songId: int) -> None:
         self._playlists[playlistIndex].remove(songId)

@@ -13,7 +13,8 @@
     "vue-final-modal": "^3.4.3",
     "vue-observe-visibility": "^1.0.0",
     "vue-router": "^4.0.12",
-    "vue3-keypress": "^4.0.1"
+    "vue3-keypress": "^4.0.1",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
