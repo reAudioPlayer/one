@@ -2,7 +2,7 @@
     <div class="playlist">
         <AddSong @close="updatePlaylist" ref="addSongPopup" />
         <EditPlaylist @close="updatePlaylist" :playlistName="playlistName" :playlistDescription="playlistDescription" ref="editPlaylistPopup" />
-        <fixed-playlist-header @click="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }" :title="playlistName" />
+        <fixed-playlist-header @loadPlaylist="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }" :title="playlistName" />
         <div class="padding-20 playlisteditor" @click="editPlaylist" v-observe-visibility="headerVisibilityChanged">
             <h7>Playlist</h7>
             <h1>{{playlistName}}</h1>
@@ -18,7 +18,7 @@
                 <div class="playlistEntries">
                     <draggable v-model="playlist" @change="onPlaylistRearrange">
                         <template #item="{element}">
-                            <playlist-entry :index="playlist.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                            <playlist-entry @requestUpdate="updatePlaylist" :index="playlist.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
                         </template>
                     </draggable>
                 </div>

@@ -1,7 +1,7 @@
 <template>
     <div class="fixedPlaylistHeader">
         <div class="upperWrapper">
-            <span id="loadPlaylist" @click="this.$emit('click')" class="material-icons-outlined">play_circle_filled</span>
+            <span id="loadPlaylist" @click="this.$emit('loadPlaylist')" class="material-icons-outlined">play_circle_filled</span>
             <h3>{{title}}</h3>
         </div>
         <grid-header class="padding-20 darkback" />

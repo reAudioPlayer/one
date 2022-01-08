@@ -1,5 +1,5 @@
 <template>
-    <SongCtx @remove="remove" @update="update" @like="favourited = !favourited" :isAutoPlaylist="isAutoPlaylist" :liked="favourited" ref="ctxMenu">
+    <SongCtx @addto="addToPlaylist" @remove="remove" @update="update" @like="favourited = !favourited" :isAutoPlaylist="isAutoPlaylist" :liked="favourited" ref="ctxMenu">
         <EditSong @close="updatePlaylist" ref="editSongPopup" :cover="cover" :id="id" :title="title" :album="album" :artist="artist" :source="source" />
         <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry"
             :class="{ 'selected': highlighted }">
@@ -70,6 +70,20 @@
             }
         },
         methods: {
+            addToPlaylist(index) {
+                fetch("http://localhost:1234/api/add", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        id: index,
+                        source: this.source // song already exists, metadata unecessary
+                    })
+                }).then(x => {
+                    if (x.status == 200)
+                    {
+                        this.$emit("requestUpdate")
+                    }
+                })
+            },
             remove() {
                 fetch("http://localhost:1234/api/remove", {
                     method: "POST",
@@ -77,6 +91,11 @@
                         playlistId: Number(this.$route.params.id),
                         songId: this.id
                     })
+                }).then(x => {
+                    if (x.status == 200)
+                    {
+                        this.$emit("requestUpdate")
+                    }
                 })
             },
             update() {
