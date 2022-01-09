@@ -126,7 +126,8 @@
                 fetch("http://localhost:1234/api/at", {
                     method: "POST",
                     body: JSON.stringify({
-                        index: this.index
+                        index: this.index,
+                        playlistIndex: Number(this.$route.params.id)
                     })
                 })
             },

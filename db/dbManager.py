@@ -55,6 +55,10 @@ class DbManager:
         with self._db:
             self._db.execute(f"DELETE FROM Songs WHERE id={songId}")
 
+    def removePlaylist(self, playlistId: int) -> None:
+        with self._db:
+            self._db.execute(f"DELETE FROM Playlists WHERE id={playlistId}")
+
     @staticmethod
     def _castToSongList(rows: List[Tuple]) -> List[Song]:
         return [ Song.FromSql(row) for row in rows ]

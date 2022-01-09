@@ -46,7 +46,11 @@ class PlayerHandler:
 
     async def loadSongAt(self, request: web.Request):
         x = await request.json()
-        asyncio.create_task(self._player.at(x["index"]))
+        async def _implement() -> None:
+            if not await self._player.loadPlaylist(self._playlistManager.get(x.get("playlistIndex")), x["index"]):
+                await self._player.at(x["index"])
+
+        asyncio.create_task(_implement())
         return web.Response(status = 200, text = "success!")
 
     async def updateSong(self, request: web.Request) -> None:

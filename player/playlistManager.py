@@ -27,7 +27,9 @@ class PlaylistManager:
     def removeFromPlaylist(self, playlistIndex: int, songId: int) -> None:
         self._playlists[playlistIndex].remove(songId)
 
-    def get(self, playlistIndex) -> PlayerPlaylist:
+    def get(self, playlistIndex) -> Optional[PlayerPlaylist]:
+        if not isinstance(playlistIndex, int):
+            return None
         return self._playlists[playlistIndex]
 
     def updateSong(self, id: int, updateFunction: Callable[[Song], Song]) -> None:
@@ -52,3 +54,10 @@ class PlaylistManager:
         self._dbManager.addPlaylist(Playlist(name, [], plId, ""))
         self._loadPlaylists()
         return plId
+
+    def removePlaylist(self, playlistIndex: int) -> None:
+        if playlistIndex >= self.playlistLength:
+            return
+        playlistId = self._playlists[playlistIndex]._playlistIndex
+        self._playlists.remove(self._playlists[playlistIndex])
+        self._dbManager.removePlaylist(playlistId)

@@ -36,6 +36,11 @@ class PlaylistHandler:
     async def createPlaylist(self, _: web.Request):
         return web.Response(status = 200, text = f"/playlist/{self._playlistManager.addPlaylist()}")
 
+    async def deletePlaylist(self, request: web.Request):
+        index = int(request.match_info['id'])
+        self._playlistManager.removePlaylist(index)
+        return web.Response(status = 200)
+
     async def updatePlaylist(self, request: web.Request):
         jdata = await request.json()
         self._playlistManager.updatePlaylist(jdata["id"], jdata.get("name"), jdata.get("description"))

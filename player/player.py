@@ -56,9 +56,17 @@ class Player:
             return
         await self._playStateChangeCallback(self._playing)
 
-    async def loadPlaylist(self, playlist: PlayerPlaylist) -> None:
+    async def loadPlaylist(self, playlist: PlayerPlaylist, atIndex: Optional[int] = None) -> bool:
+        if not playlist:
+            return False
+        if self._playerPlaylist and self._playerPlaylist == playlist:
+            return False
         self._playerPlaylist = playlist
-        await self.next()
+        if atIndex is not None:
+            await self.at(atIndex)
+        else:
+            await self.next()
+        return True
 
     async def playPause(self) -> None:
         if self._playing:

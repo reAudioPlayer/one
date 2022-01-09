@@ -283,6 +283,9 @@
   .left>.titleartist>.artist {
     font-size: 0.7em;
     color: var(--font-darker);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .centre {

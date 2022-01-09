@@ -5,6 +5,8 @@
             <v-contextmenu-item @click="like">{{(liked ? 'Remove from' : 'Save to') + ' your Liked Songs'}}</v-contextmenu-item>
             <v-contextmenu-item v-if="!isAutoPlaylist" @click="remove">Remove from this playlist</v-contextmenu-item>
             <v-contextmenu-submenu title="Add to playlist">
+                <v-contextmenu-item @click="() => addto('new')">Add to new playlist</v-contextmenu-item>
+                <v-contextmenu-divider />
                 <v-contextmenu-item v-for="(element, index) in playlists" :key="index" @click="() => addto(index)">{{element}}</v-contextmenu-item>
             </v-contextmenu-submenu>
             <v-contextmenu-divider />
@@ -60,6 +62,15 @@
                 this.$emit("remove")
             },
             addto(index) {
+                if (index === 'new')
+                {
+                    fetch("http://localhost:1234/api/playlist/create")
+                        .then(x => x.text()).then(y => {
+                            this.$emit("addto", Number(y.replace('/playlist/', '')))
+                        })
+                    return
+                }
+
                 this.$emit("addto", index)
             },
             share() {

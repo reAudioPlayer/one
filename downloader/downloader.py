@@ -1,6 +1,5 @@
 from yt_dlp import YoutubeDL, postprocessor
-from threading import Thread
-import asyncio
+from helpers.asyncThread import asyncRunInThread
 
 
 """
@@ -29,7 +28,4 @@ class Downloader:
 
     async def downloadSong(self, link, filename = "upNow"):
         self._ydl.outtmpl_dict["default"] = f"./_cache/{filename}.%(ext)s"
-        t1 = Thread(target = self._ydl.download, args = [link])
-        t1.start()
-        while t1.is_alive():
-            await asyncio.sleep(1)
+        await asyncRunInThread(self._ydl.download, [ link ])

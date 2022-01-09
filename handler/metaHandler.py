@@ -1,7 +1,8 @@
 import asyncio
-from typing import Optional
+from typing import Dict, List, Optional
 from aiohttp import web
 from spotipy import Spotify
+from helpers.asyncThread import asyncRunInThreadWithReturn
 from meta.metadata import Metadata
 from meta.releases import Releases
 from meta.search import Search
@@ -16,33 +17,42 @@ class MetaHandler:
 
     async def get(self, request: web.Request):
         jdata = await request.json()
-        metadata = Metadata(self._spotify, jdata["url"])
+        metadata = await asyncRunInThreadWithReturn(Metadata, self._spotify, jdata["url"])
         return web.json_response(data = metadata.toDict())
 
     async def search(self, request: web.Request):
         jdata = await request.json()
-        search = Search(self._spotify, jdata["query"])
+        search = await asyncRunInThreadWithReturn(Search, self._spotify, jdata["query"])
         return web.json_response(data = search.toDict())
 
     async def spotifyAlbum(self, request: web.Request):
         jdata = await request.json()
-        tracks = SpotifyTrack.FromAlbum(self._spotify, jdata["albumId"])
-        metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
-        return web.json_response(data = [ metadata.toDict() for metadata in metadatas ])
+        def _implement() -> List[Dict]:
+            tracks = SpotifyTrack.FromAlbum(self._spotify, jdata["albumId"])
+            metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
+            return [ metadata.toDict() for metadata in metadatas ]
+        data = await asyncRunInThreadWithReturn(_implement)
+        return web.json_response(data = data)
 
     async def spotifyPlaylists(self, _: web.Request):
-        playlists = self._spotify.current_user_playlists()["items"]
-        return web.json_response(data = [ SpotifyPlaylist(playlist).toDict() for playlist in playlists ])
+        def _implement() -> List[SpotifyPlaylist]:
+            playlists = self._spotify.current_user_playlists()["items"]
+            return [ SpotifyPlaylist(playlist).toDict() for playlist in playlists ]
+        data = await asyncRunInThreadWithReturn(_implement)
+        return web.json_response(data = data)
 
     async def spotifyPlaylist(self, request: web.Request):
         jdata = await request.json()
-        tracks = SpotifyTrack.FromPlaylist(self._spotify, jdata["playlistId"])
-        metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
-        return web.json_response(data = [ metadata.toDict() for metadata in metadatas ])
+        def _implement() -> List[Dict]:
+            tracks = SpotifyTrack.FromPlaylist(self._spotify, jdata["playlistId"])
+            metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
+            return [ metadata.toDict() for metadata in metadatas ]
+        data = await asyncRunInThreadWithReturn(_implement)
+        return web.json_response(data = data)
 
     async def releases(self, _: web.Request):
         if not self._releaseCache:
-            self._releaseCache = Releases(self._spotify)
+            self._releaseCache = await asyncRunInThreadWithReturn(Releases, self._spotify)
 
             async def invalidateCache() -> None:
                 await asyncio.sleep(3600) # 1h
@@ -53,11 +63,17 @@ class MetaHandler:
         return web.json_response(data = self._releaseCache.toDict())
 
     async def spotifyArtists(self, _: web.Request):
-        artists = Releases.followedArtists(self._spotify)
-        return web.json_response(data = [ SpotifyArtist(artist).toDict() for artist in artists ])
+        def _implement() -> List[Dict]:
+            artists = Releases.followedArtists(self._spotify)
+            return [ SpotifyArtist(artist).toDict() for artist in artists ]
+        data = await asyncRunInThreadWithReturn(_implement)
+        return web.json_response(data = data)
 
     async def spotifyArtist(self, request: web.Request):
         jdata = await request.json()
-        tracks = SpotifyTrack.FromArtist(self._spotify, jdata["artistId"])
-        metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
-        return web.json_response(data = [ metadata.toDict() for metadata in metadatas ])
+        def _implement() -> List[Dict]:
+            tracks = SpotifyTrack.FromArtist(self._spotify, jdata["artistId"])
+            metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
+            return [ metadata.toDict() for metadata in metadatas ]
+        data = await asyncRunInThreadWithReturn(_implement)
+        return web.json_response(data = data)

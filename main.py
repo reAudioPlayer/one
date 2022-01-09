@@ -91,6 +91,7 @@ app.router.add_post('/api/remove', playlistHandler.removeSong)
 app.router.add_post('/api/rearrange', playlistHandler.moveSong)
 app.router.add_get('/api/playlist/create', playlistHandler.createPlaylist)
 app.router.add_post('/api/playlist', playlistHandler.getPlaylist)
+app.router.add_delete('/api/playlist/{id}', playlistHandler.deletePlaylist)
 app.router.add_get('/api/playlists', playlistHandler.getPlaylists)
 app.router.add_post('/api/updatePlaylist', playlistHandler.updatePlaylist)
 

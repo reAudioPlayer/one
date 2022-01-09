@@ -19,6 +19,7 @@
                     <input v-model="description" type="text" ref="description">
                 </div>
                 <div class="confirm">
+                    <button @click="remove" class="negative left">Delete</button>
                     <button @click="apply" class="negative">Save</button>
                 </div>
             </div>
@@ -54,6 +55,13 @@
                 }).then(x => {
                     console.log(x)
                     this.$emit("close")
+                })
+            },
+            remove() {
+                fetch(`http://localhost:1234/api/playlist/${Number(this.$route.params.id)}`, {
+                    method: "DELETE"
+                }).then(() => {
+                    this.$router.push("/")
                 })
             }
         },
@@ -161,6 +169,7 @@
         letter-spacing: 1px;
         font-weight: bold;
         font-family: var(--font-family);
+        margin-left: auto;
     }
 
     .confirm {
@@ -175,5 +184,9 @@
         cursor: pointer;
         padding: 11px 26px 11px 26px;
         border-radius: 21px;
+    }
+
+    .negative.left {
+        margin-left: 0;
     }
 </style>
