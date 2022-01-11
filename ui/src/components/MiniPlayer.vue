@@ -1,7 +1,7 @@
 <template>
     <div class="miniPlayer">
         <audio :src="src" ref="player" />
-        <span v-if="display" @click="playPause" class="material-icons-round circle">{{playing ? "pause_circle" : "play_circle"}}</span>
+        <span v-if="display" @click="playPause" class="material-icons-round circle">{{playing ? "pause" : "play_arrow"}}</span>
     </div>
 </template>
 
@@ -56,7 +56,7 @@ export default {
 
 <style scoped>
     .circle {
-        font-size: 40px;
+        font-size: 2em;
     }
 
     .circle:hover {
