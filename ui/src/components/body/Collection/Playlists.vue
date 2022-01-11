@@ -9,7 +9,7 @@
             </full-shelf>
             <full-shelf heading="Import From Spotify">
                 <playlist-item v-for="(element, index) in spotifyPlaylists" :key="index" :cover="element.cover"
-                    :description="element.description" :title="element.name" :id="element.id" :spotify="true" />
+                    :description="element.description" :title="element.name" :id="element.id" :spotify="true" :href="`https://open.spotify.com/playlist/${element.id}`" />
             </full-shelf>
         </div>
     </div>

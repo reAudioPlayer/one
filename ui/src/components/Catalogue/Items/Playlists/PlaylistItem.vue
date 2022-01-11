@@ -1,6 +1,6 @@
 <template>
     <div class="wrapper">
-        <add-playlist-to-playlist :cover="cover" :title="title" :description="description" :id="id" ref="import" v-if="spotify" />
+        <add-playlist-to-playlist :cover="cover" :href="href" :title="title" :description="description" :id="id" ref="import" v-if="spotify" />
         <div class="item" @click="redirect">
             <img :src="cover" />
             <h4>{{title}}</h4>

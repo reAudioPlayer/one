@@ -52,7 +52,7 @@
                         v-observe-visibility="headerVisibilityChanged">
                         <img class="cover" :src="cover" />
                         <div class="details">
-                            <h7>Artist</h7>
+                            <div class="detailswrapper"><h7>Artist</h7><span class="material-icons-round share" @click="share">share</span></div>
                             <h1>{{name}}</h1>
                             <h5 v-html="description" />
                         </div>
@@ -62,7 +62,14 @@
                     <hr>
                     <spotify-playlist-entry @add="add" v-for="(track, index) in playlist" :key="index" :added="track.added"
                         :index="index" :cover="track.cover" :artist="track.artists.join(', ')" :title="track.title"
-                        :source="track.source" :album="track.album" />
+                        :source="track.source" :album="track.album" :preview="track.preview" />
+                    <h5>{{"Recommendations based on " + name}}</h5>
+                    <hr>
+                    <spotify-playlist-header />
+                    <hr>
+                    <spotify-playlist-entry @add="addRec" v-for="(track, index) in recommendations" :key="index" :added="track.added"
+                        :index="index" :cover="track.cover" :artist="track.artists.join(', ')" :title="track.title"
+                        :source="track.source" :album="track.album" :preview="track.preview" />
                 </div>
                 <div class="confirm">
                     <button @click="addAll" class="negative">Add All</button>
@@ -95,10 +102,14 @@
                 playlists: [],
                 selectedPlaylist: -1,
                 playlist: [],
+                recommendations: [ ],
                 editSong: false
             }
         },
         methods: {
+            share() {
+                window.open(this.href)
+            },
             close() {
                 this.showModal = false
                 this.$emit("close")
@@ -130,7 +141,12 @@
                 }
             },
             add(index) {
-                const track = this.playlist[index]
+                this.addTrack(this.playlist[index])
+            },
+            addRec(index) {
+                this.addTrack(this.recommendations[index])
+            },
+            addTrack(track) {
                 const id = this.playlists.findIndex(x => x == this.selectedPlaylist)
 
                 console.log(track, id)
@@ -182,6 +198,16 @@
                     .then(jdata => {
                         this.playlist.length = 0
                         this.playlist.push(...jdata)
+                    })
+                fetch("http://localhost:1234/api/spotify/recommend", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            "artists": [ this.id ]
+                        })
+                    }).then(x => x.json())
+                    .then(jdata => {
+                        this.recommendations.length = 0
+                        this.recommendations.push(...jdata)
                     })
             }
         }
@@ -369,13 +395,26 @@
     }
 
     .playlisteditor>.details>h1 {
-        font-size: 1.1em;
-        margin-top: 20px;
-        margin-bottom: 20px;
+        font-size: 2em;
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
 
-    .playlisteditor>.details>h7 {
+    .playlisteditor>.details>.detailswrapper {
         font-size: .8em;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+    }  
+
+    .playlisteditor>.details>.detailswrapper>.share {
+        margin-left: 10px;
+        line-height: 15px;
+        font-size: 15px;
+    }
+
+    .share:hover {
+        cursor: pointer;
     }
 
     .playlisteditor>.details>h5 {

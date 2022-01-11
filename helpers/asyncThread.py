@@ -16,7 +16,6 @@ async def asyncRunInThreadWithReturn(target: Any, *args) -> Any:
 
     def _implement() -> None:
         ret = target(*args) if args else target()
-        print(ret)
         q.put_nowait(ret)
 
     t1 = Thread(target = _implement)

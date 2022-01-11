@@ -8,7 +8,7 @@ from ytmusicapi import YTMusic
 
 from sclib import SoundcloudAPI, Track
 
-from dataModels.track import SpotifyTrack, YoutubeTrack
+from dataModels.track import SpotifyAlbum, SpotifyArtist, SpotifyTrack, YoutubeTrack
 
 
 class Search:
@@ -21,13 +21,14 @@ class Search:
 
         self._spotifyTracks = SpotifyTrack.FromQuery(spotify, query)
         self._youtubeTracks = YoutubeTrack.FromQuery(query) 
+        self._spotifyArtists = SpotifyArtist.FromQuery(spotify, query)
 
     def toDict(self) -> dict:
         return {
             "tracks": [ self._trackToDict(track) for track in self._tracks ],
             "artists": [ self._trackToDict(track) for track in self._artists ],
             "spotifyTracks": [ self._trackToDict(track) for track in self._spotifyTracks ],
-            "spotifyartists": [ self._trackToDict(track) for track in self._spotifyArtists ],
+            "spotifyArtists": [ artist.toDict() for artist in self._spotifyArtists ],
             "youtubeTracks": [ self._trackToDict(track) for track in self._youtubeTracks ]
         }
 
@@ -37,5 +38,6 @@ class Search:
             "album": track._album,
             "artists": track._artists,
             "cover": track._cover,
-            "url": track.url
+            "url": track.url,
+            "preview": track._preview
         }

@@ -34,7 +34,7 @@ playlistManager = PlaylistManager(dbManager)
 
 player = Player(ee, dbManager, downloader, playlistManager)
 
-scope = "user-library-read user-follow-read"
+scope = "user-library-read user-follow-read user-follow-modify"
 
 spotify = spotipy.Spotify(auth_manager=SpotifyOAuth("c8e963f8a6a942b58712cc34e2ccc76d", "6ec48f7d1b574bd6b340384c50675447", "http://reap.ml/", scope=scope))
 
@@ -83,6 +83,9 @@ app.router.add_post('/api/spotify/artist', metaHandler.spotifyArtist)
 app.router.add_get('/api/spotify/artists', metaHandler.spotifyArtists)
 app.router.add_post('/api/spotify/playlist', metaHandler.spotifyPlaylist)
 app.router.add_get('/api/spotify/playlists', metaHandler.spotifyPlaylists)
+app.router.add_post('/api/spotify/follow', metaHandler.spotifyFollow)
+app.router.add_post('/api/spotify/unfollow', metaHandler.spotifyUnfollow)
+app.router.add_post('/api/spotify/recommend', metaHandler.spotifyRecommend)
 
 app.router.add_get('/api/collection/tracks', collectionHandler.tracks)
 

@@ -21,6 +21,7 @@ class SpotifyTrack:
             self._release_date = track.get("release_date")
         self._artists = [x.get("name") for x in track.get("artists")] if track.get("artists") else [ ]
         self._id = track.get("id")
+        self._preview = track.get("preview_url")
 
     @property
     def url(self) -> str:
@@ -50,6 +51,11 @@ class SpotifyTrack:
         tracks = spotify.artist_top_tracks(id)["tracks"]
         return [ SpotifyTrack(track) for track in tracks ]
 
+    @staticmethod
+    def FromRecommendation(spotify: spotipy.Spotify, artists: Optional[list], tracks: Optional[list]) -> List[SpotifyTrack]:
+        tracks = spotify.recommendations(seed_artists=artists, seed_tracks=tracks, limit = 10)["tracks"]
+        return [ SpotifyTrack(track) for track in tracks ]
+
 class SpotifyPlaylist:
     def __init__(self, playlist: dict) -> None:
         self._name = playlist.get("name")
@@ -74,9 +80,14 @@ class SpotifyArtist:
     def __init__(self, artist: dict) -> None:
         self._name = artist.get("name")
         self._id = artist.get("id")
-        self._cover = artist.get("images")[0]["url"]
+        self._cover = artist.get("images")[0]["url"] if len(artist.get("images")) > 0 else None
         self._description = f"{artist.get('followers')['total']:,} followers"
-    
+
+    @staticmethod
+    def FromQuery(spotify: spotipy.Spotify, query: str) -> List[SpotifyArtist]:
+        artists = spotify.search(query, type="artist")["artists"]["items"]
+        return [ SpotifyArtist(artist) for artist in artists ]
+
     def toDict(self) -> dict:
         return {
             "name": self._name,
@@ -107,6 +118,7 @@ class YoutubeTrack:
         self._artists = [x.get("name") for x in track.get("artists")]
         self._id = track.get("videoId")
         self._cover = track.get("thumbnails")[0].get("url").replace("w60-h60", "w500-h500")
+        self._preview = None
 
     @property
     def url(self) -> str:
@@ -145,6 +157,7 @@ class SoundcloudTrack:
         self._id = track.id
         self._cover = track.artwork_url.replace("large", "t500x500")
         self._extendedTrack = track
+        self._preview = None
 
     @staticmethod
     def FromUrl(url: str) -> SoundcloudTrack:

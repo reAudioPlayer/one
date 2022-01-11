@@ -77,3 +77,22 @@ class MetaHandler:
             return [ metadata.toDict() for metadata in metadatas ]
         data = await asyncRunInThreadWithReturn(_implement)
         return web.json_response(data = data)
+
+    async def spotifyFollow(self, request: web.Request):
+        jdata = await request.json()
+        self._spotify.user_follow_artists([jdata.get("artistId")])
+        return web.json_response(status=200)
+
+    async def spotifyUnfollow(self, request: web.Request):
+        jdata = await request.json()
+        self._spotify.user_unfollow_artists([jdata.get("artistId")])
+        return web.json_response(status=200)
+
+    async def spotifyRecommend(self, request: web.Request):
+        jdata = await request.json()
+        def _implement() -> List[Dict]:
+            tracks = SpotifyTrack.FromRecommendation(self._spotify, jdata.get("artists"), jdata.get("tracks"))
+            metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
+            return [ metadata.toDict() for metadata in metadatas ]
+        data = await asyncRunInThreadWithReturn(_implement)
+        return web.json_response(data = data)

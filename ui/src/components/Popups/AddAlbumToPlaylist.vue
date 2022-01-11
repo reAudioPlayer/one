@@ -52,7 +52,7 @@
                         v-observe-visibility="headerVisibilityChanged">
                         <img class="cover" :src="cover" />
                         <div class="details">
-                            <h7>Album</h7>
+                            <div class="detailswrapper"><h7>Album</h7><span class="material-icons-round share" @click="share">share</span></div>
                             <h1>{{title}}</h1>
                             <h5>{{artist}}</h5>
                         </div>
@@ -62,7 +62,7 @@
                     <hr>
                     <album-entry @add="add" v-for="(track, index) in playlist" :key="index" :added="track.added"
                         :index="index" :cover="track.cover" :artist="track.artists.join(', ')" :title="track.title"
-                        :source="track.source" />
+                        :source="track.source" :preview="track.preview" />
                 </div>
                 <div class="confirm">
                     <button @click="addAll" class="negative">Add All</button>
@@ -73,7 +73,7 @@
 </template>
 <script>
     import AlbumEntry from '../Album/AlbumEntry.vue';
-import AlbumHeader from '../Album/AlbumHeader.vue';
+    import AlbumHeader from '../Album/AlbumHeader.vue';
     import FindSources from '../ContextMenus/FindSources.vue'
     export default {
         name: "AddAlbumToPlaylist",
@@ -99,6 +99,9 @@ import AlbumHeader from '../Album/AlbumHeader.vue';
             }
         },
         methods: {
+            share() {
+                window.open(this.href)
+            },
             close() {
                 this.showModal = false
                 this.$emit("close")
@@ -233,6 +236,11 @@ import AlbumHeader from '../Album/AlbumHeader.vue';
 </style>
 
 <style scoped>
+
+    .share:hover {
+        cursor: pointer;
+    }
+
     .wrapper {
         display: flex;
         flex-direction: column;
@@ -370,13 +378,22 @@ import AlbumHeader from '../Album/AlbumHeader.vue';
     }
 
     .playlisteditor>.details>h1 {
-        font-size: 1.1em;
-        margin-top: 20px;
-        margin-bottom: 20px;
+        font-size: 2em;
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
 
-    .playlisteditor>.details>h7 {
+    .playlisteditor>.details>.detailswrapper {
         font-size: .8em;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+    }  
+
+    .playlisteditor>.details>.detailswrapper>.share {
+        margin-left: 10px;
+        line-height: 15px;
+        font-size: 15px;
     }
 
     .playlisteditor>.details>h5 {

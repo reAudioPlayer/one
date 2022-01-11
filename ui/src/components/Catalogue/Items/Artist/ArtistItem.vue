@@ -1,10 +1,11 @@
 <template>
     <div class="wrapper">
-        <add-artist-to-playlist :cover="cover" :name="name" :description="description" :id="id" ref="import" />
+        <add-artist-to-playlist :cover="cover" :name="name" :description="description" :id="id" :href="`https://open.spotify.com/artist/${id}`" ref="import" />
         <div class="item" @click="redirect">
             <img :src="cover" />
             <h4>{{name}}</h4>
             <p v-html="description" />
+            <button @click="follow" v-if="showFollowButton" class="followButton">{{following ? "Following" : "Follow"}}</button>
         </div>
     </div>
 </template>
@@ -17,18 +18,58 @@
         methods: {
             redirect() {
                 this.$refs.import.showModal = true
+            },
+            follow(e)
+            {
+                e.stopPropagation();
+                const endpoint = this.following ? "unfollow" : "follow"
+                fetch("http://localhost:1234/api/spotify/" + endpoint, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            "artistId": this.id
+                        })
+                    }).then(x => {
+                        if (x.status == 200)
+                        {
+                            this.following = !this.following
+                        }
+                    })
+            }
+        },
+        data() {
+            return {
+                following: false
             }
         },
         props: {
             cover: String,
             name: String,
             description: String,
-            id: String
+            id: String,
+            showFollowButton: Boolean
         }
     }
 </script>
 
 <style scoped>
+    .followButton {
+        color: var(--font-colour);
+        background: none;
+        border: 1px solid var(--hover-2);
+        border-radius: 2px;
+        font-family: var(--font-family);
+        text-transform: uppercase;
+        margin-top: 5px;
+        padding: 5px 10px;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .followButton:hover {
+        cursor: pointer;
+        border-color: var(--font-colour);
+    }
+
     p.note {
         font-size: .7em;
     }

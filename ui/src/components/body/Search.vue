@@ -5,7 +5,7 @@
             <Item v-for="element in tracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
         </Shelf>
         <Shelf v-if="spotifyTracks.length" heading="Songs (Spotify)">
-            <search-item v-for="element in spotifyTracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+            <search-item v-for="element in spotifyTracks" :key="element.url" :preview="element.preview" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
         </Shelf>
         <Shelf v-if="youtubeTracks.length" heading="Songs (Youtube)">
             <search-item v-for="element in youtubeTracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
@@ -14,12 +14,14 @@
             <Item v-for="element in artists" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
         </Shelf>
         <Shelf v-if="spotifyArtists.length" heading="Artists (Spotify)">
-            <Item v-for="element in spotifyArtists" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+            <artist-item v-for="(element, index) in spotifyArtists" :key="index" :cover="element.cover"
+                    :description="element.description" :name="element.name" :id="element.id" :showFollowButton="true" />
         </Shelf>
     </div>
 </template>
 
 <script>
+    import ArtistItem from '../Catalogue/Items/Artist/ArtistItem.vue'
     import Item from '../Catalogue/Items/Release/ReleaseItem.vue'
     import SearchItem from '../Catalogue/Items/Search/SearchItem.vue'
     import Shelf from "../Catalogue/Shelf.vue"
@@ -29,7 +31,8 @@
         components: {
             Shelf,
             Item,
-            SearchItem
+            SearchItem,
+            ArtistItem
         },
         data() {
             return {

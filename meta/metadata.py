@@ -29,7 +29,8 @@ class Metadata:
             "album": self._track._album,
             "artists": self._track._artists,
             "cover": self._track._cover,
-            "src": self._src
+            "src": self._src,
+            "preview": self._track._preview
         }
 
 """

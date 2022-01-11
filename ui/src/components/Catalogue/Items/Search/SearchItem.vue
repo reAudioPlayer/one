@@ -1,6 +1,6 @@
 <template>
     <div class="wrapper">
-        <add-song-to-playlist :href="href" :cover="cover" :title="title" :artist="artist" ref="addAlbum" />
+        <add-song-to-playlist :href="href" :cover="cover" :title="title" :artist="artist" :preview="preview" ref="addAlbum" />
         <div class="item" @click="redirect">
             <img :src="cover" />
             <h4>{{title}}</h4>
@@ -14,7 +14,7 @@
     import AddSongToPlaylist from '../../../Popups/AddSongToPlaylist.vue'
     export default {
         components: { AddSongToPlaylist },
-        name: 'SongItem',
+        name: 'SearchItem',
         methods: {
             redirect() {
                 this.$refs.addAlbum.showModal = true
@@ -25,7 +25,8 @@
             title: String,
             artist: String,
             releaseDate: String,
-            href: String
+            href: String,
+            preview: String
         }
     }
 </script>

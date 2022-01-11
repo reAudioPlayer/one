@@ -1,7 +1,8 @@
 <template>
-    <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry"
+    <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="hovering = true" @mouseleave="hovering = false" class="playlistEntry"
         :class="{ 'selected': highlighted }">
-        <span @click="edit" ref="idOrPlay" :class="{ 'playing': playing }" class="id">{{index + 1}}</span>
+        <mini-player class="miniPlayer" :class="{'hidden': !hovering }" :src="preview" />
+        <span v-if="!hovering" @click="edit" class="id">{{index + 1}}</span>
         <div class="track">
             <div class="trackwrapper">
                 <span class="title" :class="{ 'playing': playing }">{{title}}</span>
@@ -13,7 +14,9 @@
 </template>
 
 <script>
+    import MiniPlayer from '../MiniPlayer.vue'
     export default {
+        components: { MiniPlayer },
         name: 'AlbumEntry',
         props: {
             index: Number,
@@ -27,13 +30,15 @@
                 type: String,
                 default: "N/A"
             },
-            added: Boolean
+            added: Boolean,
+            preview: String
         },
         data() {
             return {
                 highlighted: false,
                 favourited: this.favourite,
-                isAutoPlaylist: this.$route.path == "/collection/tracks"
+                isAutoPlaylist: this.$route.path == "/collection/tracks",
+                hovering: false
             }
         },
         methods: {
@@ -48,16 +53,6 @@
             },
             onselect() {
                 this.highlighted = !this.highlighted
-            },
-            displayPlay() {
-                const element = this.$refs.idOrPlay
-                element.innerHTML = "edit"
-                element.classList.add("material-icons-round")
-            },
-            displayId() {
-                const element = this.$refs.idOrPlay
-                element.innerHTML = this.index + 1
-                element.classList.remove("material-icons-round")
             },
             playAt() {
                 this.$emit("edit", this.index)
@@ -96,7 +91,7 @@
         background-color: var(--hover-2);
     }
 
-    .id, .edit {
+    .id, .edit, .miniPlayer {
         width: 50px;
         text-align: right;
         line-height: var(--playlistEntry-height);
@@ -196,5 +191,9 @@
 
     .more:hover {
         cursor: pointer;
+    }
+
+    .hidden {
+        display: none
     }
 </style>

@@ -21,13 +21,14 @@
                         v-observe-visibility="headerVisibilityChanged">
                         <img class="cover" :src="cover" />
                         <div class="details">
-                            <h7>Song</h7>
+                            <div class="detailswrapper"><h7>Song</h7><span class="material-icons-round share" @click="share">share</span></div>
                             <h1>{{title}}</h1>
                             <h5>{{artist}}</h5>
                         </div>
                     </div>
                 </div>
                 <div class="confirm">
+                    <mini-player class="miniPlayer" :src="preview" />
                     <button @click="add" class="negative">Add</button>
                 </div>
             </div>
@@ -35,13 +36,16 @@
     </div>
 </template>
 <script>
+import MiniPlayer from '../MiniPlayer.vue'
     export default {
+  components: { MiniPlayer },
         name: "AddSongToPlaylist",
         props: {
             cover: String,
             artist: String,
             title: String,
-            href: String
+            href: String,
+            preview: String
         },
         data() {
             return {
@@ -52,6 +56,9 @@
             }
         },
         methods: {
+            share() {
+                window.open(this.href)
+            },
             close() {
                 this.showModal = false
                 this.$emit("close")
@@ -163,6 +170,11 @@
 </style>
 
 <style scoped>
+
+    .share:hover {
+        cursor: pointer;
+    }
+
     .wrapper {
         display: flex;
         flex-direction: column;
@@ -219,6 +231,14 @@
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
+    }
+
+    .confirm>* {
+        margin-left: auto;
+    }
+
+    .confirm>.miniPlayer {
+        margin-left: 0;
     }
 
     button.negative:hover {
@@ -300,13 +320,22 @@
     }
 
     .playlisteditor>.details>h1 {
-        font-size: 1.1em;
-        margin-top: 20px;
-        margin-bottom: 20px;
+        font-size: 2em;
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
 
-    .playlisteditor>.details>h7 {
+    .playlisteditor>.details>.detailswrapper {
         font-size: .8em;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+    }  
+
+    .playlisteditor>.details>.detailswrapper>.share {
+        margin-left: 10px;
+        line-height: 15px;
+        font-size: 15px;
     }
 
     .playlisteditor>.details>h5 {
