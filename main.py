@@ -41,7 +41,7 @@ spotify = spotipy.Spotify(auth_manager=SpotifyOAuth("c8e963f8a6a942b58712cc34e2c
 playerHandler = PlayerHandler(player, playlistManager)
 playlistHandler = PlaylistHandler(playlistManager)
 collectionHandler = CollectionHandler(dbManager)
-metaHandler = MetaHandler(spotify)
+metaHandler = MetaHandler(dbManager, spotify)
 websocket = Websocket(player)
 
 logging.basicConfig(level = logging.INFO)
@@ -75,6 +75,7 @@ app.router.add_post('/api/setPos', playerHandler.setPos)
 app.router.add_get('/api/getPos', playerHandler.getPos)
 
 app.router.add_post('/api/metadata', metaHandler.get)
+app.router.add_post('/api/track', metaHandler.getTrack)
 app.router.add_post('/api/search', metaHandler.search)
 app.router.add_get('/api/releases', metaHandler.releases)
 

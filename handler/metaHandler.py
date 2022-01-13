@@ -2,7 +2,9 @@ import asyncio
 from typing import Dict, List, Optional
 from aiohttp import web
 from spotipy import Spotify
+from db.dbManager import DbManager
 from helpers.asyncThread import asyncRunInThreadWithReturn
+from helpers.cacheDecorator import useCache
 from meta.metadata import Metadata
 from meta.releases import Releases
 from meta.search import Search
@@ -11,18 +13,23 @@ from dataModels.track import SpotifyArtist, SpotifyPlaylist, SpotifyTrack
 
 
 class MetaHandler:
-    def __init__(self, spotify: Spotify) -> None:
+    def __init__(self, dbManager: DbManager, spotify: Spotify) -> None:
         self._spotify = spotify
-        self._releaseCache: Optional[Releases] = None
+        self._dbManager = dbManager
 
     async def get(self, request: web.Request):
         jdata = await request.json()
         metadata = await asyncRunInThreadWithReturn(Metadata, self._spotify, jdata["url"])
         return web.json_response(data = metadata.toDict())
 
+    async def getTrack(self, request: web.Request):
+        jdata = await request.json()
+        song = self._dbManager.getSongById(jdata["id"])
+        return web.json_response(song.toDict())
+
     async def search(self, request: web.Request):
         jdata = await request.json()
-        search = await asyncRunInThreadWithReturn(Search, self._spotify, jdata["query"])
+        search = await asyncRunInThreadWithReturn(Search, Search.searchTracks(self._dbManager, jdata["query"]), self._spotify, jdata["query"])
         return web.json_response(data = search.toDict())
 
     async def spotifyAlbum(self, request: web.Request):
@@ -34,6 +41,7 @@ class MetaHandler:
         data = await asyncRunInThreadWithReturn(_implement)
         return web.json_response(data = data)
 
+    @useCache(900)
     async def spotifyPlaylists(self, _: web.Request):
         def _implement() -> List[SpotifyPlaylist]:
             playlists = self._spotify.current_user_playlists()["items"]
@@ -50,18 +58,12 @@ class MetaHandler:
         data = await asyncRunInThreadWithReturn(_implement)
         return web.json_response(data = data)
 
+    @useCache(1800)
     async def releases(self, _: web.Request):
-        if not self._releaseCache:
-            self._releaseCache = await asyncRunInThreadWithReturn(Releases, self._spotify)
+        data = await asyncRunInThreadWithReturn(Releases, self._spotify)
+        return web.json_response(data = data.toDict())
 
-            async def invalidateCache() -> None:
-                await asyncio.sleep(3600) # 1h
-                self._releaseCache = None
-
-            asyncio.create_task(invalidateCache())
-
-        return web.json_response(data = self._releaseCache.toDict())
-
+    @useCache(900)
     async def spotifyArtists(self, _: web.Request):
         def _implement() -> List[Dict]:
             artists = Releases.followedArtists(self._spotify)
@@ -91,6 +93,10 @@ class MetaHandler:
     async def spotifyRecommend(self, request: web.Request):
         jdata = await request.json()
         def _implement() -> List[Dict]:
+            if jdata.get("query"):
+                track = SpotifyTrack.FromQuery(self._spotify, jdata.get("query"))[0]
+                print(jdata.get("query"), track.url)
+                jdata["tracks"] = [ track._id ]
             tracks = SpotifyTrack.FromRecommendation(self._spotify, jdata.get("artists"), jdata.get("tracks"))
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
             return [ metadata.toDict() for metadata in metadatas ]

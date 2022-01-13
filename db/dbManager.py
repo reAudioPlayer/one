@@ -80,6 +80,14 @@ class DbManager:
         with self._db:
             return DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs WHERE {filter}"))
 
+    def getSongsByQuery(self, query: str) -> List[Song]:
+        def createLike(word: str) -> str:
+            return f"(name LIKE '%{word}%' OR artist LIKE '%{word}%' OR album LIKE '%{word}%')"
+        filter = " AND ".join([ createLike(word) for word in query.split(' ') ])
+        print(filter)
+        with self._db:
+            return DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs WHERE {filter}"))
+
     def addPlaylist(self, playlist: Playlist) -> None:
         with self._db:
             sql = 'INSERT INTO Playlists (name, description, songs) values(?, ?, ?)'

@@ -7,6 +7,7 @@ import { createWebHashHistory, createRouter } from "vue-router";
 
 import Home from "./components/body/Home.vue" 
 import Playlist from "./components/body/Playlist.vue"
+import Track from "./components/body/Track.vue"
 import Search from "./components/body/Search.vue"
 import Albums from "./components/body/Collection/Albums.vue"
 import Artists from "./components/body/Collection/Artists.vue"
@@ -39,6 +40,7 @@ const routes = [
   { path: '/collection/releases', component: Releases },
   { path: '/collection/tracks', component: Tracks },
   { path: '/playlist/:id', component: Playlist },
+  { path: '/track/:id', component: Track },
   { path: '/preferences', component: Preferences },
 ]
 

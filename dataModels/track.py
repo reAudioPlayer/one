@@ -109,6 +109,9 @@ class SpotifyAlbum:
     def url(self) -> str:
         return f"https://open.spotify.com/album/{self._id}"
 
+ytmusic = YTMusic("headers_auth.json")
+
+
 class YoutubeTrack:
     def __init__(self, track: dict) -> None:
         self._title = track["title"]
@@ -127,9 +130,9 @@ class YoutubeTrack:
     @staticmethod
     def FromUrl(url: str) -> YoutubeTrack:
         x = re.search(r"(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([a-zA-Z0-9_]+)", url, re.IGNORECASE)
-        video = YTMusic().get_song(x.group(1))
+        video = ytmusic.get_song(x.group(1))
         details = video.get("videoDetails")
-        results = YTMusic().search(f"{details.get('author')} {details.get('title')}", filter = "songs")
+        results = ytmusic.search(f"{details.get('author')} {details.get('title')}", filter = "songs")
         if len(results) > 0:
             return YoutubeTrack(results[0])
         return YoutubeTrack({
@@ -139,12 +142,12 @@ class YoutubeTrack:
 
     @staticmethod
     def FromQuery(query: str) -> List[SpotifyTrack]:
-        tracks = YTMusic().search(query, filter = "songs")
+        tracks = ytmusic.search(query, filter = "songs")
         return [ YoutubeTrack(track) for track in tracks ]
 
     @staticmethod
     def FromSpotifyTrack(track: SpotifyTrack) -> Optional[YoutubeTrack]:
-        results = YTMusic().search(f"{' '.join(track._artists)} {track._title}", filter = "songs")
+        results = ytmusic.search(f"{' '.join(track._artists)} {track._title}", filter = "songs")
         if len(results) > 0:
             return YoutubeTrack(results[0])
         return None

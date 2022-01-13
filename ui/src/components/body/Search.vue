@@ -2,7 +2,7 @@
     <div class="search">
         <input @keyup="enterText" v-model="query" type="text">
         <Shelf v-if="tracks.length" heading="Songs">
-            <Item v-for="element in tracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+            <TrackItem v-for="element in tracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
         </Shelf>
         <Shelf v-if="spotifyTracks.length" heading="Songs (Spotify)">
             <search-item v-for="element in spotifyTracks" :key="element.url" :preview="element.preview" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
@@ -25,6 +25,7 @@
     import Item from '../Catalogue/Items/Release/ReleaseItem.vue'
     import SearchItem from '../Catalogue/Items/Search/SearchItem.vue'
     import Shelf from "../Catalogue/Shelf.vue"
+    import TrackItem from "../Catalogue/Items/Tracks/TrackItem.vue"
 
     export default {
         name: 'Search',
@@ -32,7 +33,8 @@
             Shelf,
             Item,
             SearchItem,
-            ArtistItem
+            ArtistItem,
+            TrackItem
         },
         data() {
             return {

@@ -25,6 +25,14 @@ class Song:
         self._duration = duration or -1
         self._favourite = favourite
 
+        self._artists = artist.split(", ")
+        self._title = name
+        self._preview = None
+
+    @property
+    def url(self) -> str:
+        return f"/track/{self._id}"
+
     def sql(self) -> Tuple:
         return ( self._name,
                  self._artist,

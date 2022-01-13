@@ -3,3 +3,4 @@ __pycache__
 *.db
 ui/node_modules
 .cache
+headers_auth.json

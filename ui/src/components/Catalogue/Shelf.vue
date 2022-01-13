@@ -1,8 +1,8 @@
 <template>
     <div class="shelf">
-        <div class="header">
+        <div v-if="heading" class="header">
             <h2>{{heading}}</h2>
-            <h5>See All</h5>
+            <h5 @click="redirect">See All</h5>
         </div>
         <div class="items">
             <slot />
@@ -14,7 +14,17 @@
     export default {
         name: 'Shelf',
         props: {
-            heading: String
+            heading: String,
+            href: String
+        },
+        methods: {
+            redirect() {
+                if (!this.href)
+                {
+                    return
+                }
+                this.$router.push(this.href)
+            }
         }
     }
 </script>

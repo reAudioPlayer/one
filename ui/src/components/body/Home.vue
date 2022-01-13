@@ -5,7 +5,7 @@
             <playlist-item-wide v-for="(element, index) in playlists" :key="index" :href="`/playlist/${index}`" :cover="element.cover"
                         :title="element.name" :spotify="false" />
         </full-shelf-smaller-grid>
-        <shelf heading="New releases for you">
+        <shelf heading="New releases for you" href="/collection/releases">
             <release-item v-for="element in releases" :key="element.url" :releaseDate="element.releaseDate" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
         </shelf>
     </div>

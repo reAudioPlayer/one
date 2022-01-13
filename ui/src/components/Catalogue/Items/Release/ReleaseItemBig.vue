@@ -1,6 +1,6 @@
 <template>
     <div class="itemBig">
-        <add-album-to-playlist :id="this.href.replace('https://open.spotify.com/album/', '')" :cover="cover" :title="title" :artist="artist" ref="addAlbum" />
+        <add-album-to-playlist :id="this.href.replace('https://open.spotify.com/album/', '')" :cover="cover" :title="title" :artist="artist" :href="href" ref="addAlbum" />
         <div class="item" @click="redirect">
             <img :src="cover" />
             <div class="wrapper">

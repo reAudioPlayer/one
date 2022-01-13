@@ -4,16 +4,14 @@ from typing import Optional, Union
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
-from ytmusicapi import YTMusic
-
-from sclib import SoundcloudAPI, Track
+from db.dbManager import DbManager
 
 from dataModels.track import SpotifyAlbum, SpotifyArtist, SpotifyTrack, YoutubeTrack
 
 
 class Search:
-    def __init__(self, spotify: spotipy.Spotify, query: str) -> None:
-        self._tracks = [ ]
+    def __init__(self, tracks: list, spotify: spotipy.Spotify, query: str) -> None:
+        self._tracks = tracks
         self._artists = [ ]
         self._spotifyTracks = [ ]
         self._spotifyArtists = [ ]
@@ -22,6 +20,10 @@ class Search:
         self._spotifyTracks = SpotifyTrack.FromQuery(spotify, query)
         self._youtubeTracks = YoutubeTrack.FromQuery(query) 
         self._spotifyArtists = SpotifyArtist.FromQuery(spotify, query)
+
+    @staticmethod
+    def searchTracks(dbManager: DbManager, query: str) -> list:
+        return dbManager.getSongsByQuery(query)
 
     def toDict(self) -> dict:
         return {
