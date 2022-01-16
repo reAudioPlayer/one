@@ -15,6 +15,7 @@
             <span id="loadPlaylist" @click="loadPlaylist" class="material-icons-outlined">play_circle_filled</span>
             <span id="addToPlaylist" @click="addToPlaylist" class="material-icons-outlined">add_circle</span>
             <div class="grid">
+                <h2>{{"Recommendations based on " + title}}</h2>
                 <grid-header />
                 <hr>
                 <div class="playlistEntries">
@@ -141,7 +142,8 @@
                 fetch("http://localhost:1234/api/loadPlaylist", {
                     method: "POST",
                     body: JSON.stringify({
-                        id: Number(this.$route.params.id)
+                        id: Number(this.$route.params.id),
+                        type: "track"
                     })
                 })
             }

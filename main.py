@@ -38,7 +38,7 @@ scope = "user-library-read user-follow-read user-follow-modify"
 
 spotify = spotipy.Spotify(auth_manager=SpotifyOAuth("c8e963f8a6a942b58712cc34e2ccc76d", "6ec48f7d1b574bd6b340384c50675447", "http://reap.ml/", scope=scope))
 
-playerHandler = PlayerHandler(player, playlistManager)
+playerHandler = PlayerHandler(player, playlistManager, dbManager)
 playlistHandler = PlaylistHandler(playlistManager)
 collectionHandler = CollectionHandler(dbManager)
 metaHandler = MetaHandler(dbManager, spotify)

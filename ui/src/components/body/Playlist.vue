@@ -152,7 +152,8 @@
                 fetch("http://localhost:1234/api/loadPlaylist", {
                     method: "POST",
                     body: JSON.stringify({
-                        id: Number(this.$route.params.id)
+                        id: Number(this.$route.params.id),
+                        type: "playlist"
                     })
                 })
             }
@@ -214,5 +215,10 @@
 
     .hidden {
         display: none !important;
+    }
+
+    h5 {
+        color: var(--font-darker);
+        font-weight: normal;
     }
 </style>

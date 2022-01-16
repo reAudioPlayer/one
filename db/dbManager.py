@@ -84,7 +84,6 @@ class DbManager:
         def createLike(word: str) -> str:
             return f"(name LIKE '%{word}%' OR artist LIKE '%{word}%' OR album LIKE '%{word}%')"
         filter = " AND ".join([ createLike(word) for word in query.split(' ') ])
-        print(filter)
         with self._db:
             return DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs WHERE {filter}"))
 

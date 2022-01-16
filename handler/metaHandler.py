@@ -24,8 +24,11 @@ class MetaHandler:
 
     async def getTrack(self, request: web.Request):
         jdata = await request.json()
-        song = self._dbManager.getSongById(jdata["id"])
-        return web.json_response(song.toDict())
+        try:
+            song = self._dbManager.getSongById(jdata["id"])
+            return web.json_response(song.toDict())
+        except IndexError:
+            return web.Response(status = 404)
 
     async def search(self, request: web.Request):
         jdata = await request.json()
@@ -95,7 +98,6 @@ class MetaHandler:
         def _implement() -> List[Dict]:
             if jdata.get("query"):
                 track = SpotifyTrack.FromQuery(self._spotify, jdata.get("query"))[0]
-                print(jdata.get("query"), track.url)
                 jdata["tracks"] = [ track._id ]
             tracks = SpotifyTrack.FromRecommendation(self._spotify, jdata.get("artists"), jdata.get("tracks"))
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]

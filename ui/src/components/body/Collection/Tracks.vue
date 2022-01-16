@@ -13,7 +13,7 @@
                 <grid-header />
                 <hr>
                 <div class="playlistEntries">
-                    <playlist-entry v-for="(element, index) in playlist" :key="index" :index="index" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                    <playlist-entry v-for="(element, index) in playlist" :key="index" :index="index" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
                 </div>
             </div>
         </div>
@@ -41,6 +41,37 @@
             }
         },
         methods: {
+            connect() {
+                const ctx = this
+                console.log("attempting reconnect")
+                let ws = new WebSocket('ws://localhost:1234/ws');
+
+                ws.onclose = function() {
+                    console.log("ws closed")
+
+                    setTimeout(this.connect, 1000);
+                }
+                
+                ws.onopen = () => {
+                    console.log("ws connected")
+                }
+
+                ws.onmessage = function(msg) {
+                    const jdata = JSON.parse(msg.data);
+                    ctx.updateData(jdata)
+                }
+            },
+            updateData(jdata) {
+                if (jdata.path == "player.song")
+                {
+                    let title = jdata?.data?.title || "N/A"
+
+                    for (const entry of this.playlist)
+                    {
+                        entry.playing = entry.title == title;
+                    }
+                }
+            },
             headerVisibilityChanged(a) {
                 this.fixedHeaderHidden = a
             },
@@ -50,7 +81,16 @@
                         this.playlist = jdata.songs
                         this.playlistName = jdata.name
                         console.log(this.playlist)
+                        this.connect()
                     })
+            },
+            loadPlaylist() {
+                fetch("http://localhost:1234/api/loadPlaylist", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        type: "collection"
+                    })
+                })
             }
         }
     }

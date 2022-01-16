@@ -123,12 +123,21 @@
                 element.classList.remove("material-icons-round")
             },
             playAt() {
+                console.log(this.$route.path)
+                const body = {
+                    index: this.index,
+                }
+                if (this.$route.path.includes("/playlist/"))
+                {
+                    body.playlistIndex = Number(this.$route.params.id)
+                }
+                if (this.$route.path.includes("/collection/tracks"))
+                {
+                    body.type = "collection"
+                }
                 fetch("http://localhost:1234/api/at", {
                     method: "POST",
-                    body: JSON.stringify({
-                        index: this.index,
-                        playlistIndex: Number(this.$route.params.id)
-                    })
+                    body: JSON.stringify(body)
                 })
             },
             setFavourite() {

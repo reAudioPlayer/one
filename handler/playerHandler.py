@@ -1,15 +1,20 @@
+from optparse import Option
+from typing import Optional
 from aiohttp import web
 from dataModels.song import Song
+from db.dbManager import DbManager
 from player.player import Player
+from player.playerPlaylist import PlayerPlaylist
 from player.playlistManager import PlaylistManager
 import pygame
 import asyncio
 
 
 class PlayerHandler:
-    def __init__(self, player: Player, playlistManager: PlaylistManager) -> None:
+    def __init__(self, player: Player, playlistManager: PlaylistManager, dbManager: DbManager) -> None:
         self._player = player
         self._playlistManager = playlistManager
+        self._dbManager = dbManager
 
     async def getPlay(self, _: web.Request):
         asyncio.create_task(self._player.play())
@@ -33,7 +38,13 @@ class PlayerHandler:
 
     async def loadPlaylist(self, request: web.Request):
         x = await request.json()
-        asyncio.create_task(self._player.loadPlaylist(self._playlistManager.get(x["id"])))
+        if x.get("type") == "playlist":
+            asyncio.create_task(self._player.loadPlaylist(self._playlistManager.get(x["id"])))
+        elif x.get("type") == "collection":
+            asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist(self._dbManager, songs = self._dbManager.getSongByCustomFilter("favourite=1"), name = "Liked Songs")))
+        elif x.get("type") == "track":
+            print(f"id={x['id']}")
+            asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist(self._dbManager, songs = self._dbManager.getSongByCustomFilter(f"id={x['id']}"), name = x['id'])))
         return web.Response(status = 200, text = "success!")
 
     async def setVolume(self, request: web.Request):
@@ -46,9 +57,16 @@ class PlayerHandler:
 
     async def loadSongAt(self, request: web.Request):
         x = await request.json()
+        collection: Optional[PlayerPlaylist] = None
+        if x.get("type") == "collection":
+            collection = PlayerPlaylist(self._dbManager, songs = self._dbManager.getSongByCustomFilter("favourite=1"), name = "Liked Songs")
         async def _implement() -> None:
-            if not await self._player.loadPlaylist(self._playlistManager.get(x.get("playlistIndex")), x["index"]):
-                await self._player.at(x["index"])
+            if "playlistIndex" in x:
+                if not await self._player.loadPlaylist(self._playlistManager.get(x.get("playlistIndex")), x["index"]):
+                    await self._player.at(x["index"])
+            elif x.get("type") == "collection":
+                if not await self._player.loadPlaylist(collection, x["index"]):
+                    await self._player.at(x["index"])
 
         asyncio.create_task(_implement())
         return web.Response(status = 200, text = "success!")

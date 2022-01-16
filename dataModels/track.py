@@ -22,6 +22,7 @@ class SpotifyTrack:
         self._artists = [x.get("name") for x in track.get("artists")] if track.get("artists") else [ ]
         self._id = track.get("id")
         self._preview = track.get("preview_url")
+        self._markets = track.get("available_markets")
 
     @property
     def url(self) -> str:
@@ -122,6 +123,7 @@ class YoutubeTrack:
         self._id = track.get("videoId")
         self._cover = track.get("thumbnails")[0].get("url").replace("w60-h60", "w500-h500")
         self._preview = None
+        self._markets = [ ]
 
     @property
     def url(self) -> str:
@@ -161,6 +163,7 @@ class SoundcloudTrack:
         self._cover = track.artwork_url.replace("large", "t500x500")
         self._extendedTrack = track
         self._preview = None
+        self._markets = [ ]
 
     @staticmethod
     def FromUrl(url: str) -> SoundcloudTrack:
