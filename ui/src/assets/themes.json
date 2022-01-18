@@ -7,9 +7,12 @@
         "tink": "#A5004D",
         "neon": "#892b68",
         "night-jade": "#00c48b",
-        "night-ruby": "#e85454",
+        "night-crimson": "#e85454",
         "night-cobalt": "#189de4",
-        "night-fire": "#c7aa19"
+        "night-fire": "#c7aa19",
+        "light": "#349d58",
+        "light-ruby": "#974444",
+        "light-royal": "#54548f"
     },
     "accent": {
         "default": "#1ed760",
@@ -19,9 +22,12 @@
         "tink": "#e7619f",
         "neon": "#ffd100",
         "night-jade": "#00c48b",
-        "night-ruby": "#e85454",
+        "night-crimson": "#e85454",
         "night-cobalt": "#189de4",
-        "night-fire": "#c7aa19"
+        "night-fire": "#c7aa19",
+        "light": "#18a74b",
+        "light-ruby": "#bd4c62",
+        "light-royal": "#7169ff"
     },
     "font-colour": {
         "default": "white",
@@ -29,9 +35,12 @@
         "tink": "whitesmoke",
         "neon": "whitesmoke",
         "night-jade": "whitesmoke",
-        "night-ruby": "whitesmoke",
+        "night-crimson": "whitesmoke",
         "night-cobalt": "whitesmoke",
-        "night-fire": "whitesmoke"
+        "night-fire": "whitesmoke",
+        "light": "black",
+        "light-ruby": "black",
+        "light-royal": "black"
     },
     "font-darker": {
         "default": "#a7a7a7",
@@ -39,9 +48,12 @@
         "tink": "#c2bebe",
         "neon": "#d7d7d7",
         "night-jade": "#c2bebe",
-        "night-ruby": "#c2bebe",
+        "night-crimson": "#c2bebe",
         "night-cobalt": "#c2bebe",
-        "night-fire": "#c2bebe"
+        "night-fire": "#c2bebe",
+        "light": "#545454",
+        "light-ruby": "#545454",
+        "light-royal": "#545454"
     },
     "hover-4": {
         "default": "#242424"
@@ -54,17 +66,23 @@
         "default": "hsla(0,0%,100%,0.3)",
         "reap": "hsla(0,0%,100%,0.1)",
         "night-jade": "#374148",
-        "night-ruby": "#374148",
+        "night-crimson": "#374148",
         "night-cobalt": "#374148",
-        "night-fire": "#374148"
+        "night-fire": "#374148",
+        "light": "rgba(0, 0, 0, .3)",
+        "light-ruby": "rgba(0, 0, 0, .3)",
+        "light-royal": "rgba(0, 0, 0, .3)"
     },
     "hover-1": {
         "default": "hsla(0,0%,100%,0.1)",
         "reap": "hsla(0,0%,100%,0.04)",
         "night-jade": "#37414877",
-        "night-ruby": "#37414877",
+        "night-crimson": "#37414877",
         "night-cobalt": "#37414877",
-        "night-fire": "#37414877"
+        "night-fire": "#37414877",
+        "light": "rgba(0, 0, 0, .1)",
+        "light-ruby": "rgba(0, 0, 0, .1)",
+        "light-royal": "rgba(0, 0, 0, .1)"
     },
     "background": {
         "default": "#121212",
@@ -72,9 +90,12 @@
         "tink": "linear-gradient(to left bottom, #A5004D, #6105B0)",
         "neon": "linear-gradient(to right bottom, #F956B3, #e68114)",
         "night-jade": "#1e1e1e",
-        "night-ruby": "#1e1e1e",
+        "night-crimson": "#1e1e1e",
         "night-cobalt": "#1e1e1e",
-        "night-fire": "#1e1e1e"
+        "night-fire": "#1e1e1e",
+        "light": "white",
+        "light-ruby": "white",
+        "light-royal": "white"
     },
     "background-light": {
         "default": "#181818",
@@ -82,9 +103,12 @@
         "tink": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
         "neon": "#3d3d3db0",
         "night-jade": "#374148",
-        "night-ruby": "#374148",
+        "night-crimson": "#374148",
         "night-cobalt": "#374148",
-        "night-fire": "#374148"
+        "night-fire": "#374148",
+        "light": "rgba(0, 0, 0, .4)",
+        "light-ruby": "rgba(0, 0, 0, .4)",
+        "light-royal": "rgba(0, 0, 0, .4)"
     },
     "sidebar-background": {
         "default": "black",
@@ -92,9 +116,12 @@
         "tink": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
         "neon": "#3d3d3db0",
         "night-jade": "#374148",
-        "night-ruby": "#374148",
+        "night-crimson": "#374148",
         "night-cobalt": "#374148",
-        "night-fire": "#374148"
+        "night-fire": "#374148",
+        "light": "#C2C2C2",
+        "light-ruby": "#C2C2C2",
+        "light-royal": "#C2C2C2"
     },
     "player-background": {
         "default": "#181818",
@@ -102,9 +129,12 @@
         "tink": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
         "neon": "#3d3d3db0",
         "night-jade": "#374148",
-        "night-ruby": "#374148",
+        "night-crimson": "#374148",
         "night-cobalt": "#374148",
-        "night-fire": "#374148"
+        "night-fire": "#374148",
+        "light": "#B2B2B2",
+        "light-ruby": "#B2B2B2",
+        "light-royal": "#B2B2B2"
     },    
     "fixedplaylistheader-background": {
         "default": "var(--player-background)",
@@ -116,7 +146,8 @@
         "default": "#303030",
         "reap": "#522783",
         "tink": "#A5004D",
-        "neon": "#892b68"
+        "neon": "#892b68",
+        "light": "none"
     },
 
     "font-family": {

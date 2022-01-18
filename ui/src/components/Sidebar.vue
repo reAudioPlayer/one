@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar">
-    <h2 @click="onLogoClick">reAudioPlayer Online</h2>
+    <h2 @click="onLogoClick">reAudioPlayer One</h2>
     <br>
     <nav-entry href="/" icon="home" name="Home" />
     <nav-entry href="/search" icon="search" name="Search" />

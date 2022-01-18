@@ -6,7 +6,7 @@
 
 <script>
 export default {
-    name: "Theme",
+    name: "ThemeSmall",
     props: {
         name: String
     },
@@ -30,7 +30,6 @@ export default {
 <style scoped>
 
     .wrapper {
-        grid-column: span 2;
         padding: 20px;
     }
 

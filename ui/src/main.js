@@ -15,6 +15,7 @@ import Playlists from "./components/body/Collection/Playlists.vue"
 import Releases from "./components/body/Collection/Releases.vue"
 import Tracks from "./components/body/Collection/Tracks.vue"
 import Preferences from "./components/body/Preferences.vue"
+import Welcome from "./components/body/Welcome.vue"
 
 import contextmenu from "v-contextmenu";
 
@@ -42,6 +43,7 @@ const routes = [
   { path: '/playlist/:id', component: Playlist },
   { path: '/track/:id', component: Track },
   { path: '/preferences', component: Preferences },
+  { path: '/welcome', component: Welcome },
 ]
 
 const router = createRouter({

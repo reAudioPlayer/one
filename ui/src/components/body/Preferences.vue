@@ -1,16 +1,8 @@
 <template>
     <div class="preferences">
-        <full-shelf heading="Themes">
-            <theme name="default" />
-            <theme name="royal" />
-            <theme name="ruby" />
-            <theme name="night-jade" />
-            <theme name="night-cobalt" />
-            <theme name="night-ruby" />
-            <theme name="night-fire" />
-            <theme name="reap" />
-            <theme name="neon" />
-            <theme name="tink" />
+        <full-shelf heading="Themes" :key="themeSelected">
+            <theme @selected="updateThemes" v-for="(theme, index) in themes" :key="index"
+                :name="theme" />
         </full-shelf>
     </div>
 </template>
@@ -20,7 +12,34 @@
     import Theme from "./Preferences/Theme.vue"
     export default {
     components: { Theme, FullShelf },
-        name: "Preferences"
+        name: "Preferences",
+        methods: {
+            updateThemes() {
+                this.themeSelected = window.getCurrentTheme()
+            }
+        },
+        data() {
+            const themes = [
+                "default",
+                "royal",
+                "ruby",
+                "night-jade",
+                "night-cobalt",
+                "night-crimson",
+                "night-fire",
+                "reap",
+                "neon",
+                "tink",
+                "light",
+                "light-royal",
+                "light-ruby"
+            ]
+            const themeSelected = window.getCurrentTheme()
+            return {
+                themes,
+                themeSelected
+            }
+        }
     }
 </script>
 

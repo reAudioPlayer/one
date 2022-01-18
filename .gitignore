@@ -4,3 +4,4 @@ __pycache__
 ui/node_modules
 .cache
 headers_auth.json
+config/*
