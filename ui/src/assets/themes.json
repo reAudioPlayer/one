@@ -6,7 +6,7 @@
         "apollo": "#522783",
         "gradient": "#A5004D",
         "neon": "#892b68",
-        "underground": "#7B0000",
+        "underground": "#0B0047",
         "quarantine": "#347474",
         "extraction": "#8F8F00",
         "night-jade": "#00c48b",
@@ -165,7 +165,7 @@
         "apollo": "#522783",
         "gradient": "#A5004D",
         "neon": "#892b68",
-        "underground": "#7B0000",
+        "underground": "#0B0047",
         "quarantine": "#347474",
         "extraction": "#8F8F00"
     },
@@ -174,7 +174,7 @@
         "apollo": "#522783",
         "gradient": "#A5004D",
         "neon": "#892b68",
-        "underground": "#7B0000",
+        "underground": "#0B0047",
         "quarantine": "#347474",
         "extraction": "#8F8F00",
         "light": "none"
