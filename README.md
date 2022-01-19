@@ -9,7 +9,7 @@ Note: Songs are not streamed directly from spotify, but linked automatically to 
 Note 2: "Streaming" refers to caching the song locally via [YT-DLP](https://github.com/yt-dlp/yt-dlp) and playing it from there.
 
 Note 3: A spotify account is required to access full functionality.
-If you don't have a spotify account and don't want to create one or don't want to use your account, you can still use the audio player in a restricted mode. In restricted mode, you cannot use any spotify functionality, e.g. release radar, playlist import or add spotify songs to your playlists. Using a spotify account is thus highly recommended. You will be asked to provide a client id and client secret during setup. If you want to enter restricted mode, you can by entering "-" in both input fields and pressing "save".
+If you don't have a spotify account and don't want to create one or don't want to use your account, you can still use the audio player in a restricted mode. In restricted mode, you cannot use any spotify functionality, e.g. release radar, playlist import or add spotify songs to your playlists. Using a spotify account is thus highly recommended. You will be asked to provide a client id and client secret during setup. If you want to enter restricted mode, you must leave client id and client secret empty and hit "enter restricted mode".
 
 ## Table of Contents
 - [reAudioPlayer One](#reaudioplayer-one)

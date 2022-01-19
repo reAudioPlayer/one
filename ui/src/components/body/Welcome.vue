@@ -40,7 +40,10 @@
                 <div class="wrapTogether">
                     <p>Client Secret: </p><input type="text" v-model="spotifyClientSecret" />
                 </div>
-                <button @click="finalRedirect">CONTINUE</button>
+                <div class="wrapTogether spaceBetween">
+                    <button @click="finalRedirect">continue</button>
+                    <button @click="finalRedirectRestricted" class="restrictedMode">enter restricted mode</button>
+                </div>
             </div>
         </div>
         <div v-else-if="mode == 5" class="centred-column">
@@ -62,6 +65,29 @@
             },
             redirect(url) {
                 window.open(url)
+            },
+            finalRedirectRestricted() {
+                if (this.spotifyClientId || this.spotifyClientSecret)
+                {
+                    return;
+                }
+
+                fetch("http://localhost:1234/api/config/spotify", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        "id": "restricted",
+                        "secret": "restricted"
+                    })
+                }).then(x => {
+                    if (x.status == 200)
+                    {
+                        setTimeout(() => fetch("http://localhost:1234/api/releases"), 1000);
+                        this.mode++;
+                        setTimeout(() => {
+                            this.$router.push("/")
+                        }, 6 * 1000);
+                    }
+                })
             },
             finalRedirect() {
                 if (!this.spotifyClientId || !this.spotifyClientSecret)
@@ -152,6 +178,10 @@
         cursor: pointer;
     }
 
+    .restrictedMode {
+        background-color: #c73c3c;
+    }
+
     input {
         margin-left: 10px;
         margin-bottom: 20px;
@@ -167,6 +197,11 @@
     .wrapTogether {
         display: flex;
         flex-direction: row;
+    }
+
+    .spaceBetween {
+        justify-content: space-between;
+        width: 60%;
     }
 
     input:focus {
