@@ -29,6 +29,13 @@ import Shelf from '../Catalogue/Shelf.vue'
             }
         },
         mounted() {
+            fetch("http://localhost:1234/api/config/ready")
+                .then(x => {
+                    if (x.status == 400)
+                    {
+                        this.$router.push("/welcome")
+                    }
+                })
             fetch("http://localhost:1234/api/releases")
                 .then(x => x.json())
                 .then(jdata => {

@@ -1,7 +1,6 @@
 from asyncio.tasks import Task
 from typing import Awaitable, Callable, Optional
 import pygame
-from pymitter import EventEmitter
 from dataModels.song import Song
 from db.dbManager import DbManager
 from player.playerPlaylist import PlayerPlaylist
@@ -9,19 +8,16 @@ import os
 from downloader.downloader import Downloader
 from player.playlistManager import PlaylistManager
 import asyncio
-import time
-import math
 
 
 class Player:
-    def __init__(self, ee: EventEmitter, dbManager: DbManager, downloader: Downloader, playlistManager: PlaylistManager) -> None:
+    def __init__(self, dbManager: DbManager, downloader: Downloader, playlistManager: PlaylistManager) -> None:
         pygame.init()
         pygame.mixer.init()
         pygame.mixer.music.set_volume(1.0)
         self._dbManager = dbManager
         self._playlistManager = playlistManager
         self._playing: bool = False
-        self._ee = ee
         self._downloader = downloader
         self._playerPlaylist: Optional[PlayerPlaylist] = None
         self._song: Optional[Song] = None

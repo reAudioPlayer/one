@@ -62,12 +62,13 @@
     },
     data() {
       return {
-        shallExpandCover: false
+        shallExpandCover: window.localStorage.getItem("player.expandCover") == "true"
       }
     },
     methods: {
       expandCover(shallExpand) {
         this.shallExpandCover = shallExpand
+        window.localStorage.setItem("player.expandCover", shallExpand)
       }
     }
   }

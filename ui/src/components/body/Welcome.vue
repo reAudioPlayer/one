@@ -13,7 +13,7 @@
             <p>After a few configurations you're ready to go</p>
         </div>
         <div v-else-if="mode == 3" class="permanent centred-column">
-            <h1>Pick a Side</h1>
+            <h1>Pick a Theme</h1>
             <p>You'll be able to change the theme at any point later on</p>
             <br>
             <div class="centred-column appear-delayed">
@@ -25,7 +25,7 @@
         </div>
         <div v-else-if="mode == 4" class="permanent centred-column">
             <h1>Let's integrate Spotify then!</h1>
-            <p>You'll be able to change tokens at any point later on</p>
+            <p>You'll be able to change the tokens at any point later on</p>
             <br>
             <div class="centred-column appear-delayed">
                 <p>1) Head over to the <a @click="() => redirect('https://developer.spotify.com/dashboard/applications')">spotify developer dashboard</a></p>
@@ -35,10 +35,10 @@
                 <p>5) Copy and enter the client id and secret into the corresponding input field</p>
                 <br>
                 <div class="wrapTogether">
-                    <p>Client ID: </p><input type="text" ref="id" />
+                    <p>Client ID: </p><input type="text" v-model="spotifyClientId" />
                 </div>
                 <div class="wrapTogether">
-                    <p>Client Secret: </p><input type="text" ref="secret" />
+                    <p>Client Secret: </p><input type="text" v-model="spotifyClientSecret" />
                 </div>
                 <button @click="finalRedirect">CONTINUE</button>
             </div>
@@ -64,10 +64,27 @@
                 window.open(url)
             },
             finalRedirect() {
-                this.mode++;
-                setTimeout(() => {
-                    this.$router.push("/")
-                }, 6 * 1000);
+                if (!this.spotifyClientId || !this.spotifyClientSecret)
+                {
+                    return;
+                }
+
+                fetch("http://localhost:1234/api/config/spotify", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        "id": this.spotifyClientId,
+                        "secret": this.spotifyClientSecret
+                    })
+                }).then(x => {
+                    if (x.status == 200)
+                    {
+                        setTimeout(() => fetch("http://localhost:1234/api/releases"), 1000);
+                        this.mode++;
+                        setTimeout(() => {
+                            this.$router.push("/")
+                        }, 6 * 1000);
+                    }
+                })
             }
         },
         data() {
@@ -79,16 +96,19 @@
                 }
             }, 7 * 1000)
             const themes = [
-                "default",
-                "royal",
-                "ruby",
                 "night-jade",
                 "night-cobalt",
                 "night-crimson",
                 "night-fire",
-                "reap",
-                "neon",
-                "tink",
+                "apollo",
+                "gradient",
+                "underground",
+                //"quarantine",
+                //"extraction",
+                //"neon",
+                "default",
+                "royal",
+                "ruby",
                 "light",
                 "light-royal",
                 "light-ruby"
@@ -97,8 +117,19 @@
             return {
                 mode: 0,
                 themes,
-                themeSelected
+                themeSelected,
+                spotifyClientId: "",
+                spotifyClientSecret: ""
             }
+        },
+        mounted() {
+            fetch("http://localhost:1234/api/config/ready")
+                .then(x => {
+                    if (x.status == 200)
+                    {
+                        this.$router.push("/")
+                    }
+                })
         }
     }
 </script>
@@ -106,8 +137,8 @@
 <style scoped>
 
     button {
-        color: black;
-        background-color: white;
+        color: var(--background);
+        background-color: var(--font-colour);
         border: none;
         border-radius: 20px;
         text-transform: uppercase;
@@ -129,6 +160,8 @@
         padding: 5px;
         font-family: var(--font-family);
         width: 20vw;
+        color: var(--background);
+        background-color: var(--font-colour);
     }
 
     .wrapTogether {
@@ -165,10 +198,10 @@
         position: fixed;
         top: 0;
         left: 0;
-        background: black;
+        background: var(--background);
         width: 100vw;
         height: 100vh;
-        color: whitesmoke;
+        color: var(--font-colour);
     }
 
     .centred-column {

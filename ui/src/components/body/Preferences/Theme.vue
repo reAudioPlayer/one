@@ -1,5 +1,6 @@
 <template>
     <div @click="select" class="wrapper">
+        <p :class="{ 'selected': selected() }">{{name}}</p>
         <img :src="src" :class="{ 'selected': selected() }">
     </div>
 </template>
@@ -28,6 +29,16 @@ export default {
 </script>
 
 <style scoped>
+
+    p {
+        margin: 0;
+        font-size: .8em;
+        color: var(--font-darker);
+    }
+
+    p.selected {
+        color: var(--accent);
+    }
 
     .wrapper {
         grid-column: span 2;
