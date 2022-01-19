@@ -53,6 +53,7 @@ Run `setup.bat`
 Run the equivalent in any terminal
 ```sh
 pip3 install -r ./requirements.txt
+pip3 install git+https://github.com/3jackdaws/soundcloud-lib.git
 ```
 
 ## Launch

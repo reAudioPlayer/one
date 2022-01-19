@@ -19,6 +19,7 @@ goto end
 
 :install
 pip3 install -r requirements.txt
+pip3 install git+https://github.com/3jackdaws/soundcloud-lib.git
 exit
 
 :run
