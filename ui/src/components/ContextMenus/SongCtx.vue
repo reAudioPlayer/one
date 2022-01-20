@@ -12,7 +12,7 @@
             <v-contextmenu-divider />
             <v-contextmenu-item @click="update">Update Metadata</v-contextmenu-item>
             <v-contextmenu-divider />
-            <v-contextmenu-item @click="share">Share</v-contextmenu-item>
+            <v-contextmenu-item @click="download">Download</v-contextmenu-item>
         </v-contextmenu>
     </div>
 </template>
@@ -73,8 +73,8 @@
 
                 this.$emit("addto", index)
             },
-            share() {
-                this.$emit("share")
+            download() {
+                this.$emit("download")
             },
             update() {
                 this.$emit("update")

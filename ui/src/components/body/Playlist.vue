@@ -18,7 +18,7 @@
                 <div class="playlistEntries">
                     <draggable v-model="playlist" @change="onPlaylistRearrange">
                         <template #item="{element}">
-                            <playlist-entry @requestUpdate="updatePlaylist" :index="playlist.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                            <playlist-entry @download="download" @requestUpdate="updatePlaylist" :index="playlist.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
                         </template>
                     </draggable>
                 </div>
@@ -56,6 +56,12 @@
             }
         },
         methods: {
+            download(index) {
+                const data = this.playlist?.[index]
+                const src = data.source
+                delete data.source
+                window.open("https://eu-apollo.herokuapp.com/one/download?data=" + JSON.stringify(data) + "&src=" + src)
+            },
             onPlaylistRearrange(type) {
                 const moved = type.moved
                 
