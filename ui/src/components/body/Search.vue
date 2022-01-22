@@ -104,6 +104,8 @@
         padding: 10px;
         font-family: var(--font-family);
         width: 20vw;
+        color: var(--font-contrast);
+        background-color: var(--font-colour);
     }
 
     input:focus {

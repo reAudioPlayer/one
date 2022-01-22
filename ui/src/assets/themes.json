@@ -35,6 +35,22 @@
         "light-ruby": "#bd4c62",
         "light-royal": "#7169ff"
     },
+    "font-contrast": {
+        "default": "#121212",
+        "apollo": "#121212",
+        "gradient": "#121212",
+        "neon": "#121212",
+        "underground": "#121212",
+        "quarantine": "#121212",
+        "extraction": "#121212",
+        "night-jade": "#1e1e1e",
+        "night-crimson": "#1e1e1e",
+        "night-cobalt": "#1e1e1e",
+        "night-fire": "#1e1e1e",
+        "light": "white",
+        "light-ruby": "white",
+        "light-royal": "white"
+    },
     "font-colour": {
         "default": "white",
         "apollo": "whitesmoke",

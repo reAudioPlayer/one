@@ -4,7 +4,8 @@
     <br>
     <nav-entry href="/" icon="home" name="Home" />
     <nav-entry href="/search" icon="search" name="Search" />
-    <nav-entry href="/collection/playlists" icon="library_music" name="Your Library" />
+    <nav-entry href="/collection/playlists" icon="library_music" name="Your Library" :hasChildSites="true" parentHref="/collection" />
+    <nav-entry href="/news" icon="newspaper" name="News" :hasChildSites="true" />
     <br>
     <nav-entry href="/playlist/create" icon="add_circle" name="Create Playlist" />
     <nav-entry href="/collection/tracks" icon="favorite" name="Liked Songs" />

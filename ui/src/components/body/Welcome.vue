@@ -105,6 +105,7 @@
                     if (x.status == 200)
                     {
                         setTimeout(() => fetch("http://localhost:1234/api/releases"), 1000);
+                        setTimeout(() => fetch("http://localhost:1234/api/news"), 1000);
                         this.mode++;
                         setTimeout(() => {
                             this.$router.push("/")
@@ -163,7 +164,7 @@
 <style scoped>
 
     button {
-        color: var(--background);
+        color: var(--font-contrast);
         background-color: var(--font-colour);
         border: none;
         border-radius: 20px;
@@ -179,6 +180,7 @@
     }
 
     .restrictedMode {
+        color: white;
         background-color: #c73c3c;
     }
 
@@ -190,7 +192,7 @@
         padding: 5px;
         font-family: var(--font-family);
         width: 20vw;
-        color: var(--background);
+        color: var(--font-contrast);
         background-color: var(--font-colour);
     }
 

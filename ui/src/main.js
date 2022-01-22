@@ -16,6 +16,8 @@ import Releases from "./components/body/Collection/Releases.vue"
 import Tracks from "./components/body/Collection/Tracks.vue"
 import Preferences from "./components/body/Preferences.vue"
 import Welcome from "./components/body/Welcome.vue"
+import News from "./components/body/News.vue"
+import NewsArticle from "./components/body/NewsArticle.vue"
 
 import contextmenu from "v-contextmenu";
 
@@ -44,6 +46,8 @@ const routes = [
   { path: '/track/:id', component: Track },
   { path: '/preferences', component: Preferences },
   { path: '/welcome', component: Welcome },
+  { path: '/news', component: News },
+  { path: '/news/:url', component: NewsArticle },
 ]
 
 const router = createRouter({
