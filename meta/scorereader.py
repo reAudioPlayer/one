@@ -75,6 +75,9 @@ class OneFootballTeam:
             if not match.find("span", text=" Full time "):
                 href = match["href"]
                 break
+            if match.find("time", text=re.compile(r"(.*)Yesterday(.*)")):
+                href = match["href"]
+                break
         return "https://onefootball.com" + href
 
 
