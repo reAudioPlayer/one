@@ -28,9 +28,7 @@ import NewsItemBig from '../Catalogue/Items/News/NewsItemBig.vue'
 
                     for (const entry of jdata)
                     {
-                        console.log(entry)
                         const i = this.news.findIndex(x => x.source == entry.source)
-                        console.log(i)
                         if (i >= 0)
                         {
                             this.news[i].items.push(entry)

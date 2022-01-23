@@ -5,6 +5,7 @@ from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 from db.dbManager import DbManager
 from downloader.downloader import Downloader
 from handler.newsHandler import NewsHandler
+from handler.sportsHandler import SportsHandler
 from handler.playerHandler import PlayerHandler
 from handler.playlistHandler import PlaylistHandler
 from handler.collectionHandler import CollectionHandler
@@ -68,6 +69,7 @@ async def init() -> web.Application:
     metaHandler = MetaHandler(dbManager, spotify)
     configHandler = ConfigHandler()
     newsHandler = NewsHandler()
+    sportsHandler = SportsHandler()
     websocket = Websocket(player)
 
     logging.basicConfig(level = logging.INFO)
@@ -115,6 +117,8 @@ async def init() -> web.Application:
     app.router.add_post('/api/spotify/recommend', metaHandler.spotifyRecommend)
 
     app.router.add_get('/api/collection/tracks', collectionHandler.tracks)
+
+    app.router.add_post('/api/match', sportsHandler.getMatch)
 
     app.router.add_get('/api/news', newsHandler.getSomeNews)
     app.router.add_get('/api/news/article/{hash}', newsHandler.getArticle)

@@ -17,6 +17,7 @@ import Tracks from "./components/body/Collection/Tracks.vue"
 import Preferences from "./components/body/Preferences.vue"
 import Welcome from "./components/body/Welcome.vue"
 import News from "./components/body/News.vue"
+import Sports from "./components/body/Sports.vue"
 import NewsArticle from "./components/body/NewsArticle.vue"
 
 import contextmenu from "v-contextmenu";
@@ -47,6 +48,7 @@ const routes = [
   { path: '/preferences', component: Preferences },
   { path: '/welcome', component: Welcome },
   { path: '/news', component: News },
+  { path: '/sports', component: Sports },
   { path: '/news/:url', component: NewsArticle },
 ]
 

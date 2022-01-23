@@ -15,6 +15,7 @@ If you don't have a spotify account and don't want to create one or don't want t
 - [reAudioPlayer One](#reaudioplayer-one)
   - [Table of Contents](#table-of-contents)
   - [Supported sources](#supported-sources)
+  - [Web Scraping](#web-scraping)
   - [Installation](#installation)
     - [Clone or download this project from github](#clone-or-download-this-project-from-github)
     - [Navigate to the downloaded repository and run the setup](#navigate-to-the-downloaded-repository-and-run-the-setup)
@@ -28,10 +29,28 @@ If you don't have a spotify account and don't want to create one or don't want t
   - [License](#license)
 
 ## Supported sources
+
 ordered by loading times:
 - [Soundcloud](https://soundcloud.com/) (Fastest)
 - [Audius](https://audius.co/)
 - [Youtube Music](https://music.youtube.com/)
+
+## Web Scraping
+
+Following sites are being scraped directly in the app. Sources are always disclosed.
+
+- News (Article Readers)
+  - [YourEDM](https://youredm.com/)
+  - [The Guardian](https://theguardian.com/)
+  - [The Independent](https://independent.co.uk/)
+  - [BBC](https://bbc.com/)
+  - [CNN](https://cnn.com/)
+- Sports (Live Scoring)
+  - [OneFootball](https://onefootball.com/en)
+  - [CEV](https://cev.eu/)
+
+If your website is listed here and you do not want it to be scraped, simply open an issue and it will be removed as soon as possible.
+Note: reAudioPlayer One shows only publicly available data, nicely formatted and integrated into its own app.
 
 ## Installation
 
