@@ -5,7 +5,7 @@
         </div>
         <hr>
         <div class="padding-20">
-            <p class="small">Supported urls: {{supportedSources.join("*, ")}} </p>
+            <p class="small">Supported urls: {{supportedSources.join("*, ") + "*"}} </p>
             <div class="addWrapper">
                 <input @keyup="enterText" v-model="sourceToAdd" type="text">
                 <span id="addToPlaylist" @click="tryAddSource" class="material-icons-outlined">add_circle</span>
