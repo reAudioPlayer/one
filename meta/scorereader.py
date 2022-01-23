@@ -93,9 +93,13 @@ class CEVMatch(Match):
         self._result = f"{jdata.get('HomeTeam').get('Score')}:{jdata.get('AwayTeam').get('Score')}"
         if jdata.get("GoldenSet"):
             self._result += f"<br><p class='accent additional-result'>({jdata.get('GoldenSet')})</p>"
+        elif jdata.get("SetsFormatted"):
+            self._result += f"<br><p class='muted smaller additional-result'>{jdata.get('SetsFormatted').replace('<span>', ''.replace('</span>', ''))}</p>"
         self._progress = jdata.get("Duration").replace(" mins", "'")
         if not jdata.get("HasGameStarted"):
             self._progress = self._date.split(" ")[0]
+            if not jdata.get("HasGameFinished"):
+                self._result = self._progress
         if jdata.get("HasGameFinished"):
             self._progress = "Full time"
         self._sport = "Volleyball"

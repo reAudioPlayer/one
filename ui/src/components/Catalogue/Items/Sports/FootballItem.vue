@@ -103,7 +103,7 @@
     h4 {
         margin: 0;
         font-size: 1em;
-        min-width: 105px;
+        min-width: 110px;
         text-align: center;
     }
 
@@ -179,9 +179,18 @@
         color: var(--accent);
     }
 
+    p.muted {
+        color: var(--font-darker);
+    }
+
     p.additional-result {
         margin: 0;
         font-size: .8em;
+        max-width: 105px;
+    }
+
+    p.smaller {
+        font-size: .6em;
     }
 
 </style>
