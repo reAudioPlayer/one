@@ -52,6 +52,11 @@ Following sites are being scraped directly in the app. Sources are always disclo
 If your website is listed here and you do not want it to be scraped, simply open an issue and it will be removed as soon as possible.
 Note: reAudioPlayer One shows only publicly available data, nicely formatted and integrated into its own app.
 
+Or as CEV put it:<>
+
+The owner makes every effort to ensure that the content provided on this website does not infringe any applicable legislation or the rights of third parties. However, it is not always possible to achieve such a result.
+In such cases, users are requested, without prejudice to their legal rights, to submit complaints preferably by creating an issue.
+
 ## Installation
 
 Make sure you have [Python 3](https://www.python.org/downloads/) installed on your computer.
