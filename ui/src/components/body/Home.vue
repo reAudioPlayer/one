@@ -47,12 +47,15 @@ import Shelf from '../Catalogue/Shelf.vue'
                     this.releases.length = 0
                     this.releases.push(...jdata)
                 })
-            fetch("http://localhost:1234/api/news")
-                .then(x => x.json())
-                .then(jdata => {
-                    this.news.length = 0
-                    this.news.push(...jdata)
-                })
+            if (window.localStorage.getItem("sidebar.showNewsTab") == "true")
+            {
+                fetch("http://localhost:1234/api/news")
+                    .then(x => x.json())
+                    .then(jdata => {
+                        this.news.length = 0
+                        this.news.push(...jdata)
+                    })
+            }
             fetch("http://localhost:1234/api/playlists")
                 .then(x => x.json())
                 .then(async jdata => {

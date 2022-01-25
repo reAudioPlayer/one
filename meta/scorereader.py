@@ -1,7 +1,9 @@
+from __future__ import annotations
+from typing import List
 import requests
 from bs4 import BeautifulSoup
 import re
-import json
+from datetime import datetime, timedelta
 
 
 class Match:
@@ -16,10 +18,12 @@ class Match:
         self._date = None
         self._progress = None
         self._sport = None
+        self._sref = self._url
 
     def toJson(self) -> dict:
         return {
             "href": self._url,
+            "sref": self._sref,
             "team1": self._team1,
             "team2": self._team2,
             "result": self._result,
@@ -36,7 +40,8 @@ class OneFootballMatch(Match):
             nurl = OneFootballTeam.GetFirstMatch(url)
         if "/competition" in url:
             nurl = OneFootballTeam.GetFirstMatch(url)
-        super().__init__(url)
+        super().__init__(nurl)
+        self._sref = url
         self._html = requests.get(nurl).text
         self._soup = BeautifulSoup(self._html, "html.parser")
         section = self._soup.find("div", class_="match-score__main")
@@ -95,18 +100,34 @@ class CEVMatch(Match):
             self._result += f"<br><p class='accent additional-result'>({jdata.get('GoldenSet')})</p>"
         elif jdata.get("SetsFormatted"):
             self._result += f"<br><p class='muted smaller additional-result'>{jdata.get('SetsFormatted').replace('<span>', ''.replace('</span>', ''))}</p>"
+        
         self._progress = jdata.get("Duration").replace(" mins", "'")
+
+        date = datetime.strptime(self._date.split(" ")[0], "%d/%m/%Y")
+        timeOfDate = self._date.split(" ")[1]
+        
+        today = datetime.today()
+        if today.date() == date.date():
+            self._date = f"Today {timeOfDate}"
+        tomorrow = today + timedelta(days = 1)
+        if tomorrow.date() == date.date():
+            self._date = f"Tomorrow {timeOfDate}"
+        
         if not jdata.get("HasGameStarted"):
-            self._progress = self._date.split(" ")[0]
+            self._progress = self._date.split(" ")[1]
             if not jdata.get("HasGameFinished"):
-                self._result = self._progress
+                self._result = self._date.split(" ")[0]
         if jdata.get("HasGameFinished"):
             self._progress = "Full time"
         self._sport = "Volleyball"
 
     @staticmethod
     def generateTeam(team: dict, away: bool = False) -> str:
-        img = team.get("Logo").get("Url")
+        if not isinstance(team, dict):
+            return "N/A"
+        img = None
+        if isinstance(team, dict) and "Logo" in team and isinstance(team.get("Logo"), dict) and "Url" in team.get("Logo"):
+            img = team.get("Logo").get("Url")
         name = team.get("Name")
         aClass = "match-score-team"
         sClass = "match-score-team__name"
@@ -123,3 +144,17 @@ class CEVMatch(Match):
         elem = soup.find("div", {"data-endpoint" : re.compile(r".*")})
         return "https:" + elem["data-endpoint"].replace("GetFormComponent", "getlivescorehero").replace("GetPlayByPlayComponent", "getlivescorehero")
 
+    @staticmethod
+    def FromCalendar(nurl) -> List[dict]:
+        url = "https://www.cev.eu/umbraco/api/CalendarApi/GetCalendar?nodeId=11346&culture=en-US"
+        jdata = requests.get(url).json()
+        dates = jdata.get("Dates") or [ ]
+        today = datetime.today()
+        dates = [ date for date in dates
+                  if date.get("DayNumber") >= today.day and date.get("NumMatches") > 0 ][:1]
+        if len(dates) == 0:
+            return [ ]
+        def implement(match: CEVMatch) -> dict:
+            match._sref = nurl
+            return match.toJson()
+        return [ implement(CEVMatch(match.get("MatchCentreUrl"))) for match in dates[0].get("Matches") if match.get("MatchCentreUrl")]

@@ -3,7 +3,7 @@
         <div class="item" @click="redirect">
             <div class="wrapper topalign">
                 <p>{{competition}}</p>
-                <p class="right progress" :class="{'accent': progress.includes(`'`)}">{{progress}}</p>
+                <p class="right progress" :class="{'accent': progress?.includes(`'`)}">{{progress}}</p>
             </div>
             <div class="wrapper">
                 <p v-html="team1" class="team" />

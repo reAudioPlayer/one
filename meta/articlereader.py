@@ -70,7 +70,8 @@ class BBCArticle(Article):
         article.header.find("div").decompose()
         topic = article.header.find("div")
         topic.find("div").decompose()
-        self._topic = ", ".join([ tag.string for tag in topic.ul.find_all("a") ])
+        if topic.ul:
+            self._topic = ", ".join([ tag.string for tag in topic.ul.find_all("a") ])
 
         article.header.decompose()
         for img in article.find_all("noscript"):

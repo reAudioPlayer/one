@@ -5,9 +5,9 @@
     <nav-entry href="/" icon="home" name="Home" />
     <nav-entry href="/search" icon="search" name="Search" />
     <nav-entry href="/collection/playlists" icon="library_music" name="Your Library" :hasChildSites="true" parentHref="/collection" />
-    <br>
-    <nav-entry href="/news" icon="newspaper" name="News" :hasChildSites="true" />
-    <nav-entry href="/sports" icon="sports_soccer" name="Sports" />
+    <br v-if="showNewsTab || showSportsTab">
+    <nav-entry v-if="showNewsTab" href="/news" icon="newspaper" name="News" :hasChildSites="true" />
+    <nav-entry v-if="showSportsTab" href="/sports" icon="sports_soccer" name="Sports" />
     <br>
     <nav-entry href="/playlist/create" icon="add_circle" name="Create Playlist" />
     <nav-entry href="/collection/tracks" icon="favorite" name="Liked Songs" />
@@ -67,7 +67,9 @@
 
       return {
         playlists: [],
-        cover: "/assets/img/music_placeholder.png"
+        cover: "/assets/img/music_placeholder.png",
+        showSportsTab: window.localStorage.getItem("sidebar.showSportsTab") == "true",
+        showNewsTab: window.localStorage.getItem("sidebar.showNewsTab") == "true"
       }
     },
     methods: {

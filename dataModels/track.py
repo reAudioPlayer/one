@@ -117,8 +117,7 @@ class YoutubeTrack:
     def __init__(self, track: dict) -> None:
         self._title = track["title"]
         album = track.get("album")
-        if album:
-            self._album = album.get("name")
+        self._album = album.get("name") if album else None
         self._artists = [x.get("name") for x in track.get("artists")]
         self._id = track.get("videoId")
         self._cover = track.get("thumbnails")[0].get("url").replace("w60-h60", "w500-h500")

@@ -5,14 +5,14 @@
         </div>
         <hr>
         <div class="padding-20">
-            <p class="small">Supported urls: {{supportedSources.join("*, ") + "*"}} </p>
+            <p class="small">Supported urls: {{supportedSources.join("*, ")}} </p>
             <div class="addWrapper">
                 <input @keyup="enterText" v-model="sourceToAdd" type="text">
                 <span id="addToPlaylist" @click="tryAddSource" class="material-icons-outlined">add_circle</span>
             </div>
             <hr>
-            <full-shelf v-for="sport in sports" :key="sport.sport" :heading="sport.sport">
-                <football-item v-for="element in sport.items" :key="element.href" @remove="() => removeSource(element.href)" :competition="element.competition"
+            <full-shelf v-for="(sport, sportIndex) in sports" :key="sport.sport" :heading="sport.sport">
+                <football-item v-for="(element, matchIndex) in sport.items" :key="element.href" @remove="() => removeSource(element.sref, sportIndex, matchIndex)" :competition="element.competition"
                     :team1="element.team1" :team2="element.team2" :result="element.result" :date="element.date"
                     :href="element.href" :progress="element.progress" />
             </full-shelf>
@@ -39,33 +39,25 @@
                     "https://onefootball.com/en/match/",
                     "https://onefootball.com/en/competition/",
                     "https://www.cev.eu/match-centres/",
-                    "https://championsleague.cev.eu/en/match-centres/"
+                    "https://championsleague.cev.eu/en/match-centres/",
+                    "https://www.cev.eu/calendar/"
                 ]
             }
         },
         mounted() {
             this.watchMatches = JSON.parse(window.localStorage.getItem("sports.watchMatches")) || [ ]
-            /*this.watchMatches = ["https://onefootball.com/en/team/benfica-147",
-                "https://onefootball.com/en/team/sporting-cp-140",
-                "https://onefootball.com/en/team/fc-porto-13",
-                "https://onefootball.com/en/team/borussia-dortmund-155",
-                "https://onefootball.com/en/team/atletico-madrid-3",
-                "https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-cup-2022-women/ccw-51-uralochka-ntmk-ekaterinburg-v-eczacibasi-dynavit-istanbul/",
-                "https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-men/chcm-60-narbonne-volley-v-sporting-cp-lisboa/",
-                "https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-84-trentino-itas-v-as-cannes-dragons/"
-            ]*/
             this.updateMatches()
         },
         methods: {
-            removeSource(source) {
-                console.log(source)
+            removeSource(source, sportIndex, matchIndex) {
+                console.log(source, this.watchMatches.indexOf(source), sportIndex, matchIndex)
                 this.watchMatches.splice(this.watchMatches.indexOf(source), 1)
+                this.sports[sportIndex].items.splice(matchIndex, 1)
                 window.localStorage.setItem("sports.watchMatches", JSON.stringify(this.watchMatches))
             },
             tryAddSource() {
                 for (const supportedSource of this.supportedSources)
                 {
-                    console.log(this.sourceToAdd, supportedSource)
                     if (this.sourceToAdd.startsWith(supportedSource))
                     {
                         this.addSource()
@@ -107,7 +99,6 @@
                             sport.items.sort((a, b) => {
                                 a.progress = a.progress.replace("Half time", "45'")
                                 b.progress = b.progress.replace("Half time", "45'")
-                                console.log(a.progress, b.progress)
                                 if (a.progress.includes("'") && !b.progress.includes("'"))
                                 {
                                     return -1
@@ -122,64 +113,36 @@
                                     const progB = Number(b.progress.replace("'", "").replace("+", ""))
                                     return progA < progB ? -1 : progA == progB ? 0 : 1
                                 }
-                                if (a.progress.includes(":") && !b.progress.includes(":"))
-                                {
-                                    return -1
-                                }
-                                if (!a.progress.includes(":") && b.progress.includes(":"))
-                                {
-                                    return 1
-                                }
-                                if (a.progress.includes(":") && b.progress.includes(":"))
-                                {
-                                    const progA = Number(a.progress.replace(":", ""))
-                                    const progB = Number(b.progress.replace(":", ""))
-                                    return progA < progB ? -1 : progA == progB ? 0 : 1
-                                }
-                                if (a.progress.includes("/") && !b.progress.includes("/"))
-                                {
-                                    return -1
-                                }
-                                if (!a.progress.includes("/") && b.progress.includes("/"))
-                                {
-                                    return 1
-                                }
-                                if (a.progress.includes("/") && b.progress.includes("/"))
-                                {
-                                    const dateNA = Number(a.progress.split("/").reverse().join("").replace(" ", ""))
-                                    const dateNB = Number(b.progress.split("/").reverse().join("").replace(" ", ""))
-                                    return dateNA < dateNB ? -1 : dateNA == dateNB ? 0 : 1
-                                }
-                                if (a.progress.includes("Full time") && b.progress.includes("Full time"))
-                                {
-                                    const dateA = a.date
-                                    const dateB = b.date
-                                    console.log(dateA, dateB)
-                                    if (dateA.includes("Today") && !dateB.includes("Today"))
-                                    {
-                                        return -1;
-                                    }
-                                    if (!dateA.includes("Today") && dateB.includes("Today"))
-                                    {
-                                        return 1;
-                                    }
-                                    if (dateA.includes("Yesterday") && !dateB.includes("Yesterday"))
-                                    {
-                                        return -1;
-                                    }
-                                    if (!dateA.includes("Yesterday") && dateB.includes("Yesterday"))
-                                    {
-                                        return 1;
-                                    }
-                                    const dateNA = Number(dateA.split(" ")[0].split("/").reverse().join("").replace(" ", ""))
-                                    const dateNB = Number(dateB.split(" ")[0].split("/").reverse().join("").replace(" ", ""))
-                                    console.log(dateA, dateB, dateNA, dateNB)
-                                    return dateNA > dateNB ? -1 : dateNA == dateNB ? 0 : 1
-                                }
+
+                                let datesA = a.date.split(" ")[0]
+                                let datesB = b.date.split(" ")[0]
+
+                                let timeA = a.progress.replace("'", "").replace("Full time", "24:00").replace(" ", "")
+                                let timeB = b.progress.replace("'", "").replace("Full time", "24:00").replace(" ", "")
+
+                                let todayDate = new Date()
+                                let tomorrowDate = new Date()
+                                tomorrowDate.setUTCDate(todayDate.getUTCDate() + 1)
+                                let yesterdayDate = new Date()
+                                yesterdayDate.setUTCDate(todayDate.getUTCDate() - 1)
+
+                                const getDate = date => date.toISOString().split("T")[0]
+
+                                datesA = datesA.replace("Today", getDate(todayDate)).split("/").reverse().join("-")
+                                datesA = datesA.replace("Tomorrow", getDate(tomorrowDate)).split("/").reverse().join("-")
+                                datesA = datesA.replace("Yesterday", getDate(yesterdayDate)).split("/").reverse().join("-")
+
+                                datesB = datesB.replace("Today", getDate(todayDate)).split("/").reverse().join("-")
+                                datesB = datesB.replace("Tomorrow", getDate(tomorrowDate)).split("/").reverse().join("-")
+                                datesB = datesB.replace("Yesterday", getDate(yesterdayDate)).split("/").reverse().join("-")
+
+                                let dateA = new Date(`${datesA}T${timeA}`.replace(" ", ""))
+                                let dateB = new Date(`${datesB}T${timeB}`.replace(" ", ""))
+                                return dateA > dateB ? -1 : dateA == dateB ? 0 : 1
                             })
                         }
                     })
-                setTimeout(this.updateMatches, 1000 * 30)
+                setTimeout(this.updateMatches, 1000 * 45)
             }
         }
     }
