@@ -1,7 +1,6 @@
 <template>
   <div class="sidebar">
     <h2 @click="onLogoClick">reAudioPlayer One</h2>
-    <br>
     <nav-entry href="/" icon="home" name="Home" />
     <nav-entry href="/search" icon="search" name="Search" />
     <nav-entry href="/collection/playlists" icon="library_music" name="Your Library" :hasChildSites="true" parentHref="/collection" />
@@ -91,6 +90,11 @@
 </script>
 
 <style scoped>
+
+  h2 {
+    margin-bottom: 0;
+  }
+
   .cover {
     height: calc(var(--sidebar-width) + 40px);
     width: calc(var(--sidebar-width) + 40px);
