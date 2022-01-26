@@ -1,4 +1,5 @@
 import json
+import os
 from os.path import exists
 from aiohttp import web
 from db.dbManager import DbManager
@@ -17,6 +18,9 @@ class ConfigHandler:
         jdata = await request.json()
         if None in (jdata.get("id"), jdata.get("secret")):
             return web.Response(status = 400)
+
+        if not exists('./config'):
+            os.makedirs('./config')
         
         with open("./config/spotify.json", "w") as file:
             json.dump({

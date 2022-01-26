@@ -1,34 +1,39 @@
-from typing import Optional, Tuple
-import spotipy
-from spotipy.client import Spotify
-from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
-from db.dbManager import DbManager
-from downloader.downloader import Downloader
-from handler.newsHandler import NewsHandler
-from handler.sportsHandler import SportsHandler
-from handler.playerHandler import PlayerHandler
-from handler.playlistHandler import PlaylistHandler
-from handler.collectionHandler import CollectionHandler
-from handler.metaHandler import MetaHandler
-from handler.configHandler import ConfigHandler
-from handler.websocket import Websocket
-from player.player import Player
-from aiohttp import web
-import asyncio
-import aiohttp_cors
-from aiohttp_index import IndexMiddleware
-from aiohttp.web import middleware
+try:
+    from typing import Optional, Tuple
+    import spotipy
+    from spotipy.oauth2 import  SpotifyOAuth
+    from db.dbManager import DbManager
+    from downloader.downloader import Downloader
+    from handler.newsHandler import NewsHandler
+    from handler.sportsHandler import SportsHandler
+    from handler.playerHandler import PlayerHandler
+    from handler.playlistHandler import PlaylistHandler
+    from handler.collectionHandler import CollectionHandler
+    from handler.metaHandler import MetaHandler
+    from handler.configHandler import ConfigHandler
+    from handler.websocket import Websocket
+    from player.player import Player
+    from aiohttp import web
+    import asyncio
+    import aiohttp_cors
+    from aiohttp_index import IndexMiddleware
+    from aiohttp.web import middleware
 
-import pygame
+    import pygame
 
-import logging
-import time
+    import logging
+    import time
 
-from player.playlistManager import PlaylistManager
+    from player.playlistManager import PlaylistManager
 
-from os.path import exists
+    from os.path import exists
 
-import json
+    import json
+except:
+    print("you need to run setup.bat (or the documented commands) first")
+    import time
+    time.sleep(5)
+    exit()
 
 
 dbManager = DbManager()
