@@ -99,6 +99,19 @@
                             sport.items.sort((a, b) => {
                                 a.progress = a.progress.replace("Half time", "45'")
                                 b.progress = b.progress.replace("Half time", "45'")
+
+                                if (a.progress.includes("Pens") || a.progress.includes("N/A"))
+                                {
+                                    a.progress = "Full time"
+                                }
+
+                                if (b.progress.includes("Pens") || b.progress.includes("N/A"))
+                                {
+                                    b.progress = "Full time"
+                                }
+
+                                console.log(a.progress, b.progress)
+
                                 if (a.progress.includes("'") && !b.progress.includes("'"))
                                 {
                                     return -1

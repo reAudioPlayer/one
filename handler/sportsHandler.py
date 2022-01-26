@@ -16,7 +16,7 @@ class SportsHandler:
                     return [ OneFootballMatch(url).toJson() ]
                 if "cev" in url:
                     if "/calendar/" in url:
-                        return CEVMatch.FromCalendar(url)
+                        return CEVMatch.FromCalendarV2(url)
                     return [ CEVMatch(url).toJson() ]
             except Exception as e:
                 traceback.print_exception(e)

@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from datetime import datetime, timedelta
+import traceback
 
 
 class Match:
@@ -89,6 +90,8 @@ class OneFootballTeam:
 class CEVMatch(Match):
     def __init__(self, url) -> None:
         nurl = CEVMatch.extractLiveScore(url)
+        if not nurl:
+            raise AttributeError
         super().__init__(url)
         jdata = requests.get(nurl).json()
         self._date = jdata.get("Date")
@@ -142,7 +145,44 @@ class CEVMatch(Match):
         html = requests.get(url).text
         soup = BeautifulSoup(html, "html.parser")
         elem = soup.find("div", {"data-endpoint" : re.compile(r".*")})
+        if not elem:
+            elem = soup.find("div", {"data-score-endpoint" : re.compile(r".*")})
+            if not elem:
+                print(elem, url)
+                return
+            return "https:" + elem["data-score-endpoint"]
         return "https:" + elem["data-endpoint"].replace("GetFormComponent", "getlivescorehero").replace("GetPlayByPlayComponent", "getlivescorehero")
+
+    @staticmethod
+    def FromCalendarV2(nurl) -> List[dict]:
+        url = "https://championsleague.cev.eu/LiveScores.json"
+        jdata = requests.get(url).json()
+
+        def implement(url: str, fallback: dict) -> dict:
+            try:
+                match = CEVMatch(url)
+                match._sref = nurl
+                return match.toJson()
+            except Exception as e:
+                traceback.print_exception(e)
+                date = datetime.strptime(fallback.get("utcStartDate"), "%Y-%m-%dT%H:%M:%SZ")
+                return {
+                    "href": url,
+                    "team1": fallback.get("homeTeam") or "N/A",
+                    "team2": fallback.get("awayTeam") or "N/A",
+                    "competition": fallback.get("competition") or "N/A",
+                    "result": f"{fallback.get('homeSetsWon')}:{fallback.get('awaySetsWon')}",
+                    "date": date.strftime("%d/%m/%Y %H:%M") or "N/A",
+                    "progress": "N/A",
+                    "sport": "Volleyball"
+                }
+
+        returnValue = [ ]
+        for competition in jdata.get("competitions"):
+            for match in competition.get("matches"):
+                match["competition"] = competition.get("competitionName")
+                returnValue.append(implement(match.get("matchCentreLink"), match))
+        return returnValue
 
     @staticmethod
     def FromCalendar(nurl) -> List[dict]:
@@ -154,7 +194,36 @@ class CEVMatch(Match):
                   if date.get("DayNumber") >= today.day and date.get("NumMatches") > 0 ][:1]
         if len(dates) == 0:
             return [ ]
-        def implement(match: CEVMatch) -> dict:
-            match._sref = nurl
-            return match.toJson()
-        return [ implement(CEVMatch(match.get("MatchCentreUrl"))) for match in dates[0].get("Matches") if match.get("MatchCentreUrl")]
+        def implement(url: str) -> dict:
+            try:
+                match = CEVMatch(url)
+                match._sref = nurl
+                return match.toJson()
+            except Exception as e:
+                traceback.print_exception(e)
+                return {
+                    "href": url,
+                    "result": "N/A",
+                    "date": "N/A",
+                    "progress": "N/A",
+                    "sport": "N/A"
+                }
+        return [ implement(match.get("MatchCentreUrl")) for match in dates[0].get("Matches") if match.get("MatchCentreUrl")]
+
+class CEVMatchV2(Match):
+    def __init__(self, parseData: dict, competition: str) -> None:
+        super().__init__(parseData.get("matchCentreLink"))
+        self._competition = competition
+        self._date = parseData.get("utcStartDate", "%Y-%m-%dT%H:%M:%SZ")
+        self._team1 = self._generateTeam(parseData.get("homeTeam"), parseData("homeTeamIcon"), False)
+        self._team1 = self._generateTeam(parseData.get("awayTeam"), parseData("awayTeamIcon"), True)
+        self._sport = "Volleyball"
+
+    def _generateTeam(self, name: str, icon: str, away: bool):
+        aClass = "match-score-team"
+        sClass = "match-score-team__name"
+        if away:
+            sClass += " match-score-team__name--away"
+        else:
+            aClass += " match-score-team--home"
+        return f"<of-match-score-team><a class='{aClass}'><img class='teamlogo' src='{icon}' /><span class='{sClass}'>{name}</span></a></of-match-score-team>"
