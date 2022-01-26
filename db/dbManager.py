@@ -4,10 +4,13 @@ from typing import List, Optional, Tuple
 from dataModels.playlist import Playlist
 
 from dataModels.song import Song
+import os
 
 
 class DbManager:
     def __init__(self) -> None:
+        if not os.path.exists('./db/db'):
+            os.makedirs('./db/db')
         self._db = sl.connect('./db/db/main.db')
         self._createSongTable()
         self._createPlaylistTable()

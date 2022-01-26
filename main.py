@@ -35,6 +35,7 @@ except:
     time.sleep(5)
     exit()
 
+# TODO spotify always opening
 
 dbManager = DbManager()
 

@@ -57,6 +57,7 @@ In such cases, users are requested, without prejudice to their legal rights, to 
 ## Installation
 
 Make sure you have [Python 3](https://www.python.org/downloads/) installed on your computer.
+You'll also need [ffmpeg](https://ffmpeg.org/download.html).
 
 ### Clone or download this project from github
 ```sh
