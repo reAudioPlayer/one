@@ -110,7 +110,7 @@ class SpotifyAlbum:
     def url(self) -> str:
         return f"https://open.spotify.com/album/{self._id}"
 
-ytmusic = YTMusic("headers_auth.json")
+ytmusic = YTMusic()
 
 
 class YoutubeTrack:
