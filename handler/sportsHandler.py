@@ -10,14 +10,14 @@ class SportsHandler:
     async def getMatch(self, request: web.Request):
         jdata = await request.json()
         urls = jdata.get("urls") or [ ]
-        def implement(url: str) -> List[dict]:
+        async def implement(url: str) -> List[dict]:
             try:
                 if "onefootball" in url:
                     return [ OneFootballMatch(url).toJson() ]
                 if "cev" in url:
                     if "/calendar/" in url:
-                        return CEVMatch.FromCalendarV2(url)
-                    return [ CEVMatch(url).toJson() ]
+                        return await CEVMatch.FromCalendar()
+                    return await CEVMatch.AddRange([url], url)
             except Exception as e:
                 traceback.print_exception(e)
             return [{
@@ -29,7 +29,7 @@ class SportsHandler:
             }]
         data = [ ]
         async def implementAsync(url: str) -> None:
-            data.extend(await asyncRunInThreadWithReturn(implement, url))
+            data.extend( await implement(url) )
 
         tasks = [ ]
 

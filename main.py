@@ -53,7 +53,9 @@ async def init() -> web.Application:
             config = json.load(file)
             return config.get("id"), config.get("secret")
 
-    def _getSpotifyAuth(id: str, secret: str) -> SpotifyOAuth:
+    def _getSpotifyAuth(id: str, secret: str) -> Optional[SpotifyOAuth]:
+        if "restricted" in (id, secret):
+            return None
         return SpotifyOAuth(id, secret, "http://reap.ml/", scope=scope)
 
     spotify = spotipy.Spotify()
