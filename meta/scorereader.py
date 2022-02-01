@@ -152,7 +152,10 @@ class CEVMatch(Match):
         setsFormatted =  ", ".join([ f"{set_.homeScore}:{set_.awayScore}" for set_ in score.sets ])
         if score.hasGoldenSet:
             return f"{score.homeScore}:{score.awayScore}<br><p class='accent additional-result'>({score.latestSet.homeScore}:{score.latestSet.awayScore})</p>"
-        return f"{score.homeScore}:{score.awayScore}<br><p class='muted smaller additional-result'>({setsFormatted})</p>"
+        string = f"{score.homeScore}:{score.awayScore}"
+        if setsFormatted:
+            string += f"<br><p class='muted smaller additional-result'>({setsFormatted})</p>"
+        return string
 
     @staticmethod
     async def update(match: match.Match, result: Result) -> None:
