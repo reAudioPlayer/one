@@ -104,19 +104,20 @@ class CEVMatch(Match):
         self._date = self._getDate()
         self._progress = self._getProgress(match.state, match.duration, match.startTime)
         self._competition = match.competition.displayName
-        self._result = self._getResult()
+        self._result = self._getResult(match.state, match.startTime, match.currentScore)
         self._sport = "Volleyball"
 
-    def _getResult(self) -> str:
-        if not self._match.state == MatchState.Upcoming:
-            return CEVMatch.formatResult(self._match.currentScore)
+    @staticmethod
+    def _getResult(state: MatchState, startTime: datetime, currentScore: Result) -> str:
+        if not state == MatchState.Upcoming:
+            return CEVMatch.formatResult(currentScore)
         today = datetime.today()
-        if today.date() == self._match.startTime.date():
-            return self._match.startTime.strftime('%H:%M')
+        if today.date() == startTime.date():
+            return startTime.strftime('%H:%M')
         tomorrow = today + timedelta(days = 1)
-        if tomorrow.date() == self._match.startTime.date():
+        if tomorrow.date() == startTime.date():
             return "Tomorrow"
-        return self._match.startTime.strftime('%d/%m/%Y')
+        return startTime.strftime('%d/%m/%Y')
 
     def _getDate(self) -> str:
         today = datetime.today()
@@ -159,10 +160,10 @@ class CEVMatch(Match):
 
     @staticmethod
     async def update(match: match.Match, result: Result) -> None:
-        #print(cevMatchCache, match.matchCentreLink, cevMatchCache.get(match.matchCentreLink))
         try:
-            cevMatchCache[match.matchCentreLink]._result = CEVMatch.formatResult(result)
-            cevMatchCache[match.matchCentreLink]._progress = CEVMatch._getProgress(await match.state(), await match.duration(), await match.startTime())
+            state, duration, startTime = await match.state(), await match.duration(), await match.startTime()
+            cevMatchCache[match.matchCentreLink]._result = CEVMatch._getResult(state, startTime, result)
+            cevMatchCache[match.matchCentreLink]._progress = CEVMatch._getProgress(state, duration, startTime)
         except Exception as e:
             print(e)
 
