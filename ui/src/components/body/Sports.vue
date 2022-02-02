@@ -11,7 +11,7 @@
                 <span id="addToPlaylist" @click="tryAddSource" class="material-icons-outlined">add_circle</span>
             </div>
             <hr>
-            <full-shelf v-for="(sport, sportIndex) in sports" :key="sport.sport" :heading="sport.sport">
+            <full-shelf v-for="(sport, sportIndex) in sports" :key="sport.sport" :heading="sport.sport" :icon="sport.icon">
                 <football-item v-for="(element, matchIndex) in sport.items" :key="element.href" @remove="() => removeSource(element.sref, sportIndex, matchIndex)" :competition="element.competition"
                     :team1="element.team1" :team2="element.team2" :result="element.result" :date="element.date"
                     :href="element.href" :progress="element.progress" />
@@ -89,6 +89,7 @@
                             } else {
                                 this.sports.push({
                                     sport: entry.sport,
+                                    icon: entry.sportIcon,
                                     items: [ entry ]
                                 })
                             }

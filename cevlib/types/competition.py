@@ -55,7 +55,7 @@ class Competition(IType):
 
     @property
     def valid(self) -> bool:
-        return None not in (self._name, self._gender, self._matchNumber)
+        return None not in (self._name, self._gender)
 
     def toJson(self) -> dict:
         return {

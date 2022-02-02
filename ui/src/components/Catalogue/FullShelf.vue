@@ -1,7 +1,7 @@
 <template>
     <div class="shelf">
         <div class="header">
-            <h2>{{heading}}</h2>
+            <h2>{{heading}}<span v-if="icon" class="icon material-icons-outlined">{{icon}}</span></h2>
         </div>
         <div class="items">
             <slot />
@@ -13,12 +13,19 @@
     export default {
         name: 'FullShelf',
         props: {
-            heading: String
+            heading: String,
+            icon: String
         }
     }
 </script>
 
 <style scoped>
+
+    span.icon {
+        transform: translateY(3px);
+        margin-left: 20px;
+    }
+
     .header {
         margin: 10px 10px 0px 10px;
         display: flex;

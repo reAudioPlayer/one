@@ -24,6 +24,7 @@ class Match:
         self._progress = None
         self._sport = None
         self._sref = self._url
+        self._icon = None
 
     def toJson(self) -> dict:
         return {
@@ -35,6 +36,7 @@ class Match:
             "progress": self._progress,
             "competition": self._competition,
             "sport": self._sport,
+            "sportIcon": self._icon,
             "date": self._date
         }
 
@@ -62,6 +64,7 @@ class OneFootballMatch(Match):
             txt = aggregate.text.removesuffix(" ").removeprefix(" ").replace("-", ":")
             self._result += f"<br><p class='accent additional-result'>({txt})</p>"
         self._sport = "Football"
+        self._icon = "sports_soccer"
         progress = section.find("div", class_="match-score__data").find("span", class_="title-7-medium")
         if not progress:
             progress = section.find("div", class_="match-score__data").find("span", class_="match-score__highlighted-text")
@@ -103,9 +106,10 @@ class CEVMatch(Match):
         self._team2 = self._getTeam(True)
         self._date = self._getDate()
         self._progress = self._getProgress(match.state, match.duration, match.startTime)
-        self._competition = match.competition.displayName
+        self._competition = match.competition.displayName if match.competition is not None else "N/A"
         self._result = self._getResult(match.state, match.startTime, match.currentScore)
         self._sport = "Volleyball"
+        self._icon = "sports_volleyball"
 
     @staticmethod
     def _getResult(state: MatchState, startTime: datetime, currentScore: Result) -> str:
@@ -113,7 +117,7 @@ class CEVMatch(Match):
             return CEVMatch.formatResult(currentScore)
         today = datetime.today()
         if today.date() == startTime.date():
-            return startTime.strftime('%H:%M')
+            return "Today"
         tomorrow = today + timedelta(days = 1)
         if tomorrow.date() == startTime.date():
             return "Tomorrow"
@@ -207,7 +211,7 @@ class CEVMatch(Match):
                 print(e)
 
         for mmatch in results:
-            if not mmatch:
+            if mmatch is None:
                 continue
             link = mmatch.matchCentreLink
             if mmatch not in cevMatchMatchCache:
