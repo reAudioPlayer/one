@@ -19,6 +19,7 @@ import Welcome from "./components/body/Welcome.vue"
 import News from "./components/body/News.vue"
 import Sports from "./components/body/Sports.vue"
 import NewsArticle from "./components/body/NewsArticle.vue"
+import VolleyMatch from "./components/body/VolleyMatch.vue"
 
 import contextmenu from "v-contextmenu";
 
@@ -49,6 +50,7 @@ const routes = [
   { path: '/welcome', component: Welcome },
   { path: '/news', component: News },
   { path: '/sports', component: Sports },
+  { path: '/sports/volley/:id', component: VolleyMatch },
   { path: '/news/:url', component: NewsArticle },
 ]
 

@@ -23,7 +23,7 @@
         name: 'FootballItem',
         methods: {
             redirect() {
-                window.open(this.href)
+                window.open(this.oref)
             },
             remove(e) {
                 e.stopPropagation()
@@ -35,6 +35,7 @@
             date: String,
             competition: String,
             href: String,
+            oref: String,
             team1: String,
             team2: String,
             progress: String

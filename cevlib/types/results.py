@@ -84,9 +84,23 @@ class Result(IType):
         return {
             "hasGoldenSet": self.hasGoldenSet,
             "sets": [ set_.toJson() for set_ in self.sets ],
+            "regularSets": [ set_.toJson() for set_ in self.regularSets ],
+            "goldenSet": self.goldenSet.toJson() if self.goldenSet else None,
             "homeScore": self.homeScore,
             "awayScore": self.awayScore
         }
+
+    @property
+    def goldenSet(self) -> Optional[SetResult]:
+        if not self.hasGoldenSet:
+            return None
+        return self.sets[-1]
+
+    @property
+    def regularSets(self) -> List[SetResult]:
+        if self.hasGoldenSet:
+            return self.sets[:-1]
+        return self.sets
 
     @property
     def hasGoldenSet(self) -> bool:

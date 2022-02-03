@@ -6,7 +6,7 @@
     <nav-entry href="/collection/playlists" icon="library_music" name="Your Library" :hasChildSites="true" parentHref="/collection" />
     <br v-if="showNewsTab || showSportsTab">
     <nav-entry v-if="showNewsTab" href="/news" icon="newspaper" name="News" :hasChildSites="true" />
-    <nav-entry v-if="showSportsTab" href="/sports" icon="sports_soccer" name="Sports" />
+    <nav-entry v-if="showSportsTab" href="/sports" icon="sports_soccer" name="Sports" :hasChildSites="true" />
     <br>
     <nav-entry href="/playlist/create" icon="add_circle" name="Create Playlist" />
     <nav-entry href="/collection/tracks" icon="favorite" name="Liked Songs" />

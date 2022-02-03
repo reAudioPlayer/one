@@ -7,6 +7,10 @@ import traceback
 
 
 class SportsHandler:
+    async def getVolleyMatch(self, request: web.Request):
+        match = await CEVMatch.FromHash(request.match_info['hash'])
+        return web.json_response(match.toJson())
+
     async def getMatch(self, request: web.Request):
         jdata = await request.json()
         urls = jdata.get("urls") or [ ]

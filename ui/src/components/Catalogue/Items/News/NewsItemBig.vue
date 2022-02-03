@@ -23,7 +23,6 @@
         computed: {
             updatedTimestamp() {
                 const d = new Date(this.updated)
-                console.log(this.title, this.updated)
 
                 const DAYS = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ]
                 const MONTHS = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]

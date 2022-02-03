@@ -147,7 +147,7 @@ class Match(IType):
         #if self._invalidMatchCentre:
             #raise AttributeError("404")
         self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
-        self._gallery = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Upload/Photo/[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
+        self._gallery = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Upload\/Photo\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-]).jpg", html) ]
         self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
         self._html = html
         self._matchId: Optional[int] = None
@@ -298,8 +298,6 @@ class Match(IType):
                     { } if home else { },
                     liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
                     liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
-            return None
-
 
     # GET
 
@@ -347,7 +345,7 @@ class Match(IType):
     async def _finishedF(self) -> bool:
         if not self._initialised:
             await self.init()
-        await self._requestLiveScoresJsonByMatchSafe()
+        await self._requestLiveScoresJsonByMatchSafe(False)
         return self._finished
 
     async def state(self) -> MatchState:

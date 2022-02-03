@@ -127,6 +127,7 @@ async def init() -> web.Application:
     app.router.add_get('/api/collection/tracks', collectionHandler.tracks)
 
     app.router.add_post('/api/match', sportsHandler.getMatch)
+    app.router.add_get('/api/match/volley/{hash}', sportsHandler.getVolleyMatch)
 
     app.router.add_get('/api/news', newsHandler.getSomeNews)
     app.router.add_get('/api/news/article/{hash}', newsHandler.getArticle)

@@ -11,12 +11,16 @@ class Play(IType):
         self._type: PlayType = PlayType.Parse(data.get("Title"))
         self._currentScore: SetResult = SetResult.ParseFromPlayByPlay(data)
         self._playerName: str = data.get("PlayerName").title() # TODO player type
+        self._playerNumber: int = data.get("PlayerNumber")
+        self._isHome: bool = data.get("IsHome")
 
     def toJson(self) -> dict:
         return {
             "type": self.type.value,
             "currentScore": self.currentScore.toJson(),
-            "playerName": self.playerName
+            "playerName": self.playerName,
+            "playerNumber": self._playerNumber,
+            "isHome": self._isHome
         }
 
     @property

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from tkinter import E
 from typing import List, Union
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
@@ -10,8 +11,12 @@ class MatchReport(IType):
         soup = BeautifulSoup(html, "html.parser")
         try:
             matchReport = soup.find("div", class_="match-report")
-            self._headline = matchReport.h2.get_text(strip=True)
-            self._body = matchReport.find("div", class_="match-report__summary-container").p.text
+            try:
+                self._headline = matchReport.h2.get_text(strip=True)
+                self._body = matchReport.find("div", class_="match-report__summary-container").p.text
+            except:
+                self._headline = None
+                self._body = None
 
             matchReport.decompose()
             matchReport = soup.find("div", class_="match-report")
@@ -53,7 +58,7 @@ class MatchReport(IType):
 
     @property
     def valid(self) -> bool:
-        return None not in (self._headline, self._body) and 0 not in (len(self._quotes), len(self._inNumbers))
+        return None not in (self._headline, self._body) and len(self._quotes) > 0 or len(self._inNumbers) > 0
 
     def __repr__(self) -> str:
         return f"(cevlib.types.report.MatchQuote) {self._headline} ({self._body})\n{self._quotes}\n{self._inNumbers}"

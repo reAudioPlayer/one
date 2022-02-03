@@ -14,7 +14,7 @@
             <full-shelf v-for="(sport, sportIndex) in sports" :key="sport.sport" :heading="sport.sport" :icon="sport.icon">
                 <football-item v-for="(element, matchIndex) in sport.items" :key="element.href" @remove="() => removeSource(element.sref, sportIndex, matchIndex)" :competition="element.competition"
                     :team1="element.team1" :team2="element.team2" :result="element.result" :date="element.date"
-                    :href="element.href" :progress="element.progress" />
+                    :href="element.href" :oref="element.oref" :progress="element.progress" />
             </full-shelf>
         </div>
     </div>
@@ -50,7 +50,6 @@
         },
         methods: {
             removeSource(source, sportIndex, matchIndex) {
-                console.log(source, this.watchMatches.indexOf(source), sportIndex, matchIndex)
                 this.watchMatches.splice(this.watchMatches.indexOf(source), 1)
                 this.sports[sportIndex].items.splice(matchIndex, 1)
                 window.localStorage.setItem("sports.watchMatches", JSON.stringify(this.watchMatches))
@@ -73,6 +72,12 @@
                 this.sourceToAdd = ""
             },
             updateMatches() {
+                if (!(this.$route.path == "/sports" || this.$route.path == "/sports/"))
+                {
+                    console.log("not update", this.$route.path)
+                    return
+                }
+
                 fetch("http://localhost:1234/api/match", {
                         method: "POST",
                         body: JSON.stringify({
@@ -96,7 +101,6 @@
                         }
                         for (const sport of this.sports)
                         {
-                            console.log(sport)
                             sport.items.sort((a, b) => {
                                 a.progress = a.progress.replace("Half time", "45'")
                                 b.progress = b.progress.replace("Half time", "45'")
@@ -110,8 +114,6 @@
                                 {
                                     b.progress = "Full time"
                                 }
-
-                                console.log(a.progress, b.progress)
 
                                 if (a.progress.includes("'") && !b.progress.includes("'"))
                                 {
@@ -156,6 +158,7 @@
                             })
                         }
                     })
+
                 setTimeout(this.updateMatches, 1000 * 45)
             }
         }

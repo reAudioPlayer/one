@@ -1,11 +1,11 @@
 from __future__ import annotations
 import asyncio
-from typing import Dict, List
+import hashlib
+from typing import Dict, List, Optional
 import requests
 from bs4 import BeautifulSoup
 import re
 from datetime import datetime, timedelta
-import traceback
 from cevlib import match
 from cevlib.types.results import Result
 from cevlib.types.types import MatchState
@@ -24,12 +24,14 @@ class Match:
         self._progress = None
         self._sport = None
         self._sref = self._url
+        self._oref = self._url
         self._icon = None
 
     def toJson(self) -> dict:
         return {
             "href": self._url,
             "sref": self._sref,
+            "oref": self._oref,
             "team1": self._team1,
             "team2": self._team2,
             "result": self._result,
@@ -93,6 +95,8 @@ class OneFootballTeam:
                 break
         return "https://onefootball.com" + href
 
+
+hashLookup: Dict[str, str] = { }
 cevMatchCache: Dict[str, CEVMatch] = { }
 cevMatchMatchCache: List[match.Match] = [ ]
 
@@ -100,7 +104,8 @@ cevMatchMatchCache: List[match.Match] = [ ]
 class CEVMatch(Match):
     def __init__(self, url, match: match.MatchCache, sref: str) -> None:
         super().__init__(url)
-        self._sref = sref
+        self._oref = "/#/sports/volley/" + hashlib.md5(url.encode('utf-8')).hexdigest()
+        self._sref = url
         self._match = match
         self._team1 = self._getTeam(False)
         self._team2 = self._getTeam(True)
@@ -183,6 +188,13 @@ class CEVMatch(Match):
 
 
     @staticmethod
+    async def FromHash(hash: str) -> Optional[match.MatchCache]:
+        if hash not in hashLookup:
+            return
+        return await (await match.Match.ByUrl(hashLookup[hash])).cache()
+
+
+    @staticmethod
     async def AddRange(links: str, sref: str) -> List[CEVMatch]:
         async def implement(match: match.Match, result: Result):
             await CEVMatch.update(match, result)
@@ -215,6 +227,7 @@ class CEVMatch(Match):
                 continue
             link = mmatch.matchCentreLink
             if mmatch not in cevMatchMatchCache:
+                hashLookup[hashlib.md5(link.encode('utf-8')).hexdigest()] = link
                 cevMatchMatchCache.append(mmatch)
             mmatch.addScoreObserver(implement)
             tasks.append(_implement(link, mmatch))

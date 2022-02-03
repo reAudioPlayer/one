@@ -9,7 +9,7 @@ from cevlib.types.types import Position, Zone
 class Player(IType):
     def __init__(self, data: dict, playerStatsData: list) -> None:
         self._number = data.get("Number")
-        self._name = data.get("Name").title()
+        self._name = data.get("Name").title() if data.get("Name") else "N/A"
         self._position = Position.Parse(data.get("Position"))
         self._image = data.get("Image")
         self._isCaptain = data.get("isCaptain") or False
