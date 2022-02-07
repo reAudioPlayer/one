@@ -223,8 +223,8 @@ class Match(IType):
         if useCache and self._liveScoresCache:
             return self._liveScoresCache
         async with aiohttp.ClientSession() as client:
-            async with client.get("https://cev.eu/LiveScores.json") as resp:
-                jdata = await resp.json()
+            async with client.get("https://www.cev.eu/LiveScores.json") as resp:
+                jdata = await resp.json(content_type=None)
                 self._liveScoresCache = jdata
                 return jdata
 
