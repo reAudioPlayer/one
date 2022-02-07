@@ -159,13 +159,18 @@ class Match(IType):
         self._reportCache: Optional[MatchReport] = None
         self._scoreObservers: List[Coroutine] = [ ]
         self._scoreObserverInterval = 20
+        self._init = asyncio.create_task(self._startInit())
         asyncio.create_task(self._observeScore())
 
     @property
     def valid(self) -> bool:
         return len(self._umbracoLinks) and self._matchCentreLink is not None
 
-    async def init(self) -> None:
+    async def _startInit(self) -> None:
+        self._matchId = await self._getMatchId()
+        self._initialised = True
+
+    def init(self) -> asyncio.Task:
         """
         caches the match id, required for:
         - homeTeam/awayTeam
@@ -177,8 +182,7 @@ class Match(IType):
         - watchLink
         - highlightsLink
         """
-        self._matchId = await self._getMatchId()
-        self._initialised = True
+        return self._init
 
 
     # HELPERS
