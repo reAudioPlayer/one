@@ -133,6 +133,15 @@ class Team(IType):
         self._players.extend([ Player(player, playerStatsList) for player in data.get("FeaturedPlayers") or [ ] ])
         self._players.extend([ Player(player, playerStatsList) for player in data.get("SubPlayers") or [ ] ])
 
+    @staticmethod
+    def Build(name: str, icon: str, nickname: str, home: bool) -> Team:
+        return Team({ "TeamLogo": {
+                            "AltText": name,
+                            "Url": icon
+                        }
+                    }, { }, TeamStatistics({ }, home), [ ], { },
+                    icon, nickname)
+
     def toJson(self) -> dict:
         return {
             "name": self.name,

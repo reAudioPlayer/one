@@ -140,6 +140,9 @@ class MatchCache(IType):
     async def FromMatch(match: Match) -> MatchCache:
         return await match.cache()
 
+    def __repr__(self) -> str:
+        return f"(cevlib.match.MatchCache) {self.toJson()}"
+
 
 class Match(IType):
     def __init__(self, html: str, url: str) -> None:
@@ -294,14 +297,11 @@ class Match(IType):
             liveScore = await self._tryGetFinishedGameData(False)
             if not liveScore:
                 liveScore = await self._requestLiveScoresJsonByMatchSafe()
-            return Team({ "TeamLogo": {
-                            "AltText": liveScore.get("homeTeam" if home else "awayTeam"),
-                            "Url": liveScore.get("homeTeamIcon" if home else "awayTeamIcon")
-                        } },
-                    { }, TeamStatistics({ }, home), [ ],
-                    { } if home else { },
-                    liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
-                    liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
+            return Team.Build(liveScore.get("homeTeam" if home else "awayTeam"),
+                              liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
+                              liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),
+                              home)
+
 
     # GET
 

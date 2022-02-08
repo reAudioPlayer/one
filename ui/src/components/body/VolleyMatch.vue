@@ -189,18 +189,7 @@ export default {
     components: { Play, Stats, Stat, Team, FullShelf, FullShelfSmallGrid },
     name: "VolleyMatch",
     mounted() {
-        console.log("Hello")
-        console.log(this.$route.params)
-        fetch(`http://localhost:1234/api/match/volley/${this.$route.params.id}`)
-            .then(async x => {
-                if (x.status == 400)
-                {
-                    window.open(await x.text())
-                    this.$router.push("/sports")
-                    return
-                }
-                this.match = await x.json()
-            })
+        this.updateData()
     },
     data() {
         return {
@@ -212,6 +201,28 @@ export default {
         }
     },
     methods: {
+        updateData() {
+            if (!this.$route.path.includes("/sports/volley") || this.match?.state == "finished")
+            {
+                console.log("not update", this.$route.path)
+                return
+            }
+
+            const ctx = this
+
+            fetch(`http://localhost:1234/api/match/volley/${this.$route.params.id}`)
+                .then(async x => {
+                    if (x.status == 400)
+                    {
+                        window.open(await x.text())
+                        this.$router.push("/sports")
+                        return
+                    }
+                    ctx.match = await x.json()
+                })
+
+            setTimeout(this.updateData, 1000 * 45)
+        },
         getDuration()
         {
             if (this.match.state == "live")

@@ -8,10 +8,10 @@ from cevlib.types.iType import IType
 class SetResult(IType):
     """Result of a single set"""
     def __init__(self, data: dict) -> None:
-        self._homeScore: Optional[int] = data.get("homeScore")
-        self._awayScore: Optional[int] = data.get("awayScore")
-        self._setNumber: Optional[int] = data.get("setNumber")
-        self._isInPlay: Optional[bool] = data.get("isInPlay")
+        self._homeScore: Optional[int] = data.get("homeScore") or 0
+        self._awayScore: Optional[int] = data.get("awayScore") or 0
+        self._setNumber: Optional[int] = data.get("setNumber") or 0
+        self._isInPlay: Optional[bool] = data.get("isInPlay") or False
 
     def toJson(self) -> dict:
         return {
@@ -68,10 +68,10 @@ class SetResult(IType):
 class Result(IType):
     def __init__(self, data: dict) -> None:
         self._sets: List[SetResult] = SetResult.ParseList(data.get("setResults") or [ ])
-        currentSet = SetResult(data.get("currentSetScore"))
+        currentSet = SetResult(data.get("currentSetScore") or { })
         if currentSet:
             self._sets.append(currentSet)
-        self._hasGoldenSet: bool = data.get("hasGoldenSet") # TODO (wait for some match to include a golden set :) )
+        self._hasGoldenSet: bool = data.get("hasGoldenSet") or False
         self._homeScore: int = data.get("homeSetsWon") or 0
         self._awayScore: int = data.get("awaySetsWon") or 0
 
