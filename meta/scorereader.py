@@ -1,5 +1,6 @@
 from __future__ import annotations
 import asyncio
+from cevlib.calendar import Calendar
 import hashlib
 from typing import Dict, List, Optional
 import requests
@@ -178,14 +179,8 @@ class CEVMatch(Match):
 
     @staticmethod
     async def FromCalendar() -> List[CEVMatch]:
-        url = "https://championsleague.cev.eu/LiveScores.json"
-        jdata = requests.get(url).json()
-        links = [ ]
-        for competition in jdata.get("competitions"):
-            for m in competition.get("matches"):
-                links.append(m.get("matchCentreLink"))
-        return await CEVMatch.AddRange(links, "https://www.cev.eu/calendar/")
-
+        matches = await Calendar.UpcomingAndRecentMatches()
+        return await CEVMatch.AddRange([match_.matchCentreLink for match_ in matches], "https://www.cev.eu/calendar/")
 
     @staticmethod
     async def FromHash(hash: str) -> Optional[match.MatchCache]:
@@ -236,4 +231,5 @@ class CEVMatch(Match):
             await asyncio.gather(*tasks)
         except Exception as e:
             print(e)
+
         return [ cevMatchCache[key].toJson() for key in cevMatchCache.keys() if key in links ]

@@ -112,6 +112,12 @@ class Calendar(IType):
                  if not match.get("matchState_String") == "FINISHED" ]
 
     @staticmethod
+    async def UpcomingAndRecentMatches() -> List[CalendarMatch]:
+        matches = await Calendar._GetLiveScoreMatches()
+        return [ Calendar._LiveScoresToCalendarMatch(match)
+                 for match in matches ]
+
+    @staticmethod
     def _LiveScoresToCalendarMatch(match: dict) -> CalendarMatch:
         compDict = match.get("competition")
         compDict["Phase"] = match.get("phaseName")

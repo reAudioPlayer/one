@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List
 from aiohttp import web
 from meta.scorereader import CEVMatch, OneFootballMatch
 from helpers.asyncThread import asyncRunInThreadWithReturn
@@ -17,7 +17,8 @@ class SportsHandler:
         async def implement(url: str) -> List[dict]:
             try:
                 if "onefootball" in url:
-                    return [ OneFootballMatch(url).toJson() ]
+                    match = await asyncRunInThreadWithReturn(OneFootballMatch, url)
+                    return [ match.toJson() ]
                 if "cev" in url:
                     if "/calendar/" in url:
                         return await CEVMatch.FromCalendar()
@@ -31,7 +32,9 @@ class SportsHandler:
                 "progress": "N/A",
                 "sport": "N/A"
             }]
+
         data = [ ]
+
         async def implementAsync(url: str) -> None:
             data.extend( await implement(url) )
 
