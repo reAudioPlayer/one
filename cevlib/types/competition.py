@@ -6,7 +6,7 @@ from cevlib.types.types import CompetitionGender
 class Competition(IType):
     def __init__(self, data: dict) -> None:
         self._name = data.get("Competition").split("|")[0].removesuffix(" ")
-        self._gender = CompetitionGender.Parse(data.get("Competition").split("|")[1].removeprefix(" "))
+        self._gender = CompetitionGender.Parse(data.get("Competition").split("|")[1].removeprefix(" ").split(" ", maxsplit = 1)[0])
         self._groupPool = data.get("GroupPool")
         self._leg = data.get("Leg")
         self._phase = data.get("Phase")

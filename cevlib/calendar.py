@@ -29,8 +29,44 @@ class CalendarMatch(IType):
     def __repr__(self) -> str:
         return f"(cevlib.calendar.CalendarMatch) {self._matchCentreLink} {self._competition} {self._venue} {self._startTime}\n{self._homeTeam}\n{self._awayTeam}\n{self._result}"
 
-    def toJson() -> dict:
-        return { }
+    def toJson(self) -> dict:
+        return {
+            "competition": self.competition.toJson(),
+            "homeTeam": self.homeTeam.toJson(),
+            "awayTeam": self.awayTeam.toJson(),
+            "venue": self.venue,
+            "startTime": str(self.startTime),
+            "result": self.result.toJson(),
+            "matchCentreLink": self.matchCentreLink
+        }
+
+    @property
+    def competition(self) -> Competition:
+        return self._competition
+
+    @property
+    def homeTeam(self) -> Team:
+        return self._homeTeam
+
+    @property
+    def awayTeam(self) -> Team:
+        return self._awayTeam
+
+    @property
+    def venue(self) -> str:
+        return self._venue
+
+    @property
+    def matchCentreLink(self) -> str:
+        return self._matchCentreLink
+
+    @property
+    def startTime(self) -> datetime:
+        return self._startTime
+
+    @property
+    def result(self) -> Result:
+        return self._result
 
     @property
     def valid(self) -> bool:

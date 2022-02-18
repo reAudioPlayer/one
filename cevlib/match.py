@@ -10,6 +10,7 @@ from cevlib.exceptions import NotInitialisedException
 from cevlib.helpers.asyncThread import asyncRunInThreadWithReturn
 from cevlib.types.competition import Competition
 from cevlib.types.iType import IType
+from cevlib.types.info import Info
 
 from cevlib.types.playByPlay import PlayByPlay
 from cevlib.types.report import MatchReport
@@ -36,7 +37,8 @@ class MatchCache(IType):
                  watchLink: str,
                  highlightsLink: str,
                  state: MatchState,
-                 report: Optional[MatchReport]) -> None:
+                 report: Optional[MatchReport],
+                 info: Optional[Info]) -> None:
         self._playByPlay = playByPlay
         self._competition = competition
         self._topPlayers = topPlayers
@@ -52,24 +54,26 @@ class MatchCache(IType):
         self._highlightsLink = highlightsLink
         self._state = state
         self._report = report
+        self._info = info
 
     def toJson(self) -> dict:
         return {
-            "playByPlay": self.playByPlay.toJson() if self.playByPlay else None,
-            "competition": self.competition.toJson() if self.competition else None,
-            "topPlayers": self.topPlayers.toJson(),
-            "gallery": self.gallery,
+            "state": self.state.value,
             "currentScore": self.currentScore.toJson(),
+            "homeTeam": self.homeTeam.toJson(),
+            "awayTeam": self.awayTeam.toJson(),
+            "competition": self.competition.toJson() if self.competition else None,
+            "duration": str(self.duration),
+            "startTime": str(self.startTime),
             "matchCentreLink": self.matchCentreLink,
             "watchLink": self.watchLink,
             "highlightsLink": self.highlightsLink,
-            "duration": str(self.duration),
-            "startTime": str(self.startTime),
             "venue": self.venue,
-            "homeTeam": self.homeTeam.toJson(),
-            "awayTeam": self.awayTeam.toJson(),
             "report": self.report.toJson() if self.report else None,
-            "state": self.state.value
+            "info": self._info.toJson() if self._info else None,
+            "topPlayers": self.topPlayers.toJson(),
+            "gallery": self.gallery,
+            "playByPlay": self.playByPlay.toJson() if self.playByPlay else None,
         }
 
     @property
@@ -151,6 +155,10 @@ class Match(IType):
             #raise AttributeError("404")
         self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         self._gallery = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Upload\/Photo\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-]).jpg", html) ]
+        embeddedVideos = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*\/embed\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
+        self._highlightsLinkCache: Optional[str] = None
+        if len(embeddedVideos):
+            self._highlightsLinkCache = "https://" + embeddedVideos[0].replace("/embed/", "/v/").split("?")[0]
         self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
         self._html = html
         self._matchId: Optional[int] = None
@@ -160,6 +168,7 @@ class Match(IType):
         self._matchCentreLink = url
         self._initialised = False
         self._reportCache: Optional[MatchReport] = None
+        self._infoCache: Optional[Info] = None
         self._scoreObservers: List[Coroutine] = [ ]
         self._scoreObserverInterval = 20
         self._init = asyncio.create_task(self._startInit())
@@ -416,10 +425,12 @@ class Match(IType):
         return jdata.get("watchLink") or None
 
     async def highlightsLink(self) -> str:
-        if not self._initialised:
-            raise NotInitialisedException
-        jdata = await self._requestLiveScoresJsonByMatchSafe()
-        return jdata.get("highlightsLink") or None
+        if not self._highlightsLinkCache:
+            if not self._initialised:
+                raise NotInitialisedException
+            jdata = await self._requestLiveScoresJsonByMatchSafe()
+            self._highlightsLinkCache = jdata.get("highlightsLink") or None
+        return self._highlightsLinkCache
 
     async def competition(self) -> Optional[Competition]:
         if self._invalidMatchCentre:
@@ -428,7 +439,11 @@ class Match(IType):
             if competition is None:
                 return None
             return Competition({
-                "Competition": competition.get("name")
+                "Competition": competition.get("name"),
+                "Leg": jdata.get("legName"),
+                "Phase": jdata.get("phaseName"),
+                "GroupPool": jdata.get("groupName"),
+                "MatchNumber": jdata.get("matchNumber")
             })
         async with aiohttp.ClientSession() as client:
             async with client.get(self._getLink("getlivescorehero")) as resp:
@@ -444,6 +459,11 @@ class Match(IType):
                     jdata = await resp.json(content_type=None)
                     topPlayers.append(TopPlayer(jdata))
         return topPlayers
+
+    async def info(self) -> Info:
+        if not self._infoCache:
+            self._infoCache = await asyncRunInThreadWithReturn(Info, self._html)
+        return self._infoCache or None
 
 
     # CREATE
@@ -488,6 +508,7 @@ class Match(IType):
         afterInit.append(self.competition())
         afterInit.append(self.topPlayers())
         afterInit.append(self.report())
+        afterInit.append(self.info())
 
         if not self._initialised:
             await self.init()
@@ -504,18 +525,19 @@ class Match(IType):
         afterInitResults = await asyncio.gather(*afterInit)
         t3 = time()
 
-        return MatchCache(afterInitResults[0],
-                          afterInitResults[1],
-                          afterInitResults[2],
-                          self.gallery,
-                          self._matchCentreLink,
-                          afterInitResults[4],
-                          afterInitResults[5],
-                          afterInitResults[6],
-                          afterInitResults[7],
-                          afterInitResults[8],
-                          afterInitResults[9],
-                          afterInitResults[10],
-                          afterInitResults[11],
-                          afterInitResults[12],
-                          afterInitResults[3])
+        return MatchCache(playByPlay= afterInitResults[0],
+                          competition= afterInitResults[1],
+                          topPlayers= afterInitResults[2],
+                          gallery= self.gallery,
+                          matchCentreLink= self._matchCentreLink,
+                          currentScore= afterInitResults[5],
+                          duration= afterInitResults[6],
+                          startTime= afterInitResults[7],
+                          venue= afterInitResults[8],
+                          homeTeam= afterInitResults[9],
+                          awayTeam= afterInitResults[10],
+                          watchLink= afterInitResults[11],
+                          highlightsLink= afterInitResults[12],
+                          state= afterInitResults[13],
+                          report= afterInitResults[3],
+                          info= afterInitResults[4])

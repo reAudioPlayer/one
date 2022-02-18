@@ -25,7 +25,7 @@ class Song:
         self._duration = duration or -1
         self._favourite = favourite
 
-        self._artists = artist.split(", ")
+        self._artists = artist.split(", ") if artist else None
         self._title = name
         self._preview = None
 
