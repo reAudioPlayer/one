@@ -5,12 +5,17 @@ from cevlib.types.iType import IType
 from cevlib.types.results import SetResult
 from cevlib.types.types import PlayType
 
+def ensureString(data: dict, key: str) -> str:
+    value = data.get(key)
+    if isinstance(value, str):
+        return value
+    return ""
 
 class Play(IType):
     def __init__(self, data: dict) -> None:
         self._type: PlayType = PlayType.Parse(data.get("Title"))
         self._currentScore: SetResult = SetResult.ParseFromPlayByPlay(data)
-        self._playerName: str = data.get("PlayerName").title() # TODO player type
+        self._playerName: str = ensureString(data, "PlayerName").title() # TODO player type
         self._playerNumber: int = data.get("PlayerNumber")
         self._isHome: bool = data.get("IsHome")
 
