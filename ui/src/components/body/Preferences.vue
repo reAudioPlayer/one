@@ -35,10 +35,17 @@
                 </div>
             </div>
         </div>
-        <full-shelf heading="Themes" :key="themeSelected">
-            <theme @selected="updateThemes" v-for="(theme, index) in themes" :key="index"
-                :name="theme" />
-        </full-shelf>
+        <div>
+            <h2>Themes</h2>
+            <div class="checkbox">
+                <input @change="changeCoverAsBackground" v-model="coverAsBackground" type="checkbox" id="checkbox3" name="" value="">
+                <label for="checkbox3"><span>Cover as background</span></label>
+            </div>
+            <full-shelf :key="themeSelected">
+                <theme @selected="updateThemes" v-for="(theme, index) in themes" :key="index"
+                    :name="theme" />
+            </full-shelf>
+        </div>
     </div>
 </template>
 
@@ -51,6 +58,9 @@
         methods: {
             updateThemes() {
                 this.themeSelected = window.getCurrentTheme()
+            },
+            changeCoverAsBackground() {
+                window.localStorage.setItem("player.coverAsBackground", this.coverAsBackground ? "true" : "false")
             },
             changeShowSportsTab() {
                 window.localStorage.setItem("sidebar.showSportsTab", this.showSportsTab ? "true" : "false")
@@ -107,7 +117,9 @@
                 "light-ruby"
             ]
             const themeSelected = window.getCurrentTheme()
+
             return {
+                coverAsBackground: window.localStorage.getItem("player.coverAsBackground") == "true",
                 themes,
                 themeSelected,
                 showSportsTab: window.localStorage.getItem("sidebar.showSportsTab") == "true",

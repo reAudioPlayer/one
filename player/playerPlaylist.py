@@ -133,6 +133,7 @@ class PlayerPlaylist:
         return {
             "name": self._name,
             "description": self._description,
+            "index": self._index,
             "songs": list(map(lambda x: x.toDict(), self._playlist))
         }
 

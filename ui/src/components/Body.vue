@@ -1,13 +1,13 @@
 <template>
-  <div class="body">
-      <router-view />
-  </div>
+    <div class="body">
+        <router-view class="view" />
+    </div>
 </template>
 
 <script>
-export default {
-  name: 'Body'
-}
+    export default {
+        name: 'Body'
+    }
 </script>
 
 <style scoped>

@@ -135,3 +135,7 @@ class Player:
     @property
     def currentSong(self) -> Song:
         return self._song
+
+    @property
+    def currentPlaylist(self) -> PlayerPlaylist:
+        return self._playerPlaylist

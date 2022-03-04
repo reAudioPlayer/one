@@ -72,7 +72,7 @@ async def init() -> web.Application:
         asyncio.create_task(_implement())
 
     playerHandler = PlayerHandler(player, playlistManager, dbManager)
-    playlistHandler = PlaylistHandler(playlistManager)
+    playlistHandler = PlaylistHandler(player, playlistManager)
     collectionHandler = CollectionHandler(dbManager)
     metaHandler = MetaHandler(dbManager, spotify)
     configHandler = ConfigHandler()

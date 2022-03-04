@@ -9,6 +9,7 @@ import Home from "./components/body/Home.vue"
 import Playlist from "./components/body/Playlist.vue"
 import Track from "./components/body/Track.vue"
 import Search from "./components/body/Search.vue"
+import BigPlayer from "./components/body/BigPlayer.vue"
 import Albums from "./components/body/Collection/Albums.vue"
 import Artists from "./components/body/Collection/Artists.vue"
 import Playlists from "./components/body/Collection/Playlists.vue"
@@ -52,6 +53,7 @@ const routes = [
   { path: '/sports', component: Sports },
   { path: '/sports/volley/:id', component: VolleyMatch },
   { path: '/news/:url', component: NewsArticle },
+  { path: '/player', component: BigPlayer },
 ]
 
 const router = createRouter({

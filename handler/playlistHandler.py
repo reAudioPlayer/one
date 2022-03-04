@@ -1,11 +1,12 @@
+from typing import Any
 from aiohttp import web
 from dataModels.song import Song
-from dataModels.playlist import Playlist
+from player.player import Player
 from player.playlistManager import PlaylistManager
-from db.dbManager import DbManager
 
 class PlaylistHandler:
-    def __init__(self, playlistManager: PlaylistManager) -> None:
+    def __init__(self, player: Player, playlistManager: PlaylistManager) -> None:
+        self._player = player
         self._playlistManager = playlistManager
 
     async def addSong(self, request: web.Request):
@@ -24,8 +25,15 @@ class PlaylistHandler:
         return web.Response(status = 200, text = "success!")
 
     async def getPlaylist(self, request: web.Request):
-        jdata = await request.json()
-        index = jdata["id"]
+        index: Any = None
+        try:
+            jdata = await request.json()
+            index = jdata.get("id")
+        except:
+            pass
+
+        if index is None:
+            return web.json_response(self._player.currentPlaylist.toDict())
         if index >= self._playlistManager.playlistLength:
             return web.Response(status = 404)
         return web.json_response(self._playlistManager.get(index).toDict())

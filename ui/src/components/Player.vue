@@ -237,7 +237,7 @@
     justify-content: space-between;
     padding: 10px;
     border-top: 1px solid #303030;
-    /*height: 100%;*/
+    z-index: 1;
   }
 
   .favourite {

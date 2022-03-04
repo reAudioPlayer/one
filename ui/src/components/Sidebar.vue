@@ -41,13 +41,11 @@
           }
         })
 
-      const ctx = this
-
-      function connect() {
+      const connect = () => {
         console.log("attempting reconnect")
         let ws = new WebSocket('ws://localhost:1234/ws');
 
-        ws.onclose = function() {
+        ws.onclose = () => {
           console.log("ws closed")
 
           setTimeout(connect, 1000);
@@ -57,9 +55,9 @@
           console.log("ws connected")
         }
 
-        ws.onmessage = function(msg) {
+        ws.onmessage = msg => {
           const jdata = JSON.parse(msg.data);
-          ctx.updateData(jdata)
+          this.updateData(jdata)
         }
       }
       connect()
@@ -134,6 +132,7 @@
     flex-direction: column;
     padding: 10px;
     max-height: calc(100vh - var(--player-height) - 20px);
+    z-index: 1;
   }
 
   h2:hover {
