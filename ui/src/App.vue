@@ -1,6 +1,6 @@
 <template>
     <div class="appRoot">
-        <div class="bgImage" :class="{ hidden: !coverAsBackground }" :style="{ backgroundImage: `url(${cover})` }" />
+        <div class="bgImageWrapper" :class="{ hidden: !coverAsBackground }" ><div class="bgImage" :style="{ backgroundImage: `url(${cover})` }" /></div>
         <div class="interface">
             <Sidebar @expandCover="expandCover" :expandCover="shallExpandCover" />
 
@@ -177,16 +177,24 @@
         padding: 0;
     }
 
-    .bgImage {
+    .bgImageWrapper {
         position: fixed;
         top: 0;
         left: 0;
         height: 100%;
         width: 100%;
-        filter: blur(100px);
         z-index: 0 !important;
+        background: black;
+    }
+
+    .bgImage {
+        height: 100%;
+        width: 100%;
+        z-index: 0 !important;
+        filter: blur(100px);
         background-position: center;
         background-repeat: no-repeat;
         background-size: cover;
+        transform: scale(1.1);
     }
 </style>
