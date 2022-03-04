@@ -1,9 +1,11 @@
 from __future__ import annotations
+from datetime import datetime
 from typing import List, Optional
 from cevlib.types.iType import IType
 from cevlib.types.matchPoll import TeamPoll
 from cevlib.types.stats import PlayerStatistic, TeamStatistics
 from cevlib.types.types import Position, Zone
+from cevlib.types.results import Result
 
 
 class Player(IType):
@@ -64,14 +66,22 @@ class Player(IType):
 
 
 class FormMatch(IType):
-    def __init__(self, won: bool, link: str) -> None:
+    def __init__(self, won: bool, link: str, homeTeam: Team, awayTeam: Team, result: Result, startTime: datetime) -> None:
         self._won = won
         self._link = link
+        self._homeTeam = homeTeam
+        self._awayTeam = awayTeam
+        self._result = result
+        self._startTime = startTime
 
     def toJson(self) -> dict:
         return {
             "won": self.won,
-            "link": self.link
+            "link": self.link,
+            "homeTeam": self._homeTeam.toJson(),
+            "awayTeam": self._awayTeam.toJson(),
+            "result": self._result.toJson(),
+            "startTime": str(self._startTime)
         }
 
     @property
@@ -88,7 +98,16 @@ class FormMatch(IType):
         for (index, match) in enumerate(data.get("Matches") or [ ]):
             if index >= len(data["RecentForm"]):
                 break
-            matches.append(FormMatch(data["RecentForm"][index], match["MatchCentreUrl"]))
+            matches.append(FormMatch(data["RecentForm"][index],
+                                    match["MatchCentreUrl"],
+                                    Team.Build(match["HomeTeam"]["Name"],
+                                                match["HomeTeam"]["Logo"]["Url"],
+                                                "N/A", True),
+                                    Team.Build(match["AwayTeam"]["Name"],
+                                                match["AwayTeam"]["Logo"]["Url"],
+                                                "N/A", False),
+                                    Result.ParseFromForm(match),
+                                    datetime.strptime(match["MatchDateTime"], "%Y-%m-%dT%H:%M:%S")))
         return matches
 
     @property

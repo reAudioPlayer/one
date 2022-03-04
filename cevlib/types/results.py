@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import List, Optional
 
 from cevlib.types.iType import IType
@@ -89,6 +90,20 @@ class Result(IType):
             "homeScore": self.homeScore,
             "awayScore": self.awayScore
         }
+
+    @staticmethod
+    def ParseFromForm(data: dict) -> Result:
+        sets = re.sub(r"[(</span>) ]", "", data.get("SetsFormatted")).split(",")
+        return Result({
+            "homeSetsWon": data["HomeTeam"]["Score"],
+            "awaySetsWon": data["AwayTeam"]["Score"],
+            "setResults": [ {
+                "homeScore": set.split("-")[0],
+                "awayScore": set.split("-")[0],
+                "setNumber": i + 1,
+                "isInPlay": False
+            } for (i, set) in enumerate(sets) ]
+        })
 
     @property
     def goldenSet(self) -> Optional[SetResult]:

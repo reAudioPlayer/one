@@ -8,9 +8,10 @@ from cevlib.types.competition import Competition
 from cevlib.types.iType import IType
 from cevlib.types.results import Result
 from cevlib.types.team import Team
+from cevlib.types.types import MatchState
 
 class CalendarMatch(IType):
-    def __init__(self, url, competition: Competition, homeTeam: Team, awayTeam: Team, venue: str, startTime: str, result: Result) -> None:
+    def __init__(self, url, competition: Competition, homeTeam: Team, awayTeam: Team, venue: str, startTime: str, result: Result, finished: bool) -> None:
         self._matchCentreLink = url
         self._competition = competition
         self._homeTeam = homeTeam
@@ -19,7 +20,9 @@ class CalendarMatch(IType):
         if not startTime.endswith("Z"):
             startTime += "Z"
         self._startTime = datetime.strptime(startTime, "%Y-%m-%dT%H:%M:%SZ")
+        self._finished = finished
         self._result = result
+        self._state = MatchState.Parse(datetime.utcnow() >= self._startTime, self._finished)
 
     async def toMatch(self) -> Optional[Match]:
         if not self._matchCentreLink:
@@ -37,8 +40,13 @@ class CalendarMatch(IType):
             "venue": self.venue,
             "startTime": str(self.startTime),
             "result": self.result.toJson(),
-            "matchCentreLink": self.matchCentreLink
+            "matchCentreLink": self.matchCentreLink,
+            "state": self._state.value
         }
+
+    @property
+    def state(self) -> MatchState:
+        return self._state
 
     @property
     def competition(self) -> Competition:
@@ -93,7 +101,8 @@ class Calendar(IType):
                                Result({
                                    "homeSetsWon": match.get("WonSetHome"),
                                    "awaySetsWon": match.get("WonSetGuest"),
-                               }))
+                               }),
+                               match.get("Finalized"))
                  for match in matches ]
 
 
@@ -130,7 +139,8 @@ class Calendar(IType):
                              Team.Build( match.get("awayTeam"), match.get("awayTeamIcon"), match.get("awayTeamNickname"), False ),
                              match.get("matchLocation"),
                              match.get("utcStartDate"),
-                             Result(match))
+                             Result(match),
+                             match.get("matchState_String") == "FINISHED")
 
     @staticmethod
     async def _GetLiveScoreMatches() -> List[dict]:

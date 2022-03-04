@@ -1,5 +1,4 @@
 from __future__ import annotations
-from tkinter import E
 from typing import List, Union
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString

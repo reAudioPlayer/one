@@ -150,7 +150,7 @@ class MatchCache(IType):
 
 class Match(IType):
     def __init__(self, html: str, url: str) -> None:
-        self._invalidMatchCentre = "This page can be replaced with a custom 404. Check the documentation for" in html
+        self._invalidMatchCentre = "This page can be replaced with a custom 404. Check the documentation for" in html or "Object reference not set to an instance of an object." in html
         #if self._invalidMatchCentre:
             #raise AttributeError("404")
         self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
