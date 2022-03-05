@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Tuple
+from typing import List, Tuple
 import math
 
 
@@ -28,6 +28,14 @@ class Song:
         self._artists = artist.split(", ") if artist else None
         self._title = name
         self._preview = None
+
+    @property
+    def artists(self) -> List[str]:
+        return self._artists
+
+    @property
+    def title(self) -> str:
+        return self._title
 
     @property
     def url(self) -> str:

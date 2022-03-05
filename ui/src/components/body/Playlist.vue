@@ -58,9 +58,7 @@
         methods: {
             download(index) {
                 const data = this.playlist?.[index]
-                const src = data.source
-                delete data.source
-                window.open("https://eu-apollo.herokuapp.com/one/download?data=" + JSON.stringify(data) + "&src=" + src)
+                window.open("http://localhost:1234/api/download/" + data.id)
             },
             onPlaylistRearrange(type) {
                 const moved = type.moved

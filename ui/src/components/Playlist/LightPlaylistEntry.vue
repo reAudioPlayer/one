@@ -20,8 +20,15 @@ a<template>
 </template>
 
 <script>
+    import SongCtx from '../ContextMenus/SongCtx.vue'
+    import EditSong from '../Popups/EditSong.vue'
+
     export default {
         name: 'LightPlaylistEntry',
+        components: {
+            SongCtx,
+            EditSong
+        },
         props: {
             index: Number,
             id: Number,
@@ -33,9 +40,23 @@ a<template>
                 type: String,
                 default: "N/A"
             },
-            cover: String,
-            preview: String,
-            duration: String,
+            cover: {
+                type: String,
+                default: "/assets/img/music_placeholder.png"
+            },
+            source: String,
+            album: {
+                type: String,
+                default: "N/A"
+            },
+            duration: {
+                type: String,
+                default: "N/A"
+            },
+            favourite: {
+                type: Boolean,
+                default: false
+            },
         },
         data() {
             return {
@@ -46,6 +67,26 @@ a<template>
             }
         },
         methods: {
+            download() {
+                window.open("http://localhost:1234/api/download/" + this.id)
+            },
+            addToPlaylist(index) {
+                fetch("http://localhost:1234/api/add", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        id: index,
+                        source: this.source // song already exists, metadata unecessary
+                    })
+                }).then(x => {
+                    if (x.status == 200)
+                    {
+                        this.$emit("requestUpdate")
+                    }
+                })
+            },
+            update() {
+                this.$refs.editSongPopup.showModal = true
+            },
             remove() {
                 fetch("http://localhost:1234/api/remove", {
                     method: "POST",
@@ -99,6 +140,14 @@ a<template>
             added() {
                 console.log("change")
                 this.$refs.add.innerHTML = this.added ? "done" : "add"
+            },
+            favourited() {
+                this.setFavourite()
+            },
+            favourite() {
+                console.log("mounted", this.title, this.favourite, this.favourited)
+                this.favourited = this.favourite
+                this.highlighted = false
             }
         }
     }

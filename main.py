@@ -1,3 +1,6 @@
+from handler.downloadHandler import DownloadHandler
+
+
 try:
     from typing import Optional, Tuple
     import spotipy
@@ -75,6 +78,7 @@ async def init() -> web.Application:
     playlistHandler = PlaylistHandler(player, playlistManager)
     collectionHandler = CollectionHandler(dbManager)
     metaHandler = MetaHandler(dbManager, spotify)
+    downloadHandler = DownloadHandler(dbManager, downloader)
     configHandler = ConfigHandler()
     newsHandler = NewsHandler()
     sportsHandler = SportsHandler()
@@ -131,6 +135,8 @@ async def init() -> web.Application:
 
     app.router.add_get('/api/news', newsHandler.getSomeNews)
     app.router.add_get('/api/news/article/{hash}', newsHandler.getArticle)
+
+    app.router.add_get('/api/download/{id}', downloadHandler.download)
 
     app.router.add_post('/api/add', playlistHandler.addSong)
     app.router.add_post('/api/remove', playlistHandler.removeSong)
