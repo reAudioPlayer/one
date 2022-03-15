@@ -16,9 +16,10 @@
     import Sidebar from './components/Sidebar.vue'
     import "v-contextmenu/dist/themes/dark.css";
 
-    // November 2021, dxstiny (https://github.com/dxstiny)
+    // January 2022, dxstiny (https://github.com/dxstiny)
     // check out the README.md!
 
+    import * as Vibrant from 'node-vibrant'
     import themes from "./assets/themes.json";
     //fetch("/assets/themes/themes.json").then(x => x.json()).then(json => themes = json) // in case you can't use import
 
@@ -42,11 +43,16 @@
     }
 
     window.setTheme = (theme) => { // accepts a string (theme name)
-        if (!window.getThemes().includes(theme)) {
+        if (!window.getThemes().includes(theme) && theme != "dynamic") {
             return;
         }
 
         window.localStorage.setItem(LOCAL_STORAGE_KEY, theme)
+
+        if (theme == "dynamic") {
+            theme = "underground"
+        }
+
         for (const key of Object.keys(themes)) {
             const value = themes[key]
             document.documentElement.style.setProperty(`--${key}`, value[theme] || value.default);
@@ -101,6 +107,24 @@
             updateData(jdata) {
                 if (jdata.path == "player.song") {
                     this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
+                    console.error(window.getCurrentTheme())
+                    if (window.getCurrentTheme() == "dynamic") {
+                        console.error("hello")
+                        console.log(this.cover)
+                        Vibrant.from(this.cover).getPalette()
+                            .then((palette) => {
+                                /*for (const key of Object.keys(themes)) {
+                                    const value = themes[key]
+                                    document.documentElement.style.setProperty(`--${key}`, value[theme] || value.default);
+                                }*/
+                                console.log(palette)
+                                document.documentElement.style.setProperty(`--accent-dark`, palette.DarkVibrant.hex);
+                                document.documentElement.style.setProperty(`--fixedplaylistheader-background`, palette.DarkVibrant.hex);
+                                document.documentElement.style.setProperty(`--fixedplaylistheader-border`, palette.DarkVibrant.hex);
+                                document.documentElement.style.setProperty(`--fixedplaylistheader-border`, palette.DarkVibrant.hex);
+                                document.documentElement.style.setProperty(`--accent`, palette.Vibrant.hex);
+                            })
+                    }
                     return;
                 }
             }

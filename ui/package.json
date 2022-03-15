@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "node-vibrant": "^3.1.6",
     "v-contextmenu": "^3.0.0",
     "vue-final-modal": "^3.4.3",
     "vue-observe-visibility": "^1.0.0",
@@ -23,7 +24,8 @@
     "@vue/compiler-sfc": "^3.0.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0"
+    "eslint-plugin-vue": "^7.0.0",
+    "worker-loader": "^3.0.8"
   },
   "eslintConfig": {
     "root": true,
