@@ -9,10 +9,9 @@ a<template>
             <div class="track">
                 <img :src="cover || '/assets/img/music_placeholder.png'">
                 <div class="trackwrapper">
-                    <span class="title">{{title}}</span>
-                    <span class="artist">{{artist}}</span>
+                    <span class="title"><Marquee :text="title" /></span>
+                    <span class="artist"><Marquee :text="artist" /></span>
                 </div>
-                <span v-if="false" class="album">{{album}}</span>
             </div>
             <span class="duration">{{duration}}</span>
         </div>
@@ -21,13 +20,15 @@ a<template>
 
 <script>
     import SongCtx from '../ContextMenus/SongCtx.vue'
+    import Marquee from '../Marquee.vue'
     import EditSong from '../Popups/EditSong.vue'
 
     export default {
         name: 'LightPlaylistEntry',
         components: {
             SongCtx,
-            EditSong
+            EditSong,
+            Marquee
         },
         props: {
             index: Number,
@@ -221,6 +222,7 @@ a<template>
         display: flex;
         flex-direction: row;
         align-items: center;
+        width: 50%;
     }
 
     .title {
@@ -228,7 +230,12 @@ a<template>
         white-space: nowrap;
         text-overflow: ellipsis;
         max-width: 100%;
+        position: relative;
         color: var(--font-colour);
+    }
+
+    .artist {
+        position: relative;
     }
 
     .title.playing,
@@ -260,7 +267,8 @@ a<template>
         display: flex;
         flex-direction: column;
         max-width: 35vw;
-        margin-right: 100px;
+        position: relative;
+        width: calc(100% - 40px - 10px);
     }
 
     .duration {

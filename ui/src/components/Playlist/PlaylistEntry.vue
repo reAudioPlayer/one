@@ -7,11 +7,11 @@
             <div class="track">
                 <img :src="cover || '/assets/img/music_placeholder.png'">
                 <div class="trackwrapper">
-                    <span class="title" :class="{ 'playing': playing }">{{title}}</span>
-                    <span class="artist" :class="{ 'playing': playing }">{{artist}}</span>
+                    <span class="title" :class="{ 'playing': playing }"><Marquee :text="title" /></span>
+                    <span class="artist" :class="{ 'playing': playing }"><Marquee :text="artist" /></span>
                 </div>
             </div>
-            <span class="album" :class="{ 'playing': playing }">{{album}}</span>
+            <span class="album" :class="{ 'playing': playing }"><Marquee :text="album" /></span>
             <span @click="favourited = !favourited" class="favourite material-icons-round" :class="{ 'showfavourite': favourited || highlighted }">{{favourited ? "favorite" : "favorite_border"}}</span>
             <span class="duration">{{duration}}</span>
             <span @click="showCtxMenu" class="more material-icons-round" :class="{ 'hidden': !highlighted }">more_horiz</span>
@@ -21,13 +21,15 @@
 
 <script>
     import SongCtx from '../ContextMenus/SongCtx.vue'
+    import Marquee from '../Marquee.vue'
     import EditSong from '../Popups/EditSong.vue'
 
     export default {
         name: 'PlaylistEntry',
         components: {
             SongCtx,
-            EditSong
+            EditSong,
+                Marquee
         },
         props: {
             index: Number,

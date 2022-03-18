@@ -18,7 +18,7 @@ class DownloadHandler:
     async def download(self, request: web.Request):
         id = int(request.match_info['id'])
         song = self._dbManager.getSongById(id)
-        filename = f"{'%2C '.join(song.artists)} - {song.title}"
+        filename = f"{', '.join(song.artists)} - {song.title}".replace(",", "%2C") # header
         pathAndName = f"./_cache/{filename}.mp3"
         if os.path.exists(pathAndName):
             os.remove(pathAndName)

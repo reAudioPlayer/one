@@ -3,8 +3,8 @@
     <div class="left">
       <img v-if="expandCover" @click="onExpandCover" :src="cover">
       <div class="titleartist">
-        <span class="title">{{title}}</span>
-        <span class="artist">{{artist}}</span>
+        <span class="title"><Marquee :text="title" /></span>
+        <span class="artist"><Marquee :text="artist" /></span>
       </div>
       <span @click="favourited = !favourited"
         class="favourite material-icons-round">{{favourited ? "favorite" : "favorite_border"}}</span>
@@ -33,8 +33,10 @@
 <script>
   import { useKeypress } from 'vue3-keypress'
   import { useRouter } from 'vue-router'
+  import Marquee from './Marquee.vue'
 
   export default {
+    components: { Marquee },
     name: 'Player',
     props: {
       favourite: {
@@ -211,6 +213,7 @@
           this.durationStr = jdata?.data?.duration || "N/A"
           this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
           this.progresslbl = "0:00"
+
           return;
         }
         if (jdata.path == "player.playState")
@@ -275,17 +278,17 @@
 
   .left>.titleartist>.title {
     font-size: 0.9em;
-    overflow: hidden;
+    /*overflow: hidden;
     white-space: nowrap;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis;*/
   }
 
   .left>.titleartist>.artist {
     font-size: 0.7em;
     color: var(--font-darker);
-    overflow: hidden;
+    /*overflow: hidden;
     white-space: nowrap;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis;*/
   }
 
   .centre {
