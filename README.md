@@ -47,7 +47,7 @@ Following sites are being scraped directly in the app. Sources are always disclo
   - [CNN](https://cnn.com/)
 - Sports (Live Scoring)
   - [OneFootball](https://onefootball.com/en)
-  - [CEV](https://cev.eu/)
+  - [CEV](https://cev.eu/) (via [cevlib](https://github.com/dxstiny/cevlib))
 
 Note: reAudioPlayer One shows only publicly available data, nicely formatted and integrated into its own app.
 
