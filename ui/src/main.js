@@ -3,24 +3,7 @@ import App from './App.vue'
 import { ObserveVisibility } from 'vue-observe-visibility';
 import VueFinalModal from 'vue-final-modal'
 
-import { createWebHashHistory, createRouter } from "vue-router";
-
-import Home from "./components/body/Home.vue" 
-import Playlist from "./components/body/Playlist.vue"
-import Track from "./components/body/Track.vue"
-import Search from "./components/body/Search.vue"
-import BigPlayer from "./components/body/BigPlayer.vue"
-import Albums from "./components/body/Collection/Albums.vue"
-import Artists from "./components/body/Collection/Artists.vue"
-import Playlists from "./components/body/Collection/Playlists.vue"
-import Releases from "./components/body/Collection/Releases.vue"
-import Tracks from "./components/body/Collection/Tracks.vue"
-import Preferences from "./components/body/Preferences.vue"
-import Welcome from "./components/body/Welcome.vue"
-import News from "./components/body/News.vue"
-import Sports from "./components/body/Sports.vue"
-import NewsArticle from "./components/body/NewsArticle.vue"
-import VolleyMatch from "./components/body/VolleyMatch.vue"
+import router from "./router";
 
 import contextmenu from "v-contextmenu";
 
@@ -35,31 +18,6 @@ app.directive("observe-visibility", {
   })
 app.use(VueFinalModal())
 app.use(contextmenu);
-
-const routes = [
-  { path: '/', component: Home },
-  { path: '/search', component: Search },
-  { path: '/search/:query', component: Search },
-  { path: '/collection/albums', component: Albums },
-  { path: '/collection/artists', component: Artists },
-  { path: '/collection/playlists', component: Playlists },
-  { path: '/collection/releases', component: Releases },
-  { path: '/collection/tracks', component: Tracks },
-  { path: '/playlist/:id', component: Playlist },
-  { path: '/track/:id', component: Track },
-  { path: '/preferences', component: Preferences },
-  { path: '/welcome', component: Welcome },
-  { path: '/news', component: News },
-  { path: '/sports', component: Sports },
-  { path: '/sports/volley/:id', component: VolleyMatch },
-  { path: '/news/:url', component: NewsArticle },
-  { path: '/player', component: BigPlayer },
-]
-
-const router = createRouter({
-  history: createWebHashHistory(),
-  routes
-})
 
 app.use(router)
 

@@ -1,33 +1,67 @@
 <template>
-    <div class="padding-20 newsArticle">
-        <h5 class="accentLink topic" v-html="article.topic" />
-        <h1 class="headline">{{article.headline}}</h1>
-        <h4 class="standfirst" v-html="article.standfirst" />
-        <h5 v-if="article.date" class="date">{{article.date}}, <a :href="article.href">{{article.href}}</a></h5>
-        <hr v-if="article.body">
-        <div class="body" v-html="article.body" />
+    <Error v-if="error" :msg="error" />
+    <Loader v-else-if="!article.headline" />
+    <div v-else class="padding-20 newsArticle">
+        <span @click="fullWidth = !fullWidth" class="toggleWidth material-icons-round">{{fullWidth ? "close_fullscreen" : "open_in_full"}}</span>
+        <div class="wrapper" :class="{ slim: !fullWidth }">
+            <h5 class="accentLink topic" v-html="article.topic" />
+            <h1 class="headline">{{article.headline}}</h1>
+            <h4 class="standfirst" v-html="article.standfirst" />
+            <h5 v-if="article.date" class="date">{{article.date}}, <a :href="article.href">{{article.href}}</a></h5>
+            <hr v-if="article.body">
+            <div class="body" v-html="article.body" />
+        </div>
     </div>
 </template>
 
 <script>
+    import Loader from "@/components/Loader.vue"
+    import Error from "@/components/Error.vue"
+
     export default {
         name: 'NewsArticle',
+        components: { Loader, Error },
         data() {
             return {
-                article: { }
+                error: "",
+                article: { },
+                fullWidth: false
+            }
+        },
+        methods: {
+            updateData() {
+                fetch(`http://localhost:1234/api/news/article/${this.$route.params.url}`)
+                    .then(async res => {
+                        if (res.status == 404)
+                        {
+                            this.error = "This wouldn't have happened if you had clicked on the links we provided!<br>ヽ(ಠ_ಠ)ノ"
+                            setTimeout(this.updateData, 1000) // maybe cache has not been populated/updated yet
+                            return;
+                        }
+                        if (res.status == 400)
+                        {
+                            window.open(await res.text())
+                            this.$router.push("/news")
+                            return
+                        }
+                        if (res.status == 200)
+                        {
+                            this.article = await res.json()
+                            if (this.article.headline === "N/A")
+                            {
+                                window.open(this.article.href)
+                                this.$router.push("/news")
+                                return
+                            }
+
+                            return;
+                        }
+                        this.error = res.statusText;
+                    })
             }
         },
         mounted() {
-            fetch(`http://localhost:1234/api/news/article/${this.$route.params.url}`)
-                .then(async x => {
-                    if (x.status == 400)
-                    {
-                        window.open(await x.text())
-                        this.$router.push("/news")
-                        return
-                    }
-                    this.article = await x.json()
-                })
+            this.updateData()
         }
     }
 </script>
@@ -37,14 +71,40 @@
         padding: 20px;
     }
 
+    .toggleWidth {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+    }
+
+    .toggleWidth:hover {
+            cursor: pointer;
+    }
+
+    .newsArticle {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: calc(100% - 40px);
+    }
+
+    .newsArticle .wrapper {
+        width: 100%;
+    }
+
+    .newsArticle .wrapper.slim {
+        max-width: 600px;
+    }
+
     div.body {
         display: flex;
         flex-direction: column;
-        font-size: .9em;
+        font-size: 1.2em;
     }
 
     .date {
-        font-size: .6em;
+        font-size: .7em;
         margin: 0;
         font-weight: normal;
         color: var(--font-darker);
@@ -55,7 +115,7 @@
     }
 
     .headline {
-        font-size: 2.5em;
+        font-size: 3em;
         margin: 10px 0px;
         font-weight: normal;
     }
@@ -63,7 +123,7 @@
     .standfirst {
         margin: 10px 0px;
         font-weight: normal;
-        font-size: 1em;
+        font-size: 1.7em;
     }
 
     .topic {

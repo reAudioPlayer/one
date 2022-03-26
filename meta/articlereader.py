@@ -1,7 +1,7 @@
 from typing import Optional, Union
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
-import requests # aiohttp
+import requests # TODO aiohttp
 
 
 class Article:
@@ -29,14 +29,24 @@ class Article:
 class GuardianArticle(Article):
     def __init__(self, url: str) -> None:
         super().__init__(url)
-        self._topic = str(self._byName("title").a)
-        self._headline = self._byName("headline").h1.string
-        self._standfirst = self._byName("standfirst").p.string
+
+        topic = self._byName("title")
+        self._topic = str(topic.a) if topic else "N/A"
+        
+        headline = self._byName("headline")
+        self._headline = self._byName("headline").h1.string if headline else "N/A"
+
+        standfirst = self._byName("standfirst")
+        self._standfirst = self._byName("standfirst").p.string if standfirst else "N/A"
+
         if self._soup.find(attrs={"for":"dateToggle"}):
             self._date = self._soup.find(attrs={"for":"dateToggle"}).string
         else:
             address = self._soup.find("address")
-            self._date = address.find_next_sibling("div").string
+            if address:
+                self._date = address.find_next_sibling("div").string if address.find_next_sibling("div") else address.find_next_sibling("details").summary.string
+            else:
+                self._date = "N/A"
         self._body = str(self._soup.find(class_ = "article-body-viewer-selector"))
 
     def _byName(self, name: str) -> Union[Tag, NavigableString, None]:
