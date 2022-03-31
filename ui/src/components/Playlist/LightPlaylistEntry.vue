@@ -9,8 +9,8 @@ a<template>
             <div class="track">
                 <img :src="cover || '/assets/img/music_placeholder.png'">
                 <div class="trackwrapper">
-                    <span class="title"><Marquee :text="title" /></span>
-                    <span class="artist"><Marquee :text="artist" /></span>
+                    <span class="title" :class="{ 'playing': playing }"><Marquee :text="title" /></span>
+                    <span class="artist" :class="{ 'playing': playing }"><Marquee :text="artist" /></span>
                 </div>
             </div>
             <span class="duration">{{duration}}</span>
@@ -58,6 +58,10 @@ a<template>
                 type: Boolean,
                 default: false
             },
+            playing: {
+                type: Boolean,
+                default: false
+            }
         },
         data() {
             return {

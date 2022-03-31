@@ -30,7 +30,6 @@ export default {
         update() {
             this.isMarquee = false;
             setTimeout(() => {
-                console.log(this.isMarquee = this.isTruncated(this.$refs.marquee), this.text)
                 this.isMarquee = this.isTruncated(this.$refs.marquee);
             }, 10);
         }

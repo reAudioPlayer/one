@@ -3,9 +3,11 @@
         <div class="upNow">
             <img :src="cover" />
         </div>
-        <div class="playlist">
-            <spotify-playlist-header />
-            <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download" @requestUpdate="updatePlaylist" :index="playlist.songs.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+        <div class="playlistOverflow">
+            <div class="playlist">
+                <spotify-playlist-header />
+                <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download" @requestUpdate="updatePlaylist" :index="playlist.songs.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+            </div>
         </div>
     </div>
 </template>
@@ -26,8 +28,17 @@
                 if (jdata.path == "player.song")
                 {
                     this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
-                    return;
+
+                    let title = jdata?.data?.title || "N/A"
+
+                    for (const entry of this.playlist.songs)
+                    {
+                        entry.playing = entry.title == title;
+                    }
+
+                    return
                 }
+                
             }
         },
         data() {
@@ -87,14 +98,18 @@
         border-radius: 20px;
     }
 
-    .bigPlayer .playlist {
+    .bigPlayer .playlistOverflow {
         flex: 2;
         height: calc(100% - 220px);
         margin: 100px 0;
-        padding: 10px;
         background: var(--background-light);
         border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .bigPlayer .playlistOverflow .playlist {
         overflow-y: auto;
-        overflow-x: hidden;
+        height: calc(100% - 20px);;
+        padding: 10px;
     }
 </style>
