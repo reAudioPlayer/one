@@ -11,6 +11,7 @@
     "core-js": "^3.6.5",
     "node-vibrant": "^3.1.6",
     "v-contextmenu": "^3.0.0",
+    "vue": "^3.2.31",
     "vue-final-modal": "^3.4.3",
     "vue-observe-visibility": "^1.0.0",
     "vue-router": "^4.0.12",
@@ -25,6 +26,7 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0",
+    "vue-cli-plugin-meta": "~0.1.1",
     "worker-loader": "^3.0.8"
   },
   "eslintConfig": {

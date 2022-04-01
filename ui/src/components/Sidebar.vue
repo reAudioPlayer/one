@@ -29,7 +29,7 @@
     props: {
       expandCover: Boolean
     },
-    data() {
+    mounted() {
       fetch("http://localhost:1234/api/playlists")
         .then(x => x.json())
         .then(jdata => {
@@ -40,7 +40,8 @@
             })
           }
         })
-
+    },
+    data() {
       const connect = () => {
         console.log("attempting reconnect")
         let ws = new WebSocket('ws://localhost:1234/ws');

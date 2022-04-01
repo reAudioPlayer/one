@@ -9,8 +9,8 @@ a<template>
             <div class="track">
                 <img :src="cover || '/assets/img/music_placeholder.png'">
                 <div class="trackwrapper">
-                    <span class="title" :class="{ 'playing': playing }"><Marquee :text="title" /></span>
-                    <span class="artist" :class="{ 'playing': playing }"><Marquee :text="artist" /></span>
+                    <span class="title" :class="{ 'playing': playing }"><router-link class="linkOnHover" :to="`/track/${id}`"><Marquee :text="title" /></router-link></span>
+                    <span class="artist" :class="{ 'playing': playing }"><router-link class="linkOnHover" :to="`/search/${artist}`"><Marquee :text="artist" /></router-link></span>
                 </div>
             </div>
             <span class="duration">{{duration}}</span>

@@ -3,8 +3,8 @@
     <div class="left">
       <img v-if="expandCover" @click="onExpandCover" :src="cover">
       <div class="titleartist">
-        <span class="title"><Marquee :text="title" /></span>
-        <span class="artist"><Marquee :text="artist" /></span>
+        <span class="title"><router-link class="linkOnHover" to="/player"><Marquee :text="title" /></router-link></span>
+        <span class="artist"><router-link class="linkOnHover" :to="`/search/${artist}`"><Marquee :text="artist" /></router-link></span>
       </div>
       <span @click="favourited = !favourited"
         class="favourite material-icons-round">{{favourited ? "favorite" : "favorite_border"}}</span>

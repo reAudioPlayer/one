@@ -108,7 +108,11 @@
             },
             updatePlaylist() {
                 if (!this.$route.params.id) {
-                    return
+                    return;
+                }
+                if (!this.$route.path.includes("/track/"))
+                {
+                    return;
                 }
                 fetch("http://localhost:1234/api/track", {
                     method: "POST",
@@ -126,6 +130,7 @@
                     this.title = jdata.title || "N/A"
                     this.artist = jdata.artist || "N/A"
                     this.cover = jdata.cover || "/assets/img/music_placeholder.png"
+                    document.title = `${this.title} • ${this.artist}`;
                     this.connect()
 
                     const resp = await fetch("http://localhost:1234/api/spotify/recommend", {

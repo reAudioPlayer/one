@@ -99,6 +99,11 @@
                 shallExpandCover: window.localStorage.getItem("player.expandCover") == "true"
             }
         },
+        watch: {
+            '$route' (to) {
+                document.title = to.meta.title || 'reAudioPlayer One'
+            }
+        },
         methods: {
             expandCover(shallExpand) {
                 this.shallExpandCover = shallExpand
@@ -133,6 +138,17 @@
 </script>
 
 <style>
+    .linkOnHover {
+        text-decoration: none;
+        color: unset;
+    }
+
+    .linkOnHover:hover {
+        text-decoration: underline;
+        cursor: pointer;
+        color: var(--font-colour);
+    }
+
     .hidden {
         display: none;
     }

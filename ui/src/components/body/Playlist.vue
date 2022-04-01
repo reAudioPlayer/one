@@ -122,6 +122,10 @@
                 {
                     return
                 }
+                if (!this.$route.path.includes("/playlist/"))
+                {
+                    return;
+                }
 
                 if (this.$route.params.id == "create")
                 {
@@ -148,6 +152,7 @@
                     this.playlist = jdata.songs
                     this.playlistName = jdata.name
                     this.playlistDescription = jdata.description
+                    document.title = `${this.playlistName} - reAudioPlayer One`;
                     console.log(this.playlist)
                     this.connect()
                 })

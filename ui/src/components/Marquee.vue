@@ -68,9 +68,14 @@ export default {
         box-sizing: border-box;
     }
 
+    .marqueeWrapper, .marqueeWrapper * {
+        text-decoration: inherit;
+    }
+
     .marqueeWrapper {
         position: relative;
         margin: 0;
+        display: table-cell;
     }
 
     .replacer {
@@ -95,7 +100,7 @@ export default {
         animation: marquee 15s linear infinite;
         overflow: unset;
         text-overflow: unset;
-        display: inline-block;
+        display: table-cell;
     }
 
     .overlay { 
