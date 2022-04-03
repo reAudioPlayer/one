@@ -239,6 +239,7 @@
         width: 100vw;
         height: 100vh;
         color: var(--font-colour);
+        z-index: 50;
     }
 
     .centred-column {

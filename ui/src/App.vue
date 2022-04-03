@@ -201,7 +201,7 @@
         display: flex;
         flex-direction: row;
         flex-grow: 1;
-        z-index: 1;
+        z-index: 2;
     }
 
     div.appRoot {
