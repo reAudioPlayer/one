@@ -33,7 +33,7 @@ class DownloadHandler:
         async with aiohttp.ClientSession() as session:
             async with session.get(song._cover) as resp:
                 if resp.status == 200:
-                    file.tag.images.set(ImageFrame.FRONT_COVER, await resp.read(), 'image/jpeg')
+                    file.tag.images.set(ImageFrame.FRONT_COVER, await resp.read(), 'image/jpeg', "Cover")
 
         file.tag.save(version=eyed3.id3.ID3_V2_3)
 
