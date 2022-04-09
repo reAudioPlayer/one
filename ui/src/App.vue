@@ -137,16 +137,16 @@
     }
 </script>
 
-<style>
+<style lang="scss">
     .linkOnHover {
         text-decoration: none;
         color: unset;
-    }
 
-    .linkOnHover:hover {
-        text-decoration: underline;
-        cursor: pointer;
-        color: var(--font-colour);
+        &:hover {
+            text-decoration: underline;
+            cursor: pointer;
+            color: var(--font-colour);
+        }
     }
 
     .hidden {

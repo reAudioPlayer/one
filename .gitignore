@@ -1,7 +1,8 @@
 _cache
 __pycache__
 *.db
-ui/node_modules
+node_modules
 .cache
 headers_auth.json
 config/*
+ui2
