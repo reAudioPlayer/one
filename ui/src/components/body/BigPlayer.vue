@@ -6,7 +6,7 @@
         <div class="playlistOverflow">
             <div class="playlist">
                 <spotify-playlist-header />
-                <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download" @requestUpdate="updatePlaylist" :index="playlist.songs.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download" @requestUpdate="updatePlaylist" :index="playlist.songs.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.title == currentSongName" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
             </div>
         </div>
     </div>
@@ -29,12 +29,7 @@
                 {
                     this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
 
-                    let title = jdata?.data?.title || "N/A"
-
-                    for (const entry of this.playlist.songs)
-                    {
-                        entry.playing = entry.title == title;
-                    }
+                    this.currentSongName = jdata?.data?.title || ""
 
                     return
                 }
@@ -66,7 +61,8 @@
 
             return {
                 cover: "/assets/img/music_placeholder.png",
-                playlist: [ ]
+                playlist: [ ],
+                currentSongName: ""
             }
         }
     }
