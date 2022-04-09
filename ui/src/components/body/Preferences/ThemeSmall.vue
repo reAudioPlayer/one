@@ -12,7 +12,7 @@ export default {
     },
     data() {
         return {
-            src: require(`/src/assets/images/themes/${this.name}.svg`)
+            src: new URL(`/src/assets/images/themes/${this.name}.svg`, import.meta.url).href
         }
     },
     methods: {

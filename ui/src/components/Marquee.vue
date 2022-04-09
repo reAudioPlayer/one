@@ -75,7 +75,6 @@ export default {
     .marqueeWrapper {
         position: relative;
         margin: 0;
-        display: table-cell;
     }
 
     .replacer {

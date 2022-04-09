@@ -112,9 +112,8 @@
             updateData(jdata) {
                 if (jdata.path == "player.song") {
                     this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
-                    console.error(window.getCurrentTheme())
+                    console.info("theme", window.getCurrentTheme())
                     if (window.getCurrentTheme() == "dynamic") {
-                        console.error("hello")
                         console.log(this.cover)
                         Vibrant.from(this.cover).getPalette()
                             .then((palette) => {
