@@ -38,6 +38,10 @@ except:
     time.sleep(5)
     exit()
 
+import mimetypes
+mimetypes.init()
+mimetypes.types_map['.js'] = 'application/javascript; charset=utf-8'
+
 # TODO spotify always opening
 
 dbManager = DbManager()
