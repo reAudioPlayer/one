@@ -182,7 +182,7 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
     div.playlistEntry {
         padding-top: 7px;
         padding-bottom: 7px;
@@ -221,6 +221,10 @@
 
     .hidden {
         visibility: hidden;
+
+        &.more {
+            display: inherit !important;
+        }
     }
 
     div.playlistEntry:hover .favourite, .showfavourite, div.playlistEntry:hover .more {
@@ -247,7 +251,6 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        max-width: 100%;
         color: var(--font-colour);
     }
 
@@ -287,8 +290,9 @@
     .trackwrapper {
         display: flex;
         flex-direction: column;
-        width: 35vw;
+        max-width: 35vw;
         margin-right: 100px;
+        align-items: flex-start;
     }
 
     .duration {

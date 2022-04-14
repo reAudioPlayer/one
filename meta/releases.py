@@ -11,7 +11,11 @@ class Releases:
         self._artists = Releases.followedArtists(spotify)
 
         for artist in self._artists:
-            albums = spotify.artist_albums(artist.get("id")).get("items")
+            try:
+                albums = spotify.artist_albums(artist.get("id")).get("items")
+            except Exception as e:
+                print(e)
+                continue
             latest: int = self._dateToInt("1990-0-0")
             latestAlbum = None
             for album in albums:

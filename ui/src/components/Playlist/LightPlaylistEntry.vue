@@ -273,6 +273,7 @@ a<template>
         max-width: 35vw;
         position: relative;
         width: calc(100% - 40px - 10px);
+        align-items: flex-start;
     }
 
     .duration {
