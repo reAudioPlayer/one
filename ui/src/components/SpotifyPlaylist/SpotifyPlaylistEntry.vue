@@ -116,10 +116,6 @@ a<template>
         flex-shrink: 0;
     }
 
-    .hidden {
-        visibility: hidden;
-    }
-
     div.playlistEntry:hover .favourite, .showfavourite, div.playlistEntry:hover .more {
         visibility: visible;
     }
@@ -198,6 +194,6 @@ a<template>
     }
 
     .hidden {
-        display: none;
+        display: none !important;
     }
 </style>
