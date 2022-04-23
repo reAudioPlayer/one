@@ -239,6 +239,10 @@ a<template>
     }
 
     .artist {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 100%;
         position: relative;
     }
 
