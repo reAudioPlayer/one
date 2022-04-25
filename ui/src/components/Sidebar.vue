@@ -21,6 +21,9 @@
 <script>
   import NavEntry from './Sidebar/NavEntry.vue'
 
+  import Hashids from 'hashids'
+  const hashids = new Hashids("reapOne.playlist", 22)
+
   export default {
     name: 'Sidebar',
     components: {
@@ -36,7 +39,7 @@
           for (let i = 0; i < jdata.length; i++) {
             this.playlists.push({
               "name": jdata[i],
-              "href": `/playlist/${i}`
+              "href": `/playlist/${hashids.encode(i)}`
             })
           }
         })

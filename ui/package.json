@@ -7,6 +7,7 @@
     "build": "vite build"
   },
   "dependencies": {
+    "hashids": "^2.2.10",
     "node-vibrant": "^3.1.6",
     "v-contextmenu": "^3.0.0",
     "vue": "^3.2.31",

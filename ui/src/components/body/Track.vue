@@ -41,6 +41,9 @@
     import draggable from 'vuedraggable'
     import SpotifyPlaylistEntry from '../SpotifyPlaylist/SpotifyPlaylistEntry.vue'
 
+    import Hashids from 'hashids'
+    const hashids = new Hashids("reapOne.track", 22)
+
     export default {
         components: {
             FixedPlaylistHeader,
@@ -61,6 +64,9 @@
             }
         },
         methods: {
+            getId() {
+                return hashids.decode(this.$route.params.id);
+            },
             onPlaylistRearrange(type) {
                 const moved = type.moved
 
@@ -107,7 +113,7 @@
                 }
             },
             updatePlaylist() {
-                if (!this.$route.params.id) {
+                if (!this.getId()) {
                     return;
                 }
                 if (!this.$route.path.includes("/track/"))
@@ -117,7 +123,7 @@
                 fetch("http://localhost:1234/api/track", {
                     method: "POST",
                     body: JSON.stringify({
-                        id: Number(this.$route.params.id)
+                        id: Number(this.getId())
                     })
                 }).then(async x => {
                     if (x.status == 404) {
@@ -147,7 +153,7 @@
                 fetch("http://localhost:1234/api/loadPlaylist", {
                     method: "POST",
                     body: JSON.stringify({
-                        id: Number(this.$route.params.id),
+                        id: Number(this.getId()),
                         type: "track"
                     })
                 })

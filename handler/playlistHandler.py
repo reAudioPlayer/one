@@ -21,6 +21,10 @@ class PlaylistHandler:
 
     async def removeSong(self, request: web.Request):
         jdata = await request.json()
+        if not "playlistId" in jdata:
+            return web.Response(status = 400, text = "no playlistId")
+        if not "songId" in jdata:
+            return web.Response(status = 400, text = "no songId")
         self._playlistManager.removeFromPlaylist(jdata.get("playlistId"), jdata.get("songId"))
         return web.Response(status = 200, text = "success!")
 

@@ -9,7 +9,7 @@ a<template>
             <div class="track">
                 <img :src="cover || '/assets/img/music_placeholder.png'">
                 <div class="trackwrapper">
-                    <span class="title" :class="{ 'playing': playing }"><router-link class="linkOnHover" :to="`/track/${id}`"><Marquee :text="title" /></router-link></span>
+                    <span class="title" :class="{ 'playing': playing }"><router-link class="linkOnHover" :to="`/track/${trackId}`"><Marquee :text="title" /></router-link></span>
                     <span class="artist" :class="{ 'playing': playing }"><router-link class="linkOnHover" :to="`/search/${artist}`"><Marquee :text="artist" /></router-link></span>
                 </div>
             </div>
@@ -22,6 +22,9 @@ a<template>
     import SongCtx from '../ContextMenus/SongCtx.vue'
     import Marquee from '../Marquee.vue'
     import EditSong from '../Popups/EditSong.vue'
+
+    import Hashids from 'hashids'
+    const hashids = new Hashids("reapOne.track", 22)
 
     export default {
         name: 'LightPlaylistEntry',
@@ -71,6 +74,11 @@ a<template>
                 hovering: false
             }
         },
+        computed: {
+            trackId() {
+                return hashids.encode(this.id);
+            }
+        },
         methods: {
             download() {
                 window.open("http://localhost:1234/api/download/" + this.id)
@@ -96,7 +104,6 @@ a<template>
                 fetch("http://localhost:1234/api/remove", {
                     method: "POST",
                     body: JSON.stringify({
-                        playlistId: Number(this.$route.params.id),
                         songId: this.id
                     })
                 })
@@ -109,7 +116,6 @@ a<template>
                 const body = {
                     index: this.index,
                 }
-                body.playlistIndex = Number(this.$route.params.id)
                 fetch("http://localhost:1234/api/at", {
                     method: "POST",
                     body: JSON.stringify(body)

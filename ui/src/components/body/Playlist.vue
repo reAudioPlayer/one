@@ -35,6 +35,9 @@
     import EditPlaylist from '../Popups/EditPlaylist.vue'
     import draggable from 'vuedraggable'
 
+    import Hashids from 'hashids'
+    const hashids = new Hashids("reapOne.playlist", 22)
+
     export default {
         components: {
             PlaylistEntry,
@@ -56,6 +59,9 @@
             }
         },
         methods: {
+            getId() {
+                return hashids.decode(this.$route.params.id);
+            },
             download(index) {
                 const data = this.playlist?.[index]
                 window.open("http://localhost:1234/api/download/" + data.id)
@@ -71,7 +77,7 @@
                 fetch("http://localhost:1234/api/rearrange", {
                     method: "POST",
                     body: JSON.stringify({
-                        playlistIndex: Number(this.$route.params.id),
+                        playlistIndex: Number(this.getId()),
                         songOldIndex: moved.oldIndex,
                         songNewIndex: moved.newIndex
                     })
@@ -118,7 +124,7 @@
                 }
             },
             updatePlaylist() {
-                if (!this.$route.params.id)
+                if (!this.getId())
                 {
                     return
                 }
@@ -127,7 +133,7 @@
                     return;
                 }
 
-                if (this.$route.params.id == "create")
+                if (this.getId() == "create")
                 {
                     fetch("http://localhost:1234/api/playlist/create")
                         .then(x => x.text()).then(y => {
@@ -139,7 +145,7 @@
                 fetch("http://localhost:1234/api/playlist", {
                     method: "POST",
                     body: JSON.stringify({ 
-                        id: Number(this.$route.params.id)
+                        id: Number(this.getId())
                     })
                 }).then(async x => {
                     if (x.status == 404)
@@ -161,7 +167,7 @@
                 fetch("http://localhost:1234/api/loadPlaylist", {
                     method: "POST",
                     body: JSON.stringify({
-                        id: Number(this.$route.params.id),
+                        id: Number(this.getId()),
                         type: "playlist"
                     })
                 })

@@ -8,7 +8,7 @@
                 <img :src="cover || '/assets/img/music_placeholder.png'">
                 <div class="trackwrapper">
                     <span class="title" :class="{ 'playing': playing }">
-                        <router-link class="linkOnHover" :to="`/track/${id}`">
+                        <router-link class="linkOnHover" :to="`/track/${trackId}`">
                             <Marquee :text="title" />
                         </router-link>
                     </span>
@@ -31,6 +31,10 @@
     import SongCtx from '../ContextMenus/SongCtx.vue'
     import Marquee from '../Marquee.vue'
     import EditSong from '../Popups/EditSong.vue'
+
+    import Hashids from 'hashids'
+    const hashidsTrack = new Hashids("reapOne.track", 22)
+    const hashidsPlaylist = new Hashids("reapOne.playlist", 22)
 
     export default {
         name: 'PlaylistEntry',
@@ -79,7 +83,15 @@
                 isAutoPlaylist: this.$route.path == "/collection/tracks"
             }
         },
+        computed: {
+            trackId() {
+                return hashidsTrack.encode(this.id);
+            }
+        },
         methods: {
+            getPlaylistId() {
+                return hashidsPlaylist.decode(this.$route.params.id);
+            },
             download() {
                 this.$emit("download", this.index)
             },
@@ -101,7 +113,7 @@
                 fetch("http://localhost:1234/api/remove", {
                     method: "POST",
                     body: JSON.stringify({
-                        playlistId: Number(this.$route.params.id),
+                        playlistId: Number(this.getPlaylistId()),
                         songId: this.id
                     })
                 }).then(x => {
@@ -142,7 +154,7 @@
                 }
                 if (this.$route.path.includes("/playlist/"))
                 {
-                    body.playlistIndex = Number(this.$route.params.id)
+                    body.playlistIndex = Number(this.getPlaylistId())
                 }
                 if (this.$route.path.includes("/collection/tracks"))
                 {

@@ -67,6 +67,7 @@ class PlayerHandler:
             elif x.get("type") == "collection":
                 if not await self._player.loadPlaylist(collection, x["index"]):
                     await self._player.at(x["index"])
+            await self._player.at(x["index"])
 
         asyncio.create_task(_implement())
         return web.Response(status = 200, text = "success!")
