@@ -1,18 +1,34 @@
 from __future__ import annotations
+from typing import Optional
 from cevlib.types.iType import IType
 from cevlib.types.types import CompetitionGender
 
 
 class Competition(IType):
     def __init__(self, data: dict) -> None:
-        self._name = data.get("Competition").split("|")[0].removesuffix(" ")
-        self._gender = CompetitionGender.Parse(data.get("Competition").split("|")[1].removeprefix(" ").split(" ", maxsplit = 1)[0])
+        competition = data.get("Competition")
+        if "|" not in competition:
+            competition += "|"
+        self._name = competition.split("|")[0].removesuffix(" ")
+        self._gender = CompetitionGender.Parse(competition.split("|")[1].removeprefix(" ").split(" ", maxsplit = 1)[0])
         self._groupPool = data.get("GroupPool")
         self._leg = data.get("Leg")
         self._phase = data.get("Phase")
         self._season = data.get("Season")
         self._matchNumber = data.get("MatchNumber")
         self._logo = data.get("CompetitionLogo")
+
+    @staticmethod
+    def BuildPlain(name: Optional[str] = None, gender: CompetitionGender = CompetitionGender.Unknown, groupPool: Optional[str] = None, leg: Optional[str] = None, phase: Optional[str] = None, season: Optional[str] = None, matchNumber: Optional[str] = None, logo: Optional[str] = None):
+        return Competition({
+            "Competition": f"{name} | {gender.value}",
+            "GroupPool": groupPool,
+            "Leg": leg,
+            "Phase": phase,
+            "Season": season,
+            "MatchNumber": matchNumber,
+            "CompetitionLogo": logo
+        })
 
     @property
     def name(self) -> str:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import aiohttp
 from cevlib.match import Match
@@ -11,7 +11,7 @@ from cevlib.types.team import Team
 from cevlib.types.types import MatchState
 
 class CalendarMatch(IType):
-    def __init__(self, url, competition: Competition, homeTeam: Team, awayTeam: Team, venue: str, startTime: str, result: Result, finished: bool) -> None:
+    def __init__(self, url: Optional[str], competition: Competition, homeTeam: Team, awayTeam: Team, venue: str, startTime: str, result: Result, finished: bool) -> None:
         self._matchCentreLink = url
         self._competition = competition
         self._homeTeam = homeTeam
@@ -20,9 +20,26 @@ class CalendarMatch(IType):
         if not startTime.endswith("Z"):
             startTime += "Z"
         self._startTime = datetime.strptime(startTime, "%Y-%m-%dT%H:%M:%SZ")
-        self._finished = finished
+        duration = (datetime.now() - self._startTime)
+        self._finished = True if (self._startTime.year == 1900 or duration.days) else finished
         self._result = result
         self._state = MatchState.Parse(datetime.utcnow() >= self._startTime, self._finished)
+
+    @staticmethod
+    def ShortcutMatch(competition: Competition, team: Team) -> CalendarMatch:
+        return CalendarMatch(None, competition, team, Team.Build("", "", "", False), "", datetime.fromtimestamp(0).strftime("%Y-%m-%dT%H:%M:%SZ"), Result({}), True)
+
+    @property
+    def teams(self) -> Tuple[Team]:
+        return ( self._homeTeam, self._awayTeam )
+
+    @property
+    def homeTeam(self) -> Team:
+        return self._homeTeam
+
+    @property
+    def awayTeam(self) -> Team:
+        return self._awayTeam
 
     async def toMatch(self) -> Optional[Match]:
         if not self._matchCentreLink:

@@ -8,6 +8,6 @@ class IType(ABC):
     def __bool__(self):
         return self.valid
 
-    @abstractproperty
+    @abstractmethod
     def toJson() -> dict:
         pass

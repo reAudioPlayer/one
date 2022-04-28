@@ -53,9 +53,9 @@ class CompetitionGender(Enum):
     Unknown = "Unknown"
 
     def Parse(value: str) -> CompetitionGender:
-        if value == "Women":
+        if value in ("Women", "W"):
             return CompetitionGender.Women
-        if value == "Men":
+        if value in ("Men", "M"):
             return CompetitionGender.Men
         return CompetitionGender.Unknown
 

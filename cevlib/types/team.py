@@ -126,7 +126,8 @@ class Team(IType):
             matchPollData: List[dict],
             form: dict,
             icon: Optional[str] = None,
-            nickname: Optional[str] = None) -> None:
+            nickname: Optional[str] = None,
+            id: int = 0) -> None:
         self._stats = stats
         playerStatsList: List[PlayerStatistic] = [ ]
         for team in playerStatsData.get("Teams") or [ ]:
@@ -137,7 +138,7 @@ class Team(IType):
         self._nickname: Optional[str] = nickname
         self._name: Optional[str] = teamLogo.get("AltText")
         self._logo: Optional[str] = icon or teamLogo.get("Url")
-        self._id: Optional[int] = int(data.get("TeamId") or "0")
+        self._id: Optional[int] = id or int(data.get("TeamId") or "0")
         self._poll = TeamPoll(matchPollData[0] if matchPollData[0]["Id"] == self._id else matchPollData[1])\
                      if len(matchPollData) == 2 else None
         self._players: List[Player] = [ ]
@@ -153,13 +154,13 @@ class Team(IType):
         self._players.extend([ Player(player, playerStatsList) for player in data.get("SubPlayers") or [ ] ])
 
     @staticmethod
-    def Build(name: str, icon: str, nickname: str, home: bool) -> Team:
+    def Build(name: str, icon: str, nickname: str, home: bool, id: int = 0) -> Team:
         return Team({ "TeamLogo": {
                             "AltText": name,
                             "Url": icon
                         }
                     }, { }, TeamStatistics({ }, home), [ ], { },
-                    icon, nickname)
+                    icon, nickname, id)
 
     def toJson(self) -> dict:
         return {
@@ -183,6 +184,11 @@ class Team(IType):
 
     def __repr__(self) -> str:
         return f"(cevlib.types.team.Team) {self._name} ({self._nickname}/{self._id}) \nplayers={self._players}\nform={self._form}"
+
+    def __eq__(self, other: Team) -> bool:
+        if self.id and other.id:
+            return self.id == other.id
+        return self.name == other.name
 
     @property
     def name(self) -> Optional[str]:

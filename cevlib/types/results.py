@@ -99,10 +99,10 @@ class Result(IType):
             "awaySetsWon": data["AwayTeam"]["Score"],
             "setResults": [ {
                 "homeScore": set.split("-")[0],
-                "awayScore": set.split("-")[0],
+                "awayScore": set.split("-")[1],
                 "setNumber": i + 1,
                 "isInPlay": False
-            } for (i, set) in enumerate(sets) ]
+            } for (i, set) in enumerate(sets) if not set == "" ]
         })
 
     @property
