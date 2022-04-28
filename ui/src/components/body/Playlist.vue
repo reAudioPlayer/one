@@ -64,7 +64,7 @@
             },
             download(index) {
                 const data = this.playlist?.[index]
-                window.open("http://localhost:1234/api/download/" + data.id)
+                window.open("/api/download/" + data.id)
             },
             onPlaylistRearrange(type) {
                 const moved = type.moved
@@ -74,7 +74,7 @@
                     return;
                 }
 
-                fetch("http://localhost:1234/api/rearrange", {
+                fetch("/api/rearrange", {
                     method: "POST",
                     body: JSON.stringify({
                         playlistIndex: Number(this.getId()),
@@ -135,14 +135,14 @@
 
                 if (this.getId() == "create")
                 {
-                    fetch("http://localhost:1234/api/playlist/create")
+                    fetch("/api/playlist/create")
                         .then(x => x.text()).then(y => {
                             console.log(y)
                             this.$router.push(y)
                         })
                     return
                 }
-                fetch("http://localhost:1234/api/playlist", {
+                fetch("/api/playlist", {
                     method: "POST",
                     body: JSON.stringify({ 
                         id: Number(this.getId())
@@ -164,7 +164,7 @@
                 })
             },
             loadPlaylist() {
-                fetch("http://localhost:1234/api/loadPlaylist", {
+                fetch("/api/loadPlaylist", {
                     method: "POST",
                     body: JSON.stringify({
                         id: Number(this.getId()),

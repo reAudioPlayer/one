@@ -1,5 +1,5 @@
 <template>
-    <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="hovering = true" @mouseleave="hovering = false" class="playlistEntry"
+    <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="hovering = true" @mouseleave="hovering = false" class="albumEntry"
         :class="{ 'selected': highlighted }">
         <mini-player class="miniPlayer" :class="{'hidden': !hovering }" :src="preview" />
         <span v-if="!hovering" @click="edit" class="id">{{index + 1}}</span>
@@ -43,7 +43,7 @@
         },
         methods: {
             remove() {
-                fetch("http://localhost:1234/api/remove", {
+                fetch("/api/remove", {
                     method: "POST",
                     body: JSON.stringify({
                         playlistId: Number(this.$route.params.id),
@@ -71,8 +71,8 @@
     }
 </script>
 
-<style scoped>
-    div.playlistEntry {
+<style scoped lang="scss">
+    div.albumEntry {
         padding-top: 7px;
         padding-bottom: 7px;
         height: var(--playlistEntry-height);
@@ -83,11 +83,11 @@
         border-radius: 5px;
     }
 
-    div.playlistEntry:hover {
+    div.albumEntry:hover {
         background-color: var(--hover-1);
     }
 
-    div.playlistEntry.selected {
+    div.albumEntry.selected {
         background-color: var(--hover-2);
     }
 
@@ -116,7 +116,7 @@
         visibility: hidden;
     }
 
-    div.playlistEntry:hover .favourite, .showfavourite, div.playlistEntry:hover .more {
+    div.albumEntry:hover .favourite, .showfavourite, div.albumEntry:hover .more {
         visibility: visible;
     }
 
@@ -152,12 +152,12 @@
         color: var(--font-darker);
     }
 
-    div.playlistEntry:hover .album,
-    div.playlistEntry:hover .artist,
-    div.playlistEntry:hover .id,
-    div.playlistEntry.selected .album,
-    div.playlistEntry.selected .artist,
-    div.playlistEntry.selected .id {
+    div.albumEntry:hover .album,
+    div.albumEntry:hover .artist,
+    div.albumEntry:hover .id,
+    div.albumEntry.selected .album,
+    div.albumEntry.selected .artist,
+    div.albumEntry.selected .id {
         color: var(--font-colour);
     }
 
@@ -194,6 +194,6 @@
     }
 
     .hidden {
-        display: none
+        display: none !important;
     }
 </style>

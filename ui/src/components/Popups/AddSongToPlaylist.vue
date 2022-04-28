@@ -64,7 +64,7 @@ import MiniPlayer from '../MiniPlayer.vue'
                 this.$emit("close")
             },
             loadMetadata() {
-                fetch("http://localhost:1234/api/metadata", {
+                fetch("/api/metadata", {
                         method: "POST",
                         body: JSON.stringify({
                             url: this.href
@@ -89,7 +89,7 @@ import MiniPlayer from '../MiniPlayer.vue'
                     return
                 }
 
-                fetch("http://localhost:1234/api/add", {
+                fetch("/api/add", {
                     method: "POST",
                     body: JSON.stringify({
                         id: id,
@@ -114,7 +114,7 @@ import MiniPlayer from '../MiniPlayer.vue'
                     return
                 }
 
-                fetch("http://localhost:1234/api/playlists")
+                fetch("/api/playlists")
                     .then(x => x.json())
                     .then(jdata => {
                         this.playlists.length = 0;

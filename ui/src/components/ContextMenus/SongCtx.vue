@@ -25,7 +25,7 @@
             isAutoPlaylist: Boolean
         },
         data() {
-            fetch("http://localhost:1234/api/playlists")
+            fetch("/api/playlists")
                     .then(x => x.json())
                     .then(jdata => {
                         this.playlists.length = 0;
@@ -64,7 +64,7 @@
             addto(index) {
                 if (index === 'new')
                 {
-                    fetch("http://localhost:1234/api/playlist/create")
+                    fetch("/api/playlist/create")
                         .then(x => x.text()).then(y => {
                             this.$emit("addto", Number(y.replace('/playlist/', '')))
                         })

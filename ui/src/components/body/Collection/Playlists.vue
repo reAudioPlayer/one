@@ -30,11 +30,11 @@
         name: 'Playlists',
 
         data() {
-            fetch("http://localhost:1234/api/playlists")
+            fetch("/api/playlists")
                 .then(x => x.json())
                 .then(async jdata => {
                     for (let i = 0; i < jdata.length; i++) {
-                        const resp = await fetch("http://localhost:1234/api/playlist", {
+                        const resp = await fetch("/api/playlist", {
                             method: "POST",
                             body: JSON.stringify({ 
                                 id: i
@@ -48,12 +48,12 @@
                         })
                     }
                 })
-            fetch("http://localhost:1234/api/collection/tracks")
+            fetch("/api/collection/tracks")
                 .then(x => x.json())
                 .then(jdata => {
                     this.likedTracks = jdata
                 })
-            fetch("http://localhost:1234/api/spotify/playlists")
+            fetch("/api/spotify/playlists")
                 .then(x => x.json())
                 .then(jdata => {
                     this.spotifyPlaylists = jdata

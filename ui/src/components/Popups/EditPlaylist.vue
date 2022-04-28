@@ -45,7 +45,7 @@
             apply() {                
                 this.showModal = false
                 console.log("fetch")
-                fetch("http://localhost:1234/api/updatePlaylist", {
+                fetch("/api/updatePlaylist", {
                     method: "POST",
                     body: JSON.stringify({
                         id: Number(this.$route.params.id),
@@ -58,7 +58,7 @@
                 })
             },
             remove() {
-                fetch(`http://localhost:1234/api/playlist/${Number(this.$route.params.id)}`, {
+                fetch(`/api/playlist/${Number(this.$route.params.id)}`, {
                     method: "DELETE"
                 }).then(() => {
                     this.$router.push("/")

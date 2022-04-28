@@ -23,7 +23,7 @@
             {
                 e.stopPropagation();
                 const endpoint = this.following ? "unfollow" : "follow"
-                fetch("http://localhost:1234/api/spotify/" + endpoint, {
+                fetch("/api/spotify/" + endpoint, {
                         method: "POST",
                         body: JSON.stringify({
                             "artistId": this.id

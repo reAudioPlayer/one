@@ -96,7 +96,7 @@
                 this.$emit("download", this.index)
             },
             addToPlaylist(index) {
-                fetch("http://localhost:1234/api/add", {
+                fetch("/api/add", {
                     method: "POST",
                     body: JSON.stringify({
                         id: index,
@@ -110,7 +110,7 @@
                 })
             },
             remove() {
-                fetch("http://localhost:1234/api/remove", {
+                fetch("/api/remove", {
                     method: "POST",
                     body: JSON.stringify({
                         playlistId: Number(this.getPlaylistId()),
@@ -160,13 +160,13 @@
                 {
                     body.type = "collection"
                 }
-                fetch("http://localhost:1234/api/at", {
+                fetch("/api/at", {
                     method: "POST",
                     body: JSON.stringify(body)
                 })
             },
             setFavourite() {
-                fetch("http://localhost:1234/api/updateSong", {
+                fetch("/api/updateSong", {
                     method: "POST",
                     body: JSON.stringify({
                         id: this.id,

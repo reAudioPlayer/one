@@ -11,4 +11,13 @@ export default defineConfig({
         },
         extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
     },
+    server: {
+        proxy: {
+            '/api': {
+                target: 'http://localhost:1234/',
+                changeOrigin: true,
+                secure: false
+            }
+        }
+    }
 })

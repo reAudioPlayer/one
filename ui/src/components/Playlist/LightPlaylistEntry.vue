@@ -81,10 +81,10 @@ a<template>
         },
         methods: {
             download() {
-                window.open("http://localhost:1234/api/download/" + this.id)
+                window.open("/api/download/" + this.id)
             },
             addToPlaylist(index) {
-                fetch("http://localhost:1234/api/add", {
+                fetch("/api/add", {
                     method: "POST",
                     body: JSON.stringify({
                         id: index,
@@ -101,7 +101,7 @@ a<template>
                 this.$refs.editSongPopup.showModal = true
             },
             remove() {
-                fetch("http://localhost:1234/api/remove", {
+                fetch("/api/remove", {
                     method: "POST",
                     body: JSON.stringify({
                         songId: this.id
@@ -116,13 +116,13 @@ a<template>
                 const body = {
                     index: this.index,
                 }
-                fetch("http://localhost:1234/api/at", {
+                fetch("/api/at", {
                     method: "POST",
                     body: JSON.stringify(body)
                 })
             },
             setFavourite() {
-                fetch("http://localhost:1234/api/updateSong", {
+                fetch("/api/updateSong", {
                     method: "POST",
                     body: JSON.stringify({
                         id: this.id,

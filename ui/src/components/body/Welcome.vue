@@ -72,7 +72,7 @@
                     return;
                 }
 
-                fetch("http://localhost:1234/api/config/spotify", {
+                fetch("/api/config/spotify", {
                     method: "POST",
                     body: JSON.stringify({
                         "id": "restricted",
@@ -81,7 +81,7 @@
                 }).then(x => {
                     if (x.status == 200)
                     {
-                        setTimeout(() => fetch("http://localhost:1234/api/releases"), 1000);
+                        setTimeout(() => fetch("/api/releases"), 1000);
                         this.mode++;
                         setTimeout(() => {
                             this.$router.push("/")
@@ -95,7 +95,7 @@
                     return;
                 }
 
-                fetch("http://localhost:1234/api/config/spotify", {
+                fetch("/api/config/spotify", {
                     method: "POST",
                     body: JSON.stringify({
                         "id": this.spotifyClientId,
@@ -104,8 +104,8 @@
                 }).then(x => {
                     if (x.status == 200)
                     {
-                        setTimeout(() => fetch("http://localhost:1234/api/releases"), 1000);
-                        setTimeout(() => fetch("http://localhost:1234/api/news"), 1000);
+                        setTimeout(() => fetch("/api/releases"), 1000);
+                        setTimeout(() => fetch("/api/news"), 1000);
                         this.mode++;
                         setTimeout(() => {
                             this.$router.push("/")
@@ -150,7 +150,7 @@
             }
         },
         mounted() {
-            fetch("http://localhost:1234/api/config/ready")
+            fetch("/api/config/ready")
                 .then(x => {
                     if (x.status == 200)
                     {

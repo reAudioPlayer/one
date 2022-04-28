@@ -31,7 +31,7 @@ import CollectionHeader from './CollectionHeader.vue'
             }
         },
         mounted() {
-            fetch("http://localhost:1234/api/releases")
+            fetch("/api/releases")
                 .then(x => x.json())
                 .then(jdata => {
                     const today = new Date()

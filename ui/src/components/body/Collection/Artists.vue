@@ -18,7 +18,7 @@ import CollectionHeader from './CollectionHeader.vue'
         components: { CollectionHeader, ArtistItem, FullShelf },
         name: 'Artists',
         data() {
-            fetch("http://localhost:1234/api/spotify/artists")
+            fetch("/api/spotify/artists")
                 .then(x => x.json())
                 .then(jdata => this.spotifyArtists.push(...jdata))
             return {

@@ -47,7 +47,7 @@ a<template>
         },
         methods: {
             remove() {
-                fetch("http://localhost:1234/api/remove", {
+                fetch("/api/remove", {
                     method: "POST",
                     body: JSON.stringify({
                         playlistId: Number(this.$route.params.id),

@@ -33,7 +33,7 @@
       expandCover: Boolean
     },
     mounted() {
-      fetch("http://localhost:1234/api/playlists")
+      fetch("/api/playlists")
         .then(x => x.json())
         .then(jdata => {
           for (let i = 0; i < jdata.length; i++) {

@@ -76,7 +76,7 @@
                 this.fixedHeaderHidden = a
             },
             updateTracks() {
-                fetch("http://localhost:1234/api/collection/tracks")
+                fetch("/api/collection/tracks")
                     .then(x => x.json()).then(jdata => {
                         this.playlist = jdata.songs
                         this.playlistName = jdata.name
@@ -85,7 +85,7 @@
                     })
             },
             loadPlaylist() {
-                fetch("http://localhost:1234/api/loadPlaylist", {
+                fetch("/api/loadPlaylist", {
                     method: "POST",
                     body: JSON.stringify({
                         type: "collection"

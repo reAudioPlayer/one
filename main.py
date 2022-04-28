@@ -18,7 +18,6 @@ try:
     from player.player import Player
     from aiohttp import web
     import asyncio
-    import aiohttp_cors
     from aiohttp_index import IndexMiddleware
     from aiohttp.web import middleware
 
@@ -155,18 +154,6 @@ async def init() -> web.Application:
     app.router.add_post('/api/config/spotify', configHandler.spotifyConfig)
 
     app.add_routes([web.get('/ws', websocket.websocket_handler)])
-
-    # Configure default CORS settings.
-    cors = aiohttp_cors.setup(app, defaults={
-        "*": aiohttp_cors.ResourceOptions(
-                allow_credentials=True,
-                expose_headers="*",
-                allow_headers="*",
-            )
-    })
-
-    for route in list(app.router.routes()):
-        cors.add(route)
 
     app.router.add_static('/', './ui/dist')
     return app

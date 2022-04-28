@@ -78,7 +78,7 @@
                     return
                 }
 
-                fetch("http://localhost:1234/api/match", {
+                fetch("/api/match", {
                         method: "POST",
                         body: JSON.stringify({
                             urls: this.watchMatches

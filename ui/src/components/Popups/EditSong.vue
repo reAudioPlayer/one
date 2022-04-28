@@ -77,7 +77,7 @@ import FindSources from '../ContextMenus/FindSources.vue'
             add() {
                 this.showModal = false
                 console.log("fetch")
-                fetch("http://localhost:1234/api/updateSong", {
+                fetch("/api/updateSong", {
                     method: "POST",
                     body: JSON.stringify({
                         id: this.id,
@@ -93,7 +93,7 @@ import FindSources from '../ContextMenus/FindSources.vue'
                 })
             },
             loadMetadata() {
-                fetch("http://localhost:1234/api/metadata", {
+                fetch("/api/metadata", {
                         method: "POST",
                         body: JSON.stringify({
                             url: this.$refs.source.value

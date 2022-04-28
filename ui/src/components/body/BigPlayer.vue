@@ -22,7 +22,7 @@
         name: "BigPlayer",
         methods: {
             fetchPlaylist() {
-                fetch("http://localhost:1234/api/playlist", {method: "POST"}).then(x => x.json()).then(jdata => this.playlist = jdata)
+                fetch("/api/playlist", {method: "POST"}).then(x => x.json()).then(jdata => this.playlist = jdata)
             },
             updateData(jdata) {
                 if (jdata.path == "player.song")

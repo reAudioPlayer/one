@@ -53,17 +53,17 @@
         keyBinds: [
           {
             keyCode: "space",
-            success: () => fetch(`http://localhost:1234/api/playPause`),
+            success: () => fetch(`/api/playPause`),
             modifiers: ["ctrlKey"],
           },
           {
             keyCode: "right",
-            success: () => fetch(`http://localhost:1234/api/next`),
+            success: () => fetch(`/api/next`),
             modifiers: ["ctrlKey"],
           },
           {
             keyCode: "left",
-            success: () => fetch(`http://localhost:1234/api/last`),
+            success: () => fetch(`/api/last`),
             modifiers: ["ctrlKey"],
           },
           {
@@ -155,7 +155,7 @@
         ctx.progresslbl = `${Math.floor(progress / 60)}:${ctx.zeroPad(progress % 60, 2)}`
       }, 1000)
 
-      fetch("http://localhost:1234/api/getVolume")
+      fetch("/api/getVolume")
         .then(x => x.text())
         .then(value => {
           this.$refs.volume.value = value
@@ -181,10 +181,10 @@
         this.get('playPause')
       },
       get(endpoint) {
-        fetch(`http://localhost:1234/api/${endpoint}`)
+        fetch(`/api/${endpoint}`)
       },
       volumechange() {
-        fetch("http://localhost:1234/api/setVolume", {
+        fetch("/api/setVolume", {
           method: "POST",
           body: JSON.stringify({
             value: this.$refs.volume.value
@@ -198,7 +198,7 @@
         let duration = Number(this.durationStr.split(':')[0]) * 60 + Number(this.durationStr.split(':')[1])
         let value = this.progress * duration / 1000
         this.progresslbl = `${Math.floor(value / 60)}:${this.zeroPad(Math.round(value % 60), 2)}`
-        fetch("http://localhost:1234/api/setPos", {
+        fetch("/api/setPos", {
           method: "POST",
           body: JSON.stringify({
             value

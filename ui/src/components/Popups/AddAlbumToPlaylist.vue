@@ -107,7 +107,7 @@
                 this.$emit("close")
             },
             loadMetadata() {
-                fetch("http://localhost:1234/api/metadata", {
+                fetch("/api/metadata", {
                         method: "POST",
                         body: JSON.stringify({
                             url: this.$refs.source.value
@@ -143,7 +143,7 @@
                     return
                 }
 
-                fetch("http://localhost:1234/api/add", {
+                fetch("/api/add", {
                     method: "POST",
                     body: JSON.stringify({
                         id: id,
@@ -170,14 +170,14 @@
                     return
                 }
 
-                fetch("http://localhost:1234/api/playlists")
+                fetch("/api/playlists")
                     .then(x => x.json())
                     .then(jdata => {
                         this.playlists.length = 0;
                         this.playlists.push(...jdata)
                     })
 
-                fetch("http://localhost:1234/api/spotify/album", {
+                fetch("/api/spotify/album", {
                         method: "POST",
                         body: JSON.stringify({
                             "albumId": this.id

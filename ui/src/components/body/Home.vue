@@ -34,14 +34,14 @@ import Shelf from '../Catalogue/Shelf.vue'
             }
         },
         mounted() {
-            fetch("http://localhost:1234/api/config/ready")
+            fetch("/api/config/ready")
                 .then(x => {
                     if (x.status == 400)
                     {
                         this.$router.push("/welcome")
                     }
                 })
-            fetch("http://localhost:1234/api/releases")
+            fetch("/api/releases")
                 .then(x => x.json())
                 .then(jdata => {
                     this.releases.length = 0
@@ -49,18 +49,18 @@ import Shelf from '../Catalogue/Shelf.vue'
                 })
             if (window.localStorage.getItem("sidebar.showNewsTab") == "true")
             {
-                fetch("http://localhost:1234/api/news")
+                fetch("/api/news")
                     .then(x => x.json())
                     .then(jdata => {
                         this.news.length = 0
                         this.news.push(...jdata)
                     })
             }
-            fetch("http://localhost:1234/api/playlists")
+            fetch("/api/playlists")
                 .then(x => x.json())
                 .then(async jdata => {
                     for (let i = 0; i < jdata.length; i++) {
-                        const resp = await fetch("http://localhost:1234/api/playlist", {
+                        const resp = await fetch("/api/playlist", {
                             method: "POST",
                             body: JSON.stringify({ 
                                 id: i

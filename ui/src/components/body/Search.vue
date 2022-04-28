@@ -55,7 +55,7 @@
                     return
                 }
 
-                fetch("http://localhost:1234/api/search", {
+                fetch("/api/search", {
                     method: "POST",
                     body: JSON.stringify({ query })
                 }).then(x => x.json())

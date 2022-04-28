@@ -22,7 +22,7 @@ export default {
     },
     methods: {
         get(endpoint) {
-            fetch(`http://localhost:1234/api/${endpoint}`)
+            fetch(`/api/${endpoint}`)
         },
         pause() {
             this.get("pause")

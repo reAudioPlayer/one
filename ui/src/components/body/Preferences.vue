@@ -74,7 +74,7 @@
                     return;
                 }
 
-                fetch("http://localhost:1234/api/config/spotify", {
+                fetch("/api/config/spotify", {
                     method: "POST",
                     body: JSON.stringify({
                         "id": "restricted",
@@ -88,7 +88,7 @@
                     return;
                 }
 
-                fetch("http://localhost:1234/api/config/spotify", {
+                fetch("/api/config/spotify", {
                     method: "POST",
                     body: JSON.stringify({
                         "id": this.spotifyClientId,
