@@ -76,49 +76,6 @@
     }
 </script>
 
-
-<style>
-    .modal-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #0000;
-    }
-
-    .modal-content {
-        position: relative;
-        width: 40%;
-        max-height: 70vh;
-        padding: 16px;
-        overflow: auto;
-        background: var(--hover-4);
-        border-radius: 10px;
-        color: var(--font-colour);
-    }
-
-    .modal-close {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 32px;
-        height: 32px;
-        font-size: 1.5em;
-        cursor: pointer;
-        background: var(--hover-4);
-        border: none;
-        color: var(--font-darker);
-    }
-
-    h3 {
-        margin: 0;
-    }
-
-    .modal-close:hover {
-        color: var(--font-colour);
-    }
-
-</style>
-
 <style scoped>
 
     .wrapper {
@@ -160,7 +117,7 @@
     }
 
     button.negative {
-        color: var(--hover-4);
+        color: var(--font-contrast);
         background-color: var(--font-colour);
         border: none;
         border-radius: 20px;

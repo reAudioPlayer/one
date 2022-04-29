@@ -136,6 +136,49 @@
     }
 </script>
 
+<!-- Popups -->
+<style lang="scss">
+    .modal-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #0000;
+    }
+
+    .modal-content {
+        position: relative;
+        width: 40%;
+        max-height: 70vh;
+        padding: 16px;
+        overflow: auto;
+        background: var(--font-contrast);
+        border-radius: 10px;
+        color: var(--font-colour);
+    }
+
+    .modal-close {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 32px;
+        height: 32px;
+        font-size: 1.5em;
+        cursor: pointer;
+        background: none;
+        border: none;
+        color: var(--font-darker);
+    }
+
+    h3 {
+        margin: 0;
+    }
+
+    .modal-close:hover {
+        color: var(--font-colour);
+    }
+
+</style>
+
 <style lang="scss">
     .linkOnHover {
         text-decoration: none;
@@ -153,22 +196,22 @@
     }
 
     .v-contextmenu {
-        background: var(--hover-4) !important;
+        background: var(--font-contrast) !important;
         font-family: var(--font-family) !important;
-        border: none !important;
+        border: 1px solid var(--hover-1);
         /*box-shadow: 2px 2px 8px 0 var(--hover-4) !important;
   --webkit-box-shadow: 2px 2px 8px 0 var(--hover-4) !important;*/
         box-shadow: none;
         --webkit-box-shadow: none;
-        color: var(--font-darker) !important;
+        color: var(--font-colour) !important;
     }
 
     .v-contextmenu-divider {
-        border-color: var(--font-darker);
+        border-color: var(--border);
     }
 
     .v-contextmenu-item {
-        color: var(--font-darker) !important;
+        color: var(--font-colour) !important;
         margin: 5px;
         padding: 10px 22px 10px 15px;
         border-radius: 5px;

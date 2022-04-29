@@ -1,6 +1,6 @@
 <template>
     <div>
-        <vue-final-modal @click="hideFindSourcesCtx" v-model="showModal" classes="modal-containerr"
+        <vue-final-modal @click="hideFindSourcesCtx" v-model="showModal" classes="modal-container"
             content-class="addAlbumToPlaylistPopup">
             <div class="wrapper">
                 <div class="header">
@@ -214,49 +214,6 @@
     }
 </script>
 
-
-<style>
-    .modal-containerr {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #0000;
-        cursor: default;
-    }
-
-    .addAlbumToPlaylistPopup {
-        position: relative;
-        width: 60%;
-        max-height: 70vh;
-        padding: 16px;
-        overflow: auto;
-        background: var(--hover-4);
-        border-radius: 10px;
-        color: var(--font-colour);
-    }
-
-    .modal-close {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 32px;
-        height: 32px;
-        font-size: 1.5em;
-        cursor: pointer;
-        background: var(--hover-4);
-        border: none;
-        color: var(--font-darker);
-    }
-
-    h3 {
-        margin: 0;
-    }
-
-    .modal-close:hover {
-        color: var(--font-colour);
-    }
-</style>
-
 <style scoped>
     .wrapper {
         display: flex;
@@ -297,7 +254,7 @@
     }
 
     button.negative {
-        color: var(--hover-4);
+        color: var(--font-contrast);
         background-color: var(--font-colour);
         border: none;
         border-radius: 20px;
@@ -306,6 +263,7 @@
         letter-spacing: 1px;
         font-weight: bold;
         font-family: var(--font-family);
+        margin-left: auto;
     }
 
     .confirm {
@@ -349,7 +307,7 @@
     }
 
     select {
-        background: var(--hover-2);
+        background: var(--hover-1);
         border: 1px solid var(--hover-3);
         border-radius: 5px;
         color: var(--font-colour);
@@ -365,7 +323,7 @@
     }
 
     option {
-        background: var(--hover-4);
+        background: var(--accent-dark);
         border: 1px solid var(--hover-3);
         border-radius: 5px;
         color: var(--font-colour);
