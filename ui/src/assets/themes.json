@@ -13,9 +13,9 @@
         "night-crimson": "#e85454",
         "night-cobalt": "#189de4",
         "night-fire": "#c7aa19",
-        "light": "#349d58",
+        "light": "#80dda0",
         "light-ruby": "#974444",
-        "light-royal": "#54548f"
+        "light-royal": "#e58a8a"
     },
     "accent": {
         "default": "#1ed760",
@@ -63,9 +63,9 @@
         "night-crimson": "whitesmoke",
         "night-cobalt": "whitesmoke",
         "night-fire": "whitesmoke",
-        "light": "black",
-        "light-ruby": "black",
-        "light-royal": "black"
+        "light": "#181c2f",
+        "light-ruby": "#181c2f",
+        "light-royal": "#181c2f"
     },
     "font-darker": {
         "default": "#a7a7a7",
@@ -79,38 +79,48 @@
         "night-crimson": "#c2bebe",
         "night-cobalt": "#c2bebe",
         "night-fire": "#c2bebe",
-        "light": "#545454",
-        "light-ruby": "#545454",
-        "light-royal": "#545454"
+        "light": "#8b8c91",
+        "light-ruby": "#8b8c91",
+        "light-royal": "#8b8c91"
     },
     "hover-4": {
         "default": "#242424"
     },
     "hover-3": {
         "default": "hsla(0,0%,100%,0.04)",
-        "apollo": "hsla(0,0%,100%,0.3)"
+        "apollo": "hsla(0,0%,100%,0.3)",
+        "light": "#b3b3b31f",
+        "light-ruby": "#b3b3b31f",
+        "light-royal": "#b3b3b31f"
     },
     "hover-2": {
         "default": "hsla(0,0%,100%,0.3)",
         "apollo": "hsla(0,0%,100%,0.1)",
-        "night-jade": "#374148",
-        "night-crimson": "#374148",
-        "night-cobalt": "#374148",
-        "night-fire": "#374148",
-        "light": "rgba(0, 0, 0, .3)",
-        "light-ruby": "rgba(0, 0, 0, .3)",
-        "light-royal": "rgba(0, 0, 0, .3)"
+        "night-jade": "#00c48b82",
+        "night-crimson": "#e8545482",
+        "night-cobalt": "#189de482",
+        "night-fire": "#c7aa1982",
+        "light": "#7c828f5e",
+        "light-ruby": "#7c828f5e",
+        "light-royal": "#7c828f5e"
     },
     "hover-1": {
         "default": "hsla(0,0%,100%,0.1)",
         "apollo": "hsla(0,0%,100%,0.04)",
-        "night-jade": "#37414877",
-        "night-crimson": "#37414877",
-        "night-cobalt": "#37414877",
-        "night-fire": "#37414877",
-        "light": "rgba(0, 0, 0, .1)",
-        "light-ruby": "rgba(0, 0, 0, .1)",
-        "light-royal": "rgba(0, 0, 0, .1)"
+        "night-jade": "#00c48b42",
+        "night-crimson": "#e8545442",
+        "night-cobalt": "#189de442",
+        "night-fire": "#c7aa1942",
+        "light": "#E3E7EB",
+        "light-ruby": "#E3E7EB",
+        "light-royal": "#E3E7EB"
+    },
+    "border": {
+        "default": "hsla(0,0%,100%,0.1)",
+        "apollo": "hsla(0,0%,100%,0.04)",
+        "light": "#E3E7EB",
+        "light-ruby": "#E3E7EB",
+        "light-royal": "#E3E7EB"
     },
     "background": {
         "default": "#121212",
@@ -140,9 +150,9 @@
         "night-crimson": "#374148",
         "night-cobalt": "#374148",
         "night-fire": "#374148",
-        "light": "rgba(0, 0, 0, .4)",
-        "light-ruby": "rgba(0, 0, 0, .4)",
-        "light-royal": "rgba(0, 0, 0, .4)"
+        "light": "#f3f7fb",
+        "light-ruby": "#f3f7fb",
+        "light-royal": "#f3f7fb"
     },
     "sidebar-background": {
         "default": "black",
@@ -156,9 +166,9 @@
         "night-crimson": "#374148",
         "night-cobalt": "#374148",
         "night-fire": "#374148",
-        "light": "#C2C2C2",
-        "light-ruby": "#C2C2C2",
-        "light-royal": "#C2C2C2"
+        "light": "#f3f7fb",
+        "light-ruby": "#f3f7fb",
+        "light-royal": "#f3f7fb"
     },
     "player-background": {
         "default": "#181818",
@@ -172,9 +182,9 @@
         "night-crimson": "#374148",
         "night-cobalt": "#374148",
         "night-fire": "#374148",
-        "light": "#B2B2B2",
-        "light-ruby": "#B2B2B2",
-        "light-royal": "#B2B2B2"
+        "light": "#f3f7fb",
+        "light-ruby": "#f3f7fb",
+        "light-royal": "#f3f7fb"
     },    
     "fixedplaylistheader-background": {
         "default": "var(--player-background)",

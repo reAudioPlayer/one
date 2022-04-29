@@ -239,7 +239,7 @@
     flex-direction: row;
     justify-content: space-between;
     padding: 10px;
-    border-top: 1px solid #303030;
+    border-top: 1px solid var(--border);
     z-index: 1;
   }
 
