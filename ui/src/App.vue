@@ -2,11 +2,11 @@
     <div class="appRoot">
         <div class="bgImageWrapper" :class="{ hidden: !coverAsBackground }" ><div class="bgImage" :style="{ backgroundImage: `url(${cover})` }" /></div>
         <div class="interface">
-            <Sidebar @expandCover="expandCover" :expandCover="shallExpandCover" />
+            <Sidebar v-if="!maximised" @expandCover="expandCover" :expandCover="shallExpandCover" />
 
-            <Body />
+            <Body @maximise="val => maximised = val" />
         </div>
-        <Player @expandCover="expandCover" :expandCover="!shallExpandCover" />
+        <Player v-if="!maximised" @expandCover="expandCover" :expandCover="!shallExpandCover" />
     </div>
 </template>
 
@@ -96,7 +96,8 @@
             connect()
             return {
                 cover: null,
-                shallExpandCover: window.localStorage.getItem("player.expandCover") == "true"
+                shallExpandCover: window.localStorage.getItem("player.expandCover") == "true",
+                maximised: false,
             }
         },
         watch: {
@@ -177,6 +178,13 @@
         color: var(--font-colour);
     }
 
+    .material-symbols-rounded {
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 100,
+        'GRAD' -25,
+        'opsz' 48
+    }
 </style>
 
 <style lang="scss">

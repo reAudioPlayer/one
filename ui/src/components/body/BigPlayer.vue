@@ -1,9 +1,14 @@
 <template>
     <div class="bigPlayer">
+        <div class="settings">
+            <span @click="toggleMaximise" class="iconButton material-symbols-rounded">{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span>
+            <span @click="() => noPlaylist = !noPlaylist" class="iconButton material-symbols-rounded" :style="{ transform: `rotate(${ noPlaylist ? 0 : 180 }deg)` }">menu_open</span>
+        </div>
+
         <div class="upNow">
             <img :src="cover" />
         </div>
-        <div class="playlistOverflow">
+        <div v-if="!noPlaylist" class="playlistOverflow">
             <div class="playlist">
                 <spotify-playlist-header />
                 <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download" @requestUpdate="updatePlaylist" :index="playlist.songs.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.title == currentSongName" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
@@ -21,6 +26,10 @@
         },
         name: "BigPlayer",
         methods: {
+            toggleMaximise() {
+                this.maximised = !this.maximised;
+                this.$emit('maximise', this.maximised);
+            },
             fetchPlaylist() {
                 fetch("/api/playlist", {method: "POST"}).then(x => x.json()).then(jdata => this.playlist = jdata)
             },
@@ -62,13 +71,41 @@
             return {
                 cover: "/assets/img/music_placeholder.png",
                 playlist: [ ],
-                currentSongName: ""
+                currentSongName: "",
+                maximised: false,
+                noPlaylist: false
             }
         }
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    .settings {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+
+        padding: 10px;
+    }
+
+    .iconButton {
+        font-size: 2em;
+        border-radius: 10px;
+        padding: 5px;
+
+        &:hover {
+            cursor: pointer;
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background: var(--font-darker);
+            color: var(--accent);
+        }
+    }
+
     .bigPlayer {
         position: relative;
         display: flex;

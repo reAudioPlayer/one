@@ -60,7 +60,35 @@
                 title: ""
             }
         },
+        watch: {
+            showModal() {
+                if (!this.showModal)
+                {
+                    return;
+                }
+
+                navigator.clipboard.readText().then(x => {
+                    if (!this.isValidHttpUrl(x))
+                    {
+                        return;
+                    }
+                    this.$refs.source.value = x;
+                    this.loadMetadata()
+                })
+            }
+        },
         methods: {
+            isValidHttpUrl(string) {
+                let url;
+                
+                try {
+                    url = new URL(string);
+                } catch (_) {
+                    return false;  
+                }
+
+                return url.protocol === "http:" || url.protocol === "https:";
+            },
             opencontextmenu(evt) {                
                 this.$refs.findSources.show(evt)
             },
