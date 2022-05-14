@@ -78,6 +78,13 @@ const routes = [{
     }
   },
   {
+    path: '/import/:data',
+    component: () => import("@/components/body/Preferences.vue"),
+    meta: {
+      title: "Preferences - reAudioPlayer One"
+    }
+  },
+  {
     path: '/welcome',
     component: () => import( /* webpackChunkName: "welcome" */ "@/views/Welcome.vue"),
     meta: {

@@ -50,8 +50,15 @@
 </template>
 
 <script>
-    import FullShelf from "@/components/Catalogue/FullShelf.vue"
-    import Theme from "@/components/Preferences/Theme.vue"
+    import FullShelf from "../Catalogue/FullShelf.vue"
+    import Theme from "./Preferences/Theme.vue"
+    // http://localhost:3000/user/get/redirect?redirect=http%3A%2F%2Flocalhost:3001%2F%23%2fimport%2F
+
+    import { Buffer } from 'buffer';
+    window.Buffer = Buffer;
+    import Hashids from 'hashids'
+    const hashids = new Hashids("reapApollo")
+
     export default {
     components: { Theme, FullShelf },
         name: "Preferences",
@@ -117,6 +124,14 @@
                 "light-ruby"
             ]
             const themeSelected = window.getCurrentTheme()
+
+            if (this.$route.params.data)
+            {
+                const dec = hashids.decodeHex(this.$route.params.data);
+                const datastr = Buffer.from(dec, 'hex').toString('utf8');
+                const data = JSON.parse(datastr);
+                console.warn(data)
+            }
 
             return {
                 coverAsBackground: window.localStorage.getItem("player.coverAsBackground") == "true",
