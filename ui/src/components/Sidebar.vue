@@ -1,19 +1,24 @@
 <template>
   <div class="sidebar">
-    <h2 @click="onLogoClick">reAudioPlayer One</h2>
-    <nav-entry href="/" icon="home" name="Home" />
-    <nav-entry href="/search" icon="search" name="Search" />
-    <nav-entry href="/collection/playlists" icon="library_music" name="Your Library" :hasChildSites="true" parentHref="/collection" />
-    <br v-if="showNewsTab || showSportsTab">
-    <nav-entry v-if="showNewsTab" href="/news" icon="newspaper" name="News" :hasChildSites="true" />
-    <nav-entry v-if="showSportsTab" href="/sports" icon="sports_soccer" name="Sports" :hasChildSites="true" />
-    <br>
-    <nav-entry href="/playlist/create" icon="add_circle" name="Create Playlist" />
-    <nav-entry href="/collection/tracks" icon="favorite" name="Liked Songs" />
-    <hr>
-    <div class="playlistList">
-      <router-link v-for="(element, index) in playlists" :key="index" :to="element.href">{{element.name}}</router-link>
+    <div class="collapseSidebar" :class=" { 'minimised': minimised } ">
+      <h2 v-if="!minimised" @click="onLogoClick">reAudioPlayer One</h2>
+      <span @click="minimised = !minimised" class="hideIfMobile clickSymbol material-symbols-rounded">{{ minimised ? "chevron_right" : "chevron_left" }}</span>
     </div>
+    <nav-entry :minimised="minimised" href="/" icon="home" name="Home" />
+    <nav-entry :minimised="minimised" href="/search" icon="search" name="Search" />
+    <nav-entry :minimised="minimised" href="/collection/playlists" icon="library_music" name="Your Library" :hasChildSites="true" parentHref="/collection" />
+    <br v-if="showNewsTab || showSportsTab">
+    <nav-entry :minimised="minimised" v-if="showNewsTab" href="/news" icon="newspaper" name="News" :hasChildSites="true" />
+    <nav-entry :minimised="minimised" v-if="showSportsTab" href="/sports" icon="sports_soccer" name="Sports" :hasChildSites="true" />
+    <br>
+    <nav-entry :minimised="minimised" href="/playlist/create" icon="add_circle" name="Create Playlist" />
+    <nav-entry :minimised="minimised" href="/collection/tracks" icon="favorite" name="Liked Songs" />
+    <template v-if="!minimised">
+      <hr>
+      <div class="playlistList">
+        <router-link v-for="(element, index) in playlists" :key="index" :to="element.href">{{element.name}}</router-link>
+      </div>
+    </template>
     <img v-if="expandCover" @click="hideCover" :src="cover" class="cover" />
   </div>
 </template>
@@ -44,6 +49,11 @@
           }
         })
     },
+    watch: {
+      minimised() {
+        document.documentElement.style.setProperty("--sidebar-width", this.minimised ? "24px" : "200px");
+      }
+    },
     data() {
       const connect = () => {
         console.log("attempting reconnect")
@@ -70,7 +80,8 @@
         playlists: [],
         cover: "/assets/img/music_placeholder.png",
         showSportsTab: window.localStorage.getItem("sidebar.showSportsTab") == "true",
-        showNewsTab: window.localStorage.getItem("sidebar.showNewsTab") == "true"
+        showNewsTab: window.localStorage.getItem("sidebar.showNewsTab") == "true",
+        minimised: false
       }
     },
     methods: {
@@ -91,7 +102,29 @@
   }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+
+  .collapseSidebar
+  {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 90px;
+
+    &.minimised {
+      justify-content: center;
+    }
+
+    .clickSymbol {
+      border-radius: 5px;
+
+      &:hover {
+        cursor: pointer;
+        background: var(--hover-2);
+      }
+    }
+  }
 
   h2 {
     margin-bottom: 0;

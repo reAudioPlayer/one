@@ -2,7 +2,7 @@
     <router-link class="link" :to="href">
         <div class="navEntry" :class="{ 'active': active }">
             <span class="material-icons-round icon">{{icon}}</span>
-            <span class="name">{{name}}</span>
+            <span v-if="!minimised" class="name">{{name}}</span>
         </div>
     </router-link>
 </template>
@@ -15,7 +15,8 @@
             name: String,
             href: String,
             hasChildSites: Boolean,
-            parentHref: String
+            parentHref: String,
+            minimised: Boolean
         },
         computed: {
             active() {
