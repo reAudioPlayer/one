@@ -2,7 +2,7 @@
     <div class="home">
         <h1>{{greeting}}</h1>
         <full-shelf-smaller-grid>
-            <playlist-item-wide v-for="(element, index) in playlists" :key="index" :href="`/playlist/${index}`" :cover="element.cover"
+            <playlist-item-wide v-for="(element, index) in playlists" :key="index" :href="element.href" :cover="element.cover"
                         :title="element.name" :spotify="false" />
         </full-shelf-smaller-grid>
         <shelf v-if="releases.length" heading="New releases for you" href="/collection/releases">
@@ -20,62 +20,67 @@ import NewsItemBig from '../Catalogue/Items/News/NewsItemBig.vue'
 import PlaylistItemWide from '../Catalogue/Items/Playlists/PlaylistItemWide.vue'
 import ReleaseItem from '../Catalogue/Items/Release/ReleaseItem.vue'
 import Shelf from '../Catalogue/Shelf.vue'
-    export default {
-  components: { Shelf, ReleaseItem, PlaylistItemWide, FullShelfSmallerGrid, NewsItemBig },
-        name: 'Home',
-        data() {
-            const time = new Date()
-            const greeting = time.getHours() < 12 ? "Good morning" : time.getHours() < 18 ? "Good afternoon" : "Good evening"
-            return {
-                greeting,
-                releases: [ ],
-                playlists: [ ],
-                news: [ ]
-            }
-        },
-        mounted() {
-            fetch("/api/config/ready")
-                .then(x => {
-                    if (x.status == 400)
-                    {
-                        this.$router.push("/welcome")
-                    }
-                })
-            fetch("/api/releases")
+
+import Hashids from 'hashids'
+const hashids = new Hashids("reapOne.playlist", 22)
+
+export default {
+      components: { Shelf, ReleaseItem, PlaylistItemWide, FullShelfSmallerGrid, NewsItemBig },
+    name: 'Home',
+    data() {
+        const time = new Date()
+        const greeting = time.getHours() < 12 ? "Good morning" : time.getHours() < 18 ? "Good afternoon" : "Good evening"
+        return {
+            greeting,
+            releases: [ ],
+            playlists: [ ],
+            news: [ ]
+        }
+    },
+    mounted() {
+        fetch("/api/config/ready")
+            .then(x => {
+                if (x.status == 400)
+                {
+                    this.$router.push("/welcome")
+                }
+            })
+        fetch("/api/releases")
+            .then(x => x.json())
+            .then(jdata => {
+                this.releases.length = 0
+                this.releases.push(...jdata)
+            })
+        if (window.localStorage.getItem("sidebar.showNewsTab") == "true")
+        {
+            fetch("/api/news")
                 .then(x => x.json())
                 .then(jdata => {
-                    this.releases.length = 0
-                    this.releases.push(...jdata)
-                })
-            if (window.localStorage.getItem("sidebar.showNewsTab") == "true")
-            {
-                fetch("/api/news")
-                    .then(x => x.json())
-                    .then(jdata => {
-                        this.news.length = 0
-                        this.news.push(...jdata)
-                    })
-            }
-            fetch("/api/playlists")
-                .then(x => x.json())
-                .then(async jdata => {
-                    for (let i = 0; i < jdata.length; i++) {
-                        const resp = await fetch("/api/playlist", {
-                            method: "POST",
-                            body: JSON.stringify({ 
-                                id: i
-                            })
-                        })
-                        const jdata = await resp.json()
-                        this.playlists.push({
-                            "name": jdata.name,
-                            "description": jdata.description,
-                            "cover": jdata.songs[0].cover
-                        })
-                    }
+                    this.news.length = 0
+                    this.news.push(...jdata)
                 })
         }
+        fetch("/api/playlists")
+            .then(x => x.json())
+            .then(async jdata => {
+                for (let i = 0; i < jdata.length; i++) {
+                    const resp = await fetch("/api/playlist", {
+                        method: "POST",
+                        body: JSON.stringify({ 
+                            id: i
+                        })
+                    })
+                    const jdata = await resp.json()
+                    this.playlists.push({
+                        name: jdata.name,
+                        description: jdata.description,
+                        cover: jdata.songs[0].cover,
+                        href: `/playlist/${hashids.encode(i)}`
+                    })
+                }
+            })
     }
+}
 </script>
 
 <style scoped>

@@ -19,6 +19,7 @@
         <router-link v-for="(element, index) in playlists" :key="index" :to="element.href">{{element.name}}</router-link>
       </div>
     </template>
+    <div class="playlistList" v-else />
     <img v-if="expandCover" @click="hideCover" :src="cover" class="cover" />
   </div>
 </template>
@@ -52,6 +53,7 @@
     watch: {
       minimised() {
         document.documentElement.style.setProperty("--sidebar-width", this.minimised ? "24px" : "200px");
+        window.localStorage.setItem("player.collapsedSidebar", this.minimised)
       }
     },
     data() {
@@ -76,12 +78,16 @@
       }
       connect()
 
+      const minimised = window.localStorage.getItem("player.collapsedSidebar") == "true";
+
+      document.documentElement.style.setProperty("--sidebar-width", minimised ? "24px" : "200px");
+
       return {
         playlists: [],
         cover: "/assets/img/music_placeholder.png",
         showSportsTab: window.localStorage.getItem("sidebar.showSportsTab") == "true",
         showNewsTab: window.localStorage.getItem("sidebar.showNewsTab") == "true",
-        minimised: false
+        minimised
       }
     },
     methods: {
@@ -138,7 +144,6 @@
 
   .playlistList {
     flex-grow: 1;
-    height: 100%;
     display: flex;
     flex-direction: column;
     overflow-y: auto;

@@ -215,8 +215,5 @@
     },
     "player-height": {
         "default": "88px"
-    },
-    "sidebar-width": {
-        "default": "200px"
     }
 }

@@ -4,7 +4,7 @@
         <div class="playlists">
             <full-shelf heading="Playlists">
                 <playlist-item-big v-if="likedTracks?.songs?.length" title="Liked Songs" :description="`${likedTracks?.songs?.length} liked Songs`" href="/collection/tracks" />
-                <playlist-item v-for="(element, index) in playlists" :key="index" :href="`/playlist/${index}`" :cover="element.cover"
+                <playlist-item v-for="(element, index) in playlists" :key="index" :href="element.href" :cover="element.cover"
                     :description="element.description" :title="element.name" :spotify="false" />
             </full-shelf>
             <full-shelf heading="Import From Spotify">
@@ -20,6 +20,10 @@
     import PlaylistItem from '../../Catalogue/Items/Playlists/PlaylistItem.vue'
     import PlaylistItemBig from '../../Catalogue/Items/Playlists/PlaylistItemBig.vue'
     import CollectionHeader from './CollectionHeader.vue'
+
+    import Hashids from 'hashids'
+    const hashids = new Hashids("reapOne.playlist", 22)
+
     export default {
         components: {
             CollectionHeader,
@@ -42,9 +46,10 @@
                         })
                         const jdata = await resp.json()
                         this.playlists.push({
-                            "name": jdata.name,
-                            "description": jdata.description,
-                            "cover": jdata.songs[0].cover
+                            name: jdata.name,
+                            description: jdata.description,
+                            cover: jdata.songs[0].cover,
+                            href: `/playlist/${hashids.encode(i)}`
                         })
                     }
                 })

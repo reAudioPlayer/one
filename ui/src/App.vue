@@ -2,12 +2,8 @@
     <div class="appRoot">
         <div class="bgImageWrapper" :class="{ hidden: !coverAsBackground }" ><div class="bgImage" :style="{ backgroundImage: `url(${cover})` }" /></div>
         <div class="interface">
-            <Sidebar v-if="!maximised && !noSidebar" @expandCover="expandCover" :expandCover="shallExpandCover" />
-
+            <Sidebar v-if="!maximised" @expandCover="expandCover" :expandCover="shallExpandCover" />
             <Body @maximise="val => maximised = val" />
-        </div>
-        <div class="expandSidebar" v-if="noSidebar">
-            <span @click="noSidebar = false" class="clickSymbol material-symbols-rounded">chevron_right</span>
         </div>
         <Player v-if="!maximised" @expandCover="expandCover" :expandCover="!shallExpandCover" />
     </div>
@@ -101,7 +97,6 @@
                 cover: null,
                 shallExpandCover: window.localStorage.getItem("player.expandCover") == "true",
                 maximised: false,
-                noSidebar: false,
             }
         },
         watch: {
