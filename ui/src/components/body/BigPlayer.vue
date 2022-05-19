@@ -1,18 +1,24 @@
 <template>
     <div class="bigPlayer">
-        <div class="settings">
-            <span @click="toggleMaximise" class="iconButton material-symbols-rounded">{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span>
-            <span @click="() => noPlaylist = !noPlaylist" class="iconButton material-symbols-rounded" :style="{ transform: `rotate(${ noPlaylist ? 0 : 180 }deg)` }">menu_open</span>
-        </div>
-
         <div class="upNow">
-            <img :src="cover" />
+            <img :src="cover" :class="{ playing, animate }" />
+            <div class="blocks" :class="{ playing, animate }">
+                <div class="block" :style="{'animation-delay': '0s'}"></div>
+                <div class="block" :style="{'animation-delay': '.25s'}"></div>
+                <div class="block" :style="{'animation-delay': '.5s'}"></div>
+            </div>
         </div>
         <div v-if="!noPlaylist" class="playlistOverflow">
             <div class="playlist">
                 <spotify-playlist-header />
                 <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download" @requestUpdate="updatePlaylist" :index="playlist.songs.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.title == currentSongName" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
             </div>
+        </div>
+
+        <div class="settings">
+            <span @click="toggleMaximise" class="iconButton material-symbols-rounded">{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span>
+            <span @click="() => noPlaylist = !noPlaylist" class="iconButton material-symbols-rounded" :style="{ transform: `rotate(${ noPlaylist ? 0 : 180 }deg)` }">menu_open</span>
+            <span @click="() => animate = !animate" class="iconButton material-symbols-rounded">{{ !animate ? "animation" : "motion_photos_off" }}</span>
         </div>
     </div>
 </template>
@@ -42,7 +48,12 @@
 
                     return
                 }
-                
+
+                if (jdata.path == "player.playState")
+                {
+                    this.playing = jdata?.data || false
+                    return
+                }                
             }
         },
         data() {
@@ -73,7 +84,9 @@
                 playlist: [ ],
                 currentSongName: "",
                 maximised: false,
-                noPlaylist: false
+                noPlaylist: false,
+                playing: false,
+                animate: false
             }
         }
     }
@@ -89,6 +102,10 @@
         justify-content: flex-end;
 
         padding: 10px;
+    }
+
+    .bigPlayer {
+        overflow: hidden;
     }
 
     .iconButton {
@@ -122,6 +139,111 @@
         display: flex;
         flex-direction: row;
         justify-content: center;
+        position: relative;
+
+        @keyframes pump {
+            0% {
+                transform: scale(1);
+                opacity: 0;
+            }
+            6% {
+                transform: scale(1);
+                opacity: 0;
+            }
+            7% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            85% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            95% {
+                transform: scale(5);
+                opacity: 0;
+            }
+            97% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        img {
+            transition: transform .5s;
+            animation: pump 20s infinite ease-in-out;
+
+            &:not(.playing) {
+                transform: scale(0.95);
+            }
+
+            &:not(.animate) {
+                animation: none;
+            }
+        }
+
+        .blocks {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            width: 80%;
+            height: 100%;
+            max-width: min(80%, 600px);
+            border-radius: 20px;
+            position: absolute;
+
+            @keyframes increase1 {
+                0% {
+                    transform: scaleX(0);
+                    transform-origin: 0% 50%;
+                }
+                1% {
+                    transform: scaleX(0);
+                }
+                4% {
+                    transform: scaleX(1);
+                    transform-origin: 0% 50%;
+                }
+                6% {
+                    transform: scaleX(1);
+                    transform-origin: 100% 50%;
+                }
+                9% {
+                    transform: scaleX(0);
+                }
+                100% {
+                    transform: scaleX(0);
+                    transform-origin: 100% 50%;
+                }
+            }
+
+            .block {
+                transform: scaleX(0);
+                background: var(--font-contrast);
+                width: 100%;
+                flex: 1;
+                transform-origin: 0% 50%;
+
+                animation: increase1 20s infinite ease-in-out;
+
+                &:first-child {
+                    border-radius: 20px 20px 0 0;
+                }
+
+                &:last-child {
+                    border-radius: 0 0 20px 20px;
+                }
+            }
+
+            &:not(.animate) .block, &:not(.playing) .block {
+                animation: none;
+                opacity: 0;
+            }
+        }
     }
 
     .bigPlayer .upNow img {
