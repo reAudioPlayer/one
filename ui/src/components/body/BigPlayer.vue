@@ -178,6 +178,7 @@
 
             &:not(.playing) {
                 transform: scale(0.95);
+                animation: none;
             }
 
             &:not(.animate) {

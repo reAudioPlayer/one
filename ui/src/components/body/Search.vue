@@ -48,16 +48,16 @@
         },
         methods: {
             search() {
-                const query = this.$route.params.query
+                this.query = this.$route.params.query
 
-                if (!query)
+                if (!this.query)
                 {
                     return
                 }
 
                 fetch("/api/search", {
                     method: "POST",
-                    body: JSON.stringify({ query })
+                    body: JSON.stringify({ query: this.query })
                 }).then(x => x.json())
                   .then(jdata => {
                         this.spotifyTracks.length = 0;
