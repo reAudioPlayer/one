@@ -46,7 +46,7 @@ class PlaylistHandler:
         return web.json_response(list(map(lambda x: x.name, self._playlistManager._playlists)))
 
     async def createPlaylist(self, _: web.Request):
-        return web.Response(status = 200, text = f"/playlist/{self._playlistManager.addPlaylist()}")
+        return web.Response(status = 200, text = str(self._playlistManager.addPlaylist()))
 
     async def deletePlaylist(self, request: web.Request):
         index = int(request.match_info['id'])

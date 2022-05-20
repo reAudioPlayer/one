@@ -1,28 +1,33 @@
 <template>
     <div class="itemBig">
-        <div class="item" @click="redirect">
-            <img :src="cover" />
-            <div class="wrapper">
-                <h4>{{title}}</h4>
+        <PlaylistCtx :href="href" :id="id" :name="title">
+            <div class="item" @click="redirect">
+                <img :src="cover" />
+                <div class="wrapper">
+                    <h4>{{title}}</h4>
+                </div>
             </div>
-        </div>
+        </PlaylistCtx>
     </div>
 </template>
 
 <script>
+import PlaylistCtx from '../../../ContextMenus/PlaylistCtx.vue'
     export default {
-        name: 'PlaylistItemWide',
-        methods: {
-            redirect() {
-                this.$router.push(this.href)
-            }
-        },
-        props: {
-            title: String,
-            href: String,
-            cover: String
+    name: "PlaylistItemWide",
+    methods: {
+        redirect() {
+            this.$router.push(this.href);
         }
-    }
+    },
+    props: {
+        title: String,
+        href: String,
+        cover: String,
+        id: Number
+    },
+    components: { PlaylistCtx }
+}
 </script>
 
 <style scoped>

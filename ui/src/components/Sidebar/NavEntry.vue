@@ -1,7 +1,8 @@
 <template>
     <router-link class="link" :to="href">
-        <div class="navEntry" :class="{ 'active': active }">
-            <span class="material-icons-round icon">{{icon}}</span>
+        <div class="navEntry" :class="{ active, img }">
+            <span v-if="icon" class="material-icons-round icon">{{icon}}</span>
+            <img v-if="img" class="icon" :src="img">
             <span v-if="!minimised" class="name">{{name}}</span>
         </div>
     </router-link>
@@ -12,6 +13,7 @@
         name: 'NavEntry',
         props: {
             icon: String,
+            img: String,
             name: String,
             href: String,
             hasChildSites: Boolean,
@@ -34,7 +36,7 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
     .link {
         text-decoration: none;
     }
@@ -45,6 +47,10 @@
         padding: 10px 0 10px 10px;
         border-radius: 5px;
         color: var(--font-darker);
+
+        &.img {
+            padding: 5px;
+        }
     }
 
     div.navEntry:hover,
@@ -66,5 +72,10 @@
 
     .icon {
         width: 40px;
+    }
+
+    img.icon {
+        width: 100%;
+        border-radius: 3px;
     }
 </style>

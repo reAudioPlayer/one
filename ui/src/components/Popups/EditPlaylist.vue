@@ -27,6 +27,9 @@
     </div>
 </template>
 <script>
+    import Hashids from 'hashids'
+    const hashids = new Hashids("reapOne.playlist", 22)
+
     export default {
         name: "EditPlaylist",
         props: {
@@ -58,7 +61,7 @@
                 })
             },
             remove() {
-                fetch(`/api/playlist/${Number(this.$route.params.id)}`, {
+                fetch(`/api/playlist/${Number(hashids.decode(this.$route.params.id))}`, {
                     method: "DELETE"
                 }).then(() => {
                     this.$router.push("/")

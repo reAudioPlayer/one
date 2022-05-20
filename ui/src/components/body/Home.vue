@@ -3,7 +3,7 @@
         <h1>{{greeting}}</h1>
         <full-shelf-smaller-grid>
             <playlist-item-wide v-for="(element, index) in playlists" :key="index" :href="element.href" :cover="element.cover"
-                        :title="element.name" :spotify="false" />
+                        :title="element.name" :spotify="false" :id="index" />
         </full-shelf-smaller-grid>
         <shelf v-if="releases.length" heading="New releases for you" href="/collection/releases">
             <release-item v-for="element in releases" :key="element.url" :releaseDate="element.releaseDate" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
@@ -70,11 +70,11 @@ export default {
                             id: i
                         })
                     })
-                    const jdata = await resp.json()
+                    const pdata = await resp.json()
                     this.playlists.push({
-                        name: jdata.name,
-                        description: jdata.description,
-                        cover: jdata.songs[0].cover,
+                        name: pdata.name,
+                        description: pdata.description,
+                        cover: pdata.songs?.[0]?.cover || "/assets/img/music_placeholder.png",
                         href: `/playlist/${hashids.encode(i)}`
                     })
                 }

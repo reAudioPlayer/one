@@ -133,12 +133,13 @@
                     return;
                 }
 
-                if (this.getId() == "create")
+                if (this.$route.params.id == "create")
                 {
                     fetch("/api/playlist/create")
                         .then(x => x.text()).then(y => {
-                            console.log(y)
-                            this.$router.push(y)
+                            const link = hashids.encode(y);
+                            console.log(link)
+                            this.$router.push(link)
                         })
                     return
                 }
