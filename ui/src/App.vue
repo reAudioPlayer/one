@@ -10,9 +10,9 @@
 </template>
 
 <script>
-    import Body from './components/Body.vue'
-    import Player from './components/Player.vue'
-    import Sidebar from './components/Sidebar.vue'
+    import Body from '@/Body.vue'
+    import Player from '@/Player.vue'
+    import Sidebar from '@/Sidebar.vue'
     import "v-contextmenu/dist/themes/dark.css";
 
     // January 2022, dxstiny (https://github.com/dxstiny)

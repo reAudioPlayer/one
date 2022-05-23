@@ -5,116 +5,116 @@ import {
 
 const routes = [{
     path: '/',
-    component: () => import( /* webpackChunkName: "home" */ '@/components/body/Home.vue'),
+    component: () => import( /* webpackChunkName: "home" */ '@/views/Home.vue'),
   },
   {
     path: '/search',
-    component: () => import( /* webpackChunkName: "search" */ "@/components/body/Search.vue"),
+    component: () => import( /* webpackChunkName: "search" */ "@/views/Search.vue"),
     meta: {
       title: "Search - reAudioPlayer One"
     }
   },
   {
     path: '/search/:query',
-    component: () => import( /* webpackChunkName: "search" */ "@/components/body/Search.vue"),
+    component: () => import( /* webpackChunkName: "search" */ "@/views/Search.vue"),
     meta: {
       title: "Search - reAudioPlayer One"
     }
   },
   {
     path: '/collection/albums',
-    component: () => import( /* webpackChunkName: "albums" */ "@/components/body/Collection/Albums.vue"),
+    component: () => import( /* webpackChunkName: "albums" */ "@/views/Collection/Albums.vue"),
     meta: {
       title: "Your Library - reAudioPlayer One"
     }
   },
   {
     path: '/collection/artists',
-    component: () => import( /* webpackChunkName: "artists" */ "@/components/body/Collection/Artists.vue"),
+    component: () => import( /* webpackChunkName: "artists" */ "@/views/Collection/Artists.vue"),
     meta: {
       title: "Your Library - reAudioPlayer One"
     }
   },
   {
     path: '/collection/playlists',
-    component: () => import( /* webpackChunkName: "playlists" */ "@/components/body/Collection/Playlists.vue"),
+    component: () => import( /* webpackChunkName: "playlists" */ "@/views/Collection/Playlists.vue"),
     meta: {
       title: "Your Library - reAudioPlayer One"
     }
   },
   {
     path: '/collection/releases',
-    component: () => import( /* webpackChunkName: "releases" */ "@/components/body/Collection/Releases.vue"),
+    component: () => import( /* webpackChunkName: "releases" */ "@/views/Collection/Releases.vue"),
     meta: {
       title: "Releases - reAudioPlayer One"
     }
   },
   {
     path: '/collection/tracks',
-    component: () => import( /* webpackChunkName: "tracks" */ "@/components/body/Collection/Tracks.vue"),
+    component: () => import( /* webpackChunkName: "tracks" */ "@/views/Collection/Tracks.vue"),
     meta: {
       title: "Liked Songs - reAudioPlayer One"
     }
   },
   {
     path: '/playlist/:id',
-    component: () => import( /* webpackChunkName: "playlist" */ "@/components/body/Playlist.vue"),
+    component: () => import( /* webpackChunkName: "playlist" */ "@/views/Playlist.vue"),
     meta: {
       title: "Playlist - reAudioPlayer One"
     }
   },
   {
     path: '/track/:id',
-    component: () => import( /* webpackChunkName: "track" */ "@/components/body/Track.vue"),
+    component: () => import( /* webpackChunkName: "track" */ "@/views/Track.vue"),
     meta: {
       title: "Track - reAudioPlayer One"
     }
   },
   {
     path: '/preferences',
-    component: () => import( /* webpackChunkName: "preferences" */ "@/components/body/Preferences.vue"),
+    component: () => import( /* webpackChunkName: "preferences" */ "@/views/Preferences.vue"),
     meta: {
       title: "Preferences - reAudioPlayer One"
     }
   },
   {
     path: '/welcome',
-    component: () => import( /* webpackChunkName: "welcome" */ "@/components/body/Welcome.vue"),
+    component: () => import( /* webpackChunkName: "welcome" */ "@/views/Welcome.vue"),
     meta: {
       title: "Welcome to reAudioPlayer One"
     }
   },
   {
     path: '/news',
-    component: () => import( /* webpackChunkName: "news" */ "@/components/body/News.vue"),
+    component: () => import( /* webpackChunkName: "news" */ "@/views/News.vue"),
     meta: {
       title: "News - reAudioPlayer One"
     }
   },
   {
     path: '/sports',
-    component: () => import( /* webpackChunkName: "sports" */ "@/components/body/Sports.vue"),
+    component: () => import( /* webpackChunkName: "sports" */ "@/views/Sports.vue"),
     meta: {
       title: "Sports - reAudioPlayer One"
     }
   },
   {
     path: '/sports/volley/:id',
-    component: () => import( /* webpackChunkName: "volleyMatch" */ "@/components/body/VolleyMatch.vue"),
+    component: () => import( /* webpackChunkName: "volleyMatch" */ "@/views/VolleyMatch.vue"),
     meta: {
       title: "Volley - reAudioPlayer One"
     }
   },
   {
     path: '/news/:url',
-    component: () => import( /* webpackChunkName: "newsArticle" */ "@/components/body/NewsArticle.vue"),
+    component: () => import( /* webpackChunkName: "newsArticle" */ "@/views/NewsArticle.vue"),
     meta: {
       title: "News - reAudioPlayer One"
     }
   },
   {
     path: '/player',
-    component: () => import( /* webpackChunkName: "bigPlayer" */ "@/components/body/BigPlayer.vue"),
+    component: () => import( /* webpackChunkName: "bigPlayer" */ "@/views/BigPlayer.vue"),
     meta: {
       title: "reAudioPlayer One"
     }
