@@ -20,6 +20,7 @@ class SportsHandler:
                     match = await asyncRunInThreadWithReturn(OneFootballMatch, url)
                     return [ match.toJson() ]
                 if "cev" in url:
+                    return [ ]
                     if "/calendar/" in url:
                         return await CEVMatch.FromCalendar()
                     return await CEVMatch.AddRange([url], url)

@@ -6,6 +6,7 @@
         <hr>
         <div class="padding-20">
             <p class="small">Supported urls: {{supportedSources.join("*, ")}} </p>
+            <p class="small"><i>CEV matches are temporarily not supported. Check out your favourite games on <a href="https://cev-nex.tk">cev-nex.tk</a> in the meantime.</i></p>
             <div class="addWrapper">
                 <input @keyup="enterText" v-model="sourceToAdd" type="text">
                 <span id="addToPlaylist" @click="tryAddSource" class="material-icons-outlined">add_circle</span>
@@ -38,9 +39,9 @@
                     "https://onefootball.com/en/team/",
                     "https://onefootball.com/en/match/",
                     "https://onefootball.com/en/competition/",
-                    "https://www.cev.eu/match-centres/",
-                    "https://championsleague.cev.eu/en/match-centres/",
-                    "https://www.cev.eu/calendar/"
+                    //"https://www.cev.eu/match-centres/",
+                    //"https://championsleague.cev.eu/en/match-centres/",
+                    //"https://www.cev.eu/calendar/"
                 ]
             }
         },
@@ -165,7 +166,7 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
     .padding-20 {
         padding: 20px;
     }
@@ -216,5 +217,13 @@
         color: var(--font-darker);
         font-size: .8em;
         margin: 0 10px;
+
+        a {
+            color: var(--font-darker);
+
+            &:hover {
+                color: var(--font-colour);
+            }
+        }
     }
 </style>

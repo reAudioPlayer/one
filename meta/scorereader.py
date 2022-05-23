@@ -94,6 +94,10 @@ class OneFootballTeam:
             if match.find("time", text=re.compile(r"(.*)Yesterday(.*)")):
                 href = match["href"]
                 break
+        if not href:
+            for match in matches:
+                href = match["href"]
+                break
         return "https://onefootball.com" + href
 
 
