@@ -19,11 +19,11 @@
     </div>
     <div class="centre">
       <div class="upper">
-        <span class="material-icons-round defaultbtn">shuffle</span>
+        <span @click="shuffle = !shuffle" class="material-icons-round defaultbtn">{{ shuffle ? "shuffle_on" : "shuffle" }}</span>
         <span @click="get('last')" class="material-icons-round defaultbtn">skip_previous</span>
         <span @click="get('playPause')" class="material-icons-round circle">{{playing ? "pause_circle" : "play_circle"}}</span>
         <span @click="get('next')" class="material-icons-round defaultbtn">skip_next</span>
-        <span class="material-icons-round defaultbtn">repeat</span>
+        <span @click="songLoop = !songLoop" class="material-icons-round defaultbtn">{{ songLoop ? "repeat_one" : "repeat" }}</span>
       </div>
       <div class="lower">
         <span class="positionLabel">{{ progresslbl }}</span>
@@ -168,7 +168,19 @@
         fetch("/api/getVolume")
             .then(x => x.text())
             .then(value => {
-            this.$refs.volume.value = value
+              this.$refs.volume.value = value
+            })
+
+        fetch("/api/songLoop")
+            .then(x => x.text())
+            .then(value => {
+              this.songLoop = value == "True"
+            })
+
+        fetch("/api/shuffle")
+            .then(x => x.text())
+            .then(value => {
+              this.shuffle = value == "True"
             })
 
         return {
@@ -180,12 +192,30 @@
             playing: false,
             progress: 0,
             progresslbl: "0:00",
-            track: { }
+            track: { },
+            songLoop: false,
+            shuffle: false
         }
     },
     watch: {
         favourited() {
             this.setFavourite();
+        },
+        songLoop() {
+          fetch("/api/songLoop", {
+            method: "POST",
+            body: JSON.stringify({
+              value: this.songLoop
+            })
+          })
+        },
+        shuffle() {
+          fetch("/api/shuffle", {
+            method: "POST",
+            body: JSON.stringify({
+              value: this.shuffle
+            })
+          })
         }
     },
     methods: {

@@ -18,6 +18,8 @@ class Player:
         self._dbManager = dbManager
         self._playlistManager = playlistManager
         self._playing: bool = False
+        self._loopSong: bool = False
+        self._shuffle: bool = False
         self._downloader = downloader
         self._playerPlaylist: Optional[PlayerPlaylist] = None
         self._song: Optional[Song] = None
@@ -96,8 +98,22 @@ class Player:
 
     async def next(self) -> None:
         await self.unload()
+
+        if self._shuffle:
+            index, song = self._playerPlaylist.random()
+            await self._preloadSong(song)
+            await self._loadSong(self._playerPlaylist.at(index))
+            return
+
         await self._preloadSong(self._playerPlaylist.next(True))
         await self._loadSong(self._playerPlaylist.next())
+
+    async def onSongEnd(self) -> None:
+        if self._loopSong:
+            await self._loadSong(self._song)
+            return
+
+        await self.next()
 
     async def at(self, index: int) -> None:
         await self.unload()
@@ -107,6 +123,22 @@ class Player:
     async def _preloadSong(self, song: Song) -> None:
         self._preloaded = song.source
         await self._downloader.downloadSong(song.source)
+
+    @property
+    def shuffle(self) -> bool:
+        return self._shuffle
+
+    @shuffle.setter
+    def shuffle(self, value: bool) -> None:
+        self._shuffle = value
+
+    @property
+    def loopSong(self) -> bool:
+        return self._loopSong
+
+    @loopSong.setter
+    def loopSong(self, value: bool) -> None:
+        self._loopSong = value
 
     def updateSongMetadata(self, id: int, song: Song) -> None:
         self._dbManager.updateSongMetadata(id, song.sqlUpdate())

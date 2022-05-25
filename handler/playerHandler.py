@@ -77,6 +77,22 @@ class PlayerHandler:
         self._player.updateSongMetadata(jdata["id"], Song.FromDict(jdata))
         return web.Response(status = 200, text = "success!")
 
+    async def setShuffle(self, request: web.Request):
+        x = await request.json()
+        self._player.shuffle = bool(x["value"])
+        return web.Response(status = 200, text = "success!")
+
+    async def getShuffle(self, _: web.Request):
+        return web.Response(status = 200, text = str(self._player.shuffle))
+
+    async def setLoopSong(self, request: web.Request):
+        x = await request.json()
+        self._player.loopSong = bool(x["value"])
+        return web.Response(status = 200, text = "success!")
+
+    async def getLoopSong(self, _: web.Request):
+        return web.Response(status = 200, text = str(self._player.loopSong))
+
     async def setPos(self, request: web.Request):
         x = await request.json()
         self._player.setPos(x["value"])

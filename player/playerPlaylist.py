@@ -1,6 +1,7 @@
 from __future__ import annotations
 import json
-from typing import List, Optional
+from random import randint
+from typing import List, Optional, Tuple
 from dataModels.playlist import Playlist
 from dataModels.song import Song
 from db.dbManager import DbManager
@@ -68,6 +69,10 @@ class PlayerPlaylist:
         if self._index < 0 or self._index >= self.playlistLength:
             return None
         return self._playlist[self._index]
+
+    def random(self) -> Tuple[int, Optional[Song]]:
+        index = randint(0, self.playlistLength - 1)
+        return index, self._playlist[index]
 
     def next(self, preview: bool = False, increment: int = 1) -> Optional[Song]:
         if self._index < self.playlistLength - increment:

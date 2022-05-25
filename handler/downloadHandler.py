@@ -42,3 +42,6 @@ class DownloadHandler:
         await res.write_eof()
         os.remove(pathAndName)
         return web.Response()
+
+    async def stream(self, _: web.Request) -> web.Response:
+        return web.FileResponse("./_cache/upNow.mp3")

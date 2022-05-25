@@ -116,6 +116,10 @@ async def init() -> web.Application:
     app.router.add_post('/api/updateSong', playerHandler.updateSong)
     app.router.add_post('/api/setPos', playerHandler.setPos)
     app.router.add_get('/api/getPos', playerHandler.getPos)
+    app.router.add_post('/api/songLoop', playerHandler.setLoopSong)
+    app.router.add_get('/api/songLoop', playerHandler.getLoopSong)
+    app.router.add_post('/api/shuffle', playerHandler.setShuffle)
+    app.router.add_get('/api/shuffle', playerHandler.getShuffle)
 
     app.router.add_post('/api/metadata', metaHandler.get)
     app.router.add_post('/api/track', metaHandler.getTrack)
@@ -140,6 +144,7 @@ async def init() -> web.Application:
     app.router.add_get('/api/news/article/{hash}', newsHandler.getArticle)
 
     app.router.add_get('/api/download/{id}', downloadHandler.download)
+    app.router.add_get('/api/stream', downloadHandler.stream)
 
     app.router.add_post('/api/add', playlistHandler.addSong)
     app.router.add_post('/api/remove', playlistHandler.removeSong)
@@ -171,6 +176,6 @@ async def main() -> None:
         await asyncio.sleep(1)
         event = pygame.event.poll()
         if event.type == MUSIC_END:
-            await player.next()
+            await player.onSongEnd()
 
 asyncio.run(main())
