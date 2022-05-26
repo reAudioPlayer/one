@@ -78,10 +78,31 @@ const routes = [{
     }
   },
   {
-    path: '/import/:data',
-    component: () => import("@/components/body/Preferences.vue"),
+    path: '/import',
+    component: () => import("@/views/Import.vue"),
     meta: {
-      title: "Preferences - reAudioPlayer One"
+      title: "Import - reAudioPlayer One"
+    }
+  },
+  {
+    path: '/import/:data',
+    component: () => import("@/views/Import.vue"),
+    meta: {
+      title: "Import - reAudioPlayer One"
+    }
+  },
+  {
+    path: '/export',
+    component: () => import("@/views/Export.vue"),
+    meta: {
+      title: "Export - reAudioPlayer One"
+    }
+  },
+  {
+    path: '/export/:data',
+    component: () => import("@/views/Export.vue"),
+    meta: {
+      title: "Export - reAudioPlayer One"
     }
   },
   {
