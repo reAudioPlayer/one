@@ -136,9 +136,9 @@ class PlayerPlaylist:
 
     def toDict(self) -> dict:
         return {
-            "name": self._name,
             "description": self._description,
             "index": self._index, # currently playing song
+            "name": self._name,
             "songs": list(map(lambda x: x.toDict(), self._playlist))
         }
 

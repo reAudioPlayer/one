@@ -80,14 +80,14 @@ class Song:
 
     def toDict(self) -> dict:
         return {
-            "title": self._name,
-            "artist": self._artist,
             "album": self._album,
-            "duration": f"{math.floor(self._duration / 60)}:{str(self._duration % 60).zfill(2)}",
+            "artist": self._artist,
             "cover": self._cover,
+            "duration": f"{math.floor(self._duration / 60)}:{str(self._duration % 60).zfill(2)}",
             "favourite": self._favourite,
             "id": self._id,
-            "source": self._source
+            "source": self._source,
+            "title": self._name
         }
 
     @staticmethod

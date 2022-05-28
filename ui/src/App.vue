@@ -230,7 +230,6 @@
 </style>
 
 <style>
-    /*@import "./assets/css/variables.css";*/
     @import "./assets/css/scrollbars.css";
 
     #app {

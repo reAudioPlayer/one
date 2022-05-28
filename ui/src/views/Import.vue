@@ -2,7 +2,7 @@
     <div class="import">
         <div class="action">
             <h1>Cloud Restore</h1>
-            <h2 v-if="userData.user">Hello {{userData.user.name}} ({{userData.user.email}})</h2>
+            <h2 v-if="userData.user">Hello {{userData.user.userinfo.name}} ({{userData.user.userinfo.email}})</h2>
             <button @click="$refs.playlistsElements.forEach(x => x.import())" class="iconWithText"><span class="material-symbols-rounded">cloud_download</span> Synchronise</button>
         </div>
         <div class="data">
@@ -24,7 +24,7 @@ export default {
         if (this.$route.params.data) {
             const accessToken = this.$route.params.data;
 
-            fetch(`https://eu-apollo.herokuapp.com/user/get/${accessToken}`).then(async userData => {
+            fetch(`https://eu-apollo.herokuapp.com/user/${accessToken}`).then(async userData => {
                 this.userData = await userData.json()
                 this.cloudPlaylists = this.userData.data.playlists
             })
@@ -43,7 +43,7 @@ export default {
             });
         }
         else {
-            window.location = `https://eu-apollo.herokuapp.com/user/get/redirect?redirect=${encodeURIComponent(window.location.origin + "/#/import/")}`;
+            window.location = `https://eu-apollo.herokuapp.com/user/accessToken?redirect=${encodeURIComponent(window.location.origin + "/#/import/<token>")}`;
         }
         return {
             localPlaylists: [ ],
