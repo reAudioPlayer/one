@@ -259,11 +259,16 @@
         align-items: center;
     }
 
-    .title {
+    .title, .artist {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         color: var(--font-colour);
+        width: 100%;
+
+        &.artist {
+            color: var(--font-darker);
+        }
     }
 
     .title.playing, .id.playing {
@@ -305,6 +310,7 @@
         max-width: 35vw;
         margin-right: 100px;
         align-items: flex-start;
+        width: 100%;
     }
 
     .duration {

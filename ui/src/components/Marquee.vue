@@ -109,6 +109,6 @@ export default {
         width: 100%;
         text-align: center; 
         padding: 30px;
-        background-image: linear-gradient(90deg, var(--player-background) 0%, transparent 2%, transparent 90%, var(--player-background) 100%);
+        /*background-image: linear-gradient(90deg, var(--player-background) 0%, transparent 2%, transparent 90%, var(--player-background) 100%);*/
     }
 </style>
