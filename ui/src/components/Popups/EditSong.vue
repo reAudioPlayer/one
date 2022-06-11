@@ -11,7 +11,7 @@
                     </button>
                 </div>
                 <h4>Source</h4>
-                <FindSources ref="findSourcesEdit" :title="title" :artist="artist">
+                <FindSources ref="findSourcesEdit" :src="dSource" :title="dTitle" :artist="dArtist">
                     <div class="content">
                         <input v-model="dSource" type="text" ref="source">
                         <span class="material-icons-round more" ref="sourceMore" @click="opencontextmenu">more_vert</span>

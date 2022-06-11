@@ -18,7 +18,7 @@
                 <br>
                 <div v-if="editSong">
                     <h4>Source</h4>
-                    <FindSources ref="findSources" :title="title" :artist="artist">
+                    <FindSources ref="findSources" :src="dSource" :title="title" :artist="artist">
                         <div class="content">
                             <input type="text" v-model="dSource" ref="source">
                             <span class="material-icons-round more" ref="sourceMore"

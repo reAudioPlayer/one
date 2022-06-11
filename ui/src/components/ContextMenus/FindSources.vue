@@ -2,6 +2,8 @@
     <div ref="box" v-contextmenu:contextmenu>
         <slot />
         <v-contextmenu ref="contextmenu">
+            <v-contextmenu-item @click="preview">Preview</v-contextmenu-item>
+            <v-contextmenu-divider />
             <v-contextmenu-submenu title="Search on">
                 <v-contextmenu-item @click="openSoundcloud">Soundcloud</v-contextmenu-item>
                 <v-contextmenu-item @click="openAudius">Audius</v-contextmenu-item>
@@ -17,10 +19,20 @@
         name: "FindSources",
         props: {
             artist: String,
-            title: String
+            title: String,
+            src: String
         },
         methods: {
             hide() {
+                this.$refs.contextmenu.hide()
+            },
+            preview() {
+                const event = new CustomEvent('player.play', { detail: {
+                    title: this.title,
+                    artist: this.artist,
+                    source: this.src
+                } });
+                window.dispatchEvent(event);
                 this.$refs.contextmenu.hide()
             },
             show(evt) {

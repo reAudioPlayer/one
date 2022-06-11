@@ -1,6 +1,6 @@
 <template>
     <div>
-        <vue-final-modal @click="hideFindSourcesCtx" v-model="showModal" classes="modal-container"
+        <vue-final-modal v-model="showModal" classes="modal-container"
             content-class="addAlbumToPlaylistPopup">
             <div class="wrapper">
                 <div class="header">
