@@ -1,18 +1,23 @@
+<script setup>
+import Body from '@/Body.vue'
+import Player from '@/Player.vue'
+import Sidebar from '@/Sidebar.vue'
+import PlayerInPicture from "./PlayerInPicture.vue";
+</script>
+
 <template>
-    <div class="appRoot">
+    <div class="appRoot" id="appRoot">
         <div class="bgImageWrapper" :class="{ hidden: !coverAsBackground }" ><div class="bgImage" :style="{ backgroundImage: `url(${cover})` }" /></div>
         <div class="interface">
             <Sidebar v-if="!maximised" @expandCover="expandCover" :expandCover="shallExpandCover" />
             <Body @maximise="val => maximised = val" />
         </div>
         <Player v-if="!maximised" @expandCover="expandCover" :expandCover="!shallExpandCover" />
+        <PlayerInPicture v-if="!maximised" @expandCover="expandCover" :expandCover="!shallExpandCover" />
     </div>
 </template>
 
 <script>
-    import Body from '@/Body.vue'
-    import Player from '@/Player.vue'
-    import Sidebar from '@/Sidebar.vue'
     import "v-contextmenu/dist/themes/dark.css";
 
     // January 2022, dxstiny (https://github.com/dxstiny)

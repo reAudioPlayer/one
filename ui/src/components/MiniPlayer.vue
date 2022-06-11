@@ -10,6 +10,8 @@ export default {
     name: "MiniPlayer",
     props: {
         src: String,
+        artist: String,
+        title: String,
         display: {
             type: Boolean,
             default: true
@@ -38,17 +40,12 @@ export default {
                 }
             }
 
-            window.player = this.$refs.player
-            this.playing = this.$refs.player.paused
-            if (this.$refs.player.paused)
-            {
-                this.pause()
-                this.$refs.player.play()
-            }
-            else
-            {
-                this.$refs.player.pause()
-            }
+            const event = new CustomEvent('player.play', { detail: {
+                    title: this.title,
+                    artist: this.artist,
+                    source: this.src
+                } });
+            window.dispatchEvent(event);
         }
     }
 }

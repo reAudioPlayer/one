@@ -264,7 +264,7 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         color: var(--font-colour);
-        width: 100%;
+        max-width: 100%;
 
         &.artist {
             color: var(--font-darker);

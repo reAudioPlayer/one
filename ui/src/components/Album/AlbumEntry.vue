@@ -1,7 +1,7 @@
 <template>
     <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="hovering = true" @mouseleave="hovering = false" class="albumEntry"
         :class="{ 'selected': highlighted }">
-        <mini-player class="miniPlayer" :class="{'hidden': !hovering }" :src="preview" />
+        <mini-player class="miniPlayer" :class="{'hidden': !hovering }" :title="title" :artist="artist" :src="source" />
         <span v-if="!hovering" @click="edit" class="id">{{index + 1}}</span>
         <div class="track">
             <div class="trackwrapper">
