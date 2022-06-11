@@ -2,6 +2,8 @@
     <div ref="box" v-contextmenu:contextmenu>
         <slot />
         <v-contextmenu ref="contextmenu">
+            <v-contextmenu-item @click="preview">Preview</v-contextmenu-item>
+            <v-contextmenu-divider />
             <v-contextmenu-item @click="like">{{(liked ? 'Remove from' : 'Save to') + ' your Liked Songs'}}</v-contextmenu-item>
             <v-contextmenu-item v-if="!isAutoPlaylist" @click="remove">Remove from this playlist</v-contextmenu-item>
             <v-contextmenu-submenu title="Add to playlist">
@@ -22,7 +24,10 @@
         name: "SongCtx",
         props: {
             liked: Boolean,
-            isAutoPlaylist: Boolean
+            isAutoPlaylist: Boolean,
+            src: String,
+            artist: String,
+            title: String,
         },
         data() {
             fetch("/api/playlists")
@@ -37,6 +42,15 @@
             }
         },
         methods: {
+            preview() {
+                const event = new CustomEvent('player.play', { detail: {
+                    title: this.title,
+                    artist: this.artist,
+                    source: this.src
+                } });
+                window.dispatchEvent(event);
+                this.$refs.contextmenu.hide()
+            },
             hide() {
                 this.$refs.contextmenu.hide()
             },
