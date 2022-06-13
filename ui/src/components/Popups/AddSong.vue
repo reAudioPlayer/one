@@ -11,7 +11,7 @@
                     </button>
                 </div>
                 <h4>Source</h4>
-                <FindSources ref="findSources" :src="$refs.source.value" :title="title" :artist="artist">
+                <FindSources ref="findSources" :src="$refs.source?.value" :title="title" :artist="artist">
                     <div class="content">
                         <input @change="loadMetadata" type="text" ref="source">
                         <span class="material-icons-round more" ref="sourceMore" @click="opencontextmenu">more_vert</span>
