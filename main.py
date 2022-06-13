@@ -81,7 +81,7 @@ async def init() -> web.Application:
     playlistHandler = PlaylistHandler(player, playlistManager)
     collectionHandler = CollectionHandler(dbManager)
     metaHandler = MetaHandler(dbManager, spotify)
-    downloadHandler = DownloadHandler(dbManager, downloader)
+    downloadHandler = DownloadHandler(dbManager, downloader, player)
     configHandler = ConfigHandler()
     newsHandler = NewsHandler()
     sportsHandler = SportsHandler()

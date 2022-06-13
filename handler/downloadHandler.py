@@ -9,11 +9,14 @@ from downloader.downloader import Downloader
 import eyed3
 from eyed3.id3.frames import ImageFrame
 
+from player.player import Player
+
 
 class DownloadHandler:
-    def __init__(self, dbManager: DbManager, downloader: Downloader) -> None:
+    def __init__(self, dbManager: DbManager, downloader: Downloader, player: Player) -> None:
         self._dbManager = dbManager
         self._downloader = downloader
+        self._player = player
 
     async def download(self, request: web.Request):
         id = int(request.match_info['id'])
@@ -44,4 +47,6 @@ class DownloadHandler:
         return web.Response()
 
     async def stream(self, _: web.Request) -> web.Response:
-        return web.FileResponse("./_cache/upNow.mp3")
+        if not self._player.currentSong:
+            return web.Response(status = 428)
+        return web.FileResponse(f"./_cache/{self._player.currentSong.id}.mp3")
