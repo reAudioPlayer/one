@@ -88,25 +88,28 @@ class Player:
         pygame.mixer.music.unload()
         self._playing = False
         await self._onPlayStateChange()
-        if os.path.exists("./_cache/upNow.mp3"):
-            os.remove("./_cache/upNow.mp3")
+        c = self._playerPlaylist.current()
+        cId = c.id if c else 0
+        print(f"unload {cId}")
+        if os.path.exists(f"./_cache/{cId}.mp3"):
+            os.remove(f"./_cache/{cId}.mp3")
 
     async def last(self) -> None:
         await self.unload()
-        await self._preloadSong(self._playerPlaylist.last(True))
-        await self._loadSong(self._playerPlaylist.last())
+        await self._preloadSong(self._playerPlaylist.last())
+        await self._loadSong()
 
     async def next(self) -> None:
         await self.unload()
 
         if self._shuffle:
-            index, song = self._playerPlaylist.random()
+            _, song = self._playerPlaylist.random()
             await self._preloadSong(song)
-            await self._loadSong(self._playerPlaylist.at(index))
+            await self._loadSong(song)
             return
 
-        await self._preloadSong(self._playerPlaylist.next(True))
-        await self._loadSong(self._playerPlaylist.next())
+        await self._preloadSong(self._playerPlaylist.next())
+        await self._loadSong()
 
     async def onSongEnd(self) -> None:
         if self._loopSong:
@@ -116,13 +119,23 @@ class Player:
         await self.next()
 
     async def at(self, index: int) -> None:
+        if index == self._playerPlaylist.index:
+            self.setPos(0.0)
+            return
         await self.unload()
         await self._preloadSong(self._playerPlaylist.at(index))
-        await self._loadSong(self._playerPlaylist.at(index))
+        await self._loadSong()
 
     async def _preloadSong(self, song: Song) -> None:
+        initial = self._playerPlaylist.index
+        while not (await self._downloader.downloadSong(song.source, song.id)):
+            print("invalid, preload next")
+            song = self._playerPlaylist.next()
+            if initial == self._playerPlaylist.index:
+                raise Exception("no valid song")
         self._preloaded = song.source
-        await self._downloader.downloadSong(song.source)
+        n = self._playerPlaylist.next(True)
+        asyncio.create_task(self._downloader.downloadSong(n.source, n.id))
 
     @property
     def shuffle(self) -> bool:
@@ -144,10 +157,12 @@ class Player:
         self._dbManager.updateSongMetadata(id, song.sqlUpdate())
         self._playlistManager.updateSong(id, lambda x: song)
 
-    async def _loadSong(self, song: Song) -> None:
+    async def _loadSong(self, song: Optional[Song] = None) -> None:
+        song = song or self._playerPlaylist.current()
+        print(f"load {song.id}")
         if self._preloaded == song.source:
-            pygame.mixer.music.load(f"./_cache/upNow.mp3")
-            sound = pygame.mixer.Sound(f"./_cache/upNow.mp3")
+            pygame.mixer.music.load(f"./_cache/{song.id}.mp3")
+            sound = pygame.mixer.Sound(f"./_cache/{song.id}.mp3")
             self._song = song
             song.duration = int(sound.get_length())
             self._dbManager.updateSongMetadata(song.id, f"duration='{int(song.duration)}'")

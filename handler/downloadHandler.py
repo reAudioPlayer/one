@@ -23,7 +23,7 @@ class DownloadHandler:
         if os.path.exists(pathAndName):
             os.remove(pathAndName)
         await self._downloader.downloadSong(song.source, filename)
-        pathAndName = f"./_cache/{filename}.mp3"
+        pathAndName = f"./_cache/{song.id}.mp3"
 
         file = eyed3.load(pathAndName)
         file.tag.artist = ", ".join(song.artists)

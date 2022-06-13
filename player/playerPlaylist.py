@@ -74,7 +74,7 @@ class PlayerPlaylist:
         index = randint(0, self.playlistLength - 1)
         return index, self._playlist[index]
 
-    def next(self, preview: bool = False, increment: int = 1) -> Optional[Song]:
+    def nextIndex(self, preview: bool = False, increment: int = 1) -> int:
         if self._index < self.playlistLength - increment:
             x = self._index + increment
         else:
@@ -83,9 +83,12 @@ class PlayerPlaylist:
         if not preview:
             self._index = x
 
-        return self._playlist[x]
+        return x
 
-    def last(self, preview: bool = False, increment: int = 1) -> Optional[Song]:
+    def next(self, preview: bool = False, increment: int = 1) -> Song:
+        return self._playlist[self.nextIndex(preview, increment)]
+
+    def lastIndex(self, preview: bool = False, increment: int = 1) -> int:
         if self._index >= increment:
             x = self._index - increment
         else:
@@ -93,8 +96,10 @@ class PlayerPlaylist:
 
         if not preview:
             self._index = x
+        return x
 
-        return self._playlist[x]
+    def last(self, preview: bool = False, increment: int = 1) -> Optional[Song]:
+        return self._playlist[self.lastIndex(preview, increment)]
 
     def add(self, song: Song, alreadyInDb: bool = False) -> None:
         if not alreadyInDb:

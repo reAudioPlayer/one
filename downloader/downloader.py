@@ -1,5 +1,7 @@
-from yt_dlp import YoutubeDL, postprocessor
-from helpers.asyncThread import asyncRunInThread
+import asyncio
+from os import path
+from yt_dlp import YoutubeDL
+from helpers.asyncThread import asyncRunInThreadWithReturn
 
 
 """
@@ -12,6 +14,9 @@ class OnDownloadFinishedPP(postprocessor.PostProcessor):
         self._player.next()
         return [], info
 """
+
+DOWNLOADING = [ ]
+
 
 class Downloader:
     def __init__(self) -> None:
@@ -26,6 +31,23 @@ class Downloader:
         self._ydl = YoutubeDL(self._ydl_opts)
         #self._ydl.add_post_processor(OnDownloadFinishedPP(player))
 
-    async def downloadSong(self, link, filename = "upNow"):
-        self._ydl.outtmpl_dict["default"] = f"./_cache/{filename}.%(ext)s"
-        await asyncRunInThread(self._ydl.download, [ link ])
+    async def downloadSong(self, link, filename = "upNow") -> bool:
+        relName = f"./_cache/{filename}.%(ext)s"
+
+        if filename in DOWNLOADING:
+            while filename in DOWNLOADING:
+                await asyncio.sleep(1)
+            return path.exists(relName.replace("%(ext)s", "mp3"))
+
+        if path.exists(relName.replace("%(ext)s", "mp3")):
+            return True
+        DOWNLOADING.append(filename)
+        self._ydl.outtmpl_dict["default"] = relName
+        try:
+            err = await asyncRunInThreadWithReturn(self._ydl.download, [ link ])
+            DOWNLOADING.remove(filename)
+            return err == 0
+        except:
+            print(f"{filename} could not be downloaded ({relName.replace('%(ext)s', 'mp3')})")
+            DOWNLOADING.remove(filename)
+            return path.exists(relName.replace("%(ext)s", "mp3"))
