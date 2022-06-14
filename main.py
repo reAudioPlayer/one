@@ -1,12 +1,18 @@
-from handler.downloadHandler import DownloadHandler
-
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 github")
 
 try:
     from typing import Optional, Tuple
+
     import spotipy
     from spotipy.oauth2 import  SpotifyOAuth
+
     from db.dbManager import DbManager
+
     from downloader.downloader import Downloader
+
+    from handler.downloadHandler import DownloadHandler
     from handler.newsHandler import NewsHandler
     from handler.sportsHandler import SportsHandler
     from handler.playerHandler import PlayerHandler
@@ -15,33 +21,37 @@ try:
     from handler.metaHandler import MetaHandler
     from handler.configHandler import ConfigHandler
     from handler.websocket import Websocket
+
     from player.player import Player
+    from player.playlistManager import PlaylistManager
+
     from aiohttp import web
-    import asyncio
-    from aiohttp_index import IndexMiddleware
     from aiohttp.web import middleware
+
+    from aiohttp_index import IndexMiddleware
 
     import pygame
 
     import logging
     import time
-
-    from player.playlistManager import PlaylistManager
+    import atexit
 
     from os.path import exists
 
+    import mimetypes
+    import shutil
     import json
-except:
-    print("you need to run setup.bat (or the documented commands) first")
-    import time
-    time.sleep(5)
-    exit()
 
-import mimetypes
+    import asyncio
+
+except: # pylint: disable=bare-except
+    print("you need to run setup.bat (or the documented commands) first")
+    import time, sys # pylint: disable=ungrouped-imports, multiple-imports
+    time.sleep(5)
+    sys.exit()
+
 mimetypes.init()
 mimetypes.types_map['.js'] = 'application/javascript; charset=utf-8'
-
-# TODO spotify always opening
 
 dbManager = DbManager()
 
@@ -51,19 +61,32 @@ playlistManager = PlaylistManager(dbManager)
 
 player = Player(dbManager, downloader, playlistManager)
 
-scope = "user-library-read user-follow-read user-follow-modify"
+SCOPE = "user-library-read user-follow-read user-follow-modify"
 
-async def init() -> web.Application:
-    def _getSpotifyAuthData() -> Tuple[str, str]:
-        with open("./config/spotify.json") as file:
-            config = json.load(file)
-            return config.get("id"), config.get("secret")
+def _getSpotifyAuthData() -> Tuple[str, str]:
+    with open("./config/spotify.json", encoding = "utf-8") as file:
+        config = json.load(file)
+        return config.get("id"), config.get("secret")
 
-    def _getSpotifyAuth(id: str, secret: str) -> Optional[SpotifyOAuth]:
-        if "restricted" in (id, secret):
-            return None
-        return SpotifyOAuth(id, secret, "http://reap.ml/", scope=scope)
+def _getSpotifyAuth(id_: str, secret: str) -> Optional[SpotifyOAuth]: # pylint: disable=invalid-name
+    if "restricted" in (id_, secret):
+        return None
+    return SpotifyOAuth(id_, secret, "http://reap.ml/", scope = SCOPE)
 
+@middleware
+async def _exceptionMiddleware(request: web.Request, handler):
+    logger = logging.getLogger()
+    start = time.time()
+    resp: Optional[web.Response] = None
+    try:
+        resp = await handler(request)
+    except Exception as exc: # pylint: disable=bare-except
+        logger.exception(exc)
+        resp  = web.Response(status = 500, text = str(exc))
+    logger.info("%s %s (%s s)", request.method, request.path, time.time() - start)
+    return resp
+
+async def _init() -> web.Application: # pylint: disable=too-many-statements
     spotify = spotipy.Spotify()
 
     if exists("./config/spotify.json"):
@@ -89,20 +112,7 @@ async def init() -> web.Application:
 
     logging.basicConfig(level = logging.INFO)
 
-    @middleware
-    async def exceptionMiddleware(request: web.Request, handler):
-        logger = logging.getLogger()
-        t1 = time.time()
-        resp: Optional[web.Response] = None
-        try:
-            resp = await handler(request)
-        except Exception as e:
-            logger.exception(e)
-            resp  = web.Response(status = 500, text = str(e))
-        logger.info(f"{request.method} {request.path} ({time.time() - t1} s)")
-        return resp
-
-    app = web.Application(middlewares=[IndexMiddleware(), exceptionMiddleware])
+    app = web.Application(middlewares=[IndexMiddleware(), _exceptionMiddleware])
 
     app.router.add_get('/api/last', playerHandler.getLast)
     app.router.add_get('/api/next', playerHandler.getNext)
@@ -163,11 +173,12 @@ async def init() -> web.Application:
     app.router.add_static('/', './ui/dist')
     return app
 
-MUSIC_END = pygame.USEREVENT+1
+MUSIC_END = pygame.USEREVENT + 1 # pylint: disable=no-member
 pygame.mixer.music.set_endevent(MUSIC_END)
 
 async def main() -> None:
-    app = await init()
+    """MAIN"""
+    app = await _init()
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, port=1234)
@@ -177,5 +188,11 @@ async def main() -> None:
         event = pygame.event.poll()
         if event.type == MUSIC_END:
             await player.onSongEnd()
+
+def _cleanCache() -> None:
+    pygame.mixer.music.unload()
+    shutil.rmtree("./_cache")
+
+atexit.register(_cleanCache)
 
 asyncio.run(main())
