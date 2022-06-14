@@ -1,13 +1,19 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 from __future__ import annotations
+
 import asyncio
-from cevlib.calendar import Calendar
 import hashlib
 from typing import Dict, List, Optional
 import requests
 from bs4 import BeautifulSoup
 import re
 from datetime import datetime, timedelta
+
 from cevlib import match
+from cevlib.calendar import Calendar
 from cevlib.types.results import Result
 from cevlib.types.types import MatchState
 

@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 from functools import wraps
 import asyncio
 from typing import Callable, Optional

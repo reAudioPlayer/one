@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 import json
 import os
 from os.path import exists
 from aiohttp import web
-from db.dbManager import DbManager
 
 
 class ConfigHandler:

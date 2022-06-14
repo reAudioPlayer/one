@@ -1,4 +1,7 @@
-from optparse import Option
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 from typing import Optional
 from aiohttp import web
 from dataModels.song import Song

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
-__copyright__ = ("Copyright (c) 2022 github")
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 try:
     from typing import Optional, Tuple

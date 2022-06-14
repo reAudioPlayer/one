@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 from typing import Union
 from aiohttp import web
 from meta.articlereader import BBCArticle, CNNArticle, GuardianArticle, IndependentArticle, YourEdmArticle

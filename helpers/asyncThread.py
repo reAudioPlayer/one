@@ -1,17 +1,20 @@
-import threading
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 from typing import Any, Callable, List, Optional
 from threading import Thread
 import asyncio
 from queue import Queue
 
 
-async def asyncRunInThread(target: Callable, args: Optional[List[Any]]) -> None:
+async def asyncRunInThread(target: Callable, *args: Optional[List[Any]]) -> None:
     t1 = Thread(target = target, args = args)
     t1.start()
     while t1.is_alive():
         await asyncio.sleep(1)
 
-async def asyncRunInThreadWithReturn(target: Any, *args) -> Any:
+async def asyncRunInThreadWithReturn(target: Callable, *args: Optional[List[Any]]) -> Any:
     q = Queue()
 
     def _implement() -> None:

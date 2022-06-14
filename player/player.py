@@ -1,13 +1,23 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
+import os
+
+import asyncio
 from asyncio.tasks import Task
+
 from typing import Awaitable, Callable, Optional
+
 import pygame
+
 from dataModels.song import Song
 from db.dbManager import DbManager
+
 from player.playerPlaylist import PlayerPlaylist
-import os
-from downloader.downloader import Downloader
 from player.playlistManager import PlaylistManager
-import asyncio
+
+from downloader.downloader import Downloader
 
 
 class Player:

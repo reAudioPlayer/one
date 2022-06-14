@@ -1,11 +1,14 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 from __future__ import annotations
-import json
+
 from random import randint
 from typing import List, Optional, Tuple
 from dataModels.playlist import Playlist
 from dataModels.song import Song
 from db.dbManager import DbManager
-from ordered_set import OrderedSet
 
 
 class OrderedUniqueList(list):

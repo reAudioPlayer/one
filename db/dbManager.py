@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 import sqlite3 as sl
-import json
 from typing import List, Optional, Tuple
 from dataModels.playlist import Playlist
 

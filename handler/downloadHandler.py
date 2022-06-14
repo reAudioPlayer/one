@@ -1,9 +1,11 @@
-import asyncio
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 import os
 from aiohttp import web
 import aiohttp
 from multidict import MultiDict
-from dataModels.song import Song
 from db.dbManager import DbManager
 from downloader.downloader import Downloader
 import eyed3

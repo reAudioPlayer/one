@@ -1,5 +1,8 @@
-import asyncio
-from typing import Dict, List, Optional
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
+from typing import Dict, List
 from aiohttp import web
 from spotipy import Spotify
 from db.dbManager import DbManager

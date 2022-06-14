@@ -1,12 +1,15 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 from __future__ import annotations
-import re
-from typing import Optional, Union
+
+from typing import Union
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
 
 from db.dbManager import DbManager
 
-from dataModels.track import SpotifyAlbum, SpotifyArtist, SpotifyTrack, YoutubeTrack
+from dataModels.track import SpotifyArtist, SpotifyTrack, YoutubeTrack
 
 
 class Search:

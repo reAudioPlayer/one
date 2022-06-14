@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 from __future__ import annotations
 import spotipy
-from spotipy.client import Spotify
 
-from dataModels.track import SpotifyAlbum, SpotifyTrack
+from dataModels.track import SpotifyAlbum
 
 
 class Releases:

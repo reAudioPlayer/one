@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 from typing import List
 from aiohttp import web
 from meta.scorereader import CEVMatch, OneFootballMatch
