@@ -24,10 +24,10 @@ class DownloadHandler:
         id = int(request.match_info['id'])
         song = self._dbManager.getSongById(id)
         filename = f"{', '.join(song.artists)} - {song.title}".replace(",", "%2C") # header
-        pathAndName = f"./_cache/{filename}.mp3"
+        pathAndName = f"./_cache/{song.id}.mp3"
         if os.path.exists(pathAndName):
             os.remove(pathAndName)
-        await self._downloader.downloadSong(song.source, filename)
+        await self._downloader.downloadSong(song.source, song.id)
         pathAndName = f"./_cache/{song.id}.mp3"
 
         file = eyed3.load(pathAndName)
