@@ -234,7 +234,7 @@ import PlayerInPicture from "./PlayerInPicture.vue";
     }
 </style>
 
-<style>
+<style lang="scss">
     @import "./assets/css/scrollbars.css";
 
     #app {
@@ -289,5 +289,26 @@ import PlayerInPicture from "./PlayerInPicture.vue";
         background-repeat: no-repeat;
         background-size: cover;
         transform: scale(1.1);
+    }
+
+    $horizontalWidth: 1200px;
+    $mobileWidth: 950px;
+
+    .mobileMenu {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .hideIfMobile {
+        @media screen and (max-width: $mobileWidth) {
+            display: none !important;
+        }
+    }
+
+    .showIfMobile {
+        @media screen and (min-width: $mobileWidth) {
+            display: none !important;
+        }
     }
 </style>
