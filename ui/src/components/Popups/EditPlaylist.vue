@@ -51,7 +51,7 @@
                 fetch("/api/updatePlaylist", {
                     method: "POST",
                     body: JSON.stringify({
-                        id: Number(this.$route.params.id),
+                        id: Number(hashids.decode(this.$route.params.id)),
                         name: this.name,
                         description: this.description
                     })
