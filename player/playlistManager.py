@@ -42,10 +42,11 @@ class PlaylistManager:
             for song in songs:
                 song.update(updateFunction(song))
 
-    def updatePlaylist(self, id: int, name: str, description: str) -> None:
+    def updatePlaylist(self, id: int, name: str, description: str, cover: str) -> None:
         playlist: PlayerPlaylist = self._playlists[id]
         playlist.name = name
         playlist.description = description
+        playlist.cover = cover
         self._dbManager.updatePlaylist(playlist.ToDMPlaylist())
 
     @property

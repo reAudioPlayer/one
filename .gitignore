@@ -5,4 +5,4 @@ node_modules
 .cache
 headers_auth.json
 config/*
-ui2
+ui/public/assets/img/covers

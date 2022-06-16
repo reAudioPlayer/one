@@ -31,14 +31,20 @@ class PlayerPlaylist:
                  playlistIndex: Optional[int] = None,
                  songs: Optional[List[Song]] = None,
                  name: Optional[str] = None,
-                 description: Optional[str] = None) -> None:
+                 description: Optional[str] = None,
+                 cover: Optional[str] = None) -> None:
         self._dbManager = dbManager
         self._playlist: OrderedUniqueList[Song] = OrderedUniqueList()
         self._index: int = -1
         self._playlistIndex = playlistIndex
         self._name: str = name or "N/A"
-        self._description: str = description or "N/A"
+        self._description: str = description or "N/A",
+        self._cover: str = ""
+        self._updateCover(cover)
         self._load(playlistIndex, songs)
+
+    def _updateCover(self, cover: str) -> None:
+        self._cover: str = cover or (self._playlist[0].cover if len(self._playlist) > 0 else "/assets/img/music_placeholder.png")
 
     def _load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
         """loads from database"""
@@ -52,6 +58,7 @@ class PlayerPlaylist:
         self._playlist.update(self._dbManager.getSongsByIdList(playlist.songs))
         self._name = playlist.name
         self._description = playlist.description
+        self._cover = playlist.cover
 
     @property
     def index(self) -> int:
@@ -141,11 +148,20 @@ class PlayerPlaylist:
     def description(self, value) -> None:
         self._description = value
 
+    @property
+    def cover(self) -> str:
+        return self._cover
+
+    @cover.setter
+    def cover(self, value: str) -> str:
+        self._cover = value
+    
     def toDict(self) -> dict:
         return {
             "description": self._description,
             "index": self._index, # currently playing song
             "name": self._name,
+            "cover": self._cover,
             "songs": list(map(lambda x: x.toDict(), self._playlist))
         }
 
@@ -163,4 +179,4 @@ class PlayerPlaylist:
         return f"(Player.PlayerPlaylist) name=[{self._name}] id=[{self._index}]"
 
     def ToDMPlaylist(self) -> Playlist:
-        return Playlist(self.name, list(map(lambda x: x.id, self._playlist)), self._playlistIndex, self.description)
+        return Playlist(self.name, list(map(lambda x: x.id, self._playlist)), self._playlistIndex, self.description, self._cover)

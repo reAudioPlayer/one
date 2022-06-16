@@ -12,21 +12,24 @@ class Playlist:
                  name: str,
                  songs: List[int],
                  id: int,
-                 description: str) -> None:
+                 description: str,
+                 cover: str) -> None:
         self._name = name
         self._description = description
         self._songs = songs
+        self._cover = cover
         self._id = id
 
     def sql(self) -> Tuple:
         return ( self._name,
                  self._description,
-                 json.dumps(self._songs) )
+                 json.dumps(self._songs),
+                 self._cover )
 
     @staticmethod
     def FromSql(row: Tuple) -> Playlist:
-        id, name, description, songs = row
-        return Playlist(name, json.loads(songs), id, description)
+        id, name, description, songs, cover = row
+        return Playlist(name, json.loads(songs), id, description, cover)
 
     def __repr__(self) -> str:
         return f"(DataModel.Playlist) id=[{self._id}] name=[{self._name}] songs={self._songs} description=[{self._description}]"
@@ -46,3 +49,7 @@ class Playlist:
     @property
     def description(self) -> str:
         return self._description
+
+    @property
+    def cover(self) -> str:
+        return self._cover

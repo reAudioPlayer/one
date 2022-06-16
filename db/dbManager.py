@@ -17,6 +17,7 @@ class DbManager:
         self._db = sl.connect('./db/db/main.db')
         self._createSongTable()
         self._createPlaylistTable()
+        self._updatePlaylistTable()
 
     def shutdown(self):
         self._db.close()
@@ -40,9 +41,17 @@ class DbManager:
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             description TEXT,
+            cover TEXT,
             songs TEXT);"""
         with self._db:
             self._db.execute(sql)
+
+    def _updatePlaylistTable(self) -> None:
+        sql = """PRAGMA table_info("Playlists")"""
+        with self._db:
+            val = [ (name) for (_, name, *_) in self._db.execute(sql) ]
+            if "cover" not in val:
+                self._db.execute('ALTER TABLE "Playlists" ADD cover TEXT;')
 
     def addSong(self, song: Song) -> None:
         with self._db:
@@ -114,8 +123,8 @@ class DbManager:
 
     def updatePlaylist(self, newPlaylist: Playlist) -> None:
         with self._db:
-            name, description, songs = newPlaylist.sql()
-            sql = f"UPDATE Playlists SET name='{name}', description='{description}', songs='{songs}' WHERE id={newPlaylist.id}"
+            name, description, songs, cover = newPlaylist.sql()
+            sql = f"UPDATE Playlists SET name='{name}', description='{description}', songs='{songs}', cover='{cover}' WHERE id={newPlaylist.id}"
             self._db.execute(sql)
 
     def updateSongsOfPlaylist(self, id: int, songs: List[int]) -> None:

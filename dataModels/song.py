@@ -41,6 +41,10 @@ class Song:
         return self._title
 
     @property
+    def cover(self) -> str:
+        return self._cover or "/assets/img/music_placeholder.png"
+
+    @property
     def url(self) -> str:
         return f"/track/{self._id}"
 
@@ -85,12 +89,12 @@ class Song:
         return {
             "album": self._album,
             "artist": self._artist,
-            "cover": self._cover,
+            "cover": self.cover,
             "duration": f"{math.floor(self._duration / 60)}:{str(self._duration % 60).zfill(2)}",
             "favourite": self._favourite,
             "id": self._id,
-            "source": self._source,
-            "title": self._name
+            "source": self.source,
+            "title": self.title
         }
 
     @staticmethod

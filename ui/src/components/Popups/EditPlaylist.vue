@@ -18,6 +18,12 @@
                 <div class="content">
                     <input v-model="description" type="text" ref="description">
                 </div>
+                <h4>Cover</h4>
+                <div class="content">
+                    <input type="text" class="addSong cover" v-model="cover" ref="cover">
+                    <img @click="openInNewTab" class="addSong cover"
+                        :src="cover ? cover : '/assets/img/music_placeholder.png'">
+                </div>
                 <div class="confirm">
                     <button @click="remove" class="negative left">Delete</button>
                     <button @click="apply" class="negative">Save</button>
@@ -34,14 +40,16 @@
         name: "EditPlaylist",
         props: {
             playlistName: String,
-            playlistDescription: String
+            playlistDescription: String,
+            playlistCover: String
         },
         data() {
             return {
                 showModal: false,
                 cover: "",
                 name: this.playlistName,
-                description: this.playlistDescription
+                description: this.playlistDescription,
+                cover: this.playlistCover
             }
         },
         methods: {
@@ -52,8 +60,9 @@
                     method: "POST",
                     body: JSON.stringify({
                         id: Number(hashids.decode(this.$route.params.id)),
-                        name: this.name,
-                        description: this.description
+                        name: this.name || "N/A",
+                        description: this.description || "N/A",
+                        cover: this.cover || "/assets/img/music_placeholder.png"
                     })
                 }).then(x => {
                     console.log(x)
@@ -66,6 +75,9 @@
                 }).then(() => {
                     this.$router.push("/")
                 })
+            },
+            openInNewTab() {
+                window.open(this.cover ? this.cover : '/assets/img/music_placeholder.png')
             }
         },
         watch: {
@@ -74,6 +86,9 @@
             },
             playlistDescription() {
                 this.description = this.playlistDescription
+            },
+            playlistCover() {
+                this.cover = this.playlistCover
             }
         }
     }
@@ -148,5 +163,22 @@
 
     .negative.left {
         margin-left: 0;
+    }
+
+    input[type="text"].addSong.cover {
+        width: auto;
+        flex-grow: 1;
+    }
+
+    img.addSong.cover {
+        height: 42px;
+        width: 42px;
+        margin-left: 10px;
+        border-radius: 5px;
+    }
+
+    img.addSong.cover:hover {
+        cursor: pointer;
+        filter: grayscale(0.4) blur(2px);
     }
 </style>

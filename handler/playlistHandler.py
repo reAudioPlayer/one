@@ -59,5 +59,5 @@ class PlaylistHandler:
 
     async def updatePlaylist(self, request: web.Request):
         jdata = await request.json()
-        self._playlistManager.updatePlaylist(jdata["id"], jdata.get("name"), jdata.get("description"))
+        self._playlistManager.updatePlaylist(jdata["id"], jdata.get("name"), jdata.get("description"), jdata.get("cover"))
         return web.Response(status = 200, text = "success!")
