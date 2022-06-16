@@ -2,6 +2,9 @@
 """reAudioPlayer ONE"""
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
+import os
+
+
 try:
     from typing import Optional, Tuple
 
@@ -135,6 +138,7 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     app.router.add_post('/api/track', metaHandler.getTrack)
     app.router.add_post('/api/search', metaHandler.search)
     app.router.add_get('/api/releases', metaHandler.releases)
+    app.router.add_post('/api/upload', metaHandler.upload)
 
     app.router.add_post('/api/spotify/album', metaHandler.spotifyAlbum)
     app.router.add_post('/api/spotify/artist', metaHandler.spotifyArtist)
@@ -191,7 +195,8 @@ async def main() -> None:
 
 def _cleanCache() -> None:
     pygame.mixer.music.unload()
-    shutil.rmtree("./_cache")
+    if os.path.exists("./_cache"):
+        shutil.rmtree("./_cache")
 
 atexit.register(_cleanCache)
 

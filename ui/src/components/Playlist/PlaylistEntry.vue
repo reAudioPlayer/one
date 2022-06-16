@@ -204,7 +204,6 @@
                 this.setFavourite()
             },
             favourite() {
-                console.log("mounted", this.title, this.favourite, this.favourited)
                 this.favourited = this.favourite
                 this.highlighted = false
             }

@@ -2,6 +2,7 @@
 """reAudioPlayer ONE"""
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
+from pathlib import Path
 from typing import Dict, List
 from aiohttp import web
 from spotipy import Spotify
@@ -95,6 +96,16 @@ class MetaHandler:
         jdata = await request.json()
         self._spotify.user_unfollow_artists([jdata.get("artistId")])
         return web.json_response(status=200)
+
+    async def upload(self, request: web.Request):
+        async for obj in (await request.multipart()):
+            if obj.filename:
+                bs = await obj.read()
+                Path("./ui/public/assets/img/covers").mkdir(parents=True, exist_ok=True)
+                with open(f"./ui/public/assets/img/covers/{obj.filename}", "wb") as f:
+                    f.write(bs)
+                return web.Response(text = f"/assets/img/covers/{obj.filename}")
+        return web.Response(status = 400)
 
     async def spotifyRecommend(self, request: web.Request):
         jdata = await request.json()

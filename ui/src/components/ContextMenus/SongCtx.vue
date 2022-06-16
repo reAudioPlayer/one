@@ -27,7 +27,7 @@
             isAutoPlaylist: Boolean,
             src: String,
             artist: String,
-            title: String,
+            title: String
         },
         data() {
             fetch("/api/playlists")

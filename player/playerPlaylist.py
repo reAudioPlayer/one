@@ -58,7 +58,7 @@ class PlayerPlaylist:
         self._playlist.update(self._dbManager.getSongsByIdList(playlist.songs))
         self._name = playlist.name
         self._description = playlist.description
-        self._cover = playlist.cover
+        self._updateCover(playlist.cover)
 
     @property
     def index(self) -> int:

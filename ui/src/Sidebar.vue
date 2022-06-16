@@ -67,7 +67,7 @@
                         this.playlists.push({
                             name: pdata.name,
                             description: pdata.description,
-                            cover: pdata.songs?.[0]?.cover || "/assets/img/music_placeholder.png",
+                            cover: pdata.cover,
                             href: `/playlist/${hashids.encode(i)}`
                         })
                     }

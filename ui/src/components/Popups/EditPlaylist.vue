@@ -5,9 +5,7 @@
                 <div class="header">
                     <h3>Edit details</h3>
                     <button class="modal-close" @click="showModal = false">
-                        <span class="material-icons-round">
-                            close
-                        </span>
+                        <span class="material-symbols-rounded">close</span>
                     </button>
                 </div>
                 <h4>Name</h4>
@@ -18,9 +16,22 @@
                 <div class="content">
                     <input v-model="description" type="text" ref="description">
                 </div>
+                <h4>Upload Cover</h4>
+                <div class="content">
+                    <button @click="() => $refs.upFile.click()">
+                        <span class="material-symbols-rounded">search</span>
+                    </button>
+                    <input type="file" ref="upFile" style="display: none" accept="image/*" />
+                    <input type="text" class="addSong cover" readonly v-model="uploadedCoverName" ref="cover" />
+                    <img @click="openInNewTab" class="addSong cover"
+                        :src="uploadedCover ? uploadedCover : '/assets/img/music_placeholder.png'">
+                    <button @click="uploadFile">
+                        <span class="material-symbols-rounded">file_upload</span>
+                    </button>
+                </div>
                 <h4>Cover</h4>
                 <div class="content">
-                    <input type="text" class="addSong cover" v-model="cover" ref="cover">
+                    <input type="text" class="addSong cover" v-model="cover" ref="cover" />
                     <img @click="openInNewTab" class="addSong cover"
                         :src="cover ? cover : '/assets/img/music_placeholder.png'">
                 </div>
@@ -43,16 +54,48 @@
             playlistDescription: String,
             playlistCover: String
         },
+        mounted() {
+            this.$refs.upFile.addEventListener("change", () => {
+                const file = this.$refs.upFile.files?.[0]
+                if (!file)
+                {
+                    return;
+                }
+
+                this.uploadedCoverName = this.$refs.upFile?.files?.[0]?.name
+
+                var reader = new FileReader();
+                reader.onloadend = () => {
+                    this.uploadedCover = reader.result;
+                }
+                reader.readAsDataURL(file);
+                return;
+            })
+        },
         data() {
             return {
                 showModal: false,
                 cover: "",
                 name: this.playlistName,
                 description: this.playlistDescription,
-                cover: this.playlistCover
+                cover: this.playlistCover,
+                uploadedCover: null,
+                uploadedCoverName: null
             }
         },
         methods: {
+            uploadFile() {
+                console.log(this.$refs.upFile)
+
+                const data = new FormData()
+                data.append('file', this.$refs.upFile.files[0])
+                data.append('user', 'hubot')
+
+                fetch('/api/upload', {
+                    method: 'POST',
+                    body: data
+                }).then(x => x.text()).then(url => this.cover = url)
+            },
             apply() {                
                 this.showModal = false
                 console.log("fetch")
@@ -94,7 +137,7 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
     .wrapper {
         display: flex;
@@ -113,6 +156,31 @@
         display: flex;
         flex-wrap: wrap;
         width: 100%;
+
+        button {
+            border: none;
+            border-radius: 5px;
+            width: 42px;
+            background: var(--font-colour);
+            
+            span {
+                color: var(--font-contrast);
+                font-variation-settings: 'wght' 250
+            }
+
+            &:first-child {
+                margin-right: 10px;
+            }
+
+            &:not(:first-child) {
+                margin-left: 10px;
+            }
+
+            &:hover {
+                background: var(--font-darker);
+                cursor: pointer;
+            }
+        }
     }
 
     input[type="text"] {
