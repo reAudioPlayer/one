@@ -14,6 +14,13 @@
                 </div>
             </div>
             <div class="sidebar">
+                <h2>Player</h2>
+                <div class="checkbox">
+                    <input @change="changePlayInBrowser" v-model="playInBrowser" type="checkbox" id="checkbox3" name="" value="">
+                    <label for="checkbox3"><span>Play in browser</span></label>
+                </div>
+            </div>
+            <div class="sidebar">
                 <h2>Cloud Synchronisation</h2>
                 <div class="wrapTogether spaceBetween">
                     <button @click="$router.push('/export')">Save</button>
@@ -82,6 +89,9 @@
             },
             changeShowNewsTab() {
                 window.localStorage.setItem("sidebar.showNewsTab", this.showNewsTab ? "true" : "false")
+            },
+            changePlayInBrowser() {
+                window.localStorage.setItem("player.inBrowser", this.playInBrowser ? "true" : "false")
             },
             saveRestrictedMode() {
                 if (this.spotifyClientId || this.spotifyClientSecret)
@@ -160,6 +170,7 @@
                 themeSelected,
                 showSportsTab: window.localStorage.getItem("sidebar.showSportsTab") == "true",
                 showNewsTab: window.localStorage.getItem("sidebar.showNewsTab") == "true",
+                playInBrowser: window.localStorage.getItem("player.inBrowser") == "true",
                 spotifyClientId,
                 spotifyClientSecret
             }

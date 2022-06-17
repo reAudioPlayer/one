@@ -11,5 +11,9 @@ class CollectionHandler:
         self._dbManager = dbManager
 
     async def tracks(self, _: web.Request):
-        tracks = PlayerPlaylist(self._dbManager, songs = self._dbManager.getSongByCustomFilter("favourite=1"), name = "Liked Songs")
+        tracks = PlayerPlaylist.Liked(self._dbManager)
+        return web.json_response(data = tracks.toDict())
+
+    async def breaking(self, _: web.Request):
+        tracks = PlayerPlaylist.Breaking(self._dbManager)
         return web.json_response(data = tracks.toDict())

@@ -17,6 +17,7 @@
                 :hasChildSites="true" />
             <br>
             <nav-entry :minimised="minimised" href="/playlist/create" icon="add_circle" name="Create Playlist" />
+            <nav-entry :minimised="minimised" href="/collection/tracks/breaking" icon="trending_up" name="Breaking" />
             <nav-entry :minimised="minimised" href="/collection/tracks" icon="favorite" name="Liked Songs" />
         </div>
         <template v-if="!minimised">

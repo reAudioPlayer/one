@@ -91,6 +91,14 @@ class DbManager:
             songs = DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs WHERE id IN ({ ','.join([str(int) for int in idList]) })"))
             return [ next((x for x in songs if x.id == songId), None) for songId in idList ] # sort based on id list
 
+    def getLatestSongs(self, count: int) -> List[Song]:
+        with self._db:
+            return DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs ORDER BY id DESC LIMIT {count}"))
+
+    def getLikedSongs(self) -> List[Song]:
+        with self._db:
+            return DbManager._castToSongList(self._db.execute("SELECT * FROM Songs WHERE favourite=1"))
+
     def getSongByCustomFilter(self, filter) -> List[Song]:
         with self._db:
             return DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs WHERE {filter}"))

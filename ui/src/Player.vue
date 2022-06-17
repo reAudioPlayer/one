@@ -1,5 +1,6 @@
 <template>
   <div class="player">
+    <audio ref="audio" src="/api/stream" style="display: none" />
     <div class="left">
       <img v-if="expandCover" @click="onExpandCover" :src="cover" />
       <div class="titleartist">
@@ -21,7 +22,7 @@
       <div class="upper">
         <span @click="shuffle = !shuffle" class="material-icons-round defaultbtn">{{ shuffle ? "shuffle_on" : "shuffle" }}</span>
         <span @click="get('last')" class="material-icons-round defaultbtn">skip_previous</span>
-        <span @click="get('playPause')" class="material-icons-round circle">{{playing ? "pause_circle" : "play_circle"}}</span>
+        <span @click="playPause" class="material-icons-round circle">{{playing ? "pause_circle" : "play_circle"}}</span>
         <span @click="get('next')" class="material-icons-round defaultbtn">skip_next</span>
         <span @click="songLoop = !songLoop" class="material-icons-round defaultbtn">{{ songLoop ? "repeat_one" : "repeat" }}</span>
       </div>
@@ -131,24 +132,25 @@
     },
     data() {
         const ctx = this
+        const playInBrowser = window.localStorage.getItem("player.inBrowser") == "true"
 
         function connect() {
             console.log("attempting reconnect")
             let ws = new WebSocket('ws://localhost:1234/ws');
 
             ws.onclose = function() {
-            console.log("ws closed")
+              console.log("ws closed")
 
-            setTimeout(connect, 1000);
+              setTimeout(connect, 1000);
             }
             
             ws.onopen = () => {
-            console.log("ws connected")
+              console.log("ws connected")
             }
 
             ws.onmessage = function(msg) {
-            const jdata = JSON.parse(msg.data);
-            ctx.updateData(jdata)
+              const jdata = JSON.parse(msg.data);
+              ctx.updateData(jdata)
             }
         }
         connect()
@@ -160,16 +162,26 @@
             }
             const duration = Number(ctx.durationStr.split(':')[0]) * 60 + Number(ctx.durationStr.split(':')[1])
             let progress = Number(ctx.progresslbl.split(':')[0]) * 60 + Number(ctx.progresslbl.split(':')[1])
+            console.log(progress)
             progress+=1;
             ctx.progress = progress / duration * 1000;
             ctx.progresslbl = `${Math.floor(progress / 60)}:${ctx.zeroPad(progress % 60, 2)}`
         }, 1000)
 
-        fetch("/api/getVolume")
-            .then(x => x.text())
-            .then(value => {
-              this.$refs.volume.value = value
-            })
+        if (playInBrowser)
+        {
+          this.$nextTick(() => {
+            this.$refs.volume.value = 100;
+          })
+        }
+        else
+        {
+          fetch("/api/getVolume")
+              .then(x => x.text())
+              .then(value => {
+                this.$refs.volume.value = value
+              })
+        }
 
         fetch("/api/songLoop")
             .then(x => x.text())
@@ -183,6 +195,13 @@
               this.shuffle = value == "True"
             })
 
+        fetch("/api/setVolume", {
+            method: "POST",
+            body: JSON.stringify({
+                value: playInBrowser ? 0 : (this.$refs?.volume?.value || 100)
+            })
+        })
+
         return {
             favourited: this.favourite,
             title: "N/A",
@@ -194,7 +213,8 @@
             progresslbl: "0:00",
             track: { },
             songLoop: false,
-            shuffle: false
+            shuffle: false,
+            playInBrowser
         }
     },
     watch: {
@@ -231,12 +251,31 @@
         },
         playPause() {
             console.log("playpause")
+            if (this.playInBrowser)
+            {
+              if (this.$refs.audio.paused)
+              {
+                this.$refs.audio.play();
+              }
+              else
+              {
+                this.$refs.audio.pause();
+              }
+              this.playing = !this.$refs.audio.paused;
+              return;
+            }
             this.get('playPause')
         },
         get(endpoint) {
             fetch(`/api/${endpoint}`)
         },
         volumechange() {
+            if (this.playInBrowser)
+            {
+              this.$refs.audio.volume = this.$refs.volume.value / 100;
+              return;
+            }
+
             fetch("/api/setVolume", {
                 method: "POST",
                 body: JSON.stringify({
@@ -251,6 +290,13 @@
             let duration = Number(this.durationStr.split(':')[0]) * 60 + Number(this.durationStr.split(':')[1])
             let value = this.progress * duration / 1000
             this.progresslbl = `${Math.floor(value / 60)}:${this.zeroPad(Math.round(value % 60), 2)}`
+
+            if (this.playInBrowser)
+            {
+              this.$refs.audio.currentTime = value;
+              return;
+            }
+
             fetch("/api/setPos", {
                 method: "POST",
                 body: JSON.stringify({
@@ -269,17 +315,37 @@
                 this.progresslbl = "0:00"
                 this.favourited = jdata?.data?.favourite || false
 
+                if (this.playInBrowser) {
+                  this.get('pause')
+                  this.$refs.audio.src = null;
+                  this.$refs.audio.src = `/api/stream/${jdata?.data?.id}`;
+                  this.$refs.audio.load();
+                  this.$refs.audio.play();
+                  this.playing = !this.$refs.audio.paused;
+                }
+
                 return;
             }
             if (jdata.path == "player.playState")
             {
-                this.playing = jdata?.data || false
-                return
+              if (this.playInBrowser)
+              {
+                return;
+              }
+
+              this.playing = jdata?.data || false
+              return
             }
             if (jdata.path == "player.posSync")
             {
-                let value = jdata?.data || 0
-                this.progresslbl = `${Math.floor(value / 60)}:${this.zeroPad(Math.round(value % 60), 2)}`
+              if (this.playInBrowser)
+              {
+                return;
+              }
+              console.log(jdata?.data)
+
+              let value = jdata?.data || 0
+              this.progresslbl = `${Math.floor(value / 60)}:${this.zeroPad(Math.round(value % 60), 2)}`
             }
         }
     }

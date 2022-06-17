@@ -6,7 +6,7 @@
         <hr>
         <div class="padding-20">
             <p class="small">Supported urls: {{supportedSources.join("*, ")}} </p>
-            <p class="small"><i>CEV matches are temporarily not supported. Check out your favourite games on <a href="https://cev-nex.tk">cev-nex.tk</a> in the meantime.</i></p>
+            <p v-if="false" class="small"><i>CEV matches are temporarily not supported. Check out your favourite games on <a href="https://cev-nex.tk">cev-nex.tk</a> in the meantime.</i></p>
             <div class="addWrapper">
                 <input @keyup="enterText" v-model="sourceToAdd" type="text">
                 <span id="addToPlaylist" @click="tryAddSource" class="material-icons-outlined">add_circle</span>
@@ -16,6 +16,12 @@
                 <football-item v-for="(element, matchIndex) in sport.items" :key="element.href" @remove="() => removeSource(element.sref, sportIndex, matchIndex)" :competition="element.competition"
                     :team1="element.team1" :team2="element.team2" :result="element.result" :date="element.date"
                     :href="element.href" :oref="element.oref" :progress="element.progress" />
+            </full-shelf>
+            <full-shelf heading="Volleyball" icon="sports_volleyball">
+                <div v-for="(match, index) in volleyMatches" :key="index" class="wrapIframe">
+                    <iframe :src="`https://cev-nex.tk/#/embed?match=${match.src}`" />
+                    <span @click="() => removeSourceD(match.ref)"  class="deleteIcon small material-symbols-rounded">clear</span>
+                </div>
             </full-shelf>
         </div>
     </div>
@@ -39,9 +45,11 @@
                     "https://onefootball.com/en/team/",
                     "https://onefootball.com/en/match/",
                     "https://onefootball.com/en/competition/",
-                    //"https://www.cev.eu/match-centres/",
-                    //"https://championsleague.cev.eu/en/match-centres/",
-                    //"https://www.cev.eu/calendar/"
+                    "https://www.cev.eu/match-centres/",
+                    "https://championsleague.cev.eu/en/match-centres/",
+                    "https://www.cev.eu/calendar/",
+                    "https://cev-nex.tk/#/match/",
+                    "https://cevnex.tk/#/match/"
                 ]
             }
         },
@@ -49,10 +57,29 @@
             this.watchMatches = JSON.parse(window.localStorage.getItem("sports.watchMatches")) || [ ]
             this.updateMatches()
         },
+        computed: {
+            volleyMatches() {
+                return this.watchMatches.filter(match => match.includes("cev")).map(match => {
+                    let trueValue = match;
+                    if (match.includes("nex.tk"))
+                    {
+                        trueValue = match.split("/match/")[1]
+                    }
+                    return {
+                        src: trueValue,
+                        ref: match
+                    }
+                })
+            }
+        },
         methods: {
             removeSource(source, sportIndex, matchIndex) {
                 this.watchMatches.splice(this.watchMatches.indexOf(source), 1)
                 this.sports[sportIndex].items.splice(matchIndex, 1)
+                window.localStorage.setItem("sports.watchMatches", JSON.stringify(this.watchMatches))
+            },
+            removeSourceD(source) {
+                this.watchMatches.splice(this.watchMatches.indexOf(source), 1)
                 window.localStorage.setItem("sports.watchMatches", JSON.stringify(this.watchMatches))
             },
             tryAddSource() {
@@ -223,6 +250,28 @@
 
             &:hover {
                 color: var(--font-colour);
+            }
+        }
+    }
+
+    iframe {
+        border: none;
+        width: calc(100% - 20px);
+        margin: 10px;
+        border-radius: 5px;
+    }
+
+    .wrapIframe {
+        grid-column: span 2;
+        position: relative;
+
+        .deleteIcon {
+            position: absolute;
+            bottom: calc(10px + 20px);
+            right: calc(10px + 20px);
+
+            &:hover {
+                cursor: pointer;
             }
         }
     }

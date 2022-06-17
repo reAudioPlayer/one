@@ -48,7 +48,11 @@ class DownloadHandler:
         os.remove(pathAndName)
         return web.Response()
 
+    async def streamFromCache(self, request: web.Request) -> web.Response:
+        index = int(request.match_info['id'])
+        return web.FileResponse(f"./_cache/{index}.mp3")
+
     async def stream(self, _: web.Request) -> web.Response:
         if not self._player.currentSong:
             return web.Response(status = 428)
-        return web.FileResponse(f"./_cache/{self._player.currentSong.id}.mp3")
+        return web.HTTPPermanentRedirect(f"/api/stream/{self._player.currentSong.id}")

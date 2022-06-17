@@ -4,7 +4,7 @@
         <div class="padding-20" v-observe-visibility="headerVisibilityChanged">
             <h7>Playlist</h7>
             <h1>{{playlistName}}</h1>
-            <h5>Your {{playlist.length}} favourite tracks, auto-generated just for you</h5>
+            <h5>Your {{playlist.length}} newest tracks, auto-generated just for you</h5>
         </div>
         <hr>
         <div class="padding-20">
@@ -76,7 +76,7 @@
                 this.fixedHeaderHidden = a
             },
             updateTracks() {
-                fetch("/api/collection/tracks")
+                fetch("/api/collection/tracks/breaking")
                     .then(x => x.json()).then(jdata => {
                         this.playlist = jdata.songs
                         this.playlistName = jdata.name
@@ -85,10 +85,11 @@
                     })
             },
             loadPlaylist() {
+                console.log("hello")
                 fetch("/api/loadPlaylist", {
                     method: "POST",
                     body: JSON.stringify({
-                        type: "collection"
+                        type: "collection/breaking"
                     })
                 })
             }

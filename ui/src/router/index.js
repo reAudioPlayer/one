@@ -57,6 +57,13 @@ const routes = [{
     }
   },
   {
+    path: '/collection/tracks/breaking',
+    component: () => import( /* webpackChunkName: "tracks" */ "@/views/Collection/Breaking.vue"),
+    meta: {
+      title: "Breaking Songs - reAudioPlayer One"
+    }
+  },
+  {
     path: '/playlist/:id',
     component: () => import( /* webpackChunkName: "playlist" */ "@/views/Playlist.vue"),
     meta: {

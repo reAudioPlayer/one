@@ -150,6 +150,7 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     app.router.add_post('/api/spotify/recommend', metaHandler.spotifyRecommend)
 
     app.router.add_get('/api/collection/tracks', collectionHandler.tracks)
+    app.router.add_get('/api/collection/tracks/breaking', collectionHandler.breaking)
 
     app.router.add_post('/api/match', sportsHandler.getMatch)
     app.router.add_get('/api/match/volley/{hash}', sportsHandler.getVolleyMatch)
@@ -159,6 +160,7 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
 
     app.router.add_get('/api/download/{id}', downloadHandler.download)
     app.router.add_get('/api/stream', downloadHandler.stream)
+    app.router.add_get('/api/stream/{id}', downloadHandler.streamFromCache)
 
     app.router.add_post('/api/add', playlistHandler.addSong)
     app.router.add_post('/api/remove', playlistHandler.removeSong)

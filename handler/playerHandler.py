@@ -44,7 +44,9 @@ class PlayerHandler:
         if x.get("type") == "playlist":
             asyncio.create_task(self._player.loadPlaylist(self._playlistManager.get(x["id"])))
         elif x.get("type") == "collection":
-            asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist(self._dbManager, songs = self._dbManager.getSongByCustomFilter("favourite=1"), name = "Liked Songs")))
+            asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist.Liked(self._dbManager)))
+        elif x.get("type") == "collection/breaking":
+            asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist.Breaking(self._dbManager)))
         elif x.get("type") == "track":
             print(f"id={x['id']}")
             asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist(self._dbManager, songs = self._dbManager.getSongByCustomFilter(f"id={x['id']}"), name = x['id'])))
@@ -60,15 +62,18 @@ class PlayerHandler:
 
     async def loadSongAt(self, request: web.Request):
         x = await request.json()
-        collection: Optional[PlayerPlaylist] = None
-        if x.get("type") == "collection":
-            collection = PlayerPlaylist(self._dbManager, songs = self._dbManager.getSongByCustomFilter("favourite=1"), name = "Liked Songs")
         async def _implement() -> None:
+            print(x.get("type"))
             if "playlistIndex" in x:
                 if not await self._player.loadPlaylist(self._playlistManager.get(x.get("playlistIndex")), x["index"]):
                     await self._player.at(x["index"])
+            elif x.get("type") == "collection/breaking":
+                print("do breaking!!")
+                if not await self._player.loadPlaylist(PlayerPlaylist.Breaking(self._dbManager), x["index"]):
+                    await self._player.at(x["index"])
+                print("hello??")
             elif x.get("type") == "collection":
-                if not await self._player.loadPlaylist(collection, x["index"]):
+                if not await self._player.loadPlaylist(PlayerPlaylist.Liked(self._dbManager), x["index"]):
                     await self._player.at(x["index"])
             await self._player.at(x["index"])
 

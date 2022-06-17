@@ -43,12 +43,22 @@ class PlayerPlaylist:
         self._updateCover(cover)
         self._load(playlistIndex, songs)
 
+    @staticmethod
+    def Liked(dbManager: DbManager) -> PlayerPlaylist:
+        print("liked")
+        return PlayerPlaylist(dbManager, songs = dbManager.getLikedSongs(), name="Liked Songs", playlistIndex = -1)
+
+    @staticmethod
+    def Breaking(dbManager: DbManager) -> PlayerPlaylist:
+        print("breaking")
+        return PlayerPlaylist(dbManager, songs = dbManager.getLatestSongs(25), name="Breaking", playlistIndex = -2)
+
     def _updateCover(self, cover: str) -> None:
         self._cover: str = cover or (self._playlist[0].cover if len(self._playlist) > 0 else "/assets/img/music_placeholder.png")
 
     def _load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
         """loads from database"""
-        if playlistIndex is None and songs is not None:
+        if (playlistIndex is None or playlistIndex < 0) and songs is not None:
             self._playlist.update(songs)
             return
 
@@ -116,7 +126,7 @@ class PlayerPlaylist:
         x = self._dbManager.getSongByCustomFilter(f"source='{song.source}'")[0]
         self._playlist.append(x)
         songs = list(map(lambda x: x.id, self._playlist))
-        self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex, self._description))
+        self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex, self._description, self._cover))
 
     def remove(self, songId: int) -> None:
         x = self._dbManager.getSongById(songId)

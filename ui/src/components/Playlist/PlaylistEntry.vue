@@ -178,6 +178,10 @@
                 {
                     body.type = "collection"
                 }
+                if (this.$route.path.includes("/collection/tracks/breaking"))
+                {
+                    body.type = "collection/breaking"
+                }
                 fetch("/api/at", {
                     method: "POST",
                     body: JSON.stringify(body)
