@@ -3,7 +3,7 @@
         <div class="navEntry" :class="{ active, img }">
             <span v-if="icon" class="material-icons-round icon">{{icon}}</span>
             <img v-if="img" class="icon" :src="img">
-            <span v-if="!minimised" class="name">{{name}}</span>
+            <span v-if="!minimised" class="name hideIfMobile">{{name}}</span>
         </div>
     </router-link>
 </template>
@@ -37,6 +37,9 @@
 </script>
 
 <style scoped lang="scss">
+    $horizontalWidth: 1200px;
+    $mobileWidth: 950px;
+
     .link {
         text-decoration: none;
     }
@@ -72,6 +75,10 @@
 
     .icon {
         width: 40px;
+
+        @media screen and (max-width: $mobileWidth) {
+            width: 34px;
+        }
     }
 
     img.icon {

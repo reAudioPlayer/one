@@ -1,6 +1,6 @@
 <template>
   <div class="player">
-    <audio ref="audio" src="/api/stream" style="display: none" />
+    <audio ref="audio" @ended="get('next')" src="/api/stream" style="display: none" />
     <div class="left">
       <img v-if="expandCover" @click="onExpandCover" :src="cover" />
       <div class="titleartist">
@@ -15,18 +15,19 @@
       </div>
       <span
         @click="favourited = !favourited"
-        class="favourite material-icons-round">
+        class="favourite material-icons-round hideIfMobile">
         {{ favourited ? "favorite" : "favorite_border" }}</span>
     </div>
     <div class="centre">
       <div class="upper">
-        <span @click="shuffle = !shuffle" class="material-icons-round defaultbtn">{{ shuffle ? "shuffle_on" : "shuffle" }}</span>
-        <span @click="get('last')" class="material-icons-round defaultbtn">skip_previous</span>
-        <span @click="playPause" class="material-icons-round circle">{{playing ? "pause_circle" : "play_circle"}}</span>
-        <span @click="get('next')" class="material-icons-round defaultbtn">skip_next</span>
-        <span @click="songLoop = !songLoop" class="material-icons-round defaultbtn">{{ songLoop ? "repeat_one" : "repeat" }}</span>
+        <span @click="shuffle = !shuffle" class="material-icons-round defaultbtn hideIfMobile">{{ shuffle ? "shuffle_on" : "shuffle" }}</span>
+        <span @click="get('last')" class="material-icons-round defaultbtn hideIfMobile">skip_previous</span>
+        <span @click="playPause" class="material-icons-round circle hideIfMobile">{{playing ? "pause_circle" : "play_circle"}}</span>
+        <span @click="playPause" class="material-icons-round circle showIfMobile">{{playing ? "pause" : "play_arrow"}}</span>
+        <span @click="get('next')" class="material-icons-round defaultbtn hideIfMobile">skip_next</span>
+        <span @click="songLoop = !songLoop" class="material-icons-round defaultbtn hideIfMobile">{{ songLoop ? "repeat_one" : "repeat" }}</span>
       </div>
-      <div class="lower">
+      <div class="lower hideIfMobile">
         <span class="positionLabel">{{ progresslbl }}</span>
         <input
           @change="progresschange"
@@ -38,7 +39,7 @@
         <span class="positionLabel">{{ durationStr }}</span>
       </div>
     </div>
-    <div class="right">
+    <div class="right hideIfMobile">
       <span class="material-icons-round defaultbtn">volume_up</span>
       <input @change="volumechange" ref="volume" type="range" class="volume" />
     </div>
@@ -173,6 +174,13 @@
           this.$nextTick(() => {
             this.$refs.volume.value = 100;
           })
+
+          fetch("/api/setVolume", {
+            method: "POST",
+            body: JSON.stringify({
+                value: 0
+            })
+          })
         }
         else
         {
@@ -194,13 +202,6 @@
             .then(value => {
               this.shuffle = value == "True"
             })
-
-        fetch("/api/setVolume", {
-            method: "POST",
-            body: JSON.stringify({
-                value: playInBrowser ? 0 : (this.$refs?.volume?.value || 100)
-            })
-        })
 
         return {
             favourited: this.favourite,
@@ -352,7 +353,10 @@
   }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+$horizontalWidth: 1200px;
+$mobileWidth: 950px;
+
 div.player {
   background: var(--player-background);
   height: calc(var(--player-height) - 21px);
@@ -362,6 +366,18 @@ div.player {
   padding: 10px;
   border-top: 1px solid var(--border);
   z-index: 1;
+
+  @media screen and (max-width: $mobileWidth) {
+    height: calc(var(--player-height-mobile) - 7px);
+    padding: 3px;
+    position: absolute;
+    bottom: var(--sidebar-height);
+    left: 0;
+    width: 100vw;
+    z-index: 5;
+    border-top: none;
+    border-bottom: 1px solid var(--border);
+  }
 }
 
 .favourite {
@@ -369,6 +385,10 @@ div.player {
   margin-left: 20px;
   font-size: 1.2em;
   color: var(--font-darker);
+
+  @media screen and (max-width: $mobileWidth) {
+    line-height: calc(var(--player-height-mobile) - 40px);
+  }
 }
 
 .favourite:hover {
@@ -381,12 +401,23 @@ div.player {
   flex-direction: row;
   padding: 10px;
   width: 25vw;
-}
 
-.left > img {
-  height: calc(var(--player-height) - 40px);
-  border-radius: 5px;
-  margin-right: 10px;
+  @media screen and (max-width: $mobileWidth) {
+    max-height: calc(var(--player-height-mobile) - 6px);
+    padding: 3px;
+    max-width: inherit;
+    flex-grow: 1;
+  }
+
+  img {
+    height: calc(var(--player-height) - 40px);
+    border-radius: 5px;
+    margin-right: 10px;
+
+    @media screen and (max-width: $mobileWidth) {
+      height: calc(var(--player-height-mobile) - 12px);
+    }
+  }
 }
 
 .left > .titleartist {
@@ -395,6 +426,11 @@ div.player {
   justify-content: center;
 
   max-width: 20vw;
+
+  @media screen and (max-width: $mobileWidth) {
+    max-width: inherit;
+    width: 100%;
+  }
 }
 
 .left > .titleartist > .title {
@@ -417,6 +453,10 @@ div.player {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+
+  @media screen and (max-width: $mobileWidth) {
+    max-height: calc(var(--player-height-mobile) - 6px);
+  }
 }
 
 .centre > .upper {
@@ -480,5 +520,9 @@ input[type="range"]:hover {
   align-items: center;
   justify-content: flex-end;
   width: 25vw;
+}
+
+span.circle.showIfMobile {
+  font-size: 1.4em;
 }
 </style>

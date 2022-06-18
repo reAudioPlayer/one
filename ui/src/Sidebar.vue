@@ -1,13 +1,13 @@
 <template>
     <div class="sidebar">
         <div class="static">
-            <div class="collapseSidebar" :class=" { 'minimised': minimised } ">
+            <div class="collapseSidebar hideIfMobile" :class=" { 'minimised': minimised } ">
                 <h2 v-if="!minimised" @click="onLogoClick">reAudioPlayer One</h2>
                 <span @click="minimised = !minimised"
                     class="hideIfMobile clickSymbol material-symbols-rounded">{{ minimised ? "chevron_right" : "chevron_left" }}</span>
             </div>
             <nav-entry :minimised="minimised" href="/" icon="home" name="Home" />
-            <nav-entry :minimised="minimised" href="/search" icon="search" name="Search" />
+            <nav-entry class="hideIfMobile" :minimised="minimised" href="/search" icon="search" name="Search" />
             <nav-entry :minimised="minimised" href="/collection/playlists" icon="library_music" name="Your Library"
                 :hasChildSites="true" parentHref="/collection" />
             <br v-if="showNewsTab || showSportsTab">
@@ -15,26 +15,26 @@
                 :hasChildSites="true" />
             <nav-entry :minimised="minimised" v-if="showSportsTab" href="/sports" icon="sports_soccer" name="Sports"
                 :hasChildSites="true" />
-            <br>
-            <nav-entry :minimised="minimised" href="/playlist/create" icon="add_circle" name="Create Playlist" />
+            <br class="hideIfMobile">
+            <nav-entry class="hideIfMobile" :minimised="minimised" href="/playlist/create" icon="add_circle" name="Create Playlist" />
             <nav-entry :minimised="minimised" href="/collection/tracks/breaking" icon="trending_up" name="Breaking" />
             <nav-entry :minimised="minimised" href="/collection/tracks" icon="favorite" name="Liked Songs" />
         </div>
         <template v-if="!minimised">
-            <hr>
-            <div class="playlistList expanded">
+            <hr class="hideIfMobile">
+            <div class="playlistList expanded hideIfMobile">
                 <router-link v-for="(element, index) in playlists" :key="index" :to="element.href">{{element.name}}
                 </router-link>
             </div>
         </template>
         <template v-else>
-            <hr>
-            <div class="playlistList">
+            <hr class="hideIfMobile">
+            <div class="playlistList hideIfMobile">
                 <nav-entry v-for="(element, index) in playlists" :key="index" :minimised="minimised"
                     :href="element.href" :img="element.cover" :name="element.name" />
             </div>
         </template>
-        <img v-if="expandCover" @click="hideCover" :src="cover" class="cover" />
+        <img v-if="expandCover" @click="hideCover" :src="cover" class="cover hideIfMobile" />
     </div>
 </template>
 
@@ -132,6 +132,9 @@
 </script>
 
 <style scoped lang="scss">
+    $horizontalWidth: 1200px;
+    $mobileWidth: 950px;
+
     .collapseSidebar {
         display: flex;
         flex-direction: row;
@@ -156,6 +159,13 @@
     .static {
         flex-shrink: 0;
         flex-grow: 0;
+
+        @media screen and (max-width: $mobileWidth) {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+        }
     }
 
     h2 {
@@ -204,6 +214,13 @@
         padding: 10px;
         max-height: calc(100vh - var(--player-height) - 20px);
         z-index: 1;
+
+        @media screen and (max-width: $mobileWidth) {
+            flex-direction: row;
+            width: calc(100vw - 20px);
+            position: absolute;
+            bottom: 0;
+        }
     }
 
     h2:hover {

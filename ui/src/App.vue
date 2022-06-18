@@ -234,6 +234,10 @@ import PlayerInPicture from "./PlayerInPicture.vue";
     }
 </style>
 
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+</style>
+
 <style lang="scss">
     @import "./assets/css/scrollbars.css";
 
@@ -250,11 +254,18 @@ import PlayerInPicture from "./PlayerInPicture.vue";
         border-color: var(--font-darker)
     }
 
+    $horizontalWidth: 1200px;
+    $mobileWidth: 950px;
+
     div.interface {
         display: flex;
         flex-direction: row;
         flex-grow: 1;
         z-index: 2;
+
+        @media screen and (max-width: $mobileWidth) {
+            flex-direction: column;
+        }
     }
 
     div.appRoot {
@@ -290,9 +301,6 @@ import PlayerInPicture from "./PlayerInPicture.vue";
         background-size: cover;
         transform: scale(1.1);
     }
-
-    $horizontalWidth: 1200px;
-    $mobileWidth: 950px;
 
     .mobileMenu {
         display: flex;

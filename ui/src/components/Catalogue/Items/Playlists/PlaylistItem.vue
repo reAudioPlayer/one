@@ -4,7 +4,7 @@
         <div class="item" @click="redirect">
             <img :src="cover" />
             <h4>{{title}}</h4>
-            <p v-html="description" />
+            <p class="hideIfMobile" v-html="description" />
         </div>
     </div>
 </template>
@@ -37,7 +37,10 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    $horizontalWidth: 1200px;
+    $mobileWidth: 950px;
+
     p.note {
         font-size: .7em;
     }
@@ -57,15 +60,29 @@
     .item {
         padding: 20px;
         height: calc(100% - 40px);
+
+        @media screen and (max-width: $mobileWidth) {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
     }
 
     img {
         width: 100%;
         border-radius: 2px;
+
+        @media screen and (max-width: $mobileWidth) {
+            width: 20%;
+        }
     }
 
     h4 {
         margin: 0;
+
+        @media screen and (max-width: $mobileWidth) {
+            margin-left: 20px;
+        }
     }
 
     p {

@@ -1,14 +1,15 @@
 <template>
     <div class="fixedPlaylistHeader">
         <div class="upperWrapper">
-            <span id="loadPlaylist" @click="this.$emit('loadPlaylist')" class="material-icons-outlined">play_circle_filled</span>
+            <span id="loadPlaylist" @click="this.$emit('loadPlaylist')" class="material-symbols-rounded hideIfMobile">play_circle</span>
             <h3>{{title}}</h3>
         </div>
-        <grid-header class="padding-20 darkback" />
+        <grid-header class="padding-20 darkback hideIfMobile" />
     </div>
 </template>
+
 <script>
-import GridHeader from '../Playlist/GridHeader.vue'
+import GridHeader from './GridHeader.vue'
 
 export default {
     name: "FixedPlaylistHeader",
@@ -21,7 +22,9 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    $mobileWidth: 950px;
+
     .padding-20 {
         padding-left: 20px;
         padding-right: 20px;
@@ -39,6 +42,10 @@ export default {
         display: flex;
         flex-direction: row;
         background: var(--accent-dark);
+
+        @media screen and (max-width: $mobileWidth) {
+            justify-content: center;
+        }
     }
 
     #loadPlaylist {
@@ -58,6 +65,10 @@ export default {
         display: inline;
         margin: 0;
         margin-left: 10px;
+
+        @media screen and (max-width: $mobileWidth) {
+            font-size: 1em;
+        }
     }
 
     .fixedPlaylistHeader {
@@ -70,5 +81,10 @@ export default {
         z-index: 100;
         height: 80px;
         padding-bottom: 10px;
+
+        @media screen and (max-width: $mobileWidth) {
+            left: 0;
+            height: 45px;
+        }
     }
 </style>

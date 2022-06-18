@@ -28,7 +28,10 @@ import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    $horizontalWidth: 1200px;
+    $mobileWidth: 950px;
+
     p.note {
         font-size: .8em;
     }
@@ -39,6 +42,10 @@ import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
         border-radius: 5px;
         min-height: 10vh;
         margin: 10px;
+
+        @media screen and (max-width: $mobileWidth) {
+            grid-column: span 1;
+        }
     }
 
     .item {

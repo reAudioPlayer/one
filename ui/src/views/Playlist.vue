@@ -17,10 +17,10 @@
         </div>
         <hr>
         <div class="padding-20">
-            <span id="loadPlaylist" @click="loadPlaylist" class="material-icons-outlined">play_circle_filled</span>
-            <span id="addToPlaylist" @click="addToPlaylist" class="material-icons-outlined">add_circle</span>
+            <span id="loadPlaylist" @click="loadPlaylist" class="material-symbols-rounded">play_circle</span>
+            <span id="addToPlaylist" @click="addToPlaylist" class="material-symbols-rounded">add_circle</span>
             <div class="grid">
-                <grid-header />
+                <grid-header class="hideIfMobile" />
                 <hr>
                 <div class="playlistEntries">
                     <draggable v-model="playlist" @change="onPlaylistRearrange">

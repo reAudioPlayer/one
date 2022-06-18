@@ -10,7 +10,7 @@
         <div class="padding-20">
             <span id="loadPlaylist" @click="loadPlaylist" class="material-icons-outlined">play_circle_filled</span>
             <div class="grid">
-                <grid-header />
+                <grid-header class="hideIfMobile" />
                 <hr>
                 <div class="playlistEntries">
                     <playlist-entry v-for="(element, index) in playlist" :key="index" :index="index" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />

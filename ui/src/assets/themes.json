@@ -215,5 +215,11 @@
     },
     "player-height": {
         "default": "88px"
+    },
+    "player-height-mobile": {
+        "default": "64px"
+    },
+    "sidebar-height": {
+        "default": "64px"
     }
 }
