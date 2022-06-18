@@ -33,6 +33,8 @@ try:
 
     from aiohttp_index import IndexMiddleware
 
+    import aiohttp_cors
+
     import pygame
 
     import logging
@@ -174,9 +176,23 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     app.router.add_get('/api/config/ready', configHandler.ready)
     app.router.add_post('/api/config/spotify', configHandler.spotifyConfig)
 
-    app.add_routes([web.get('/ws', websocket.websocket_handler)])
+    app.router.add_get('/ws', websocket.websocket_handler)
 
     app.router.add_static('/', './ui/dist')
+
+    # Configure default CORS settings.
+    cors = aiohttp_cors.setup(app, defaults={
+        "*": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+            )
+    })
+
+    # Configure CORS on all routes.
+    for route in list(app.router.routes()):
+        cors.add(route)
+
     return app
 
 MUSIC_END = pygame.USEREVENT + 1 # pylint: disable=no-member

@@ -19,9 +19,14 @@ class Search:
         self._spotifyArtists = [ ]
         self._youtubeTracks = [ ]
 
-        self._spotifyTracks = SpotifyTrack.FromQuery(spotify, query)
-        self._youtubeTracks = YoutubeTrack.FromQuery(query) 
-        self._spotifyArtists = SpotifyArtist.FromQuery(spotify, query)
+        self._youtubeTracks = YoutubeTrack.FromQuery(query)
+
+        try:
+            self._spotifyTracks = SpotifyTrack.FromQuery(spotify, query)
+            self._spotifyArtists = SpotifyArtist.FromQuery(spotify, query)
+        except:
+            self._spotifyTracks = [ ]
+            self._spotifyArtists = [ ]
 
     @staticmethod
     def searchTracks(dbManager: DbManager, query: str) -> list:
