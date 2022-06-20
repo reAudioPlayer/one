@@ -13,7 +13,7 @@ hashLookup = { }
 
 
 class Article:
-    def __init__(self, entry: dict, feedTitle: str) -> None:
+    def __init__(self, entry: Dict[str, Any], feedTitle: str) -> None:
         self._title = entry.get("title")
         self._author = entry.get("author")
         self._summary = entry.get("summary")
@@ -34,7 +34,7 @@ class Article:
             else:
                 self._image = image.get("url")
 
-    def toJson(self) -> dict:
+    def toJson(self) -> Dict[str, Any]:
         return {
             "title": self._title,
             "author": self._author,

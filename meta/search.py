@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+
+from dataModels.song import Song
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-from typing import Union
-import spotipy
+from typing import List, Union, Any, Dict
+import spotipy # type: ignore
 
 from db.dbManager import DbManager
 
@@ -29,10 +31,10 @@ class Search:
             self._spotifyArtists = [ ]
 
     @staticmethod
-    def searchTracks(dbManager: DbManager, query: str) -> list:
+    def searchTracks(dbManager: DbManager, query: str) -> List[Song]:
         return dbManager.getSongsByQuery(query)
 
-    def toDict(self) -> dict:
+    def toDict(self) -> Dict[str, Any]:
         return {
             "tracks": [ self._trackToDict(track) for track in self._tracks ],
             "artists": [ self._trackToDict(track) for track in self._artists ],
@@ -41,7 +43,7 @@ class Search:
             "youtubeTracks": [ self._trackToDict(track) for track in self._youtubeTracks ]
         }
 
-    def _trackToDict(self, track: Union[SpotifyTrack, YoutubeTrack]) -> dict: # extend with spotify
+    def _trackToDict(self, track: Union[SpotifyTrack, YoutubeTrack]) -> Dict[str, Any]: # extend with spotify
         return {
             "title": track._title,
             "album": track._album,

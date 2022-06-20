@@ -2,7 +2,7 @@
 """reAudioPlayer ONE"""
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 import requests # TODO aiohttp
@@ -19,7 +19,7 @@ class Article:
         self._date = None
         self._body = None
 
-    def toJson(self) -> dict:
+    def toJson(self) -> Dict[str, Any]:
         return {
             "href": self._url,
             "topic": self._topic,

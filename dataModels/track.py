@@ -9,11 +9,11 @@ from ytmusicapi import YTMusic
 from sclib import SoundcloudAPI, Track
 
 import re
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 
 class SpotifyTrack:
-    def __init__(self, track: dict) -> None:
+    def __init__(self, track: Dict[str, Any]) -> None:
         self._title = track.get("name")
         album = track.get("album")
         if album:
@@ -61,7 +61,7 @@ class SpotifyTrack:
         return [ SpotifyTrack(track) for track in tracks ]
 
 class SpotifyPlaylist:
-    def __init__(self, playlist: dict) -> None:
+    def __init__(self, playlist: Dict[str, Any]) -> None:
         self._name = playlist.get("name")
         self._description = playlist.get("description")
         self._cover = playlist.get("images")[0]["url"]
@@ -69,7 +69,7 @@ class SpotifyPlaylist:
         self._owner = playlist.get("owner")
         self._trackCount = playlist.get("tracks").get("total")
 
-    def toDict(self) -> dict:
+    def toDict(self) -> Dict[str, Any]:
         return {
             "name": self._name,
             "description": self._description,
@@ -81,7 +81,7 @@ class SpotifyPlaylist:
 
 
 class SpotifyArtist:
-    def __init__(self, artist: dict) -> None:
+    def __init__(self, artist: Dict[str, Any]) -> None:
         self._name = artist.get("name")
         self._id = artist.get("id")
         self._cover = artist.get("images")[0]["url"] if len(artist.get("images")) > 0 else None
@@ -92,7 +92,7 @@ class SpotifyArtist:
         artists = spotify.search(query, type="artist")["artists"]["items"]
         return [ SpotifyArtist(artist) for artist in artists ]
 
-    def toDict(self) -> dict:
+    def toDict(self) -> Dict[str, Any]:
         return {
             "name": self._name,
             "description": self._description,
@@ -101,7 +101,7 @@ class SpotifyArtist:
         }
 
 class SpotifyAlbum:
-    def __init__(self, album: dict) -> None:
+    def __init__(self, album: Dict[str, Any]) -> None:
         self._title = album.get("name")
         if "images" in album: # probably album
             self._cover = album.get("images")[0]["url"]
@@ -117,7 +117,7 @@ ytmusic = YTMusic()
 
 
 class YoutubeTrack:
-    def __init__(self, track: dict) -> None:
+    def __init__(self, track: Dict[str, Any]) -> None:
         self._title = track["title"]
         album = track.get("album")
         self._album = album.get("name") if album else None

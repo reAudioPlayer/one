@@ -10,10 +10,10 @@ class CollectionHandler:
     def __init__(self, dbManager: DbManager) -> None:
         self._dbManager = dbManager
 
-    async def tracks(self, _: web.Request):
+    async def tracks(self, _: web.Request) -> web.Response:
         tracks = PlayerPlaylist.Liked(self._dbManager)
         return web.json_response(data = tracks.toDict())
 
-    async def breaking(self, _: web.Request):
+    async def breaking(self, _: web.Request) -> web.Response:
         tracks = PlayerPlaylist.Breaking(self._dbManager)
         return web.json_response(data = tracks.toDict())

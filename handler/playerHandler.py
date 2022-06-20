@@ -19,27 +19,27 @@ class PlayerHandler:
         self._playlistManager = playlistManager
         self._dbManager = dbManager
 
-    async def getPlay(self, _: web.Request):
+    async def getPlay(self, _: web.Request) -> web.Response:
         asyncio.create_task(self._player.play())
         return web.Response(status = 200, text = "success!")
 
-    async def getPause(self, _: web.Request):
+    async def getPause(self, _: web.Request) -> web.Response:
         asyncio.create_task(self._player.pause())
         return web.Response(status = 200, text = "success!")
 
-    async def getPlayPause(self, _: web.Request):
+    async def getPlayPause(self, _: web.Request) -> web.Response:
         asyncio.create_task(self._player.playPause())
         return web.Response(status = 200, text = "success!")
 
-    async def getNext(self, _: web.Request):
+    async def getNext(self, _: web.Request) -> web.Response:
         asyncio.create_task(self._player.next())
         return web.Response(status = 200, text = "success!")
 
-    async def getLast(self, _: web.Request):
+    async def getLast(self, _: web.Request) -> web.Response:
         asyncio.create_task(self._player.last())
         return web.Response(status = 200, text = "success!")
 
-    async def loadPlaylist(self, request: web.Request):
+    async def loadPlaylist(self, request: web.Request) -> web.Response:
         x = await request.json()
         if x.get("type") == "playlist":
             asyncio.create_task(self._player.loadPlaylist(self._playlistManager.get(x["id"])))
@@ -52,15 +52,15 @@ class PlayerHandler:
             asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist(self._dbManager, songs = self._dbManager.getSongByCustomFilter(f"id={x['id']}"), name = x['id'])))
         return web.Response(status = 200, text = "success!")
 
-    async def setVolume(self, request: web.Request):
+    async def setVolume(self, request: web.Request) -> web.Response:
         x = await request.json()
         pygame.mixer.music.set_volume(int(x["value"]) / 100.0)
         return web.Response(status = 200, text = "success!")
 
-    async def getVolume(self, _: web.Request):
+    async def getVolume(self, _: web.Request) -> web.Response:
         return web.Response(status = 200, text = str(round(pygame.mixer.music.get_volume() * 100.0)))
 
-    async def loadSongAt(self, request: web.Request):
+    async def loadSongAt(self, request: web.Request) -> web.Response:
         x = await request.json()
         async def _implement() -> None:
             print(x.get("type"))
@@ -80,31 +80,31 @@ class PlayerHandler:
         asyncio.create_task(_implement())
         return web.Response(status = 200, text = "success!")
 
-    async def updateSong(self, request: web.Request) -> None:
+    async def updateSong(self, request: web.Request) -> web.Response:
         jdata = await request.json()
         self._player.updateSongMetadata(jdata["id"], Song.FromDict(jdata))
         return web.Response(status = 200, text = "success!")
 
-    async def setShuffle(self, request: web.Request):
+    async def setShuffle(self, request: web.Request) -> web.Response:
         x = await request.json()
         self._player.shuffle = bool(x["value"])
         return web.Response(status = 200, text = "success!")
 
-    async def getShuffle(self, _: web.Request):
+    async def getShuffle(self, _: web.Request) -> web.Response:
         return web.Response(status = 200, text = str(self._player.shuffle))
 
-    async def setLoopSong(self, request: web.Request):
+    async def setLoopSong(self, request: web.Request) -> web.Response:
         x = await request.json()
         self._player.loopSong = bool(x["value"])
         return web.Response(status = 200, text = "success!")
 
-    async def getLoopSong(self, _: web.Request):
+    async def getLoopSong(self, _: web.Request) -> web.Response:
         return web.Response(status = 200, text = str(self._player.loopSong))
 
-    async def setPos(self, request: web.Request):
+    async def setPos(self, request: web.Request) -> web.Response:
         x = await request.json()
         self._player.setPos(x["value"])
         return web.Response(status = 200, text = "success!")
 
-    async def getPos(self, _: web.Request):
+    async def getPos(self, _: web.Request) -> web.Response:
         return web.Response(status = 200, text = str(self._player.getPos()))

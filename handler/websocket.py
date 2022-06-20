@@ -2,8 +2,9 @@
 """reAudioPlayer ONE"""
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 import aiohttp
+from aiohttp import web
 import json
 
 from aiohttp.web_ws import WebSocketResponse
@@ -11,8 +12,8 @@ from dataModels.song import Song
 
 from player.player import Player
 
-class Message(dict):
-    def __init__(self, data: Union[str, dict]) -> None:
+class Message(dict): # type: ignore
+    def __init__(self, data: Union[str, Dict[str, Any]]) -> None:
         if isinstance(data, str):
             super().__init__(json.loads(data))
         else:
@@ -56,7 +57,7 @@ class Websocket:
             "data": pos
         }))
 
-    async def websocket_handler(self, request):
+    async def websocket_handler(self, request: web.Request) -> WebSocketResponse:
         ws = WebSocketResponse()
         self._connections.append(ws)
         await ws.prepare(request)
@@ -71,11 +72,11 @@ class Websocket:
                 if msg.data == 'close':
                     await ws.close()
                 else:
-                    msg = Message(msg.data)
-                    if not msg.valid:
+                    data = Message(msg.data)
+                    if not data.valid:
                         await ws.send_str('invalid message')    
                         continue
-                    await self._handle(ws, msg)
+                    await self._handle(ws, data)
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 print('ws connection closed with exception %s' %
                     ws.exception())

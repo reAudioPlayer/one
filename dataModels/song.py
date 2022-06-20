@@ -3,7 +3,7 @@
 from __future__ import annotations
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 import math
 
 
@@ -85,7 +85,7 @@ class Song:
     def id(self) -> int:
         return self._id
 
-    def toDict(self) -> dict:
+    def toDict(self) -> Dict[str, Any]:
         return {
             "album": self._album,
             "artist": self._artist,
@@ -98,7 +98,7 @@ class Song:
         }
 
     @staticmethod
-    def FromDict(data: dict) -> Song:
+    def FromDict(data: Dict[str, Any]) -> Song:
         def castDuration(string: str) -> int:
             try:
                 return int(string.split(":")[0]) * 60 + int(string.split(":")[1])

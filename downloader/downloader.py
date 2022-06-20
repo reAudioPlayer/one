@@ -4,7 +4,7 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import asyncio
 from os import path
-from yt_dlp import YoutubeDL
+from yt_dlp import YoutubeDL # type: ignore
 from helpers.asyncThread import asyncRunInThreadWithReturn
 
 
@@ -35,7 +35,7 @@ class Downloader:
         self._ydl = YoutubeDL(self._ydl_opts)
         #self._ydl.add_post_processor(OnDownloadFinishedPP(player))
 
-    async def downloadSong(self, link, filename = "upNow") -> bool:
+    async def downloadSong(self, link: str, filename: str = "upNow") -> bool:
         relName = f"./_cache/{filename}.%(ext)s"
 
         if filename in DOWNLOADING:
@@ -50,7 +50,7 @@ class Downloader:
         try:
             err = await asyncRunInThreadWithReturn(self._ydl.download, [ link ])
             DOWNLOADING.remove(filename)
-            return err == 0
+            return isinstance(err, int) and err == 0
         except:
             print(f"{filename} could not be downloaded ({relName.replace('%(ext)s', 'mp3')})")
             DOWNLOADING.remove(filename)

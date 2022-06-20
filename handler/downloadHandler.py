@@ -8,8 +8,8 @@ import aiohttp
 from multidict import MultiDict
 from db.dbManager import DbManager
 from downloader.downloader import Downloader
-import eyed3
-from eyed3.id3.frames import ImageFrame
+import eyed3 # type: ignore
+from eyed3.id3.frames import ImageFrame # type: ignore
 
 from player.player import Player
 
@@ -20,14 +20,14 @@ class DownloadHandler:
         self._downloader = downloader
         self._player = player
 
-    async def download(self, request: web.Request):
+    async def download(self, request: web.Request) -> web.Response:
         id = int(request.match_info['id'])
         song = self._dbManager.getSongById(id)
         filename = f"{', '.join(song.artists)} - {song.title}".replace(",", "%2C") # header
         pathAndName = f"./_cache/{song.id}.mp3"
         if os.path.exists(pathAndName):
             os.remove(pathAndName)
-        await self._downloader.downloadSong(song.source, song.id)
+        await self._downloader.downloadSong(song.source, str(song.id))
         pathAndName = f"./_cache/{song.id}.mp3"
 
         file = eyed3.load(pathAndName)
@@ -48,7 +48,7 @@ class DownloadHandler:
         os.remove(pathAndName)
         return web.Response()
 
-    async def streamFromCache(self, request: web.Request) -> web.Response:
+    async def streamFromCache(self, request: web.Request) -> web.FileResponse:
         index = int(request.match_info['id'])
         return web.FileResponse(f"./_cache/{index}.mp3")
 

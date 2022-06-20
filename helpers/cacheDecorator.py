@@ -4,15 +4,15 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from functools import wraps
 import asyncio
-from typing import Callable, Optional
-from aiohttp import web
+from typing import Any, Awaitable, Callable, Iterable, Union
+from aiohttp import Payload, web
 
-def useCache(expire: int):
-    def inner_function(function: Callable[[web.Request], web.Response]):
-        cache: Optional[dict] = None
+def useCache(expire: int) -> Callable[[Callable[[Any], Awaitable[web.Response]]], Callable[[Any, Any], Awaitable[web.Response]]]:
+    def inner_function(function: Callable[[Any], Awaitable[web.Response]]) -> Callable[[Any, Any], Awaitable[web.Response]]:
+        cache: Union[bytes, Payload, None] = None
 
         @wraps(function)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args: Any, **kwargs: Any) -> web.Response:
             nonlocal cache
 
             if cache is None:
@@ -26,6 +26,7 @@ def useCache(expire: int):
 
                 asyncio.create_task(invalidateCache())
 
-            return web.json_response(body= cache)
+            assert not isinstance(cache, Payload)
+            return web.json_response(body = cache)
         return wrapper
     return inner_function

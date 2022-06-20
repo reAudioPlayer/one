@@ -1,0 +1,23 @@
+name: mypy
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip3 install mypy pyserial aiohttp==3.7.4.post0 aiohttp_index
+    - name: Analysing...
+      id: paas
+      working-directory: ./
+      run: |
+        mypy
+      continue-on-error: false

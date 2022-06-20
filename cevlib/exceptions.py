@@ -1,2 +1,0 @@
-class NotInitialisedException(Exception):
-    pass

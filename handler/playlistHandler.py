@@ -13,17 +13,17 @@ class PlaylistHandler:
         self._player = player
         self._playlistManager = playlistManager
 
-    async def addSong(self, request: web.Request):
+    async def addSong(self, request: web.Request) -> web.Response:
         jdata = await request.json()
         self._playlistManager.addToPlaylist(jdata["id"], Song.FromDict(jdata))
         return web.Response(status = 200, text = "success!")
 
-    async def moveSong(self, request: web.Request):
+    async def moveSong(self, request: web.Request) -> web.Response:
         jdata = await request.json()
         self._playlistManager.moveInPlaylist(jdata["playlistIndex"], jdata["songOldIndex"], jdata["songNewIndex"])
         return web.Response(status = 200, text = "success!")
 
-    async def removeSong(self, request: web.Request):
+    async def removeSong(self, request: web.Request) -> web.Response:
         jdata = await request.json()
         if not "playlistId" in jdata:
             return web.Response(status = 400, text = "no playlistId")
@@ -32,7 +32,7 @@ class PlaylistHandler:
         self._playlistManager.removeFromPlaylist(jdata.get("playlistId"), jdata.get("songId"))
         return web.Response(status = 200, text = "success!")
 
-    async def getPlaylist(self, request: web.Request):
+    async def getPlaylist(self, request: web.Request) -> web.Response:
         index: Any = None
         try:
             jdata = await request.json()
@@ -40,24 +40,24 @@ class PlaylistHandler:
         except:
             pass
 
-        if index is None:
+        if not isinstance(index, int):
             return web.json_response(self._player.currentPlaylist.toDict())
         if index >= self._playlistManager.playlistLength:
             return web.Response(status = 404)
-        return web.json_response(self._playlistManager.get(index).toDict())
+        return web.json_response(self._playlistManager.ensure(index).toDict())
 
-    async def getPlaylists(self, _: web.Request):
+    async def getPlaylists(self, _: web.Request) -> web.Response:
         return web.json_response(list(map(lambda x: x.name, self._playlistManager._playlists)))
 
-    async def createPlaylist(self, _: web.Request):
+    async def createPlaylist(self, _: web.Request) -> web.Response:
         return web.Response(status = 200, text = str(self._playlistManager.addPlaylist()))
 
-    async def deletePlaylist(self, request: web.Request):
+    async def deletePlaylist(self, request: web.Request) -> web.Response:
         index = int(request.match_info['id'])
         self._playlistManager.removePlaylist(index)
         return web.Response(status = 200)
 
-    async def updatePlaylist(self, request: web.Request):
+    async def updatePlaylist(self, request: web.Request) -> web.Response:
         jdata = await request.json()
         self._playlistManager.updatePlaylist(jdata["id"], jdata.get("name"), jdata.get("description"), jdata.get("cover"))
         return web.Response(status = 200, text = "success!")

@@ -3,13 +3,14 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import os
+from typing import Awaitable, Callable
 
 
 try:
     from typing import Optional, Tuple
 
-    import spotipy
-    from spotipy.oauth2 import  SpotifyOAuth
+    import spotipy # type: ignore
+    from spotipy.oauth2 import  SpotifyOAuth # type: ignore
 
     from db.dbManager import DbManager
 
@@ -31,9 +32,9 @@ try:
     from aiohttp import web
     from aiohttp.web import middleware
 
-    from aiohttp_index import IndexMiddleware
+    from aiohttp_index import IndexMiddleware # type: ignore
 
-    import aiohttp_cors
+    import aiohttp_cors # type: ignore
 
     import pygame
 
@@ -79,16 +80,17 @@ def _getSpotifyAuth(id_: str, secret: str) -> Optional[SpotifyOAuth]: # pylint: 
     return SpotifyOAuth(id_, secret, "http://reap.ml/", scope = SCOPE)
 
 @middleware
-async def _exceptionMiddleware(request: web.Request, handler):
+async def _exceptionMiddleware(request: web.Request, handler: Callable[[web.Request], Awaitable[web.StreamResponse]]) -> web.StreamResponse:
     logger = logging.getLogger()
     start = time.time()
-    resp: Optional[web.Response] = None
+    resp: Optional[web.StreamResponse] = None
     try:
         resp = await handler(request)
     except Exception as exc: # pylint: disable=bare-except
         logger.exception(exc)
-        resp  = web.Response(status = 500, text = str(exc))
+        resp = web.Response(status = 500, text = str(exc))
     logger.info("%s %s (%s s)", request.method, request.path, time.time() - start)
+    assert resp is not None
     return resp
 
 async def _init() -> web.Application: # pylint: disable=too-many-statements
@@ -155,7 +157,6 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     app.router.add_get('/api/collection/tracks/breaking', collectionHandler.breaking)
 
     app.router.add_post('/api/match', sportsHandler.getMatch)
-    app.router.add_get('/api/match/volley/{hash}', sportsHandler.getVolleyMatch)
 
     app.router.add_get('/api/news', newsHandler.getSomeNews)
     app.router.add_get('/api/news/article/{hash}', newsHandler.getArticle)

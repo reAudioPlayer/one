@@ -9,7 +9,7 @@ from aiohttp import web
 
 
 class ConfigHandler:
-    async def ready(self, _: web.Request):
+    async def ready(self, _: web.Request) -> web.Response:
         if not exists("./config/spotify.json"):
             return web.Response(status = 400)
         with open("./config/spotify.json") as file:
@@ -17,7 +17,7 @@ class ConfigHandler:
             valid = None not in (config.get("id"), config.get("secret"))
         return web.Response(status = 200 if valid else 400)
 
-    async def spotifyConfig(self, request: web.Request):
+    async def spotifyConfig(self, request: web.Request) -> web.Response:
         jdata = await request.json()
         if None in (jdata.get("id"), jdata.get("secret")):
             return web.Response(status = 400)
