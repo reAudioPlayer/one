@@ -7,12 +7,12 @@ import spotipy # type: ignore
 
 import validators # type: ignore
 
-from dataModels.track import SoundcloudTrack, SpotifyTrack, YoutubeTrack
+from dataModels.track import ITrack, SoundcloudTrack, SpotifyTrack, YoutubeTrack
 
 
 class Metadata:
     def __init__(self, spotify: spotipy.Spotify, url: str) -> None:
-        self._track: Optional[Union[YoutubeTrack, SpotifyTrack, SoundcloudTrack]] = None
+        self._track: Optional[ITrack] = None
         self._src = None
         if not validators.url(url):
             return
@@ -31,11 +31,11 @@ class Metadata:
     def toDict(self) -> Dict[str, Any]: # extend with spotify
         assert self._track
         return {
-            "title": self._track._title,
-            "album": self._track._album,
-            "artists": self._track._artists,
-            "cover": self._track._cover,
+            "title": self._track.title,
+            "album": self._track.album,
+            "artists": self._track.artists,
+            "cover": self._track.cover,
             "src": self._src,
-            "preview": self._track._preview,
-            "markets": self._track._markets
+            "preview": self._track.preview,
+            "markets": self._track.markets
         }

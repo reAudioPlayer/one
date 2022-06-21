@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+from typing import Any, Dict, Optional
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import requests # type: ignore
@@ -10,19 +11,19 @@ import re
 
 class Match:
     def __init__(self, url: str) -> None:
-        self._url = url
-        self._html = None
-        self._soup = None
-        self._team1 = None
-        self._team2 = None
-        self._result = None
-        self._competition = None
-        self._date = None
-        self._progress = None
-        self._sport = None
-        self._sref = self._url
-        self._oref = self._url
-        self._icon = None
+        self._url: str = url
+        self._html: Optional[str] = None
+        self._soup: Optional[BeautifulSoup] = None
+        self._team1: Optional[str]  = None
+        self._team2: Optional[str]  = None
+        self._result: Optional[str]  = None
+        self._competition: Optional[str]  = None
+        self._date: Optional[str]  = None
+        self._progress: Optional[str]  = None
+        self._sport: Optional[str]  = None
+        self._sref: str  = self._url
+        self._oref: str  = self._url
+        self._icon: Optional[str]  = None
 
     def toJson(self) -> Dict[str, Any]:
         return {
@@ -61,6 +62,7 @@ class OneFootballMatch(Match):
         aggregate = section.find("p", class_="match-score__aggregated-score")
         if aggregate:
             txt = aggregate.text.removesuffix(" ").removeprefix(" ").replace("-", ":")
+            assert self._result is not None
             self._result += f"<br><p class='accent additional-result'>({txt})</p>"
         self._sport = "Football"
         self._icon = "sports_soccer"
@@ -68,6 +70,7 @@ class OneFootballMatch(Match):
         if not progress:
             progress = section.find("div", class_="match-score__data").find("span", class_="match-score__highlighted-text")
         self._progress = progress.text
+
         competition = self._soup.find("span", class_="match-info__entry-subtitle")
         self._competition = competition.text
         competition.decompose()
@@ -82,7 +85,7 @@ class OneFootballTeam:
         html = requests.get(url).text
         soup = BeautifulSoup(html, "html.parser")
         matches = soup.find_all("a", class_="match-card", href=True)
-        href = None
+        href: Optional[str] = None
         for match in matches:
             if not match.find("span", text=" Full time "):
                 href = match["href"]
@@ -90,10 +93,11 @@ class OneFootballTeam:
             if match.find("time", text=re.compile(r"(.*)Yesterday(.*)")):
                 href = match["href"]
                 break
-        if not href:
+        if not isinstance(href, str):
             for match in matches:
                 href = match["href"]
                 break
+        assert href is not None
         return "https://onefootball.com" + href
 
 

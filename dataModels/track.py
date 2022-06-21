@@ -3,6 +3,8 @@
 from __future__ import annotations
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
+from abc import ABC, abstractproperty
+
 import spotipy
 from ytmusicapi import YTMusic
 
@@ -12,7 +14,37 @@ import re
 from typing import Any, Dict, List, Optional
 
 
-class SpotifyTrack:
+class ITrack(ABC):
+    @abstractproperty
+    def title(self) -> str:
+        pass
+
+    @abstractproperty
+    def album(self) -> str:
+        pass
+
+    @abstractproperty
+    def artists(self) -> List[str]:
+        pass
+
+    @abstractproperty
+    def cover(self) -> str:
+        pass
+
+    @abstractproperty
+    def url(self) -> str:
+        pass
+
+    @property
+    def preview(self) -> Optional[str]:
+        return None
+
+    @property
+    def markets(self) -> Optional[List[str]]:
+        return None
+
+
+class SpotifyTrack(ITrack):
     def __init__(self, track: Dict[str, Any]) -> None:
         self._title = track.get("name")
         album = track.get("album")
@@ -26,6 +58,26 @@ class SpotifyTrack:
         self._id = track.get("id")
         self._preview = track.get("preview_url")
         self._markets = track.get("available_markets")
+
+    @property
+    def markets(self) -> Optional[List[str]]:
+        return self._markets
+
+    @property
+    def artists(self) -> List[str]:
+        return self._artists
+
+    @property
+    def title(self) -> str:
+        return self._title
+
+    @property
+    def album(self) -> str:
+        return self._album
+
+    @property
+    def cover(self) -> str:
+        return self._cover
 
     @property
     def url(self) -> str:
@@ -116,7 +168,7 @@ class SpotifyAlbum:
 ytmusic = YTMusic()
 
 
-class YoutubeTrack:
+class YoutubeTrack(ITrack):
     def __init__(self, track: Dict[str, Any]) -> None:
         self._title = track["title"]
         album = track.get("album")
@@ -128,12 +180,33 @@ class YoutubeTrack:
         self._markets = [ ]
 
     @property
+    def artists(self) -> List[str]:
+        return self._artists
+
+    @property
+    def title(self) -> str:
+        return self._title
+
+    @property
+    def album(self) -> str:
+        return self._album
+
+    @property
+    def cover(self) -> str:
+        return self._cover
+
+    @property
+    def markets(self) -> Optional[List[str]]:
+        return self._markets
+
+    @property
     def url(self) -> str:
         return f"https://music.youtube.com/watch?v={self._id}"
 
     @staticmethod
     def FromUrl(url: str) -> YoutubeTrack:
         x = re.search(r"(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([a-zA-Z0-9_]+)", url, re.IGNORECASE)
+        assert x
         video = ytmusic.get_song(x.group(1))
         details = video.get("videoDetails")
         results = ytmusic.search(f"{details.get('author')} {details.get('title')}", filter = "songs")
@@ -145,7 +218,7 @@ class YoutubeTrack:
         })
 
     @staticmethod
-    def FromQuery(query: str) -> List[SpotifyTrack]:
+    def FromQuery(query: str) -> List[YoutubeTrack]:
         tracks = ytmusic.search(query, filter = "songs")
         return [ YoutubeTrack(track) for track in tracks ]
 
@@ -156,19 +229,39 @@ class YoutubeTrack:
             return YoutubeTrack(results[0])
         return None
 
-class SoundcloudTrack:
+class SoundcloudTrack(ITrack):
     def __init__(self, track: Track) -> None:
-        self._title = track.title
-        self._album = track.album or track.title
-        self._artists = [ track.artist ]
+        self._url: str = track.uri
+        self._title: str = track.title
+        self._album: str = track.album or track.title
+        self._artists: List[str] = [ track.artist ]
         self._id = track.id
-        self._cover = track.artwork_url.replace("large", "t500x500")
+        self._cover: str = track.artwork_url.replace("large", "t500x500")
         self._extendedTrack = track
         self._preview = None
-        self._markets = [ ]
 
     @staticmethod
     def FromUrl(url: str) -> SoundcloudTrack:
         track = SoundcloudAPI().resolve(url)
         assert type(track) is Track
         return SoundcloudTrack(track)
+
+    @property
+    def artists(self) -> List[str]:
+        return self._artists
+
+    @property
+    def title(self) -> str:
+        return self._title
+
+    @property
+    def album(self) -> str:
+        return self._album
+
+    @property
+    def cover(self) -> str:
+        return self._cover
+
+    @property
+    def url(self) -> str:
+        return self._url

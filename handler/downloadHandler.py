@@ -23,7 +23,6 @@ class DownloadHandler:
     async def download(self, request: web.Request) -> web.Response:
         id = int(request.match_info['id'])
         song = self._dbManager.getSongById(id)
-        filename = f"{', '.join(song.artists)} - {song.title}".replace(",", "%2C") # header
         pathAndName = f"./_cache/{song.id}.mp3"
         if os.path.exists(pathAndName):
             os.remove(pathAndName)
@@ -31,12 +30,15 @@ class DownloadHandler:
         pathAndName = f"./_cache/{song.id}.mp3"
 
         file = eyed3.load(pathAndName)
-        file.tag.artist = ", ".join(song.artists)
+        if song.artists:
+            file.tag.artist = ", ".join(song.artists)
         file.tag.title = song.title
         file.tag.album = song._album
 
+        filename = f"{file.tag.artist} - {song.title}".replace(",", "%2C") # header
+
         async with aiohttp.ClientSession() as session:
-            async with session.get(song._cover) as resp:
+            async with session.get(song.cover) as resp:
                 if resp.status == 200:
                     file.tag.images.set(ImageFrame.FRONT_COVER, await resp.read(), 'image/jpeg', "Cover")
 

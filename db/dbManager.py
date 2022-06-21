@@ -19,7 +19,7 @@ class DbManager:
         self._createPlaylistTable()
         self._updatePlaylistTable()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self._db.close()
 
     def _createSongTable(self) -> None:
@@ -75,7 +75,7 @@ class DbManager:
             self._db.execute(f"DELETE FROM Playlists WHERE id={playlistId}")
 
     @staticmethod
-    def _castToSongList(rows: List[Tuple]) -> List[Song]:
+    def _castToSongList(rows: sl.Cursor) -> List[Song]:
         return [ Song.FromSql(row) for row in rows ]
 
     def getSongs(self) -> List[Song]:
@@ -89,7 +89,7 @@ class DbManager:
     def getSongsByIdList(self, idList: List[int]) -> List[Song]:
         with self._db:
             songs = DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs WHERE id IN ({ ','.join([str(int) for int in idList]) })"))
-            return [ next((x for x in songs if x.id == songId), None) for songId in idList ] # sort based on id list
+            return [ next((x for x in songs if x.id == songId), Song()) for songId in idList ] # sort based on id list
 
     def getLatestSongs(self, count: int) -> List[Song]:
         with self._db:
@@ -99,7 +99,7 @@ class DbManager:
         with self._db:
             return DbManager._castToSongList(self._db.execute("SELECT * FROM Songs WHERE favourite=1"))
 
-    def getSongByCustomFilter(self, filter) -> List[Song]:
+    def getSongByCustomFilter(self, filter: str) -> List[Song]:
         with self._db:
             return DbManager._castToSongList(self._db.execute(f"SELECT * FROM Songs WHERE {filter}"))
 

@@ -4,6 +4,7 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import asyncio
 from os import path
+from typing import Optional
 from yt_dlp import YoutubeDL # type: ignore
 from helpers.asyncThread import asyncRunInThreadWithReturn
 
@@ -35,7 +36,10 @@ class Downloader:
         self._ydl = YoutubeDL(self._ydl_opts)
         #self._ydl.add_post_processor(OnDownloadFinishedPP(player))
 
-    async def downloadSong(self, link: str, filename: str = "upNow") -> bool:
+    async def downloadSong(self, link: Optional[str], filename: str = "upNow") -> bool:
+        if link is None:
+            return False
+
         relName = f"./_cache/{filename}.%(ext)s"
 
         if filename in DOWNLOADING:
