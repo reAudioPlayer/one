@@ -130,7 +130,7 @@ class DbManager:
     def addPlaylist(self, playlist: Playlist) -> None:
         """add playlist to db"""
         with self._db:
-            sql = 'INSERT INTO Playlists (name, description, songs) values(?, ?, ?)'
+            sql = 'INSERT INTO Playlists (name, description, songs, cover) values(?, ?, ?, ?)'
             data = [
                 playlist.sql()
             ]

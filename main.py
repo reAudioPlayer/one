@@ -82,7 +82,8 @@ def _getSpotifyAuth(id_: str, secret: str) -> Optional[SpotifyOAuth]: # pylint: 
 
 async def _exitHandler(_: web.Request) -> web.Response:
     """force quits the application"""
-    print("exiting")
+    logger = logging.getLogger()
+    logger.info("quitting")
     os._exit(0) # pylint: disable=protected-access
 
 @middleware
@@ -185,7 +186,7 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     app.router.add_get('/api/config/ready', configHandler.ready)
     app.router.add_post('/api/config/spotify', configHandler.spotifyConfig)
 
-    app.router.add_post('/api/kill', _exitHandler)
+    app.router.add_get('/api/kill', _exitHandler)
 
     app.router.add_get('/ws', websocket.wsHandler)
 

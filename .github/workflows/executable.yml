@@ -1,4 +1,4 @@
-name: execute
+name: executable
 
 on:
   push:
@@ -25,5 +25,5 @@ jobs:
       working-directory: ./
       run: |
         export TEST_MODE=true
-        python3 ./.test/main.py
+        python3 ./test.main.py
       continue-on-error: false
