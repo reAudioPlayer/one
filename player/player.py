@@ -3,6 +3,7 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import os
+from os import environ as env
 
 import asyncio
 from asyncio.tasks import Task
@@ -23,8 +24,9 @@ from downloader.downloader import Downloader
 class Player:
     def __init__(self, dbManager: DbManager, downloader: Downloader, playlistManager: PlaylistManager) -> None:
         pygame.init()
-        pygame.mixer.init()
-        pygame.mixer.music.set_volume(1.0)
+        if not env.get("TEST_MODE"):
+            pygame.mixer.init()
+            pygame.mixer.music.set_volume(1.0)
         self._dbManager = dbManager
         self._playlistManager = playlistManager
         self._playing: bool = False
