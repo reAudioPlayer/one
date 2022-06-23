@@ -18,7 +18,8 @@ jobs:
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
-        pip3 install mypy pyserial aiohttp==3.7.4.post0 aiohttp_index types-requests
+        pip3 install mypy types-requests
+        pip3 install -r requirements.txt
     - name: Analysing...
       id: main
       working-directory: ./

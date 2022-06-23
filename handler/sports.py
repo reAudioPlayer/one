@@ -7,7 +7,6 @@ from aiohttp import web
 from meta.scorereader import OneFootballMatch
 from helper.asyncThread import asyncRunInThreadWithReturn
 import asyncio
-import traceback
 
 
 class SportsHandler:
@@ -20,7 +19,7 @@ class SportsHandler:
                     match = await asyncRunInThreadWithReturn(OneFootballMatch, url)
                     return [ match.toJson() ]
             except Exception as e:
-                traceback.print_exception(e)
+                print(e)
             return [{
                 "href": url,
                 "result": "N/A",
