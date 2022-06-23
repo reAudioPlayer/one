@@ -5,7 +5,7 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from enum import Enum
 from typing import Dict, Any, List, Optional
-import feedparser
+import feedparser # type: ignore
 import hashlib
 
 from helper.dictTool import DictEx

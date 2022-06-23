@@ -7,10 +7,10 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from abc import ABC, abstractproperty
 
-import spotipy
-from ytmusicapi import YTMusic
+import spotipy # type: ignore
+from ytmusicapi import YTMusic # type: ignore
 
-from sclib import SoundcloudAPI, Track
+from sclib import SoundcloudAPI, Track # type: ignore
 
 import re
 from typing import Any, Dict, List, Optional

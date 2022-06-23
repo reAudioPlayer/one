@@ -3,8 +3,8 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from typing import Any, Dict, Optional, Union
-from bs4 import BeautifulSoup
-from bs4.element import Tag, NavigableString
+from bs4 import BeautifulSoup # type: ignore
+from bs4.element import Tag, NavigableString # type: ignore
 import requests # TODO aiohttp
 
 

@@ -11,12 +11,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
-        pip3 install mypy pyserial aiohttp==3.7.4.post0 aiohttp_index
+        pip3 install mypy pyserial aiohttp==3.7.4.post0 aiohttp_index types-requests
     - name: Analysing...
-      id: paas
+      id: main
       working-directory: ./
       run: |
         mypy
