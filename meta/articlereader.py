@@ -9,15 +9,15 @@ import requests # TODO aiohttp
 
 
 class Article:
-    def __init__(self, url) -> None:
-        self._url = url
+    def __init__(self, url: str) -> None:
+        self._url: str = url
         self._html = requests.get(self._url).text
         self._soup = BeautifulSoup(self._html, "html.parser")
-        self._topic = None
-        self._headline = None
-        self._standfirst = None
-        self._date = None
-        self._body = None
+        self._topic: Optional[str] = None
+        self._headline: Optional[str] = None
+        self._standfirst: Optional[str] = None
+        self._date: Optional[str] = None
+        self._body: Optional[str] = None
 
     def toJson(self) -> Dict[str, Any]:
         return {
@@ -53,8 +53,10 @@ class GuardianArticle(Article):
                 self._date = "N/A"
         self._body = str(self._soup.find(class_ = "article-body-viewer-selector"))
 
-    def _byName(self, name: str) -> Union[Tag, NavigableString, None]:
-        return self._soup.find(attrs={"data-gu-name": name})
+    def _byName(self, name: str) -> Union[Tag, NavigableString]:
+        x = self._soup.find(attrs={"data-gu-name": name})
+        assert x is not None
+        return x
 
 
 class IndependentArticle(Article):
@@ -99,7 +101,7 @@ class BBCArticle(Article):
         self._body = str(article)
 
 class CNNArticle(Article):
-    def __init__(self, url) -> None:
+    def __init__(self, url: str) -> None:
         super().__init__(url)
         article = self._soup.find("article")
         self._headline = article.find("h1", class_="pg-headline").string
@@ -120,7 +122,7 @@ def tryDecompose(tag: Optional[Tag]) -> None:
 
 
 class YourEdmArticle(Article):
-    def __init__(self, url) -> None:
+    def __init__(self, url: str) -> None:
         super().__init__(url)
         self._headline = self._soup.find(class_="jeg_post_title").string
         self._date = str(self._soup.find(class_="jeg_meta_date").find("a").string)

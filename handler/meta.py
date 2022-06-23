@@ -7,13 +7,13 @@ from typing import Any, Dict, List
 from aiohttp import web
 from spotipy import Spotify # type: ignore
 from db.dbManager import DbManager
-from helpers.asyncThread import asyncRunInThreadWithReturn
-from helpers.cacheDecorator import useCache
+from helper.asyncThread import asyncRunInThreadWithReturn
+from helper.cacheDecorator import useCache
 from meta.metadata import Metadata
 from meta.releases import Releases
 from meta.search import Search
 
-from dataModels.track import SpotifyArtist, SpotifyPlaylist, SpotifyTrack
+from dataModel.track import SpotifyArtist, SpotifyPlaylist, SpotifyTrack
 
 
 class MetaHandler:

@@ -20,14 +20,14 @@ class Playlist:
         self._cover = cover
         self._id = id
 
-    def sql(self) -> Tuple:
+    def sql(self) -> Tuple[str, str, str, str]:
         return ( self._name,
                  self._description,
                  json.dumps(self._songs),
                  self._cover )
 
     @staticmethod
-    def FromSql(row: Tuple) -> Playlist:
+    def FromSql(row: Tuple[int, str, str, str, str]) -> Playlist:
         id, name, description, songs, cover = row
         return Playlist(name, json.loads(songs), id, description, cover)
 

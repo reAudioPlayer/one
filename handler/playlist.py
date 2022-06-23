@@ -4,7 +4,7 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from typing import Any
 from aiohttp import web
-from dataModels.song import Song
+from dataModel.song import Song
 from player.player import Player
 from player.playlistManager import PlaylistManager
 

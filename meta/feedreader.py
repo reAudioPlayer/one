@@ -4,9 +4,11 @@ from __future__ import annotations
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from enum import Enum
-from typing import List, Optional
+from typing import Dict, Any, List, Optional
 import feedparser
 import hashlib
+
+from helper.dictTool import DictEx
 
 
 hashLookup = { }
@@ -14,25 +16,27 @@ hashLookup = { }
 
 class Article:
     def __init__(self, entry: Dict[str, Any], feedTitle: str) -> None:
-        self._title = entry.get("title")
-        self._author = entry.get("author")
-        self._summary = entry.get("summary")
-        self._link = entry.get("link")
+        ed = DictEx(entry)
+        self._title = ed.ensureString("title")
+        self._author = ed.ensureString("author")
+        self._summary = ed.ensureString("summary")
+        self._link = ed.ensureString("link")
         self._href = hashlib.md5(self._link.encode('utf-8')).hexdigest()
         hashLookup[self._href] = self._link
-        self._updated = entry.get("updated")
-        self._mediaContent = entry.get("media_content") or [ ]
+        self._updated = ed.ensureString("updated")
+        self._mediaContent = ed.ensureList("media_content") or [ ]
         self._feedTitle = feedTitle.replace('"when:24h allinurl:', '').replace('" - Google News', '')
-        self._image: Optional[None] = None
+        self._image: Optional[str] = None
         bestQuality = 0
         for image in self._mediaContent:
+            ed = DictEx(image)
             if image.get("width"):
-                quality = int(image.get("width"))
+                quality = ed.ensureInt("width")
                 if quality > bestQuality:
                     bestQuality = quality
-                    self._image = image.get("url")
+                    self._image = ed.ensureString("url")
             else:
-                self._image = image.get("url")
+                self._image = ed.ensureString("url")
 
     def toJson(self) -> Dict[str, Any]:
         return {
@@ -70,7 +74,7 @@ class Feed(Enum):
     YourEDM = "https://www.youredm.com/feed/"
 
     @classmethod
-    def TakeFromAll(self, countPerFeed: int, offsetPerFeed: int = 0) -> List[Article]:
+    def TakeFromAll(self, countPerFeed: int, offsetPerFeed: int = 0) -> List[Dict[str, Any]]:
         feeds = [
             Feed.EdmReviewer,
             Feed.YourEDM,
@@ -81,7 +85,7 @@ class Feed(Enum):
             Feed.Reuters,
             Feed.Goal,
         ]
-        x = []
+        x: List[Dict[str, Any]] = []
         for feed in feeds:
             x.extend([ entry.toJson() for entry in Feed.Take(feed, countPerFeed, offsetPerFeed) ])
         return x

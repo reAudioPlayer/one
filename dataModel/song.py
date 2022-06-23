@@ -6,8 +6,8 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 from typing import Any, Dict, List, Optional, Tuple
 import math
 
-from helpers.extractDict import ExtractDict
-from dataModels.track import ITrack
+from helper.dictTool import DictEx
+from dataModel.track import ITrack
 
 
 class Song(ITrack):
@@ -115,7 +115,7 @@ class Song(ITrack):
                 return int(string.split(":")[0]) * 60 + int(string.split(":")[1])
             except:
                 return -1
-        ed = ExtractDict(data)
+        ed = DictEx(data)
         return Song(ed.ensureString("title"),
                     ed.ensureString("artist"),
                     ed.ensureString("spotify"),

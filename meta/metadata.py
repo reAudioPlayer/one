@@ -7,7 +7,7 @@ import spotipy # type: ignore
 
 import validators # type: ignore
 
-from dataModels.track import ITrack, SoundcloudTrack, SpotifyTrack, YoutubeTrack
+from dataModel.track import ITrack, SoundcloudTrack, SpotifyTrack, YoutubeTrack
 
 
 class Metadata:

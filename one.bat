@@ -20,6 +20,7 @@ goto end
 
 :lint
 python3 -m mypy
+python3 -m pylint main.py ./dataModels ./downloader ./handler ./helpers ./meta ./player
 exit
 
 :install
@@ -29,7 +30,7 @@ exit
 
 :run
 if /i "%arg%" == "dev-ui" (
-    start "" http://localhost:8080
+    start "" http://localhost:3000
 ) else (
     start "" http://localhost:1234
 )

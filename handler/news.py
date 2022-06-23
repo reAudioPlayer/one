@@ -6,14 +6,14 @@ from typing import Any, Dict, List, Union
 from aiohttp import web
 from meta.articlereader import BBCArticle, CNNArticle, GuardianArticle, IndependentArticle, YourEdmArticle
 from meta.feedreader import Article, Feed
-from helpers.asyncThread import asyncRunInThreadWithReturn
-from helpers.cacheDecorator import useCache
+from helper.asyncThread import asyncRunInThreadWithReturn
+from helper.cacheDecorator import useCache
 
 
 class NewsHandler:
     @useCache(1800) # type: ignore
     async def getSomeNews(self, _: web.Request) -> web.Response:
-        def implement() -> List[Article]:
+        def implement() -> List[Dict[str, Any]]:
             return Feed.TakeFromAll(4)
         data = await asyncRunInThreadWithReturn(implement)
         return web.json_response(data = data)

@@ -6,7 +6,7 @@ import asyncio
 from os import path
 from typing import Optional
 from yt_dlp import YoutubeDL # type: ignore
-from helpers.asyncThread import asyncRunInThreadWithReturn
+from helper.asyncThread import asyncRunInThreadWithReturn
 
 
 """

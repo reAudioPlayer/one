@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+
+import requests
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from abc import ABC, abstractproperty
@@ -12,6 +14,8 @@ from sclib import SoundcloudAPI, Track
 
 import re
 from typing import Any, Dict, List, Optional
+
+from helper.dictTool import DictEx
 
 
 class ITrack(ABC):
@@ -46,18 +50,19 @@ class ITrack(ABC):
 
 class SpotifyTrack(ITrack):
     def __init__(self, track: Dict[str, Any]) -> None:
-        self._title = track.get("name")
-        album = track.get("album")
+        ed: DictEx = DictEx(track)
+        self._title = ed.ensureString("name")
+        album = ed.ensureDictChain("album")
         if album:
-            self._album = album.get("name")
-            self._cover = album.get("images")[0]["url"]
+            self._album = album.ensureString("name")
+            self._cover = album.ensureListChain("images").ensureDictChain(0).ensureString("url")
         elif "images" in track: # probably album
-            self._cover = track.get("images")[0]["url"]
-            self._release_date = track.get("release_date")
-        self._artists = [x.get("name") for x in track.get("artists")] if track.get("artists") else [ ]
-        self._id = track.get("id")
-        self._preview = track.get("preview_url")
-        self._markets = track.get("available_markets")
+            self._cover = ed.ensureListChain("images").ensureDictChain(0).ensureString("url")
+            self._release_date = ed.ensureString("release_date")
+        self._artists = [DictEx(x).ensureString("name") for x in ed.ensureList("artists")]
+        self._id = ed.ensureString("id")
+        self._preview = ed.ensureString("preview_url")
+        self._markets = ed.ensureList("available_markets")
 
     @property
     def markets(self) -> Optional[List[str]]:
@@ -85,12 +90,12 @@ class SpotifyTrack(ITrack):
 
     @staticmethod
     def FromQuery(spotify: spotipy.Spotify, query: str) -> List[SpotifyTrack]:
-        tracks = spotify.search(query)["tracks"]["items"]
+        tracks = DictEx(spotify.search(query)).ensureDictChain("tracks").ensureList("items")
         return [ SpotifyTrack(track) for track in tracks ]
 
     @staticmethod
     def FromAlbum(spotify: spotipy.Spotify, id: str) -> List[SpotifyTrack]:
-        tracks = spotify.album_tracks(id)["items"]
+        tracks = DictEx(spotify.album_tracks(id)).ensureList("items")
         return [ SpotifyTrack(track) for track in tracks ]
 
     @staticmethod
@@ -99,27 +104,28 @@ class SpotifyTrack(ITrack):
 
     @staticmethod
     def FromPlaylist(spotify: spotipy.Spotify, id: str) -> List[SpotifyTrack]:
-        tracks = spotify.playlist_tracks(id)["items"]
+        tracks = DictEx(spotify.playlist_tracks(id)).ensureList("items")
         return [ SpotifyTrack(track["track"]) for track in tracks ]
 
     @staticmethod
     def FromArtist(spotify: spotipy.Spotify, id: str) -> List[SpotifyTrack]:
-        tracks = spotify.artist_top_tracks(id)["tracks"]
+        tracks = DictEx(spotify.artist_top_tracks(id)).ensureList("tracks")
         return [ SpotifyTrack(track) for track in tracks ]
 
     @staticmethod
-    def FromRecommendation(spotify: spotipy.Spotify, artists: Optional[list], tracks: Optional[list]) -> List[SpotifyTrack]:
-        tracks = spotify.recommendations(seed_artists=artists, seed_tracks=tracks, limit = 10)["tracks"]
-        return [ SpotifyTrack(track) for track in tracks ]
+    def FromRecommendation(spotify: spotipy.Spotify, artists: Optional[List[str]], tracks: Optional[List[str]]) -> List[SpotifyTrack]:
+        recommendations = DictEx(spotify.recommendations(seed_artists=artists, seed_tracks=tracks, limit = 10)).ensureList("tracks")
+        return [ SpotifyTrack(track) for track in recommendations ]
 
 class SpotifyPlaylist:
     def __init__(self, playlist: Dict[str, Any]) -> None:
-        self._name = playlist.get("name")
-        self._description = playlist.get("description")
-        self._cover = playlist.get("images")[0]["url"]
-        self._id = playlist.get("id")
-        self._owner = playlist.get("owner")
-        self._trackCount = playlist.get("tracks").get("total")
+        ed = DictEx(playlist)
+        self._name = ed.ensureString("name")
+        self._description = ed.ensureString("description")
+        self._cover = ed.ensureListChain("images").ensureDictChain(0).ensureString("url")
+        self._id = ed.ensureString("id")
+        self._owner = ed.ensureString("owner")
+        self._trackCount = ed.ensureDictChain("tracks").ensureInt("total")
 
     def toDict(self) -> Dict[str, Any]:
         return {
@@ -134,10 +140,11 @@ class SpotifyPlaylist:
 
 class SpotifyArtist:
     def __init__(self, artist: Dict[str, Any]) -> None:
-        self._name = artist.get("name")
-        self._id = artist.get("id")
-        self._cover = artist.get("images")[0]["url"] if len(artist.get("images")) > 0 else None
-        self._description = f"{artist.get('followers')['total']:,} followers"
+        ed = DictEx(artist)
+        self._name = ed.ensureString("name")
+        self._id = ed.ensureInt("id")
+        self._cover = ed.ensureListChain("images").ensureDictChain(0).ensureString("url")
+        self._description = f"{ed.ensureDictChain('followers').ensureInt('total'):,} followers"
 
     @staticmethod
     def FromQuery(spotify: spotipy.Spotify, query: str) -> List[SpotifyArtist]:
@@ -154,30 +161,42 @@ class SpotifyArtist:
 
 class SpotifyAlbum:
     def __init__(self, album: Dict[str, Any]) -> None:
-        self._title = album.get("name")
+        ed = DictEx(album)
+        self._title = ed.ensureString("name")
         if "images" in album: # probably album
-            self._cover = album.get("images")[0]["url"]
+            self._cover = ed.ensureListChain("images").ensureDictChain(0).ensureString("url")
             self._release_date = album.get("release_date")
-        self._artists = [x.get("name") for x in album.get("artists")]
+        self._artists = [DictEx(x).ensureString("name") for x in ed.ensureList("artists")]
         self._id = album.get("id")
 
     @property
     def url(self) -> str:
         return f"https://open.spotify.com/album/{self._id}"
 
-ytmusic = YTMusic()
+
+try:
+    ytmusic = YTMusic()
+except requests.exceptions.SSLError:
+    print("ssl verification error.\nMake sure you are connected to the internet and no firewall is blocking or limiting access to sites like youtube.com")
+    import time, sys # pylint: disable=ungrouped-imports, multiple-imports
+    time.sleep(5)
+    sys.exit()
 
 
 class YoutubeTrack(ITrack):
     def __init__(self, track: Dict[str, Any]) -> None:
-        self._title = track["title"]
-        album = track.get("album")
-        self._album = album.get("name") if album else None
-        self._artists = [x.get("name") for x in track.get("artists")]
-        self._id = track.get("videoId")
-        self._cover = track.get("thumbnails")[0].get("url").replace("w60-h60", "w500-h500")
+        ed = DictEx(track)
+        self._title = ed.ensureString("title")
+        album = ed.ensureDictChain("album")
+        self._album = album.ensureString("name")
+        self._artists = [DictEx(x).ensureString("name") for x in ed.ensureList("artists")]
+        self._id = ed.ensureString("videoId")
+        self._cover = ed.ensureListChain("thumbnails")\
+                        .ensureDictChain(0)\
+                        .ensureString("url")\
+                        .replace("w60-h60", "w500-h500")
         self._preview = None
-        self._markets = [ ]
+        self._markets: Optional[List[str]] = [ ]
 
     @property
     def artists(self) -> List[str]:

@@ -5,8 +5,8 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from random import randint
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
-from dataModels.playlist import Playlist
-from dataModels.song import Song
+from dataModel.playlist import Playlist
+from dataModel.song import Song
 from db.dbManager import DbManager
 
 

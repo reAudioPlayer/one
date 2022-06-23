@@ -11,7 +11,7 @@ from typing import Any, Awaitable, Callable, Optional
 
 import pygame
 
-from dataModels.song import Song
+from dataModel.song import Song
 from db.dbManager import DbManager
 
 from player.playerPlaylist import PlayerPlaylist

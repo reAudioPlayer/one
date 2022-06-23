@@ -16,14 +16,14 @@ try:
 
     from downloader.downloader import Downloader
 
-    from handler.downloadHandler import DownloadHandler
-    from handler.newsHandler import NewsHandler
-    from handler.sportsHandler import SportsHandler
-    from handler.playerHandler import PlayerHandler
-    from handler.playlistHandler import PlaylistHandler
-    from handler.collectionHandler import CollectionHandler
-    from handler.metaHandler import MetaHandler
-    from handler.configHandler import ConfigHandler
+    from handler.download import DownloadHandler
+    from handler.news import NewsHandler
+    from handler.sports import SportsHandler
+    from handler.player import PlayerHandler
+    from handler.playlist import PlaylistHandler
+    from handler.collection import CollectionHandler
+    from handler.meta import MetaHandler
+    from handler.config import ConfigHandler
     from handler.websocket import Websocket
 
     from player.player import Player
@@ -80,7 +80,9 @@ def _getSpotifyAuth(id_: str, secret: str) -> Optional[SpotifyOAuth]: # pylint: 
     return SpotifyOAuth(id_, secret, "http://reap.ml/", scope = SCOPE)
 
 @middleware
-async def _exceptionMiddleware(request: web.Request, handler: Callable[[web.Request], Awaitable[web.StreamResponse]]) -> web.StreamResponse:
+async def _exceptionMiddleware(request: web.Request,
+                               handler: Callable[[web.Request],
+                                            Awaitable[web.StreamResponse]]) -> web.StreamResponse:
     logger = logging.getLogger()
     start = time.time()
     resp: Optional[web.StreamResponse] = None

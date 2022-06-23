@@ -8,7 +8,7 @@ from aiohttp import web
 import json
 
 from aiohttp.web_ws import WebSocketResponse
-from dataModels.song import Song
+from dataModel.song import Song
 
 from player.player import Player
 

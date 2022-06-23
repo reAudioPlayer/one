@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-import requests # type: ignore
+import requests
 from bs4 import BeautifulSoup # type: ignore
 import re
 

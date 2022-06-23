@@ -8,8 +8,8 @@ import spotipy # type: ignore
 
 from db.dbManager import DbManager
 
-from dataModels.track import SpotifyArtist, SpotifyTrack, YoutubeTrack
-from dataModels.song import ITrack, Song
+from dataModel.track import SpotifyArtist, SpotifyTrack, YoutubeTrack
+from dataModel.song import ITrack, Song
 
 
 class Search:

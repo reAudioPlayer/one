@@ -3,8 +3,8 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from typing import Any, Callable, Optional
-from dataModels.playlist import Playlist
-from dataModels.song import Song
+from dataModel.playlist import Playlist
+from dataModel.song import Song
 from db.dbManager import DbManager
 from player.playerPlaylist import PlayerPlaylist
 from player.playerPlaylist import OrderedUniqueList

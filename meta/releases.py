@@ -6,7 +6,7 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import spotipy # type: ignore
 
-from dataModels.track import SpotifyAlbum
+from dataModel.track import SpotifyAlbum
 
 
 class Releases:

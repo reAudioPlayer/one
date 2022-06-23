@@ -5,7 +5,7 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 from typing import Any, Dict, List
 from aiohttp import web
 from meta.scorereader import OneFootballMatch
-from helpers.asyncThread import asyncRunInThreadWithReturn
+from helper.asyncThread import asyncRunInThreadWithReturn
 import asyncio
 import traceback
 
