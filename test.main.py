@@ -14,7 +14,7 @@ logger = logging.getLogger("test")
 
 logger.info("launching audio player")
 
-def second():
+def second() -> None:
     call(["python", "main.py"])
 processThread = threading.Thread(target=second)
 processThread.start()
@@ -55,24 +55,17 @@ with requests.post("http://localhost:1234/api/updatePlaylist", json={"id": id_, 
 
 with requests.get("http://localhost:1234/api/playlists") as res:
     logger.info(res.status_code)
-    playlists = ListEx(res.text)
+    playlists = ListEx(res.json())
     newPlaylist = playlists.ensureString(0)
     if newPlaylist != "MyNewPlaylist":
         logger.info(newPlaylist)
         logger.info("Test failed")
         os._exit(-1)
 
-
 with requests.post("http://localhost:1234/api/playlist", json={"id": id_}) as res:
-    logger.info("==========================================================")
     playlist = DictEx(res.json())
-    logger.info("==========================================================")
     logger.info(res.status_code)
-    logger.info("==========================================================")
-    logger.info(playlist.ensureString("name"))
-    logger.info(playlist.ensureString("cover"))
-    logger.info(playlist.ensureString("description"))
-    logger.info(json.dumps(playlist.ensureList("songs")))
+    logger.info(playlist)
 
 logger.info("==========================================================")
 logger.info("======================== END TEST ========================")
