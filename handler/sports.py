@@ -3,10 +3,11 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from typing import Any, Dict, List
+import asyncio
 from aiohttp import web
+
 from meta.scorereader import OneFootballMatch
 from helper.asyncThread import asyncRunInThreadWithReturn
-import asyncio
 
 
 class SportsHandler:

@@ -9,23 +9,13 @@ from yt_dlp import YoutubeDL # type: ignore
 from helper.asyncThread import asyncRunInThreadWithReturn
 
 
-"""
-class OnDownloadFinishedPP(postprocessor.PostProcessor):
-    def __init__(self, player: Player, downloader=None):
-        super().__init__(downloader=downloader)
-        self._player = player
-
-    def run(self, info):
-        self._player.next()
-        return [], info
-"""
-
 DOWNLOADING = [ ]
 
 
 class Downloader:
+    """downloader"""
     def __init__(self) -> None:
-        self._ydl_opts = {
+        self._opts = {
             'noplaylist': True,
             "outtmpl": "./_cache/upNow.%(ext)s",
             "postprocessors": [{
@@ -33,10 +23,10 @@ class Downloader:
                 "preferredcodec": "mp3"
             }]
         }
-        self._ydl = YoutubeDL(self._ydl_opts)
-        #self._ydl.add_post_processor(OnDownloadFinishedPP(player))
+        self._ydl = YoutubeDL(self._opts)
 
-    async def downloadSong(self, link: Optional[str], filename: str = "upNow") -> bool:
+    async def downloadSong(self, link: Optional[str], filename: str) -> bool:
+        """downloads a song"""
         if link is None:
             return False
 
@@ -55,7 +45,7 @@ class Downloader:
             err = await asyncRunInThreadWithReturn(self._ydl.download, [ link ])
             DOWNLOADING.remove(filename)
             return isinstance(err, int) and err == 0
-        except:
+        except: # pylint: disable=bare-except
             print(f"{filename} could not be downloaded ({relName.replace('%(ext)s', 'mp3')})")
             DOWNLOADING.remove(filename)
             return path.exists(relName.replace("%(ext)s", "mp3"))

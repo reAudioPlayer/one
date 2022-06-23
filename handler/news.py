@@ -25,16 +25,15 @@ class NewsHandler:
                 return "404"
             if "guardian" in url:
                 return GuardianArticle(url).toJson()
-            elif "independent" in url:
+            if "independent" in url:
                 return IndependentArticle(url).toJson()
-            elif "bbc" in url:
+            if "bbc" in url:
                 return BBCArticle(url).toJson()
-            elif "cnn" in url:
+            if "cnn" in url:
                 return CNNArticle(url).toJson()
-            elif "youredm" in url:
+            if "youredm" in url:
                 return YourEdmArticle(url).toJson()
-            else:
-                return url
+            return url
         data = await asyncRunInThreadWithReturn(implement)
         if isinstance(data, dict):
             return web.json_response(data = data)

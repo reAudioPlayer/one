@@ -60,7 +60,9 @@ class Feed(Enum):
     @classmethod
     def Take(self, url: Feed, count: int, offset: int = 0) -> List[Article]:
         feed = feedparser.parse(url.value)
-        return [ Article(entry, feed.get("feed")["title"]) for (index, entry) in enumerate(feed.entries) if index < (count + offset) and index >= offset ]
+        return [ Article(entry, DictEx(feed).ensureDictChain("feed").ensureString("title"))
+                 for (index, entry) in enumerate(feed.entries)
+                 if offset < index < (count + offset) ]
 
     Goal = "https://news.google.com/rss/search?q=when:24h+allinurl:goal.com&ceid=US:en&hl=en-US&gl=US"
     Reuters = "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US"

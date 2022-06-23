@@ -10,7 +10,7 @@ from dataModel.song import Song
 from db.dbManager import DbManager
 
 
-T = TypeVar('T', bound=Any)
+T = TypeVar('T') # pylint: disable=invalid-name
 
 
 class OrderedUniqueList(List[T]):
@@ -174,7 +174,7 @@ class PlayerPlaylist:
     @cover.setter
     def cover(self, value: str) -> None:
         self._cover = value
-    
+
     def toDict(self) -> Dict[str, Any]:
         return {
             "description": self._description,

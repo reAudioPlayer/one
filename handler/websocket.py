@@ -3,9 +3,10 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from typing import Any, Dict, List, Optional, Union
+import json
+
 import aiohttp
 from aiohttp import web
-import json
 
 from aiohttp.web_ws import WebSocketResponse
 from dataModel.song import Song
@@ -57,7 +58,7 @@ class Websocket:
             "data": pos
         }))
 
-    async def websocket_handler(self, request: web.Request) -> WebSocketResponse:
+    async def wsHandler(self, request: web.Request) -> WebSocketResponse:
         ws = WebSocketResponse()
         self._connections.append(ws)
         await ws.prepare(request)
@@ -93,5 +94,5 @@ class Websocket:
             except:
                 pass
 
-    async def _handle(self, ws: WebSocketResponse, msg: Message) -> None:
+    async def _handle(self, _: WebSocketResponse, msg: Message) -> None:
         await self.publish(msg)

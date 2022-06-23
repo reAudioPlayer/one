@@ -36,7 +36,7 @@ class GuardianArticle(Article):
 
         topic = self._byName("title")
         self._topic = str(topic.a) if topic else "N/A"
-        
+
         headline = self._byName("headline")
         self._headline = self._byName("headline").h1.string if headline else "N/A"
 

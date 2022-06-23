@@ -24,7 +24,7 @@ class ConfigHandler:
 
         if not exists('./config'):
             os.makedirs('./config')
-        
+
         with open("./config/spotify.json", "w") as file:
             json.dump({
                 "id": jdata.get("id"),

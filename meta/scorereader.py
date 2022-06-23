@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
-from typing import Any, Dict, Optional
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-import requests
-from bs4 import BeautifulSoup # type: ignore
+from typing import Any, Dict, Optional
 import re
+import requests
+
+from bs4 import BeautifulSoup # type: ignore
 
 
 class Match:

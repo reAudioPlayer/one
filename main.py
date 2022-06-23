@@ -179,7 +179,7 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     app.router.add_get('/api/config/ready', configHandler.ready)
     app.router.add_post('/api/config/spotify', configHandler.spotifyConfig)
 
-    app.router.add_get('/ws', websocket.websocket_handler)
+    app.router.add_get('/ws', websocket.wsHandler)
 
     app.router.add_static('/', './ui/dist')
 
