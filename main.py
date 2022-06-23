@@ -3,6 +3,7 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import os
+from os import environ as env
 from typing import Awaitable, Callable
 
 
@@ -78,6 +79,12 @@ def _getSpotifyAuth(id_: str, secret: str) -> Optional[SpotifyOAuth]: # pylint: 
     if "restricted" in (id_, secret):
         return None
     return SpotifyOAuth(id_, secret, "http://reap.ml/", scope = SCOPE)
+
+async def _exitHandler(_: web.Request) -> web.Response:
+    """force quits the application"""
+    logger = logging.getLogger()
+    logger.info("quitting")
+    os._exit(0) # pylint: disable=protected-access
 
 @middleware
 async def _exceptionMiddleware(request: web.Request,
@@ -179,6 +186,8 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     app.router.add_get('/api/config/ready', configHandler.ready)
     app.router.add_post('/api/config/spotify', configHandler.spotifyConfig)
 
+    app.router.add_get('/api/kill', _exitHandler)
+
     app.router.add_get('/ws', websocket.wsHandler)
 
     app.router.add_static('/', './ui/dist')
@@ -210,6 +219,8 @@ async def main() -> None:
     await site.start()
     while True:
         await asyncio.sleep(1)
+        if env.get("TEST_MODE"):
+            continue
         event = pygame.event.poll()
         if event.type == MUSIC_END:
             await player.onSongEnd()

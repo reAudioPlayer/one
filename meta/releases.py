@@ -30,7 +30,7 @@ class Releases:
             if latestAlbum:
                 self._tracks.append(SpotifyAlbum(latestAlbum))
 
-        self._tracks.sort(key = lambda x: self._dateToInt(x._release_date), reverse = True) # type: ignore
+        self._tracks.sort(key = lambda x: self._dateToInt(x._releaseDate), reverse = True) # type: ignore
 
     @staticmethod
     def followedArtists(spotify: spotipy.Spotify) -> List[Dict[str, Any]]:

@@ -32,7 +32,7 @@ class Playlist:
     def fromSql(row: Tuple[int, str, str, str, str]) -> Playlist:
         """create playlist from sql row"""
         id_, name, description, songs, cover = row
-        return Playlist(name, json.loads(songs), id_, description, cover)
+        return Playlist(name, json.loads(songs or "[]"), id_, description, cover)
 
     def __repr__(self) -> str:
         return f"(DataModel.Playlist) id=[{self._id}] name=[{self._name}] \
