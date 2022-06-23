@@ -42,7 +42,7 @@ class MetaHandler:
     async def spotifyAlbum(self, request: web.Request) -> web.Response:
         jdata = await request.json()
         def _implement() -> List[Dict[str, Any]]:
-            tracks = SpotifyTrack.FromAlbum(self._spotify, jdata["albumId"])
+            tracks = SpotifyTrack.fromAlbum(self._spotify, jdata["albumId"])
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
             return [ metadata.toDict() for metadata in metadatas ]
         data = await asyncRunInThreadWithReturn(_implement)
@@ -59,7 +59,7 @@ class MetaHandler:
     async def spotifyPlaylist(self, request: web.Request) -> web.Response:
         jdata = await request.json()
         def _implement() -> List[Dict[str, Any]]:
-            tracks = SpotifyTrack.FromPlaylist(self._spotify, jdata["playlistId"])
+            tracks = SpotifyTrack.fromPlaylist(self._spotify, jdata["playlistId"])
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
             return [ metadata.toDict() for metadata in metadatas ]
         data = await asyncRunInThreadWithReturn(_implement)
@@ -81,7 +81,7 @@ class MetaHandler:
     async def spotifyArtist(self, request: web.Request) -> web.Response:
         jdata = await request.json()
         def _implement() -> List[Dict[str, Any]]:
-            tracks = SpotifyTrack.FromArtist(self._spotify, jdata["artistId"])
+            tracks = SpotifyTrack.fromArtist(self._spotify, jdata["artistId"])
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
             return [ metadata.toDict() for metadata in metadatas ]
         data = await asyncRunInThreadWithReturn(_implement)
@@ -111,9 +111,9 @@ class MetaHandler:
         jdata = await request.json()
         def _implement() -> List[Dict[str, Any]]:
             if jdata.get("query"):
-                track = SpotifyTrack.FromQuery(self._spotify, jdata.get("query"))[0]
+                track = SpotifyTrack.fromQuery(self._spotify, jdata.get("query"))[0]
                 jdata["tracks"] = [ track._id ]
-            tracks = SpotifyTrack.FromRecommendation(self._spotify, jdata.get("artists"), jdata.get("tracks"))
+            tracks = SpotifyTrack.fromRecommendation(self._spotify, jdata.get("artists"), jdata.get("tracks"))
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
             return [ metadata.toDict() for metadata in metadatas ]
         data = await asyncRunInThreadWithReturn(_implement)

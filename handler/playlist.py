@@ -15,7 +15,7 @@ class PlaylistHandler:
 
     async def addSong(self, request: web.Request) -> web.Response:
         jdata = await request.json()
-        self._playlistManager.addToPlaylist(jdata["id"], Song.FromDict(jdata))
+        self._playlistManager.addToPlaylist(jdata["id"], Song.fromDict(jdata))
         return web.Response(status = 200, text = "success!")
 
     async def moveSong(self, request: web.Request) -> web.Response:
@@ -29,7 +29,7 @@ class PlaylistHandler:
             return web.Response(status = 400, text = "no playlistId")
         if not "songId" in jdata:
             return web.Response(status = 400, text = "no songId")
-        self._playlistManager.removeFromPlaylist(jdata.get("playlistId"), jdata.get("songId"))
+        self._playlistManager.removefromPlaylist(jdata.get("playlistId"), jdata.get("songId"))
         return web.Response(status = 200, text = "success!")
 
     async def getPlaylist(self, request: web.Request) -> web.Response:

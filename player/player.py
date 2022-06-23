@@ -175,9 +175,9 @@ class Player:
     def loopSong(self, value: bool) -> None:
         self._loopSong = value
 
-    def updateSongMetadata(self, id: int, song: Song) -> None:
-        self._dbManager.updateSongMetadata(id, song.sqlUpdate())
-        self._playlistManager.updateSong(id, lambda x: song)
+    def updateSongMetadata(self, id_: int, song: Song) -> None:
+        self._dbManager.updateSongMetadata(id_, song.sqlUpdate())
+        self._playlistManager.updateSong(id_, lambda x: song)
 
     async def _loadSong(self, song: Optional[Song] = None) -> None:
         if not self._playerPlaylist:

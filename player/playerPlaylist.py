@@ -129,7 +129,7 @@ class PlayerPlaylist:
     def add(self, song: Song, alreadyInDb: bool = False) -> None:
         if not alreadyInDb:
             self._dbManager.addSong(song)
-        x = self._dbManager.getSongByCustomFilter(f"source='{song.source}'")[0]
+        x = self._dbManager.getSongsByCustomFilter(f"source='{song.source}'")[0]
         self._playlist.append(x)
         songs = list(map(lambda x: x.id, self._playlist))
         assert self._playlistIndex is not None
@@ -184,8 +184,8 @@ class PlayerPlaylist:
             "songs": list(map(lambda x: x.toDict(), self._playlist))
         }
 
-    def byId(self, id: int) -> List[Song]:
-        return [ x for x in self._playlist if x.id == id ]
+    def byId(self, id_: int) -> List[Song]:
+        return [ x for x in self._playlist if x.id == id_ ]
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, PlayerPlaylist):

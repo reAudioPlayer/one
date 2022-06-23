@@ -20,11 +20,11 @@ class Search:
         self._spotifyArtists = [ ]
         self._youtubeTracks = [ ]
 
-        self._youtubeTracks = YoutubeTrack.FromQuery(query)
+        self._youtubeTracks = YoutubeTrack.fromQuery(query)
 
         try:
-            self._spotifyTracks = SpotifyTrack.FromQuery(spotify, query)
-            self._spotifyArtists = SpotifyArtist.FromQuery(spotify, query)
+            self._spotifyTracks = SpotifyTrack.fromQuery(spotify, query)
+            self._spotifyArtists = SpotifyArtist.fromQuery(spotify, query)
         except:
             self._spotifyTracks = [ ]
             self._spotifyArtists = [ ]

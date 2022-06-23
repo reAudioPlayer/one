@@ -49,7 +49,7 @@ class PlayerHandler:
             asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist.Breaking(self._dbManager)))
         elif x.get("type") == "track":
             print(f"id={x['id']}")
-            asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist(self._dbManager, songs = self._dbManager.getSongByCustomFilter(f"id={x['id']}"), name = x['id'])))
+            asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist(self._dbManager, songs = self._dbManager.getSongsByCustomFilter(f"id={x['id']}"), name = x['id'])))
         return web.Response(status = 200, text = "success!")
 
     async def setVolume(self, request: web.Request) -> web.Response:
@@ -82,7 +82,7 @@ class PlayerHandler:
 
     async def updateSong(self, request: web.Request) -> web.Response:
         jdata = await request.json()
-        self._player.updateSongMetadata(jdata["id"], Song.FromDict(jdata))
+        self._player.updateSongMetadata(jdata["id"], Song.fromDict(jdata))
         return web.Response(status = 200, text = "success!")
 
     async def setShuffle(self, request: web.Request) -> web.Response:

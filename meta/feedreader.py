@@ -16,27 +16,27 @@ hashLookup = { }
 
 class Article:
     def __init__(self, entry: Dict[str, Any], feedTitle: str) -> None:
-        ed = DictEx(entry)
-        self._title = ed.ensureString("title")
-        self._author = ed.ensureString("author")
-        self._summary = ed.ensureString("summary")
-        self._link = ed.ensureString("link")
+        dex = DictEx(entry)
+        self._title = dex.ensureString("title")
+        self._author = dex.ensureString("author")
+        self._summary = dex.ensureString("summary")
+        self._link = dex.ensureString("link")
         self._href = hashlib.md5(self._link.encode('utf-8')).hexdigest()
         hashLookup[self._href] = self._link
-        self._updated = ed.ensureString("updated")
-        self._mediaContent = ed.ensureList("media_content") or [ ]
+        self._updated = dex.ensureString("updated")
+        self._mediaContent = dex.ensureList("media_content") or [ ]
         self._feedTitle = feedTitle.replace('"when:24h allinurl:', '').replace('" - Google News', '')
         self._image: Optional[str] = None
         bestQuality = 0
         for image in self._mediaContent:
-            ed = DictEx(image)
+            dex = DictEx(image)
             if image.get("width"):
-                quality = ed.ensureInt("width")
+                quality = dex.ensureInt("width")
                 if quality > bestQuality:
                     bestQuality = quality
-                    self._image = ed.ensureString("url")
+                    self._image = dex.ensureString("url")
             else:
-                self._image = ed.ensureString("url")
+                self._image = dex.ensureString("url")
 
     def toJson(self) -> Dict[str, Any]:
         return {

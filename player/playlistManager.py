@@ -22,13 +22,13 @@ class PlaylistManager:
             self._playlists.append(PlayerPlaylist(self._dbManager, playlist.id))
 
     def addToPlaylist(self, playlistIndex: int, song: Song) -> None:
-        songsInDb = self._dbManager.getSongByCustomFilter(f"source='{song.source}'")
+        songsInDb = self._dbManager.getSongsByCustomFilter(f"source='{song.source}'")
         self._playlists[playlistIndex].add(song, len(songsInDb) > 0)
 
     def moveInPlaylist(self, playlistIndex: int, songIndex: int, newSongIndex: int) -> None:
         self._playlists[playlistIndex].move(songIndex, newSongIndex)
 
-    def removeFromPlaylist(self, playlistIndex: int, songId: int) -> None:
+    def removefromPlaylist(self, playlistIndex: int, songId: int) -> None:
         self._playlists[playlistIndex].remove(songId)
 
     def get(self, playlistIndex: Any) -> Optional[PlayerPlaylist]:
@@ -39,14 +39,14 @@ class PlaylistManager:
     def ensure(self, playlistIndex: int) -> PlayerPlaylist:
         return self._playlists[playlistIndex]
 
-    def updateSong(self, id: int, updateFunction: Callable[[Song], Song]) -> None:
+    def updateSong(self, id_: int, updateFunction: Callable[[Song], Song]) -> None:
         for playlist in self._playlists:
-            songs = playlist.byId(id)
+            songs = playlist.byId(id_)
             for song in songs:
                 song.update(updateFunction(song))
 
-    def updatePlaylist(self, id: int, name: str, description: str, cover: str) -> None:
-        playlist: PlayerPlaylist = self._playlists[id]
+    def updatePlaylist(self, id_: int, name: str, description: str, cover: str) -> None:
+        playlist: PlayerPlaylist = self._playlists[id_]
         playlist.name = name
         playlist.description = description
         playlist.cover = cover

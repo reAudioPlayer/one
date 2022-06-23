@@ -62,5 +62,5 @@ class Releases:
             "artists": track._artists,
             "cover": track._cover,
             "url": track.url,
-            "releaseDate": track._release_date
+            "releaseDate": track._releaseDate
         }

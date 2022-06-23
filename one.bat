@@ -20,7 +20,7 @@ goto end
 
 :lint
 python3 -m mypy
-python3 -m pylint main.py ./dataModels ./downloader ./handler ./helpers ./meta ./player
+python3 -m pylint main.py ./dataModel ./downloader ./handler ./helper ./meta ./player ./db
 exit
 
 :install

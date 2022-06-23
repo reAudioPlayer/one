@@ -18,15 +18,15 @@ class Metadata:
             return
         if "youtu" in url:
             self._src = url
-            self._track = YoutubeTrack.FromUrl(url)
+            self._track = YoutubeTrack.fromUrl(url)
         elif "spotify" in url:
-            self._track = SpotifyTrack.FromUrl(spotify, url)
-            ytTrack = YoutubeTrack.FromSpotifyTrack(self._track)
+            self._track = SpotifyTrack.fromUrl(spotify, url)
+            ytTrack = YoutubeTrack.fromSpotifyTrack(self._track)
             if ytTrack:
                 self._src = f"https://music.youtube.com/watch?v={ytTrack._id}"
         elif "soundcloud" in url:
             self._src = url
-            self._track = SoundcloudTrack.FromUrl(url)
+            self._track = SoundcloudTrack.fromUrl(url)
 
     def toDict(self) -> Dict[str, Any]: # extend with spotify
         assert self._track
