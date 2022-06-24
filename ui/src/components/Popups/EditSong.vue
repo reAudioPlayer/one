@@ -77,10 +77,9 @@ import FindSources from '../ContextMenus/FindSources.vue'
             add() {
                 this.showModal = false
                 console.log("fetch")
-                fetch("/api/updateSong", {
-                    method: "POST",
+                fetch(`/api/tracks/${this.id}`, {
+                    method: "PUT",
                     body: JSON.stringify({
-                        id: this.id,
                         source: this.dSource,
                         title: this.dTitle,
                         artist: this.dArtist,
@@ -93,7 +92,7 @@ import FindSources from '../ContextMenus/FindSources.vue'
                 })
             },
             loadMetadata() {
-                fetch("/api/metadata", {
+                fetch("/api/browse/track", {
                         method: "POST",
                         body: JSON.stringify({
                             url: this.$refs.source.value

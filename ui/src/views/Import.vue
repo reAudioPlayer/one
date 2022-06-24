@@ -32,7 +32,7 @@ export default {
             fetch("/api/playlists").then(async (inRes) => {
                 const playlists = await inRes.json();
                 for (let id = 0; id < playlists.length; id++) {
-                    const res = await fetch("/api/playlist", {
+                    const res = await fetch("/api/playlists/id", {
                         method: "POST",
                         body: JSON.stringify({
                             id

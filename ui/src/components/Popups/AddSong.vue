@@ -101,10 +101,9 @@
             add() {
                 this.showModal = false
                 console.log("fetch")
-                fetch("/api/add", {
+                fetch(`/api/playlists/${this.getId()}/tracks`, {
                     method: "POST",
                     body: JSON.stringify({
-                        id: this.getId(),
                         source: this.$refs.source.value,
                         title: this.title,
                         artist: this.artist,
@@ -117,7 +116,7 @@
                 })
             },
             loadMetadata() {
-                fetch("/api/metadata", {
+                fetch("/api/browse/track", {
                         method: "POST",
                         body: JSON.stringify({
                             url: this.$refs.source.value

@@ -111,7 +111,7 @@
                 this.$emit("close")
             },
             loadMetadata() {
-                fetch("/api/metadata", {
+                fetch("/api/browse/track", {
                         method: "POST",
                         body: JSON.stringify({
                             url: this.$refs.source.value
@@ -156,10 +156,9 @@
                     return
                 }
 
-                fetch("/api/add", {
+                fetch(`/api/playlists/${id}/tracks`, {
                     method: "POST",
                     body: JSON.stringify({
-                        id: id,
                         source: track.src,
                         title: track.title,
                         artist: track.artists.join(", "),

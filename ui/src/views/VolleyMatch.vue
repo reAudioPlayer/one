@@ -210,7 +210,7 @@ export default {
 
             const ctx = this
 
-            fetch(`/api/match/volley/${this.$route.params.id}`)
+            fetch(`/api/sports/volley/${this.$route.params.id}`)
                 .then(async x => {
                     if (x.status == 400)
                     {

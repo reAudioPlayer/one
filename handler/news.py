@@ -18,14 +18,14 @@ class NewsHandler:
     """news handler"""
     @useCache(1800) # type: ignore
     async def getSomeNews(self, _: web.Request) -> web.Response:
-        """get(/api/news)"""
+        """get(/api/news/articles)"""
         def implement() -> List[Dict[str, Any]]:
             return Feed.takeFromAll(4)
         data = await asyncRunInThreadWithReturn(implement)
         return web.json_response(data = data)
 
     async def getArticle(self, request: web.Request) -> web.Response:
-        """get(/api/news/article/{hash})"""
+        """get(/api/news/articles/{hash})"""
         def implement() -> Union[str, Dict[str, Any]]:
             url = Article.urlFromHash(request.match_info['hash'])
             if url is None:

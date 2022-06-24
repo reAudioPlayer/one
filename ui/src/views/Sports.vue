@@ -106,7 +106,7 @@
                     return
                 }
 
-                fetch("/api/match", {
+                fetch("/api/sports", {
                         method: "POST",
                         body: JSON.stringify({
                             urls: this.watchMatches

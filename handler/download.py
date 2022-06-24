@@ -23,7 +23,7 @@ class DownloadHandler:
         self._player = player
 
     async def download(self, request: web.Request) -> web.Response:
-        """get(/api/download/{id})"""
+        """get(/api/tracks/{id}/download)"""
         id_ = int(request.match_info['id'])
         song = self._dbManager.getSongById(id_)
         pathAndName = f"./_cache/{song.id}.mp3"
@@ -58,12 +58,12 @@ class DownloadHandler:
         return web.Response()
 
     async def streamFromCache(self, request: web.Request) -> web.FileResponse:
-        """get(/api/stream/{id})"""
+        """get(/api/player/stream/{id})"""
         index = int(request.match_info['id'])
         return web.FileResponse(f"./_cache/{index}.mp3")
 
     async def stream(self, _: web.Request) -> web.Response:
-        """get(/api/stream)"""
+        """get(/api/player/stream)"""
         if not self._player.currentSong:
             return web.Response(status = 428)
-        return web.HTTPPermanentRedirect(f"/api/stream/{self._player.currentSong.id}")
+        return web.HTTPPermanentRedirect(f"/api/player/stream/{self._player.currentSong.id}")

@@ -114,10 +114,9 @@
                 this.$emit("download", this.index)
             },
             addToPlaylist(index) {
-                fetch("/api/add", {
+                fetch(`/api/playlists/${index}/tracks`, {
                     method: "POST",
                     body: JSON.stringify({
-                        id: index,
                         source: this.source // song already exists, metadata unecessary
                     })
                 }).then(x => {
@@ -128,10 +127,9 @@
                 })
             },
             remove() {
-                fetch("/api/remove", {
-                    method: "POST",
+                fetch(`/api/playlists/${this.getPlaylistId()}/tracks`, {
+                    method: "DELETE",
                     body: JSON.stringify({
-                        playlistId: Number(this.getPlaylistId()),
                         songId: this.id
                     })
                 }).then(x => {
@@ -182,16 +180,15 @@
                 {
                     body.type = "collection/breaking"
                 }
-                fetch("/api/at", {
+                fetch("/api/player/at", {
                     method: "POST",
                     body: JSON.stringify(body)
                 })
             },
             setFavourite() {
-                fetch("/api/updateSong", {
-                    method: "POST",
+                fetch(`/api/tracks/${this.id}`, {
+                    method: "PUT",
                     body: JSON.stringify({
-                        id: this.id,
                         favourite: this.favourited,
                         album: this.album,
                         artist: this.artist,

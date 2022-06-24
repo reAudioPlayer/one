@@ -39,15 +39,14 @@ export default {
             {
                 this.statusText = "creating playlist...";
 
-                fetch("/api/playlist/create").then(async create => {
+                fetch("/api/playlists/new").then(async create => {
                     this.statusText = "updating playlist...";
 
                     const id = Number(await create.text());
 
-                    await fetch("/api/updatePlaylist", {
+                    await fetch(`/api/playlists/${id}`, {
                         method: "POST",
                         body: JSON.stringify({
-                            id,
                             name: this.playlist.name,
                             description: this.playlist.description
                         })
@@ -58,10 +57,9 @@ export default {
                         const song = this.playlist.songs[i];
                         this.statusText = `adding song ${i} / ${this.playlist.songs.length - 1}...`
 
-                        await fetch("/api/add", {
+                        await fetch(`/api/playlists/${id}/tracks`, {
                             method: "POST",
                             body: JSON.stringify({
-                                id,
                                 source: song.source,
                                 title: song.title,
                                 artist: song.artist,

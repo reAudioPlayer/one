@@ -148,7 +148,7 @@ spotify=[{self._spotify}] source=[{self._source}]"
                     dex.ensureString("source"),
                     album = dex.ensureString("album"),
                     cover = dex.ensureString("cover"),
-                    duration = _castDuration(dex.ensureInt("duration")),
+                    duration = _castDuration(dex.ensureString("duration")),
                     favourite = dex.ensureBool("favourite"))
 
     @property

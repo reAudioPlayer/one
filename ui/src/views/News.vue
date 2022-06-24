@@ -21,7 +21,7 @@ import NewsItemBig from '../components/Catalogue/Items/News/NewsItemBig.vue'
             }
         },
         mounted() {
-            fetch("/api/news")
+            fetch("/api/news/articles")
                 .then(x => x.json())
                 .then(jdata => {
                     this.news.length = 0

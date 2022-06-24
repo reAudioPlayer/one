@@ -69,7 +69,7 @@ class Feed(Enum):
         feed = feedparser.parse(url.value)
         return [ Article(entry, DictEx(feed).ensureDictChain("feed").ensureString("title"))
                  for (index, entry) in enumerate(feed.entries)
-                 if offset < index < (count + offset) ]
+                 if offset <= index < (count + offset) ]
 
     Goal = "https://news.google.com/rss/search?q=when:24h+allinurl:goal.com&ceid=US:en&hl=en-US&gl=US" # pylint: disable=line-too-long
     Reuters = "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US" # pylint: disable=line-too-long

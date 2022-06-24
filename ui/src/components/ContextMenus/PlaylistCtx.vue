@@ -41,7 +41,7 @@
                 window.open(`/#${this.href}`)
             },
             play() {
-                fetch("/api/loadPlaylist", {
+                fetch("/api/player/load", {
                     method: "POST",
                     body: JSON.stringify({
                         id: this.id,
@@ -50,7 +50,7 @@
                 })
             },
             deletePlaylist() {
-                fetch(`/api/playlist/${Number(this.id)}`, {
+                fetch(`/api/playlists/${Number(this.id)}`, {
                     method: "DELETE"
                 })
             }

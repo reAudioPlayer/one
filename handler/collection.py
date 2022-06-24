@@ -12,11 +12,11 @@ class CollectionHandler:
         self._dbManager = dbManager
 
     async def tracks(self, _: web.Request) -> web.Response:
-        """get(/api/collection/tracks)"""
+        """get(/api/me/liked)"""
         tracks = PlayerPlaylist.liked(self._dbManager)
         return web.json_response(data = tracks.toDict())
 
     async def breaking(self, _: web.Request) -> web.Response:
-        """get(/api/collection/tracks/breaking)"""
+        """get(/api/me/new)"""
         tracks = PlayerPlaylist.breaking(self._dbManager)
         return web.json_response(data = tracks.toDict())

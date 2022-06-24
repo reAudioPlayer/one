@@ -105,7 +105,7 @@
                     if (x.status == 200)
                     {
                         setTimeout(() => fetch("/api/releases"), 1000);
-                        setTimeout(() => fetch("/api/news"), 1000);
+                        setTimeout(() => fetch("/api/news/articles"), 1000);
                         this.mode++;
                         setTimeout(() => {
                             this.$router.push("/")
@@ -150,7 +150,7 @@
             }
         },
         mounted() {
-            fetch("/api/config/ready")
+            fetch("/api/config")
                 .then(x => {
                     if (x.status == 200)
                     {

@@ -31,7 +31,6 @@
                     return;
                 }
 
-                console.log(this.$refs.player)
                 this.$nextTick(() => {
                     this.$refs.player.addEventListener("mousedown", this.mouseDown, false);
                     window.addEventListener("mouseup", this.mouseUp, false)
@@ -55,7 +54,6 @@
                     cHe = parseInt(container.offsetHeight) - 8;
                 
                 container.style.cursor='move';
-                console.log(divTop, divLeft)
                 var diffX = posX - divLeft,
                     diffY = posY - divTop;
                 document.onmousemove = (evt) => {

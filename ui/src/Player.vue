@@ -1,6 +1,6 @@
 <template>
   <div v-if="!expandedMobile" class="player">
-    <audio ref="audio" @ended="get('next')" src="/api/stream" style="display: none" />
+    <audio ref="audio" @ended="get('player/next')" src="/api/player/stream" style="display: none" />
     <div class="left hideIfMobile">
       <img v-if="expandCover" @click="onExpandCover" :src="cover" />
       <div class="titleartist">
@@ -36,10 +36,10 @@
     <div class="centre">
       <div class="upper">
         <span @click="shuffle = !shuffle" class="material-icons-round defaultbtn hideIfMobile">{{ shuffle ? "shuffle_on" : "shuffle" }}</span>
-        <span @click="get('last')" class="material-icons-round defaultbtn hideIfMobile">skip_previous</span>
+        <span @click="get('player/last')" class="material-icons-round defaultbtn hideIfMobile">skip_previous</span>
         <span @click="playPause" class="material-icons-round circle hideIfMobile">{{playing ? "pause_circle" : "play_circle"}}</span>
         <span @click="playPause" class="material-icons-round circle showIfMobile">{{playing ? "pause" : "play_arrow"}}</span>
-        <span @click="get('next')" class="material-icons-round defaultbtn hideIfMobile">skip_next</span>
+        <span @click="get('player/next')" class="material-icons-round defaultbtn hideIfMobile">skip_next</span>
         <span @click="songLoop = !songLoop" class="material-icons-round defaultbtn hideIfMobile">{{ songLoop ? "repeat_one" : "repeat" }}</span>
       </div>
       <div class="lower hideIfMobile">
@@ -60,7 +60,7 @@
     </div>
   </div>
   <div v-else class="player fullscreen">
-    <audio ref="audio" @ended="get('next')" src="/api/stream" style="display: none" />
+    <audio ref="audio" @ended="get('player/next')" src="/api/player/stream" style="display: none" />
     <div class="top">
       <span class="material-symbols-rounded" @click="expandedMobile = false">expand_more</span>
       <p></p>
@@ -94,9 +94,9 @@
     </div>
     <div class="controls">
       <span @click="shuffle = !shuffle" class="material-icons-round defaultbtn">{{ shuffle ? "shuffle_on" : "shuffle" }}</span>
-      <span @click="get('last')" class="material-icons-round defaultbtn">skip_previous</span>
+      <span @click="get('player/last')" class="material-icons-round defaultbtn">skip_previous</span>
       <span @click="playPause" class="material-icons-round circle">{{playing ? "pause_circle" : "play_circle"}}</span>
-      <span @click="get('next')" class="material-icons-round defaultbtn">skip_next</span>
+      <span @click="get('player/next')" class="material-icons-round defaultbtn">skip_next</span>
       <span @click="songLoop = !songLoop" class="material-icons-round defaultbtn">{{ songLoop ? "repeat_one" : "repeat" }}</span>
     </div>
   </div>
@@ -121,17 +121,17 @@
         keyBinds: [
           {
             keyCode: "space",
-            success: () => fetch(`/api/playPause`),
+            success: () => fetch(`/api/player/playPause`),
             modifiers: ["ctrlKey"],
           },
           {
             keyCode: "right",
-            success: () => fetch(`/api/next`),
+            success: () => fetch(`/api/player/next`),
             modifiers: ["ctrlKey"],
           },
           {
             keyCode: "left",
-            success: () => fetch(`/api/last`),
+            success: () => fetch(`/api/player/previous`),
             modifiers: ["ctrlKey"],
           },
           {
@@ -215,12 +215,13 @@
         setInterval(() => {
             if (!ctx.playing)
             {
-            return;
+              return;
             }
             const duration = Number(ctx.durationStr.split(':')[0]) * 60 + Number(ctx.durationStr.split(':')[1])
             let progress = Number(ctx.progresslbl.split(':')[0]) * 60 + Number(ctx.progresslbl.split(':')[1])
             progress+=1;
             ctx.progress = progress / duration * 1000;
+            console.log(progress, duration)
             ctx.progresslbl = `${Math.floor(progress / 60)}:${ctx.zeroPad(progress % 60, 2)}`
         }, 1000)
 
@@ -230,7 +231,7 @@
             this.$refs.volume.value = 100;
           })
 
-          fetch("/api/setVolume", {
+          fetch("/api/player/volume", {
             method: "POST",
             body: JSON.stringify({
                 value: 0
@@ -239,20 +240,20 @@
         }
         else
         {
-          fetch("/api/getVolume")
+          fetch("/api/player/volume")
               .then(x => x.text())
               .then(value => {
                 this.$refs.volume.value = value
               })
         }
 
-        fetch("/api/songLoop")
+        fetch("/api/player/repeat")
             .then(x => x.text())
             .then(value => {
               this.songLoop = value == "True"
             })
 
-        fetch("/api/shuffle")
+        fetch("/api/player/shuffle")
             .then(x => x.text())
             .then(value => {
               this.shuffle = value == "True"
@@ -279,7 +280,7 @@
             this.setFavourite();
         },
         songLoop() {
-          fetch("/api/songLoop", {
+          fetch("/api/player/repeat", {
             method: "POST",
             body: JSON.stringify({
               value: this.songLoop
@@ -287,7 +288,7 @@
           })
         },
         shuffle() {
-          fetch("/api/shuffle", {
+          fetch("/api/player/shuffle", {
             method: "POST",
             body: JSON.stringify({
               value: this.shuffle
@@ -298,8 +299,8 @@
     methods: {
         setFavourite() {
             this.track.favourite = this.favourited
-            fetch("/api/updateSong", {
-                method: "POST",
+            fetch(`/api/tracks/${this.track.id}`, {
+                method: "PUT",
                 body: JSON.stringify(this.track)
             });
         },
@@ -321,7 +322,7 @@
               this.playing = !this.$refs.audio.paused;
               return;
             }
-            this.get('playPause')
+            this.get('player/playPause')
         },
         get(endpoint) {
             fetch(`/api/${endpoint}`)
@@ -333,7 +334,7 @@
               return;
             }
 
-            fetch("/api/setVolume", {
+            fetch("/api/player/volume", {
                 method: "POST",
                 body: JSON.stringify({
                     value: this.$refs.volume.value
@@ -354,7 +355,7 @@
               return;
             }
 
-            fetch("/api/setPos", {
+            fetch("/api/player/seek", {
                 method: "POST",
                 body: JSON.stringify({
                     value
@@ -373,9 +374,9 @@
                 this.favourited = jdata?.data?.favourite || false
 
                 if (this.playInBrowser) {
-                  this.get('pause')
+                  this.get('player/pause')
                   this.$refs.audio.src = null;
-                  this.$refs.audio.src = `/api/stream/${jdata?.data?.id}`;
+                  this.$refs.audio.src = `/api/player/stream/${jdata?.data?.id}`;
                   this.$refs.audio.load();
                   this.$refs.audio.play();
                   this.playing = !this.$refs.audio.paused;
@@ -399,8 +400,6 @@
               {
                 return;
               }
-              console.log(jdata?.data)
-
               let value = jdata?.data || 0
               this.progresslbl = `${Math.floor(value / 60)}:${this.zeroPad(Math.round(value % 60), 2)}`
             }

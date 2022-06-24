@@ -43,10 +43,9 @@
         },
         methods: {
             remove() {
-                fetch("/api/remove", {
-                    method: "POST",
+                fetch(`/api/playlists/${this.$route.params.id}/tracks`, {
+                    method: "DELETE",
                     body: JSON.stringify({
-                        playlistId: Number(this.$route.params.id),
                         songId: this.id
                     })
                 })

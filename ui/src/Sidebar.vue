@@ -58,7 +58,7 @@
                 .then(async jdata => {
                     for (let i = 0; i < jdata.length; i++) {
                         console.log(jdata[i])
-                        const resp = await fetch("/api/playlist", {
+                        const resp = await fetch("/api/playlists/id", {
                             method: "POST",
                             body: JSON.stringify({ 
                                 id: i

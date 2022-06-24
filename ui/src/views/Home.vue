@@ -38,7 +38,7 @@ export default {
         }
     },
     mounted() {
-        fetch("/api/config/ready")
+        fetch("/api/config")
             .then(x => {
                 if (x.status == 400)
                 {
@@ -53,7 +53,7 @@ export default {
             })
         if (window.localStorage.getItem("sidebar.showNewsTab") == "true")
         {
-            fetch("/api/news")
+            fetch("/api/news/articles")
                 .then(x => x.json())
                 .then(jdata => {
                     this.news.length = 0
@@ -64,7 +64,7 @@ export default {
             .then(x => x.json())
             .then(async jdata => {
                 for (let i = 0; i < jdata.length; i++) {
-                    const resp = await fetch("/api/playlist", {
+                    const resp = await fetch("/api/playlists/id", {
                         method: "POST",
                         body: JSON.stringify({ 
                             id: i

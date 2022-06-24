@@ -120,12 +120,7 @@
                 {
                     return;
                 }
-                fetch("/api/track", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        id: Number(this.getId())
-                    })
-                }).then(async x => {
+                fetch(`/api/tracks/${this.getId()}`).then(async x => {
                     if (x.status == 404) {
                         this.$router.push("/")
                         return
@@ -139,7 +134,7 @@
                     document.title = `${this.title} • ${this.artist}`;
                     this.connect()
 
-                    const resp = await fetch("/api/spotify/recommend", {
+                    const resp = await fetch("/api/spotify/recommendations", {
                         method: "POST",
                         body: JSON.stringify({
                             query: `${this.artist} ${this.title}`
@@ -150,7 +145,7 @@
                 })
             },
             loadPlaylist() {
-                fetch("/api/loadPlaylist", {
+                fetch("/api/player/load", {
                     method: "POST",
                     body: JSON.stringify({
                         id: Number(this.getId()),

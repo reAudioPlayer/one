@@ -91,7 +91,7 @@
                 data.append('file', this.$refs.upFile.files[0])
                 data.append('user', 'hubot')
 
-                fetch('/api/upload', {
+                fetch('/api/config/images', {
                     method: 'POST',
                     body: data
                 }).then(x => x.text()).then(url => this.cover = url)
@@ -99,10 +99,9 @@
             apply() {                
                 this.showModal = false
                 console.log("fetch")
-                fetch("/api/updatePlaylist", {
+                fetch(`/api/playlists/${hashids.decode(this.$route.params.id)}`, {
                     method: "POST",
                     body: JSON.stringify({
-                        id: Number(hashids.decode(this.$route.params.id)),
                         name: this.name || "N/A",
                         description: this.description || "N/A",
                         cover: this.cover || "/assets/img/music_placeholder.png"
@@ -113,7 +112,7 @@
                 })
             },
             remove() {
-                fetch(`/api/playlist/${Number(hashids.decode(this.$route.params.id))}`, {
+                fetch(`/api/playlists/${Number(hashids.decode(this.$route.params.id))}`, {
                     method: "DELETE"
                 }).then(() => {
                     this.$router.push("/")

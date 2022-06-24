@@ -64,7 +64,7 @@ import MiniPlayer from '../MiniPlayer.vue'
                 this.$emit("close")
             },
             loadMetadata() {
-                fetch("/api/metadata", {
+                fetch("/api/browse/track", {
                         method: "POST",
                         body: JSON.stringify({
                             url: this.href
@@ -89,10 +89,9 @@ import MiniPlayer from '../MiniPlayer.vue'
                     return
                 }
 
-                fetch("/api/add", {
+                fetch(`/api/playlists/${id}/tracks`, {
                     method: "POST",
                     body: JSON.stringify({
-                        id: id,
                         source: track.src,
                         title: track.title,
                         artist: track.artists.join(", "),

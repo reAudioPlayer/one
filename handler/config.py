@@ -11,7 +11,7 @@ from aiohttp import web
 class ConfigHandler:
     """back end configuration handler"""
     async def ready(self, _: web.Request) -> web.Response:
-        """get(/api/config/ready)"""
+        """get(/api/config)"""
         if not exists("./config/spotify.json"):
             return web.Response(status = 400)
         with open("./config/spotify.json", encoding = "utf8") as file:

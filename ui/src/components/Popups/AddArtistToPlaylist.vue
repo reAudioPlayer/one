@@ -4,7 +4,7 @@
             content-class="addAlbumToPlaylistPopup">
             <div class="wrapper">
                 <div class="header">
-                    <h3>Import playlist</h3>
+                    <h3>Import artist</h3>
                     <button class="modal-close" @click="close">
                         <span class="material-icons-round">
                             close
@@ -62,14 +62,14 @@
                     <hr>
                     <spotify-playlist-entry @add="add" v-for="(track, index) in playlist" :key="index" :added="track.added"
                         :index="index" :cover="track.cover" :artist="track.artists.join(', ')" :title="track.title"
-                        :source="track.source" :album="track.album" :preview="track.preview" />
+                        :source="track.src" :album="track.album" :preview="track.preview" />
                     <h5>{{"Recommendations based on " + name}}</h5>
                     <hr>
                     <spotify-playlist-header />
                     <hr>
                     <spotify-playlist-entry @add="addRec" v-for="(track, index) in recommendations" :key="index" :added="track.added"
                         :index="index" :cover="track.cover" :artist="track.artists.join(', ')" :title="track.title"
-                        :source="track.source" :album="track.album" :preview="track.preview" />
+                        :source="track.src" :album="track.album" :preview="track.preview" />
                 </div>
                 <div class="confirm">
                     <button @click="addAll" class="negative">Add All</button>
@@ -115,7 +115,7 @@
                 this.$emit("close")
             },
             loadMetadata() {
-                fetch("/api/metadata", {
+                fetch("/api/browse/track", {
                         method: "POST",
                         body: JSON.stringify({
                             url: this.$refs.source.value
@@ -156,10 +156,9 @@
                     return
                 }
 
-                fetch("/api/add", {
+                fetch(`/api/playlists/${id}/tracks`, {
                     method: "POST",
                     body: JSON.stringify({
-                        id: id,
                         source: track.src,
                         title: track.title,
                         artist: track.artists.join(", "),
@@ -189,17 +188,12 @@
                         this.playlists.push(...jdata)
                     })
 
-                fetch("/api/spotify/artist", {
-                        method: "POST",
-                        body: JSON.stringify({
-                            "artistId": this.id
-                        })
-                    }).then(x => x.json())
+                fetch(`/api/spotify/artists/${this.id}`).then(x => x.json())
                     .then(jdata => {
                         this.playlist.length = 0
                         this.playlist.push(...jdata)
                     })
-                fetch("/api/spotify/recommend", {
+                fetch("/api/spotify/recommendations", {
                         method: "POST",
                         body: JSON.stringify({
                             "artists": [ this.id ]
@@ -214,10 +208,28 @@
     }
 </script>
 
-<style scoped>
+<style lang="scss">
+    $mobileWidth: 950px;
     .wrapper {
         display: flex;
         flex-direction: column;
+    }
+
+    .addAlbumToPlaylistPopup {
+        position: relative;
+        width: 60%;
+        max-height: 70vh;
+
+        @media screen and (max-width: $mobileWidth) {
+            width: 100% !important;
+            max-height: 100vh;
+        }
+
+        padding: 16px;
+        overflow: auto;
+        background: var(--font-contrast);
+        border-radius: 10px;
+        color: var(--font-colour);
     }
 
     .header {

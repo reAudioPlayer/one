@@ -78,7 +78,7 @@
             addto(index) {
                 if (index === 'new')
                 {
-                    fetch("/api/playlist/create")
+                    fetch("/api/playlists/new")
                         .then(x => x.text()).then(y => {
                             this.$emit("addto", Number(y.replace('/playlist/', '')))
                         })

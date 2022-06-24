@@ -1,7 +1,7 @@
 a<template>
     <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="hovering = true" @mouseleave="hovering = false" class="playlistEntry"
         :class="{ 'selected': highlighted }">
-        <mini-player class="miniPlayer" :class="{'hidden': !hovering }" :src="preview" />
+        <mini-player class="miniPlayer" :class="{'hidden': !hovering }" :title="title" :artist="artist" :src="source" />
         <span v-if="!hovering" @click="edit" class="id">{{index + 1}}</span>
         <div class="track">
             <img :src="cover || '/assets/img/music_placeholder.png'">
@@ -47,10 +47,9 @@ a<template>
         },
         methods: {
             remove() {
-                fetch("/api/remove", {
-                    method: "POST",
+                fetch(`/api/playlists/${this.$route.params.id}/tracks`, {
+                    method: "DELETE",
                     body: JSON.stringify({
-                        playlistId: Number(this.$route.params.id),
                         songId: this.id
                     })
                 })

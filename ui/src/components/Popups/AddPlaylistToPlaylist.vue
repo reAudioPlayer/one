@@ -62,7 +62,7 @@
                     <hr>
                     <spotify-playlist-entry @add="add" v-for="(track, index) in playlist" :key="index" :added="track.added"
                         :index="index" :cover="track.cover" :artist="track.artists.join(', ')" :title="track.title"
-                        :source="track.source" :album="track.album" :preview="track.preview" />
+                        :source="track.src" :album="track.album" :preview="track.preview" />
                 </div>
                 <div class="confirm">
                     <button @click="addAll" class="negative">Add All</button>
@@ -107,7 +107,7 @@
                 this.$emit("close")
             },
             loadMetadata() {
-                fetch("/api/metadata", {
+                fetch("/api/browse/track", {
                         method: "POST",
                         body: JSON.stringify({
                             url: this.$refs.source.value
@@ -143,10 +143,9 @@
                     return
                 }
 
-                fetch("/api/add", {
+                fetch(`/api/playlists/${id}/tracks`, {
                     method: "POST",
                     body: JSON.stringify({
-                        id: id,
                         source: track.src,
                         title: track.title,
                         artist: track.artists.join(", "),
@@ -176,12 +175,7 @@
                         this.playlists.push(...jdata)
                     })
 
-                fetch("/api/spotify/playlist", {
-                        method: "POST",
-                        body: JSON.stringify({
-                            "playlistId": this.id
-                        })
-                    }).then(x => x.json())
+                fetch(`/api/spotify/artists/${this.id}`).then(x => x.json())
                     .then(jdata => {
                         this.playlist.length = 0
                         this.playlist.push(...jdata)
@@ -192,10 +186,28 @@
 </script>
 
 
-<style scoped>
+<style lang="scss">
+    $mobileWidth: 950px;
     .wrapper {
         display: flex;
         flex-direction: column;
+    }
+
+    .addAlbumToPlaylistPopup {
+        position: relative;
+        width: 60%;
+        max-height: 70vh;
+
+        @media screen and (max-width: $mobileWidth) {
+            width: 100% !important;
+            max-height: 100vh;
+        }
+
+        padding: 16px;
+        overflow: auto;
+        background: var(--font-contrast);
+        border-radius: 10px;
+        color: var(--font-colour);
     }
 
     .header {

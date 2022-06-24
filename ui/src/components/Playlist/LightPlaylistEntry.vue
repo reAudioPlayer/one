@@ -81,13 +81,12 @@ a<template>
         },
         methods: {
             download() {
-                window.open("/api/download/" + this.id)
+                window.open(`/api/tracks/${this.id}/download`)
             },
             addToPlaylist(index) {
-                fetch("/api/add", {
+                fetch(`/api/playlists/${index}/tracks`, {
                     method: "POST",
                     body: JSON.stringify({
-                        id: index,
                         source: this.source // song already exists, metadata unecessary
                     })
                 }).then(x => {
@@ -101,8 +100,9 @@ a<template>
                 this.$refs.editSongPopup.showModal = true
             },
             remove() {
-                fetch("/api/remove", {
-                    method: "POST",
+                return;
+                fetch(`/api/playlists/${this.$route.params.id}/tracks`, {
+                    method: "DELETE",
                     body: JSON.stringify({
                         songId: this.id
                     })
@@ -116,16 +116,15 @@ a<template>
                 const body = {
                     index: this.index,
                 }
-                fetch("/api/at", {
+                fetch("/api/player/at", {
                     method: "POST",
                     body: JSON.stringify(body)
                 })
             },
             setFavourite() {
-                fetch("/api/updateSong", {
-                    method: "POST",
+                fetch(`/api/tracks/${this.id}`, {
+                    method: "PUT",
                     body: JSON.stringify({
-                        id: this.id,
                         favourite: this.favourited,
                         album: this.album,
                         artist: this.artist,

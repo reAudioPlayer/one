@@ -38,7 +38,7 @@
                 .then(x => x.json())
                 .then(async jdata => {
                     for (let i = 0; i < jdata.length; i++) {
-                        const resp = await fetch("/api/playlist", {
+                        const resp = await fetch("/api/playlists/id", {
                             method: "POST",
                             body: JSON.stringify({ 
                                 id: i
@@ -53,7 +53,7 @@
                         })
                     }
                 })
-            fetch("/api/collection/tracks")
+            fetch("/api/me/liked")
                 .then(x => x.json())
                 .then(jdata => {
                     this.likedTracks = jdata

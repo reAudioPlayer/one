@@ -178,7 +178,7 @@ class SpotifyArtist:
     def __init__(self, artist: Dict[str, Any]) -> None:
         dex = DictEx(artist)
         self._name = dex.ensureString("name")
-        self._id = dex.ensureInt("id")
+        self._id = dex.ensureString("id")
         self._cover = dex.ensureListChain("images").ensureDictChain(0).ensureString("url")
         self._description = f"{dex.ensureDictChain('followers').ensureInt('total'):,} followers"
 

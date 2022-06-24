@@ -30,7 +30,7 @@
         },
         methods: {
             updateData() {
-                fetch(`/api/news/article/${this.$route.params.url}`)
+                fetch(`/api/news/articles/${this.$route.params.url}`)
                     .then(async res => {
                         if (res.status == 404)
                         {

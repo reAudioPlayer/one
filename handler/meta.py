@@ -23,16 +23,16 @@ class MetaHandler:
         self._dbManager = dbManager
 
     async def get(self, request: web.Request) -> web.Response:
-        """post(/api/metadata)"""
+        """post(/api/browse/track)"""
         jdata = await request.json()
         metadata = await asyncRunInThreadWithReturn(Metadata, self._spotify, jdata["url"])
         return web.json_response(data = metadata.toDict())
 
     async def getTrack(self, request: web.Request) -> web.Response:
-        """post(/api/track)"""
-        jdata = await request.json()
+        """post(/api/tracks/{id})"""
+        id_ = int(request.match_info['id'])
         try:
-            song = self._dbManager.getSongById(jdata["id"])
+            song = self._dbManager.getSongById(id_)
             return web.json_response(song.toDict())
         except IndexError:
             return web.Response(status = 404)
@@ -48,10 +48,10 @@ class MetaHandler:
         return web.json_response(data = search.toDict())
 
     async def spotifyAlbum(self, request: web.Request) -> web.Response:
-        """post(/api/spotify/album)"""
-        jdata = await request.json()
+        """post(/api/spotify/albums/{id})"""
+        id_ = request.match_info['id']
         def _implement() -> List[Dict[str, Any]]:
-            tracks = SpotifyTrack.fromAlbum(self._spotify, jdata["albumId"])
+            tracks = SpotifyTrack.fromAlbum(self._spotify, id_)
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
             return [ metadata.toDict() for metadata in metadatas ]
         data = await asyncRunInThreadWithReturn(_implement)
@@ -67,10 +67,10 @@ class MetaHandler:
         return web.json_response(data = data)
 
     async def spotifyPlaylist(self, request: web.Request) -> web.Response:
-        """post(/api/spotify/playlist)"""
-        jdata = await request.json()
+        """post(/api/spotify/playlists/{id})"""
+        id_ = request.match_info['id']
         def _implement() -> List[Dict[str, Any]]:
-            tracks = SpotifyTrack.fromPlaylist(self._spotify, jdata["playlistId"])
+            tracks = SpotifyTrack.fromPlaylist(self._spotify, id_)
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
             return [ metadata.toDict() for metadata in metadatas ]
         data = await asyncRunInThreadWithReturn(_implement)
@@ -92,29 +92,29 @@ class MetaHandler:
         return web.json_response(data = data)
 
     async def spotifyArtist(self, request: web.Request) -> web.Response:
-        """post(/api/spotify/artist)"""
-        jdata = await request.json()
+        """post(/api/spotify/artists/{id})"""
+        id_ = request.match_info['id']
         def _implement() -> List[Dict[str, Any]]:
-            tracks = SpotifyTrack.fromArtist(self._spotify, jdata["artistId"])
+            tracks = SpotifyTrack.fromArtist(self._spotify, id_)
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
             return [ metadata.toDict() for metadata in metadatas ]
         data = await asyncRunInThreadWithReturn(_implement)
         return web.json_response(data = data)
 
     async def spotifyFollow(self, request: web.Request) -> web.Response:
-        """post(/api/spotify/follow)"""
+        """post(/api/spotify/following)"""
         jdata = await request.json()
         self._spotify.user_follow_artists([jdata.get("artistId")])
         return web.json_response(status=200)
 
     async def spotifyUnfollow(self, request: web.Request) -> web.Response:
-        """post(/api/spotify/unfollow)"""
+        """delete(/api/spotify/following)"""
         jdata = await request.json()
         self._spotify.user_unfollow_artists([jdata.get("artistId")])
         return web.json_response(status=200)
 
     async def upload(self, request: web.Request) -> web.Response:
-        """post(/api/upload)"""
+        """post(/api/config/images)"""
         async for obj in (await request.multipart()):
             if obj.filename:
                 bytestream = await obj.read()
@@ -125,7 +125,7 @@ class MetaHandler:
         return web.Response(status = 400)
 
     async def spotifyRecommend(self, request: web.Request) -> web.Response:
-        """post(/api/spotify/recommend)"""
+        """post(/api/spotify/recommendations)"""
         jdata = await request.json()
         def _implement() -> List[Dict[str, Any]]:
             if jdata.get("query"):
