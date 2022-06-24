@@ -9,6 +9,7 @@ import requests # TODO aiohttp
 
 
 class Article:
+    """News Article"""
     def __init__(self, url: str) -> None:
         self._url: str = url
         self._html = requests.get(self._url).text
@@ -20,6 +21,7 @@ class Article:
         self._body: Optional[str] = None
 
     def toJson(self) -> Dict[str, Any]:
+        """serialise"""
         return {
             "href": self._url,
             "topic": self._topic,
@@ -31,6 +33,7 @@ class Article:
 
 
 class GuardianArticle(Article):
+    """https://www.theguardian.com/"""
     def __init__(self, url: str) -> None:
         super().__init__(url)
 
@@ -48,7 +51,9 @@ class GuardianArticle(Article):
         else:
             address = self._soup.find("address")
             if address:
-                self._date = address.find_next_sibling("div").string if address.find_next_sibling("div") else address.find_next_sibling("details").summary.string
+                self._date = address.find_next_sibling("div").string \
+                             if address.find_next_sibling("div") \
+                             else address.find_next_sibling("details").summary.string
             else:
                 self._date = "N/A"
         self._body = str(self._soup.find(class_ = "article-body-viewer-selector"))
@@ -60,6 +65,7 @@ class GuardianArticle(Article):
 
 
 class IndependentArticle(Article):
+    """https://www.independent.co.uk/"""
     def __init__(self, url: str) -> None:
         super().__init__(url)
         header = self._soup.find(id="articleHeader")
@@ -75,6 +81,7 @@ class IndependentArticle(Article):
 
 
 class BBCArticle(Article):
+    """https://bbc.co.uk/"""
     def __init__(self, url: str) -> None:
         super().__init__(url)
         article = self._soup.find("article")
@@ -95,12 +102,14 @@ class BBCArticle(Article):
         article.find("figcaption").find("span").decompose()
         divs = article.find_all("div", limit = 2, recursive = False)
         self._standfirst = "".join([ str(div) for div in divs ])
-        [ div.decompose() for div in divs ]
+        for div in divs:
+            div.decompose()
         article.find("div").decompose()
         article.find("div").decompose()
         self._body = str(article)
 
 class CNNArticle(Article):
+    """https://cnn.com/"""
     def __init__(self, url: str) -> None:
         super().__init__(url)
         article = self._soup.find("article")
@@ -117,15 +126,19 @@ class CNNArticle(Article):
         self._body = str(article.find("div", class_="pg-rail-tall__wrapper"))
 
 def tryDecompose(tag: Optional[Tag]) -> None:
+    """decompose if not none"""
     if tag:
         tag.decompose()
 
 
 class YourEdmArticle(Article):
+    """https://www.youredm.com/"""
     def __init__(self, url: str) -> None:
         super().__init__(url)
         self._headline = self._soup.find(class_="jeg_post_title").string
         self._date = str(self._soup.find(class_="jeg_meta_date").find("a").string)
-        self._topic = ", ".join([ str(tag) for tag in self._soup.find(class_="jeg_post_tags").find_all("a") ])
+        tags = self._soup.find(class_="jeg_post_tags").find_all("a")
+        self._topic = ", ".join([ str(tag)
+                                  for tag in tags ])
         self._soup.find(class_="jeg_post_tags").decompose()
         self._body = str(self._soup.find(class_="content-inner"))

@@ -22,8 +22,12 @@ from downloader.downloader import Downloader
 
 
 class Player:
-    def __init__(self, dbManager: DbManager, downloader: Downloader, playlistManager: PlaylistManager) -> None:
-        pygame.init()
+    """Player"""
+    def __init__(self,
+                 dbManager: DbManager,
+                 downloader: Downloader,
+                 playlistManager: PlaylistManager) -> None:
+        pygame.init() # pylint: disable=no-member
         if not env.get("TEST_MODE"):
             pygame.mixer.init()
             pygame.mixer.music.set_volume(1.0)
@@ -47,28 +51,30 @@ class Player:
     async def _updatePosition(self) -> None:
         while True:
             await asyncio.sleep(5)
-            if not self._positionSyncCallback:
-                continue
-            await self._positionSyncCallback(self.getPos())
+            if self._positionSyncCallback:
+                await self._positionSyncCallback(self.getPos()) # pylint: disable=not-callable
 
-    def getPos(self) -> float:
+    def getPos(self) -> float: # TODO (property)
+        """gets the position"""
         return pygame.mixer.music.get_pos() / 1000.0 + self._offset
 
     def setPos(self, posInS: float) -> None:
+        """sets the position"""
         self._offset = posInS - (pygame.mixer.music.get_pos() / 1000.0)
         pygame.mixer.music.set_pos(posInS)
 
     async def _onSongChange(self, newSong: Song) -> None:
-        if not self._songChangeCallback:
-            return
-        await self._songChangeCallback(newSong)
+        if self._songChangeCallback:
+            await self._songChangeCallback(newSong) # pylint: disable=not-callable
 
     async def _onPlayStateChange(self) -> None:
-        if not self._playStateChangeCallback:
-            return
-        await self._playStateChangeCallback(self._playing)
+        if self._playStateChangeCallback:
+            await self._playStateChangeCallback(self._playing) # pylint: disable=not-callable
 
-    async def loadPlaylist(self, playlist: Optional[PlayerPlaylist], atIndex: Optional[int] = None) -> bool:
+    async def loadPlaylist(self,
+                           playlist: Optional[PlayerPlaylist],
+                           atIndex: Optional[int] = None) -> bool:
+        """loads a playlist"""
         if not playlist:
             return False
         if self._playerPlaylist and self._playerPlaylist == playlist:
@@ -81,6 +87,7 @@ class Player:
         return True
 
     async def playPause(self) -> None:
+        """toggle play state"""
         if self._playing:
             pygame.mixer.music.pause()
         else:
@@ -89,28 +96,32 @@ class Player:
         await self._onPlayStateChange()
 
     async def pause(self) -> None:
+        """pause"""
         self._playing = False
         await self._onPlayStateChange()
         pygame.mixer.music.pause()
 
     async def play(self) -> None:
+        """play"""
         self._playing = True
         await self._onPlayStateChange()
         pygame.mixer.music.unpause()
 
     async def unload(self) -> None:
+        """unload and unbind song file"""
         pygame.mixer.music.unload()
         self._playing = False
         await self._onPlayStateChange()
         if not self._playerPlaylist:
             return
-        c = self._playerPlaylist.current()
-        cId = c.id if c else 0
+        current = self._playerPlaylist.current()
+        cId = current.id if current else 0
         print(f"unload {cId}")
         if os.path.exists(f"./_cache/{cId}.mp3"):
             os.remove(f"./_cache/{cId}.mp3")
 
     async def last(self) -> None:
+        """last"""
         if not self._playerPlaylist:
             return
         await self.unload()
@@ -118,6 +129,7 @@ class Player:
         await self._loadSong()
 
     async def next(self) -> None:
+        """next/skip"""
         if not self._playerPlaylist:
             return
         await self.unload()
@@ -132,6 +144,7 @@ class Player:
         await self._loadSong()
 
     async def onSongEnd(self) -> None:
+        """on song end event"""
         if self._loopSong:
             await self._loadSong(self._song)
             return
@@ -139,6 +152,7 @@ class Player:
         await self.next()
 
     async def at(self, index: int) -> None:
+        """play at"""
         if not self._playerPlaylist:
             return
         if index == self._playerPlaylist.index:
@@ -152,17 +166,19 @@ class Player:
         if not self._playerPlaylist or not song:
             return
         initial = self._playerPlaylist.index
-        while not (await self._downloader.downloadSong(song.source, str(song.id))):
+        while not await self._downloader.downloadSong(song.source, str(song.id)):
             print("invalid, preload next")
             song = self._playerPlaylist.next()
             if initial == self._playerPlaylist.index:
                 raise Exception("no valid song")
         self._preloaded = song.source
-        n = self._playerPlaylist.next(True)
-        asyncio.create_task(self._downloader.downloadSong(n.source, str(n.id)))
+        nextSong = self._playerPlaylist.next(True)
+        asyncio.create_task(self._downloader.downloadSong(nextSong.source,
+                                                          str(nextSong.id)))
 
     @property
     def shuffle(self) -> bool:
+        """shuffle mode"""
         return self._shuffle
 
     @shuffle.setter
@@ -171,13 +187,15 @@ class Player:
 
     @property
     def loopSong(self) -> bool:
+        """repeat song"""
         return self._loopSong
 
     @loopSong.setter
     def loopSong(self, value: bool) -> None:
         self._loopSong = value
 
-    def updateSongMetadata(self, id_: int, song: Song) -> None:
+    def updateSongMetadata(self, id_: int, song: Song) -> None: # TODO why here?
+        """updates the metadata"""
         self._dbManager.updateSongMetadata(id_, song.sqlUpdate())
         self._playlistManager.updateSong(id_, lambda x: song)
 
@@ -205,12 +223,15 @@ class Player:
 
     @property
     def playing(self) -> bool:
+        """play state"""
         return self._playing
 
     @property
     def currentSong(self) -> Optional[Song]:
+        """currently playing song"""
         return self._song
 
     @property
     def currentPlaylist(self) -> PlayerPlaylist:
+        """currently loaded playlist"""
         return self._playerPlaylist or PlayerPlaylist(self._dbManager)

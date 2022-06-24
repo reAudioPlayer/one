@@ -19,8 +19,8 @@ echo pass no argument to run the program
 goto end
 
 :lint
-python3 -m mypy
-python3 -m pylint main.py ./dataModel ./downloader ./handler ./helper ./meta ./player ./db
+python -m mypy
+python -m pylint main.py ./dataModel ./db ./downloader ./handler ./helper ./meta ./player
 exit
 
 :install

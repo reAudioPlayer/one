@@ -64,6 +64,7 @@ disable=broad-except,  # W0703
         duplicate-code,  # R0801
         too-few-public-methods,  # R0903
         too-many-return-statements,  # R0911
+        no-self-use
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -346,7 +347,9 @@ function-naming-style=camelCase
 #function-rgx=
 
 # Good variable names which should always be accepted, separated by a comma.
-good-names=i,
+good-names=a,
+           at,
+           i,
            j,
            k,
            ex,

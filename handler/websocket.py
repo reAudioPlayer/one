@@ -13,7 +13,8 @@ from dataModel.song import Song
 
 from player.player import Player
 
-class Message(dict): # type: ignore
+class Message(Dict[str, Any]):
+    """websocket message"""
     def __init__(self, data: Union[str, Dict[str, Any]]) -> None:
         if isinstance(data, str):
             super().__init__(json.loads(data))
@@ -22,17 +23,21 @@ class Message(dict): # type: ignore
 
     @property
     def path(self) -> Optional[str]:
+        """return path"""
         return self.get("path")
 
     @property
     def data(self) -> Optional[Any]:
+        """return data"""
         return self.get("data")
 
     @property
     def valid(self) -> bool:
+        """return valid"""
         return self.path is not None
 
 class Websocket:
+    """websocket handler"""
     def __init__(self, player: Player) -> None:
         self._connections: List[WebSocketResponse] = [ ]
         self._player = player
@@ -59,13 +64,14 @@ class Websocket:
         }))
 
     async def wsHandler(self, request: web.Request) -> WebSocketResponse:
+        """get(/ws)"""
         ws = WebSocketResponse()
         self._connections.append(ws)
         await ws.prepare(request)
 
-        if self._player._song:
-            await self._onSongChange(self._player._song)
-        await self._onPlayStateChange(self._player._playing)
+        if self._player.currentSong:
+            await self._onSongChange(self._player.currentSong)
+        await self._onPlayStateChange(self._player.playing)
         await self._onPositionSync(self._player.getPos())
 
         async for msg in ws:
@@ -75,12 +81,11 @@ class Websocket:
                 else:
                     data = Message(msg.data)
                     if not data.valid:
-                        await ws.send_str('invalid message')    
+                        await ws.send_str('invalid message')
                         continue
                     await self._handle(ws, data)
             elif msg.type == aiohttp.WSMsgType.ERROR:
-                print('ws connection closed with exception %s' %
-                    ws.exception())
+                print(f"ws connection closed with exception {ws.exception()}")
 
         print('websocket connection closed')
         self._connections.remove(ws)
@@ -88,10 +93,11 @@ class Websocket:
         return ws
 
     async def publish(self, msg: Message) -> None:
+        """publishs to all connected ws clients"""
         for ws in self._connections:
             try:
                 await ws.send_json(msg)
-            except:
+            except: # pylint: disable=bare-except
                 pass
 
     async def _handle(self, _: WebSocketResponse, msg: Message) -> None:

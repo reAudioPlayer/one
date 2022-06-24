@@ -7,13 +7,16 @@ from db.dbManager import DbManager
 from player.playerPlaylist import PlayerPlaylist
 
 class CollectionHandler:
+    """handles all collection endpoints"""
     def __init__(self, dbManager: DbManager) -> None:
         self._dbManager = dbManager
 
     async def tracks(self, _: web.Request) -> web.Response:
-        tracks = PlayerPlaylist.Liked(self._dbManager)
+        """get(/api/collection/tracks)"""
+        tracks = PlayerPlaylist.liked(self._dbManager)
         return web.json_response(data = tracks.toDict())
 
     async def breaking(self, _: web.Request) -> web.Response:
-        tracks = PlayerPlaylist.Breaking(self._dbManager)
+        """get(/api/collection/tracks/breaking)"""
+        tracks = PlayerPlaylist.breaking(self._dbManager)
         return web.json_response(data = tracks.toDict())

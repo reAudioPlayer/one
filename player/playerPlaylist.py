@@ -14,22 +14,26 @@ T = TypeVar('T') # pylint: disable=invalid-name
 
 
 class OrderedUniqueList(List[T]):
+    """ordered & unique list"""
     def append(self, __object: T) -> None:
         if __object in self:
             return
         super().append(__object)
 
     def update(self, objects: List[T]) -> None:
+        """adds a list"""
         for obj in objects:
             self.append(obj)
 
     def changeIndex(self, old: int, new: int) -> None:
+        """swaps two elements"""
         elem = self[old]
         self.remove(self[old])
         self.insert(new, elem)
 
 
-class PlayerPlaylist:
+class PlayerPlaylist: # pylint: disable=too-many-public-methods
+    """player playlist (not to be confused with db (dataModel) playlist)"""
     def __init__(self,
                  dbManager: DbManager,
                  playlistIndex: Optional[int] = None,
@@ -48,17 +52,25 @@ class PlayerPlaylist:
         self._load(playlistIndex, songs)
 
     @staticmethod
-    def Liked(dbManager: DbManager) -> PlayerPlaylist:
-        print("liked")
-        return PlayerPlaylist(dbManager, songs = dbManager.getLikedSongs(), name="Liked Songs", playlistIndex = -1)
+    def liked(dbManager: DbManager) -> PlayerPlaylist:
+        """liked songs"""
+        return PlayerPlaylist(dbManager,
+                              songs = dbManager.getLikedSongs(),
+                              name="Liked Songs",
+                              playlistIndex = -1)
 
     @staticmethod
-    def Breaking(dbManager: DbManager) -> PlayerPlaylist:
-        print("breaking")
-        return PlayerPlaylist(dbManager, songs = dbManager.getLatestSongs(25), name="Breaking", playlistIndex = -2)
+    def breaking(dbManager: DbManager) -> PlayerPlaylist:
+        """newest songs"""
+        return PlayerPlaylist(dbManager,
+                              songs = dbManager.getLatestSongs(25),
+                              name="Breaking",
+                              playlistIndex = -2)
 
     def _updateCover(self, cover: Optional[str]) -> None:
-        self._cover = cover or (self._playlist[0].cover if len(self._playlist) > 0 else "/assets/img/music_placeholder.png")
+        self._cover = cover or (self._playlist[0].cover \
+                                if len(self._playlist) > 0 \
+                                else "/assets/img/music_placeholder.png")
 
     def _load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
         """loads from database"""
@@ -77,29 +89,40 @@ class PlayerPlaylist:
         self._updateCover(playlist.cover)
 
     @property
-    def index(self) -> int:
+    def index(self) -> int: # TODO rename to e.g. cursor
+        """current index"""
         return self._index
 
     @property
+    def playlistIndex(self) -> Optional[int]:
+        """index of this playlist"""
+        return self._playlistIndex
+
+    @property
     def playlistLength(self) -> int:
+        """number of songs in this playlist"""
         return len(self._playlist)
 
     def at(self, index: int) -> Optional[Song]:
+        """play at index"""
         if index < 0 or index >= self.playlistLength:
             return None
         self._index = index
         return self._playlist[index]
 
     def current(self) -> Optional[Song]:
+        """currently playing song"""
         if self._index < 0 or self._index >= self.playlistLength:
             return None
         return self._playlist[self._index]
 
     def random(self) -> Tuple[int, Optional[Song]]:
+        """play random song"""
         index = randint(0, self.playlistLength - 1)
         return index, self._playlist[index]
 
     def nextIndex(self, preview: bool = False, increment: int = 1) -> int:
+        """index of the next song"""
         if self._index < self.playlistLength - increment:
             x = self._index + increment
         else:
@@ -111,9 +134,11 @@ class PlayerPlaylist:
         return x
 
     def next(self, preview: bool = False, increment: int = 1) -> Song:
+        """play next song"""
         return self._playlist[self.nextIndex(preview, increment)]
 
     def lastIndex(self, preview: bool = False, increment: int = 1) -> int:
+        """index of the last song"""
         if self._index >= increment:
             x = self._index - increment
         else:
@@ -124,35 +149,52 @@ class PlayerPlaylist:
         return x
 
     def last(self, preview: bool = False, increment: int = 1) -> Optional[Song]:
+        """play the last song"""
         return self._playlist[self.lastIndex(preview, increment)]
 
     def add(self, song: Song, alreadyInDb: bool = False) -> None:
+        """adds a song to the db"""
         if not alreadyInDb:
             self._dbManager.addSong(song)
         x = self._dbManager.getSongsByCustomFilter(f"source='{song.source}'")[0]
         self._playlist.append(x)
         songs = list(map(lambda x: x.id, self._playlist))
         assert self._playlistIndex is not None
-        self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex, self._description, self._cover))
+        self._dbManager.updatePlaylist(Playlist(self._name,
+                                                songs,
+                                                self._playlistIndex,
+                                                self._description,
+                                                self._cover))
 
     def remove(self, songId: int) -> None:
+        """removes a song (and optionally form the db)"""
         x = self._dbManager.getSongById(songId)
         self._playlist.remove(x)
         songs = list(map(lambda x: x.id, self._playlist))
         assert self._playlistIndex is not None
-        self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex, self._description, self._cover))
+        self._dbManager.updatePlaylist(Playlist(self._name,
+                                                songs,
+                                                self._playlistIndex,
+                                                self._description,
+                                                self._cover))
         self._dbManager.removeSong(songId)
 
     def move(self, songIndex: int, newSongIndex: int) -> None:
+        """moves a song in this playlist"""
         self._playlist.changeIndex(songIndex, newSongIndex)
         songs = list(map(lambda x: x.id, self._playlist))
         assert self._playlistIndex is not None
-        self._dbManager.updatePlaylist(Playlist(self._name, songs, self._playlistIndex, self._description, self._cover))
+        self._dbManager.updatePlaylist(Playlist(self._name,
+                                                songs,
+                                                self._playlistIndex,
+                                                self._description,
+                                                self._cover))
         if self._index == songIndex:
             self._index = newSongIndex
 
     @property
     def name(self) -> str:
+        """playlist name"""
         return self._name
 
     @name.setter
@@ -161,6 +203,7 @@ class PlayerPlaylist:
 
     @property
     def description(self) -> str:
+        """playlist description"""
         return self._description
 
     @description.setter
@@ -169,6 +212,7 @@ class PlayerPlaylist:
 
     @property
     def cover(self) -> str:
+        """playlist cover"""
         return self._cover
 
     @cover.setter
@@ -176,6 +220,7 @@ class PlayerPlaylist:
         self._cover = value
 
     def toDict(self) -> Dict[str, Any]:
+        """serialise"""
         return {
             "description": self._description,
             "index": self._index, # currently playing song
@@ -185,6 +230,7 @@ class PlayerPlaylist:
         }
 
     def byId(self, id_: int) -> List[Song]:
+        """find all songs in this playlist with this id"""
         return [ x for x in self._playlist if x.id == id_ ]
 
     def __eq__(self, other: object) -> bool:
@@ -198,6 +244,11 @@ class PlayerPlaylist:
     def __repr__(self) -> str:
         return f"(Player.PlayerPlaylist) name=[{self._name}] id=[{self._index}]"
 
-    def ToDMPlaylist(self) -> Playlist:
+    def toDMPlaylist(self) -> Playlist:
+        """converts to database playlist"""
         assert self._playlistIndex is not None
-        return Playlist(self.name, list(map(lambda x: x.id, self._playlist)), self._playlistIndex, self.description, self._cover)
+        return Playlist(self.name,
+                        list(map(lambda x: x.id, self._playlist)),
+                        self._playlistIndex,
+                        self.description,
+                        self._cover)

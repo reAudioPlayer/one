@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup # type: ignore
 
 
 class Match:
+    """Match model"""
     def __init__(self, url: str) -> None:
         self._url: str = url
         self._html: Optional[str] = None
@@ -27,6 +28,7 @@ class Match:
         self._icon: Optional[str]  = None
 
     def toJson(self) -> Dict[str, Any]:
+        """serialise"""
         return {
             "href": self._url,
             "sref": self._sref,
@@ -43,11 +45,12 @@ class Match:
 
 
 class OneFootballMatch(Match):
+    """https://www.onefootball.com/"""
     def __init__(self, url: str) -> None:
         if "/team" in url:
-            nurl = OneFootballTeam.GetFirstMatch(url)
+            nurl = OneFootballTeam.getFirstMatch(url)
         if "/competition" in url:
-            nurl = OneFootballTeam.GetFirstMatch(url)
+            nurl = OneFootballTeam.getFirstMatch(url)
         super().__init__(nurl)
         self._sref = url
         self._html = requests.get(nurl).text
@@ -59,7 +62,8 @@ class OneFootballMatch(Match):
         if section.find("p", class_="match-score-scores"):
             self._result = section.find("p", class_="match-score-scores").text
         else:
-            self._result = section.find("time", class_="match-score__kickoff-date").find("span").text.replace("00:00:00", "")
+            self._result = section.find("time", class_="match-score__kickoff-date")\
+                                  .find("span").text.replace("00:00:00", "")
         aggregate = section.find("p", class_="match-score__aggregated-score")
         if aggregate:
             txt = aggregate.text.removesuffix(" ").removeprefix(" ").replace("-", ":")
@@ -67,20 +71,25 @@ class OneFootballMatch(Match):
             self._result += f"<br><p class='accent additional-result'>({txt})</p>"
         self._sport = "Football"
         self._icon = "sports_soccer"
-        progress = section.find("div", class_="match-score__data").find("span", class_="title-7-medium")
+        progress = section.find("div", class_="match-score__data")\
+                          .find("span", class_="title-7-medium")
         if not progress:
-            progress = section.find("div", class_="match-score__data").find("span", class_="match-score__highlighted-text")
+            progress = section.find("div", class_="match-score__data")\
+                              .find("span", class_="match-score__highlighted-text")
         self._progress = progress.text
 
         competition = self._soup.find("span", class_="match-info__entry-subtitle")
         self._competition = competition.text
         competition.decompose()
-        self._date = self._soup.find("span", class_="match-info__entry-subtitle").text.removesuffix(" ").removeprefix(" ")
+        self._date = self._soup.find("span", class_="match-info__entry-subtitle")\
+                               .text.removesuffix(" ").removeprefix(" ")
 
 
 class OneFootballTeam:
+    """https://www.onefootball.com/ (team)"""
     @staticmethod
-    def GetFirstMatch(url: str) -> str:
+    def getFirstMatch(url: str) -> str:
+        """gets the first match of the specified team"""
         if not url.endswith("/fixtures"):
             url += "/fixtures"
         html = requests.get(url).text

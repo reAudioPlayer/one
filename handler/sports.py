@@ -11,7 +11,9 @@ from helper.asyncThread import asyncRunInThreadWithReturn
 
 
 class SportsHandler:
+    """sports handler"""
     async def getMatch(self, request: web.Request) -> web.Response:
+        """get(/api/match)"""
         jdata = await request.json()
         urls = jdata.get("urls") or [ ]
         async def implement(url: str) -> List[Dict[str, Any]]:
@@ -19,8 +21,8 @@ class SportsHandler:
                 if "onefootball" in url:
                     match = await asyncRunInThreadWithReturn(OneFootballMatch, url)
                     return [ match.toJson() ]
-            except Exception as e:
-                print(e)
+            except Exception as exc:
+                print(exc)
             return [{
                 "href": url,
                 "result": "N/A",

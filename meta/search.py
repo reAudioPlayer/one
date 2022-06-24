@@ -3,7 +3,7 @@
 from __future__ import annotations
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-from typing import List, Union, Any, Dict
+from typing import List, Any, Dict
 import spotipy # type: ignore
 
 from db.dbManager import DbManager
@@ -13,6 +13,7 @@ from dataModel.song import ITrack, Song
 
 
 class Search:
+    """search engine"""
     def __init__(self, tracks: List[Song], spotify: spotipy.Spotify, query: str) -> None:
         self._tracks = tracks
         #self._artists = [ ]
@@ -25,15 +26,17 @@ class Search:
         try:
             self._spotifyTracks = SpotifyTrack.fromQuery(spotify, query)
             self._spotifyArtists = SpotifyArtist.fromQuery(spotify, query)
-        except:
+        except: # pylint: disable=bare-except
             self._spotifyTracks = [ ]
             self._spotifyArtists = [ ]
 
     @staticmethod
     def searchTracks(dbManager: DbManager, query: str) -> List[Song]:
+        """searches for tracks"""
         return dbManager.getSongsByQuery(query)
 
     def toDict(self) -> Dict[str, Any]:
+        """serialise"""
         return {
             "tracks": [ self._trackToDict(track) for track in self._tracks ],
         #    "artists": [ self._trackToDict(track) for track in self._artists ],

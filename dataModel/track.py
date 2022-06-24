@@ -104,6 +104,11 @@ class SpotifyTrack(ITrack):
         return self._cover
 
     @property
+    def id(self) -> str:
+        """return track id"""
+        return self._id
+
+    @property
     def url(self) -> str:
         return f"https://open.spotify.com/track/{self._id}"
 
@@ -199,11 +204,30 @@ class SpotifyAlbum:
     def __init__(self, album: Dict[str, Any]) -> None:
         dex = DictEx(album)
         self._title = dex.ensureString("name")
-        if "images" in album: # probably album
-            self._cover = dex.ensureListChain("images").ensureDictChain(0).ensureString("url")
-            self._releaseDate = album.get("release_date")
+        self._cover = dex.ensureListChain("images").ensureDictChain(0).ensureString("url")
+        self._releaseDate = dex.ensureString("release_date")
         self._artists = [DictEx(x).ensureString("name") for x in dex.ensureList("artists")]
-        self._id = album.get("id")
+        self._id = dex.ensureString("id")
+
+    @property
+    def title(self) -> str:
+        """return title"""
+        return self._title
+
+    @property
+    def artists(self) -> List[str]:
+        """return artists"""
+        return self._artists
+
+    @property
+    def cover(self) -> str:
+        """return cover"""
+        return self._cover
+
+    @property
+    def releaseDate(self) -> str:
+        """return release date"""
+        return self._releaseDate
 
     @property
     def url(self) -> str:

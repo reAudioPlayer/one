@@ -5,16 +5,18 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from enum import Enum
 from typing import Dict, Any, List, Optional
-import feedparser # type: ignore
 import hashlib
+
+import feedparser # type: ignore
 
 from helper.dictTool import DictEx
 
 
-hashLookup = { }
+HASH_LOOKUP = { }
 
 
 class Article:
+    """Feedreader Article"""
     def __init__(self, entry: Dict[str, Any], feedTitle: str) -> None:
         dex = DictEx(entry)
         self._title = dex.ensureString("title")
@@ -22,10 +24,11 @@ class Article:
         self._summary = dex.ensureString("summary")
         self._link = dex.ensureString("link")
         self._href = hashlib.md5(self._link.encode('utf-8')).hexdigest()
-        hashLookup[self._href] = self._link
+        HASH_LOOKUP[self._href] = self._link
         self._updated = dex.ensureString("updated")
         self._mediaContent = dex.ensureList("media_content") or [ ]
-        self._feedTitle = feedTitle.replace('"when:24h allinurl:', '').replace('" - Google News', '')
+        self._feedTitle = feedTitle.replace('"when:24h allinurl:', '')\
+                                   .replace('" - Google News', '')
         self._image: Optional[str] = None
         bestQuality = 0
         for image in self._mediaContent:
@@ -39,6 +42,7 @@ class Article:
                 self._image = dex.ensureString("url")
 
     def toJson(self) -> Dict[str, Any]:
+        """serialise"""
         return {
             "title": self._title,
             "author": self._author,
@@ -50,22 +54,25 @@ class Article:
         }
 
     @staticmethod
-    def UrlFromHash(key: str) -> Optional[str]:
-        if not len(hashLookup):
-            Feed.TakeFromAll(4)
-        return hashLookup.get(key)
+    def urlFromHash(key: str) -> Optional[str]:
+        """looks the hash up"""
+        if not bool(HASH_LOOKUP):
+            Feed.takeFromAll(4)
+        return HASH_LOOKUP.get(key)
 
 
 class Feed(Enum):
+    """RSS Feed wrapper"""
     @classmethod
-    def Take(self, url: Feed, count: int, offset: int = 0) -> List[Article]:
+    def take(cls, url: Feed, count: int, offset: int = 0) -> List[Article]:
+        """take [count] articles from the [url] feed"""
         feed = feedparser.parse(url.value)
         return [ Article(entry, DictEx(feed).ensureDictChain("feed").ensureString("title"))
                  for (index, entry) in enumerate(feed.entries)
                  if offset < index < (count + offset) ]
 
-    Goal = "https://news.google.com/rss/search?q=when:24h+allinurl:goal.com&ceid=US:en&hl=en-US&gl=US"
-    Reuters = "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US"
+    Goal = "https://news.google.com/rss/search?q=when:24h+allinurl:goal.com&ceid=US:en&hl=en-US&gl=US" # pylint: disable=line-too-long
+    Reuters = "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US" # pylint: disable=line-too-long
 
     CNN = "http://rss.cnn.com/rss/edition_world.rss"
     BBC = "http://feeds.bbci.co.uk/news/world/rss.xml"
@@ -76,7 +83,8 @@ class Feed(Enum):
     YourEDM = "https://www.youredm.com/feed/"
 
     @classmethod
-    def TakeFromAll(self, countPerFeed: int, offsetPerFeed: int = 0) -> List[Dict[str, Any]]:
+    def takeFromAll(cls, countPerFeed: int, offsetPerFeed: int = 0) -> List[Dict[str, Any]]:
+        """take [countPerFeed] articles from all hard-coded feeds"""
         feeds = [
             Feed.EdmReviewer,
             Feed.YourEDM,
@@ -89,5 +97,5 @@ class Feed(Enum):
         ]
         x: List[Dict[str, Any]] = []
         for feed in feeds:
-            x.extend([ entry.toJson() for entry in Feed.Take(feed, countPerFeed, offsetPerFeed) ])
+            x.extend([ entry.toJson() for entry in Feed.take(feed, countPerFeed, offsetPerFeed) ])
         return x

@@ -2,7 +2,6 @@ import os
 import requests
 import threading
 from subprocess import call
-import json
 import time
 import logging
 
@@ -49,7 +48,14 @@ logger.info("==========================================================")
 logger.info("==================== Modify  Playlist ====================")
 logger.info("==========================================================")
 
-with requests.post("http://localhost:1234/api/updatePlaylist", json={"id": id_, "name": "MyNewPlaylist", "description": "MyDescription", "cover": "MyCover"}) as res:
+playlist = {
+    "id": id_,
+    "name": "MyNewPlaylist",
+    "description": "MyDescription",
+    "cover": "MyCover"
+}
+
+with requests.post("http://localhost:1234/api/updatePlaylist", json=playlist) as res:
     logger.info(res.status_code)
     logger.info(res.text)
 
@@ -57,15 +63,51 @@ with requests.get("http://localhost:1234/api/playlists") as res:
     logger.info(res.status_code)
     playlists = ListEx(res.json())
     newPlaylist = playlists.ensureString(0)
-    if newPlaylist != "MyNewPlaylist":
-        logger.info(newPlaylist)
-        logger.info("Test failed")
-        os._exit(-1)
+    assert newPlaylist == playlist["name"]
 
 with requests.post("http://localhost:1234/api/playlist", json={"id": id_}) as res:
     playlist = DictEx(res.json())
     logger.info(res.status_code)
     logger.info(playlist)
+    assert playlist.ensureString("name") == playlist["name"]
+    assert playlist.ensureString("description") == playlist["description"]
+    assert playlist.ensureString("cover") == playlist["cover"]
+    assert len(playlist.ensureList("songs")) == 0
+
+logger.info("==========================================================")
+logger.info("====================== Get Metadata ======================")
+logger.info("==========================================================")
+
+with requests.post("http://localhost:1234/api/metadata", json={"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}) as res:
+    metadata = DictEx(res.json())
+    logger.info(res.status_code)
+    logger.info(metadata)
+
+logger.info("==========================================================")
+logger.info("======================== Add Song ========================")
+logger.info("==========================================================")
+
+song = {
+    "id": id_,
+    "artist": ", ".join(metadata.ensureList("artists")),
+    "title": metadata.ensureString("title"),
+    "album": metadata.ensureString("album"),
+    "cover": metadata.ensureString("cover"),
+    "source": metadata.ensureString("src")
+}
+
+with requests.post("http://localhost:1234/api/add", json=song) as res:
+    logger.info(res.status_code)
+    logger.info(res.text)
+
+with requests.post("http://localhost:1234/api/playlist", json={"id": id_}) as res:
+    playlist = DictEx(res.json())
+    logger.info(res.status_code)
+    logger.info(playlist)
+    assert playlist.ensureString("name") == playlist["name"]
+    assert playlist.ensureString("description") == playlist["description"]
+    assert playlist.ensureString("cover") == playlist["cover"]
+    assert len(playlist.ensureList("songs")) == 1
 
 logger.info("==========================================================")
 logger.info("======================== END TEST ========================")
@@ -73,5 +115,5 @@ logger.info("==========================================================")
 
 try:
     requests.get("http://localhost:1234/api/kill")
-finally:
-    os._exit(0) # pylint: disable=protected-access
+except: # pylint: disable=bare-except
+    pass

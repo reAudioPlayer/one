@@ -4,6 +4,7 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import os
 from os import environ as env
+from os.path import exists
 from typing import Awaitable, Callable
 
 
@@ -42,8 +43,6 @@ try:
     import logging
     import time
     import atexit
-
-    from os.path import exists
 
     import mimetypes
     import shutil
@@ -130,63 +129,87 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
 
     app = web.Application(middlewares=[IndexMiddleware(), _exceptionMiddleware])
 
-    app.router.add_get('/api/last', playerHandler.getLast)
-    app.router.add_get('/api/next', playerHandler.getNext)
-    app.router.add_get('/api/playPause', playerHandler.getPlayPause)
-    app.router.add_get('/api/pause', playerHandler.getPause)
-    app.router.add_get('/api/play', playerHandler.getPlay)
-    app.router.add_post('/api/at', playerHandler.loadSongAt)
-    app.router.add_post('/api/setVolume', playerHandler.setVolume)
-    app.router.add_get('/api/getVolume', playerHandler.getVolume)
-    app.router.add_post('/api/loadPlaylist', playerHandler.loadPlaylist)
-    app.router.add_post('/api/updateSong', playerHandler.updateSong)
-    app.router.add_post('/api/setPos', playerHandler.setPos)
-    app.router.add_get('/api/getPos', playerHandler.getPos)
-    app.router.add_post('/api/songLoop', playerHandler.setLoopSong)
-    app.router.add_get('/api/songLoop', playerHandler.getLoopSong)
-    app.router.add_post('/api/shuffle', playerHandler.setShuffle)
-    app.router.add_get('/api/shuffle', playerHandler.getShuffle)
+    # TODO improve endpoint names
 
-    app.router.add_post('/api/metadata', metaHandler.get)
-    app.router.add_post('/api/track', metaHandler.getTrack)
-    app.router.add_post('/api/search', metaHandler.search)
-    app.router.add_get('/api/releases', metaHandler.releases)
-    app.router.add_post('/api/upload', metaHandler.upload)
+    # /api/player/
+    app.router.add_get('/api/last', playerHandler.getLast) # /api/player/previous
+    app.router.add_get('/api/next', playerHandler.getNext) # /api/player/next
 
-    app.router.add_post('/api/spotify/album', metaHandler.spotifyAlbum)
-    app.router.add_post('/api/spotify/artist', metaHandler.spotifyArtist)
-    app.router.add_get('/api/spotify/artists', metaHandler.spotifyArtists)
-    app.router.add_post('/api/spotify/playlist', metaHandler.spotifyPlaylist)
-    app.router.add_get('/api/spotify/playlists', metaHandler.spotifyPlaylists)
-    app.router.add_post('/api/spotify/follow', metaHandler.spotifyFollow)
-    app.router.add_post('/api/spotify/unfollow', metaHandler.spotifyUnfollow)
-    app.router.add_post('/api/spotify/recommend', metaHandler.spotifyRecommend)
+    app.router.add_get('/api/playPause', playerHandler.getPlayPause) # /api/player/playPause
+    app.router.add_get('/api/pause', playerHandler.getPause) # /api/player/pause
+    app.router.add_get('/api/play', playerHandler.getPlay) # /api/player/play
 
-    app.router.add_get('/api/collection/tracks', collectionHandler.tracks)
-    app.router.add_get('/api/collection/tracks/breaking', collectionHandler.breaking)
+    app.router.add_post('/api/at', playerHandler.loadSongAt)  # /api/player/at
 
-    app.router.add_post('/api/match', sportsHandler.getMatch)
+    app.router.add_post('/api/setVolume', playerHandler.setVolume) # /api/player/volume
+    app.router.add_get('/api/getVolume', playerHandler.getVolume) # /api/player/volume
 
-    app.router.add_get('/api/news', newsHandler.getSomeNews)
-    app.router.add_get('/api/news/article/{hash}', newsHandler.getArticle)
+    app.router.add_post('/api/loadPlaylist', playerHandler.loadPlaylist)  # /api/player/load
 
-    app.router.add_get('/api/download/{id}', downloadHandler.download)
-    app.router.add_get('/api/stream', downloadHandler.stream)
-    app.router.add_get('/api/stream/{id}', downloadHandler.streamFromCache)
+    app.router.add_post('/api/setPos', playerHandler.setPos) # /api/player/seek
+    app.router.add_get('/api/getPos', playerHandler.getPos) # /api/player/seek
 
-    app.router.add_post('/api/add', playlistHandler.addSong)
-    app.router.add_post('/api/remove', playlistHandler.removeSong)
-    app.router.add_post('/api/rearrange', playlistHandler.moveSong)
-    app.router.add_get('/api/playlist/create', playlistHandler.createPlaylist)
-    app.router.add_post('/api/playlist', playlistHandler.getPlaylist)
-    app.router.add_delete('/api/playlist/{id}', playlistHandler.deletePlaylist)
-    app.router.add_get('/api/playlists', playlistHandler.getPlaylists)
-    app.router.add_post('/api/updatePlaylist', playlistHandler.updatePlaylist)
+    app.router.add_post('/api/songLoop', playerHandler.setLoopSong) # /api/player/repeat
+    app.router.add_get('/api/songLoop', playerHandler.getLoopSong) # /api/player/repeat
 
-    app.router.add_get('/api/config/ready', configHandler.ready)
-    app.router.add_post('/api/config/spotify', configHandler.spotifyConfig)
+    app.router.add_post('/api/shuffle', playerHandler.setShuffle) # /api/player/shuffle
+    app.router.add_get('/api/shuffle', playerHandler.getShuffle) # /api/player/shuffle
 
-    app.router.add_get('/api/kill', _exitHandler)
+    app.router.add_get('/api/stream', downloadHandler.stream) # /api/player/stream
+    app.router.add_get('/api/stream/{id}', downloadHandler.streamFromCache) # /api/player/stream/{id}
+
+    # UNGROUPED
+    app.router.add_post('/api/metadata', metaHandler.get)  # /api/browse/track
+
+    app.router.add_post('/api/search', metaHandler.search) # /api/search
+
+    app.router.add_get('/api/releases', metaHandler.releases) # /api/releases
+
+    app.router.add_post('/api/match', sportsHandler.getMatch) # /api/sports
+
+    # /api/spotify/
+    app.router.add_post('/api/spotify/album', metaHandler.spotifyAlbum) # /api/spotify/albums/{id}
+    app.router.add_post('/api/spotify/artist', metaHandler.spotifyArtist) # /api/spotify/artists/{id}
+    app.router.add_get('/api/spotify/artists', metaHandler.spotifyArtists) # /api/spotify/albums
+    app.router.add_post('/api/spotify/playlist', metaHandler.spotifyPlaylist) # /api/spotify/playlists/{id}
+    app.router.add_get('/api/spotify/playlists', metaHandler.spotifyPlaylists) # /api/spotify/playlists
+    app.router.add_post('/api/spotify/follow', metaHandler.spotifyFollow) # /api/spotify/following
+    app.router.add_post('/api/spotify/unfollow', metaHandler.spotifyUnfollow) # /api/spotify/following (delete)
+    app.router.add_post('/api/spotify/recommend', metaHandler.spotifyRecommend)  # /api/spotify/recommendations
+
+    # /api/me/
+    app.router.add_get('/api/collection/tracks', collectionHandler.tracks) # /api/me/liked
+    app.router.add_get('/api/collection/tracks/breaking', collectionHandler.breaking) # /api/me/new
+
+    # /api/news/
+    app.router.add_get('/api/news', newsHandler.getSomeNews) # /api/news/articles
+    app.router.add_get('/api/news/article/{hash}', newsHandler.getArticle) # /api/news/articles/{hash}
+
+    # /api/tracks
+    app.router.add_post('/api/track', metaHandler.getTrack)  # /api/tracks/{id}
+    app.router.add_post('/api/updateSong', playerHandler.updateSong)  # /api/tracks/{id}
+    app.router.add_get('/api/download/{id}', downloadHandler.download) # /api/tracks/{id}/download
+
+    # /api/playlists/
+    app.router.add_get('/api/playlist/create', playlistHandler.createPlaylist) # /api/playlists/new
+    app.router.add_get('/api/playlists', playlistHandler.getPlaylists) # /api/playlists
+
+    app.router.add_post('/api/playlist', playlistHandler.getPlaylist) # /api/playlists/{id} (get)
+    app.router.add_delete('/api/playlist/{id}', playlistHandler.deletePlaylist) # /api/playlists/{id} (delete)
+    app.router.add_post('/api/updatePlaylist', playlistHandler.updatePlaylist) # /api/playlists/{id} (post)
+
+    app.router.add_post('/api/add', playlistHandler.addSong) # /api/playlists/{id}/tracks (post)
+    app.router.add_post('/api/rearrange', playlistHandler.moveSong) # /api/playlists/{id}/tracks (put)
+    app.router.add_post('/api/remove', playlistHandler.removeSong) # /api/playlists/{id}/tracks (delete)
+
+    # /api/config
+    app.router.add_get('/api/config/ready', configHandler.ready) # /api/config
+
+    app.router.add_post('/api/upload', metaHandler.upload) # /api/config/images
+    app.router.add_post('/api/config/spotify', configHandler.spotifyConfig) # /api/config/spotify
+
+    # /api/system
+    app.router.add_get('/api/kill', _exitHandler) # /api/system/kill
 
     app.router.add_get('/ws', websocket.wsHandler)
 

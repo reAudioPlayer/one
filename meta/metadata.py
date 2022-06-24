@@ -2,7 +2,7 @@
 """reAudioPlayer ONE"""
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 import spotipy # type: ignore
 
 import validators # type: ignore
@@ -11,6 +11,7 @@ from dataModel.track import ITrack, SoundcloudTrack, SpotifyTrack, YoutubeTrack
 
 
 class Metadata:
+    """metadata finder"""
     def __init__(self, spotify: spotipy.Spotify, url: str) -> None:
         self._track: Optional[ITrack] = None
         self._src = None
@@ -29,6 +30,7 @@ class Metadata:
             self._track = SoundcloudTrack.fromUrl(url)
 
     def toDict(self) -> Dict[str, Any]: # extend with spotify
+        """serialise"""
         assert self._track
         return {
             "title": self._track.title,
