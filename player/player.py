@@ -52,13 +52,15 @@ class Player:
         while True:
             await asyncio.sleep(5)
             if self._positionSyncCallback:
-                await self._positionSyncCallback(self.getPos()) # pylint: disable=not-callable
+                await self._positionSyncCallback(self.position) # pylint: disable=not-callable
 
-    def getPos(self) -> float: # TODO (property)
+    @property
+    def position(self) -> float:
         """gets the position"""
         return pygame.mixer.music.get_pos() / 1000.0 + self._offset
 
-    def setPos(self, posInS: float) -> None:
+    @position.setter
+    def position(self, posInS: float) -> None:
         """sets the position"""
         self._offset = posInS - (pygame.mixer.music.get_pos() / 1000.0)
         pygame.mixer.music.set_pos(posInS)
@@ -155,8 +157,8 @@ class Player:
         """play at"""
         if not self._playerPlaylist:
             return
-        if index == self._playerPlaylist.index:
-            self.setPos(0.0)
+        if index == self._playerPlaylist.cursor:
+            self.position = 0
             return
         await self.unload()
         await self._preloadSong(self._playerPlaylist.at(index))
@@ -165,11 +167,11 @@ class Player:
     async def _preloadSong(self, song: Optional[Song]) -> None:
         if not self._playerPlaylist or not song:
             return
-        initial = self._playerPlaylist.index
+        initial = self._playerPlaylist.cursor
         while not await self._downloader.downloadSong(song.source, str(song.id)):
             print("invalid, preload next")
             song = self._playerPlaylist.next()
-            if initial == self._playerPlaylist.index:
+            if initial == self._playerPlaylist.cursor:
                 raise Exception("no valid song")
         self._preloaded = song.source
         nextSong = self._playerPlaylist.next(True)

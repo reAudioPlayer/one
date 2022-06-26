@@ -3,7 +3,7 @@
 from __future__ import annotations
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 import json
 
 
@@ -11,13 +11,13 @@ class Playlist:
     """playlist model"""
     def __init__(self,
                  name: str,
-                 songs: List[int],
-                 id_: int,
-                 description: str,
-                 cover: str) -> None:
+                 songs: Optional[List[int]] = None,
+                 id_: int = -1,
+                 description: str = "",
+                 cover: str = "") -> None:
         self._name = name
         self._description = description
-        self._songs = songs
+        self._songs = songs or [ ]
         self._cover = cover
         self._id = id_
 

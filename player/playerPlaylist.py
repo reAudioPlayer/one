@@ -43,7 +43,7 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
                  cover: Optional[str] = None) -> None:
         self._dbManager = dbManager
         self._playlist: OrderedUniqueList[Song] = OrderedUniqueList()
-        self._index: int = -1
+        self._cursor: int = -1
         self._playlistIndex = playlistIndex
         self._name: str = name or "N/A"
         self._description: str = description or "N/A"
@@ -89,9 +89,9 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         self._updateCover(playlist.cover)
 
     @property
-    def index(self) -> int: # TODO rename to e.g. cursor
-        """current index"""
-        return self._index
+    def cursor(self) -> int:
+        """current cursor"""
+        return self._cursor
 
     @property
     def playlistIndex(self) -> Optional[int]:
@@ -107,14 +107,14 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         """play at index"""
         if index < 0 or index >= self.playlistLength:
             return None
-        self._index = index
+        self._cursor = index
         return self._playlist[index]
 
     def current(self) -> Optional[Song]:
         """currently playing song"""
-        if self._index < 0 or self._index >= self.playlistLength:
+        if self._cursor < 0 or self._cursor >= self.playlistLength:
             return None
-        return self._playlist[self._index]
+        return self._playlist[self._cursor]
 
     def random(self) -> Tuple[int, Optional[Song]]:
         """play random song"""
@@ -123,13 +123,13 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
 
     def nextIndex(self, preview: bool = False, increment: int = 1) -> int:
         """index of the next song"""
-        if self._index < self.playlistLength - increment:
-            x = self._index + increment
+        if self._cursor < self.playlistLength - increment:
+            x = self._cursor + increment
         else:
             x = 0
 
         if not preview:
-            self._index = x
+            self._cursor = x
 
         return x
 
@@ -139,13 +139,13 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
 
     def lastIndex(self, preview: bool = False, increment: int = 1) -> int:
         """index of the last song"""
-        if self._index >= increment:
-            x = self._index - increment
+        if self._cursor >= increment:
+            x = self._cursor - increment
         else:
             x = self.playlistLength - 1
 
         if not preview:
-            self._index = x
+            self._cursor = x
         return x
 
     def last(self, preview: bool = False, increment: int = 1) -> Optional[Song]:
@@ -189,8 +189,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
                                                 self._playlistIndex,
                                                 self._description,
                                                 self._cover))
-        if self._index == songIndex:
-            self._index = newSongIndex
+        if self._cursor == songIndex:
+            self._cursor = newSongIndex
 
     @property
     def name(self) -> str:
@@ -223,7 +223,7 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         """serialise"""
         return {
             "description": self._description,
-            "index": self._index, # currently playing song
+            "index": self._cursor, # currently playing song
             "name": self._name,
             "cover": self._cover,
             "songs": list(map(lambda x: x.toDict(), self._playlist))
@@ -242,13 +242,13 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         return hash((self._name, self._playlistIndex))
 
     def __repr__(self) -> str:
-        return f"(Player.PlayerPlaylist) name=[{self._name}] id=[{self._index}]"
+        return f"(Player.PlayerPlaylist) name=[{self._name}] id=[{self._cursor}]"
 
     def toDMPlaylist(self) -> Playlist:
         """converts to database playlist"""
         assert self._playlistIndex is not None
         return Playlist(self.name,
-                        list(map(lambda x: x.id, self._playlist)),
+                        [ x.id for x in self._playlist],
                         self._playlistIndex,
                         self.description,
                         self._cover)

@@ -139,7 +139,8 @@ class DbManager:
     def getPlaylists(self) -> List[Playlist]:
         """get all playlists"""
         with self._db:
-            return list(map(Playlist.fromSql, self._db.execute("SELECT * FROM Playlists")))
+            return [ Playlist.fromSql(playlist)
+                     for playlist in self._db.execute("SELECT * FROM Playlists") ]
 
     def getPlaylistById(self, id_: int) -> Optional[Playlist]:
         """get playlist by id"""

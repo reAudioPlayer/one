@@ -72,7 +72,7 @@ class Websocket:
         if self._player.currentSong:
             await self._onSongChange(self._player.currentSong)
         await self._onPlayStateChange(self._player.playing)
-        await self._onPositionSync(self._player.getPos())
+        await self._onPositionSync(self._player.position)
 
         async for msg in ws:
             if msg.type == aiohttp.WSMsgType.TEXT:

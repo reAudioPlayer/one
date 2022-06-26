@@ -23,7 +23,7 @@ import PlayerInPicture from "./PlayerInPicture.vue";
     // January 2022, dxstiny (https://github.com/dxstiny)
     // check out the README.md!
 
-    import * as Vibrant from 'node-vibrant'
+    //import * as Vibrant from 'node-vibrant'
     import themes from "./assets/themes.json";
     //fetch("/assets/themes/themes.json").then(x => x.json()).then(json => themes = json) // in case you can't use import
 
@@ -120,19 +120,19 @@ import PlayerInPicture from "./PlayerInPicture.vue";
                     console.info("theme", window.getCurrentTheme())
                     if (window.getCurrentTheme() == "dynamic") {
                         console.log(this.cover)
-                        Vibrant.from(this.cover).getPalette()
+                        /*Vibrant.from(this.cover).getPalette()
                             .then((palette) => {
                                 /*for (const key of Object.keys(themes)) {
                                     const value = themes[key]
                                     document.documentElement.style.setProperty(`--${key}`, value[theme] || value.default);
-                                }*/
+                                }*
                                 console.log(palette)
                                 document.documentElement.style.setProperty(`--accent-dark`, palette.DarkVibrant.hex);
                                 document.documentElement.style.setProperty(`--fixedplaylistheader-background`, palette.DarkVibrant.hex);
                                 document.documentElement.style.setProperty(`--fixedplaylistheader-border`, palette.DarkVibrant.hex);
                                 document.documentElement.style.setProperty(`--fixedplaylistheader-border`, palette.DarkVibrant.hex);
                                 document.documentElement.style.setProperty(`--accent`, palette.Vibrant.hex);
-                            })
+                            })*/
                     }
                     return;
                 }

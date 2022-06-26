@@ -132,9 +132,9 @@ class PlayerHandler:
     async def setPos(self, request: web.Request) -> web.Response:
         """post(/api/player/seek)"""
         x = await request.json()
-        self._player.setPos(x["value"])
+        self._player.position = x["value"]
         return web.Response(status = 200, text = "success!")
 
     async def getPos(self, _: web.Request) -> web.Response:
         """get(/api/player/seek)"""
-        return web.Response(status = 200, text = str(self._player.getPos()))
+        return web.Response(status = 200, text = str(self._player.position))

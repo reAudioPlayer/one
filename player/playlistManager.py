@@ -74,7 +74,7 @@ class PlaylistManager:
         """creates a playlist"""
         plId = self.playlistLength
         name = name or f"My Playlist #{plId + 1}"
-        self._dbManager.addPlaylist(Playlist(name, [], plId, "", "")) # TODO make args optional
+        self._dbManager.addPlaylist(Playlist(name, id_ = plId))
         self._loadPlaylists()
         return plId
 
