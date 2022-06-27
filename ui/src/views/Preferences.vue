@@ -52,8 +52,8 @@
         <div>
             <h2>Themes</h2>
             <div class="checkbox">
-                <input @change="changeCoverAsBackground" v-model="coverAsBackground" type="checkbox" id="checkbox3" name="" value="">
-                <label for="checkbox3"><span>Cover as background</span></label>
+                <input @change="changeCoverAsBackground" v-model="coverAsBackground" type="checkbox" id="bgcheck" name="" value="">
+                <label for="bgcheck"><span>Cover as background</span></label>
             </div>
             <full-shelf :key="themeSelected">
                 <theme @selected="updateThemes" v-for="(theme, index) in themes" :key="index"

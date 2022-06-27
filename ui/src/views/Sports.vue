@@ -6,7 +6,6 @@
         <hr>
         <div class="padding-20">
             <p class="small">Supported urls: {{supportedSources.join("*, ")}} </p>
-            <p v-if="false" class="small"><i>CEV matches are temporarily not supported. Check out your favourite games on <a href="https://cev-nex.tk">cev-nex.tk</a> in the meantime.</i></p>
             <div class="addWrapper">
                 <input @keyup="enterText" v-model="sourceToAdd" type="text">
                 <span id="addToPlaylist" @click="tryAddSource" class="material-icons-outlined">add_circle</span>
@@ -17,7 +16,7 @@
                     :team1="element.team1" :team2="element.team2" :result="element.result" :date="element.date"
                     :href="element.href" :oref="element.oref" :progress="element.progress" />
             </full-shelf>
-            <full-shelf heading="Volleyball" icon="sports_volleyball">
+            <full-shelf v-if="volleyMatches.length" heading="Volleyball" icon="sports_volleyball">
                 <div v-for="(match, index) in volleyMatches" :key="index" class="wrapIframe">
                     <iframe :src="`https://cev-nex.tk/#/embed?match=${match.src}`" />
                     <span @click="() => removeSourceD(match.ref)"  class="deleteIcon small material-symbols-rounded">clear</span>
@@ -70,6 +69,9 @@
                         ref: match
                     }
                 })
+            },
+            notVolleyMatches() {
+                return this.watchMatches.filter(match => !match.includes("cev"))
             }
         },
         methods: {
@@ -109,7 +111,7 @@
                 fetch("/api/sports", {
                         method: "POST",
                         body: JSON.stringify({
-                            urls: this.watchMatches
+                            urls: this.notVolleyMatches
                         })
                     }).then(x => x.json())
                     .then(entries => {

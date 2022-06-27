@@ -2,11 +2,11 @@
 """reAudioPlayer ONE"""
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-from typing import Any
 from aiohttp import web
 from dataModel.song import Song
 from player.player import Player
 from player.playlistManager import PlaylistManager
+
 
 class PlaylistHandler:
     """playlist handler"""
@@ -40,19 +40,11 @@ class PlaylistHandler:
         return web.Response(status = 200, text = "success!")
 
     async def getPlaylist(self, request: web.Request) -> web.Response:
-        """post(/api/playlists/id)"""
-        index: Any = None
-        try:
-            jdata = await request.json()
-            index = jdata.get("id")
-        except: # pylint: disable=bare-except
-            pass
-
-        if not isinstance(index, int):
-            return web.json_response(self._player.currentPlaylist.toDict())
-        if index >= self._playlistManager.playlistLength:
+        """post(/api/playlists/{id})"""
+        id_ = int(request.match_info['id'])
+        if id_ >= self._playlistManager.playlistLength:
             return web.Response(status = 404)
-        return web.json_response(self._playlistManager.ensure(index).toDict())
+        return web.json_response(self._playlistManager.ensure(id_).toDict())
 
     async def getPlaylists(self, _: web.Request) -> web.Response:
         """get(/api/playlists)"""

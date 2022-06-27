@@ -3,6 +3,7 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import os
+from typing import Union
 
 from aiohttp import web
 import aiohttp
@@ -22,7 +23,7 @@ class DownloadHandler:
         self._downloader = downloader
         self._player = player
 
-    async def download(self, request: web.Request) -> web.Response:
+    async def downloadTrack(self, request: web.Request) -> web.Response:
         """get(/api/tracks/{id}/download)"""
         id_ = int(request.match_info['id'])
         song = self._dbManager.getSongById(id_)
@@ -57,10 +58,13 @@ class DownloadHandler:
         os.remove(pathAndName)
         return web.Response()
 
-    async def streamFromCache(self, request: web.Request) -> web.FileResponse:
+    async def streamFromCache(self, request: web.Request) -> Union[web.FileResponse, web.Response]:
         """get(/api/player/stream/{id})"""
         index = int(request.match_info['id'])
-        return web.FileResponse(f"./_cache/{index}.mp3")
+        pathAndName = f"./_cache/{index}.mp3"
+        if os.path.exists(pathAndName):
+            return web.FileResponse(pathAndName)
+        return web.Response(status = 404)
 
     async def stream(self, _: web.Request) -> web.Response:
         """get(/api/player/stream)"""

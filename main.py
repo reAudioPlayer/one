@@ -130,7 +130,7 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     app = web.Application(middlewares=[IndexMiddleware(), _exceptionMiddleware])
 
     # /api/player/
-    app.router.add_get('/api/player/previous', playerHandler.getLast)
+    app.router.add_get('/api/player/previous', playerHandler.getPrevious)
     app.router.add_get('/api/player/next', playerHandler.getNext)
 
     app.router.add_get('/api/player/playPause', playerHandler.getPlayPause)
@@ -144,26 +144,26 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
 
     app.router.add_post('/api/player/load', playerHandler.loadPlaylist)
 
-    app.router.add_post('/api/player/seek', playerHandler.setPos)
-    app.router.add_get('/api/player/seek', playerHandler.getPos)
+    app.router.add_post('/api/player/seek', playerHandler.postSeek)
+    app.router.add_get('/api/player/seek', playerHandler.getSeek)
 
-    app.router.add_post('/api/player/repeat', playerHandler.setLoopSong)
-    app.router.add_get('/api/player/repeat', playerHandler.getLoopSong)
+    app.router.add_post('/api/player/repeat', playerHandler.postRepeat)
+    app.router.add_get('/api/player/repeat', playerHandler.getRepeat)
 
-    app.router.add_post('/api/player/shuffle', playerHandler.setShuffle)
+    app.router.add_post('/api/player/shuffle', playerHandler.postShuffle)
     app.router.add_get('/api/player/shuffle', playerHandler.getShuffle)
 
     app.router.add_get('/api/player/stream', downloadHandler.stream)
     app.router.add_get('/api/player/stream/{id}', downloadHandler.streamFromCache)
 
     # UNGROUPED
-    app.router.add_post('/api/browse/track', metaHandler.get)
+    app.router.add_post('/api/browse/track', metaHandler.getMetadata)
 
     app.router.add_post('/api/search', metaHandler.search)
 
     app.router.add_get('/api/releases', metaHandler.releases)
 
-    app.router.add_post('/api/sports', sportsHandler.getMatch)
+    app.router.add_post('/api/sports', sportsHandler.getMatches)
 
     # /api/spotify/
     app.router.add_get('/api/spotify/albums/{id}', metaHandler.spotifyAlbum)
@@ -179,6 +179,10 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     app.router.add_get('/api/me/liked', collectionHandler.tracks)
     app.router.add_get('/api/me/new', collectionHandler.breaking)
 
+    # /api/me/player
+    app.router.add_get('/api/me/player/current-track', playerHandler.getCurrentTrack)
+    app.router.add_get('/api/me/player/current-playlist', playerHandler.getCurrentPlaylist)
+
     # /api/news/articles/
     app.router.add_get('/api/news/articles', newsHandler.getSomeNews)
     app.router.add_get('/api/news/articles/{hash}', newsHandler.getArticle)
@@ -186,13 +190,13 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     # /api/tracks
     app.router.add_get('/api/tracks/{id}', metaHandler.getTrack)
     app.router.add_put('/api/tracks/{id}', playerHandler.updateSong)
-    app.router.add_get('/api/tracks/{id}/download', downloadHandler.download)
+    app.router.add_get('/api/tracks/{id}/download', downloadHandler.downloadTrack)
 
     # /api/playlists/
     app.router.add_get('/api/playlists/new', playlistHandler.createPlaylist)
     app.router.add_get('/api/playlists', playlistHandler.getPlaylists)
 
-    app.router.add_post('/api/playlists/id', playlistHandler.getPlaylist) # api/playlists/{id} (get)
+    app.router.add_get('/api/playlists/{id}', playlistHandler.getPlaylist)
     app.router.add_delete('/api/playlists/{id}', playlistHandler.deletePlaylist)
     app.router.add_post('/api/playlists/{id}', playlistHandler.updatePlaylist)
 

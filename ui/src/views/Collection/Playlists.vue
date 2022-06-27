@@ -38,12 +38,7 @@
                 .then(x => x.json())
                 .then(async jdata => {
                     for (let i = 0; i < jdata.length; i++) {
-                        const resp = await fetch("/api/playlists/id", {
-                            method: "POST",
-                            body: JSON.stringify({ 
-                                id: i
-                            })
-                        })
+                        const resp = await fetch(`/api/playlists/${i}`)
                         const jdata = await resp.json()
                         this.playlists.push({
                             name: jdata.name,

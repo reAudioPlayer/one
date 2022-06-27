@@ -22,7 +22,7 @@ class MetaHandler:
         self._spotify = spotify
         self._dbManager = dbManager
 
-    async def get(self, request: web.Request) -> web.Response:
+    async def getMetadata(self, request: web.Request) -> web.Response:
         """post(/api/browse/track)"""
         jdata = await request.json()
         metadata = await asyncRunInThreadWithReturn(Metadata, self._spotify, jdata["url"])

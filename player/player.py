@@ -199,7 +199,7 @@ class Player:
     def updateSongMetadata(self, id_: int, song: Song) -> None: # TODO why here?
         """updates the metadata"""
         self._dbManager.updateSongMetadata(id_, song.sqlUpdate())
-        self._playlistManager.updateSong(id_, lambda x: song)
+        self._playlistManager.updateSong(id_, lambda _: song)
 
     async def _loadSong(self, song: Optional[Song] = None) -> None:
         if not self._playerPlaylist:
@@ -229,9 +229,9 @@ class Player:
         return self._playing
 
     @property
-    def currentSong(self) -> Optional[Song]:
+    def currentSong(self) -> Song:
         """currently playing song"""
-        return self._song
+        return self._song or Song()
 
     @property
     def currentPlaylist(self) -> PlayerPlaylist:

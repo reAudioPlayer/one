@@ -12,7 +12,7 @@ from helper.asyncThread import asyncRunInThreadWithReturn
 
 class SportsHandler:
     """sports handler"""
-    async def getMatch(self, request: web.Request) -> web.Response:
+    async def getMatches(self, request: web.Request) -> web.Response:
         """get(/api/sports)"""
         jdata = await request.json()
         urls = jdata.get("urls") or [ ]

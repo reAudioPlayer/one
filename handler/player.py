@@ -44,7 +44,7 @@ class PlayerHandler:
         asyncio.create_task(self._player.next())
         return web.Response(status = 200, text = "success!")
 
-    async def getLast(self, _: web.Request) -> web.Response:
+    async def getPrevious(self, _: web.Request) -> web.Response:
         """get(/api/player/previous)"""
         asyncio.create_task(self._player.last())
         return web.Response(status = 200, text = "success!")
@@ -109,7 +109,7 @@ class PlayerHandler:
         self._player.updateSongMetadata(id_, Song.fromDict(jdata))
         return web.Response(status = 200, text = "success!")
 
-    async def setShuffle(self, request: web.Request) -> web.Response:
+    async def postShuffle(self, request: web.Request) -> web.Response:
         """post(/api/player/shuffle)"""
         x = await request.json()
         self._player.shuffle = bool(x["value"])
@@ -119,22 +119,30 @@ class PlayerHandler:
         """get(/api/player/shuffle)"""
         return web.Response(status = 200, text = str(self._player.shuffle))
 
-    async def setLoopSong(self, request: web.Request) -> web.Response:
+    async def postRepeat(self, request: web.Request) -> web.Response:
         """post(/api/player/repeat)"""
         x = await request.json()
         self._player.loopSong = bool(x["value"])
         return web.Response(status = 200, text = "success!")
 
-    async def getLoopSong(self, _: web.Request) -> web.Response:
+    async def getRepeat(self, _: web.Request) -> web.Response:
         """get(/api/player/repeat)"""
         return web.Response(status = 200, text = str(self._player.loopSong))
 
-    async def setPos(self, request: web.Request) -> web.Response:
+    async def postSeek(self, request: web.Request) -> web.Response:
         """post(/api/player/seek)"""
         x = await request.json()
         self._player.position = x["value"]
         return web.Response(status = 200, text = "success!")
 
-    async def getPos(self, _: web.Request) -> web.Response:
+    async def getSeek(self, _: web.Request) -> web.Response:
         """get(/api/player/seek)"""
         return web.Response(status = 200, text = str(self._player.position))
+
+    async def getCurrentTrack(self, _: web.Request) -> web.Response:
+        """get(/api/me/player/current-track)"""
+        return web.json_response(self._player.currentSong.toDict())
+
+    async def getCurrentPlaylist(self, _: web.Request) -> web.Response:
+        """get(/api/me/player/current-playlist)"""
+        return web.json_response(self._player.currentPlaylist.toDict())

@@ -27,19 +27,8 @@
             isAutoPlaylist: Boolean,
             src: String,
             artist: String,
-            title: String
-        },
-        data() {
-            fetch("/api/playlists")
-                    .then(x => x.json())
-                    .then(jdata => {
-                        this.playlists.length = 0;
-                        this.playlists.push(...jdata)
-                    })
-
-            return {
-                playlists: [ ]
-            }
+            title: String,
+            playlists: Array
         },
         methods: {
             preview() {

@@ -25,7 +25,7 @@
                 <div class="playlistEntries">
                     <draggable v-model="playlist" @change="onPlaylistRearrange">
                         <template #item="{element}">
-                            <playlist-entry @download="download" @requestUpdate="updatePlaylist" :index="playlist.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                            <playlist-entry :playlists="playlists" @download="download" @requestUpdate="updatePlaylist" :index="playlist.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.playing" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
                         </template>
                     </draggable>
                 </div>
@@ -58,12 +58,17 @@
         data() {
             this.updatePlaylist()
             
+            fetch("/api/playlists").then(x => x.json()).then(jdata => {
+                this.playlists = jdata
+            })
+
             return {
                 fixedHeaderHidden: true,
                 playlist: [],
                 playlistName: "N/A",
                 playlistDescription: "",
-                playlistCover: null
+                playlistCover: null,
+                playlists: []
             }
         },
         methods: {
@@ -150,12 +155,7 @@
                         })
                     return
                 }
-                fetch("/api/playlists/id", {
-                    method: "POST",
-                    body: JSON.stringify({ 
-                        id: Number(this.getId())
-                    })
-                }).then(async x => {
+                fetch(`/api/playlists/${this.getId()}`).then(async x => {
                     if (x.status == 404)
                     {
                         this.$router.push("/")

@@ -37,7 +37,7 @@
                 this.$emit('maximise', this.maximised);
             },
             fetchPlaylist() {
-                fetch("/api/playlists/id", {method: "POST"}).then(x => x.json()).then(jdata => this.playlist = jdata)
+                fetch("/api/me/player/current-playlist").then(x => x.json()).then(jdata => this.playlist = jdata)
             },
             updateData(jdata) {
                 if (jdata.path == "player.song")
