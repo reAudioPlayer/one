@@ -2,6 +2,7 @@
 """reAudioPlayer ONE"""
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
+import os
 import threading
 from subprocess import call
 import time
@@ -24,6 +25,8 @@ processThread = threading.Thread(target=_second)
 processThread.start()
 
 time.sleep(10)
+
+SUCCESS= True
 
 try:
     logger.info("commencing tests")
@@ -77,7 +80,7 @@ try:
         assert newPlaylist == playlist["name"]
 
     # get our playlist
-    with requests.post("http://localhost:1234/api/playlists/id", json={"id": id_}) as res:
+    with requests.get(f"http://localhost:1234/api/playlists/{id_}") as res:
         playlist = DictEx(res.json())
         logger.info(res.status_code)
         logger.info(playlist)
@@ -115,7 +118,7 @@ try:
         logger.info(res.text)
 
     # get our playlist
-    with requests.post("http://localhost:1234/api/playlists/id", json={"id": id_}) as res:
+    with requests.get(f"http://localhost:1234/api/playlists/{id_}") as res:
         playlist = DictEx(res.json())
         logger.info(res.status_code)
         logger.info(playlist)
@@ -129,8 +132,11 @@ try:
     logger.info("==========================================================")
 
 except: # pylint: disable=bare-except
-    pass
+    SUCCESS = False
 try:
     requests.get("http://localhost:1234/api/system/kill")
 except: # pylint: disable=bare-except
     pass
+
+if not SUCCESS:
+    os._exit(1) # pylint: disable=protected-access
