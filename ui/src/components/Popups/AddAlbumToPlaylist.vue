@@ -189,12 +189,7 @@
                         this.playlists.push(...jdata)
                     })
 
-                fetch("/api/spotify/album", {
-                        method: "POST",
-                        body: JSON.stringify({
-                            "albumId": this.id
-                        })
-                    }).then(x => x.json())
+                fetch(`/api/spotify/albums/${this.id}`).then(x => x.json())
                     .then(jdata => {
                         this.playlist.length = 0
                         this.playlist.push(...jdata)

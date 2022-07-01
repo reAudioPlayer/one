@@ -175,7 +175,7 @@
                         this.playlists.push(...jdata)
                     })
 
-                fetch(`/api/spotify/artists/${this.id}`).then(x => x.json())
+                fetch(`/api/spotify/playlists/${this.id}`).then(x => x.json())
                     .then(jdata => {
                         this.playlist.length = 0
                         this.playlist.push(...jdata)
