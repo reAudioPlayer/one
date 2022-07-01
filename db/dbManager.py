@@ -120,9 +120,24 @@ class DbManager:
 
     def getSongsByQuery(self, query: str) -> List[Song]:
         """get songs by query"""
+
+        filters = query.split(";")
+        filter_ = ""
+
         def createLike(word: str) -> str:
             return f"(name LIKE '%{word}%' OR artist LIKE '%{word}%' OR album LIKE '%{word}%')"
-        filter_ = " AND ".join([ createLike(word) for word in query.split(' ') ])
+
+        ands: List[str] = [ ]
+        for x in filters:
+            tagAndQuery = x.replace("title", "name").split(":")
+            if len(tagAndQuery) == 1:
+                ands.extend([ createLike(x) for x in tagAndQuery[0].split(" ") ])
+            else:
+                ands.append(f"{tagAndQuery[0]} LIKE '%{tagAndQuery[1]}%'")
+        filter_ = " AND ".join(ands)
+
+        print(filter_)
+
         with self._db:
             return DbManager._castToSongList(
                 self._db.execute(f"SELECT * FROM Songs WHERE {filter_}"))

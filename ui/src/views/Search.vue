@@ -1,6 +1,6 @@
 <template>
     <div class="search">
-        <input @keyup="enterText" v-model="query" type="text">
+        <input @keyup="enterText" ref="searchBox" v-model="query" type="text">
         <Shelf v-if="tracks.length" heading="Songs">
             <TrackItem v-for="element in tracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
         </Shelf>
@@ -87,6 +87,7 @@
         },
         mounted() {
             this.search()
+            this.$refs.searchBox.focus()
         }
     }
 </script>
@@ -99,13 +100,8 @@
     input {
         margin-left: 10px;
         margin-bottom: 20px;
-        border-radius: 40px;
-        border: none;
         padding: 10px;
-        font-family: var(--font-family);
-        width: 20vw;
-        color: var(--font-contrast);
-        background-color: var(--font-colour);
+        width: 20vw !important;
     }
 
     input:focus {

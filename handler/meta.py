@@ -105,12 +105,14 @@ class MetaHandler:
         """post(/api/spotify/following)"""
         jdata = await request.json()
         self._spotify.user_follow_artists([jdata.get("artistId")])
+        print("followed!")
         return web.json_response(status=200)
 
     async def spotifyUnfollow(self, request: web.Request) -> web.Response:
         """delete(/api/spotify/following)"""
         jdata = await request.json()
         self._spotify.user_unfollow_artists([jdata.get("artistId")])
+        print("unfollowed!")
         return web.json_response(status=200)
 
     async def upload(self, request: web.Request) -> web.Response:
