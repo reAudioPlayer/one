@@ -221,7 +221,6 @@
             let progress = Number(ctx.progresslbl.split(':')[0]) * 60 + Number(ctx.progresslbl.split(':')[1])
             progress+=1;
             ctx.progress = progress / duration * 1000;
-            console.log(progress, duration)
             ctx.progresslbl = `${Math.floor(progress / 60)}:${ctx.zeroPad(progress % 60, 2)}`
         }, 1000)
 

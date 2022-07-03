@@ -8,6 +8,13 @@ const routes = [{
         component: () => import( /* webpackChunkName: "home" */ '@/views/Home.vue'),
     },
     {
+        path: '/discover',
+        component: () => import("@/views/Explore.vue"),
+        meta: {
+            title: "Discover - reAudioPlayer One"
+        }
+    },
+    {
         path: '/search',
         component: () => import( /* webpackChunkName: "search" */ "@/views/Search.vue"),
         meta: {

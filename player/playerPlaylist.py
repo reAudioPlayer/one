@@ -236,7 +236,7 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, PlayerPlaylist):
             return False
-        return self._playlistIndex == other._playlistIndex
+        return self.name == other.name and self._playlistIndex == other._playlistIndex
 
     def __hash__(self) -> int:
         return hash((self._name, self._playlistIndex))

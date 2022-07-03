@@ -35,6 +35,22 @@
         "light-ruby": "#bd4c62",
         "light-royal": "#7169ff"
     },
+    "font-accent-contrast": {
+        "default": "white",
+        "apollo": "whitesmoke",
+        "gradient": "whitesmoke",
+        "neon": "whitesmoke",
+        "underground": "white",
+        "quarantine": "whitesmoke",
+        "extraction": "whitesmoke",
+        "night-jade": "whitesmoke",
+        "night-crimson": "whitesmoke",
+        "night-cobalt": "whitesmoke",
+        "night-fire": "whitesmoke",
+        "light": "white",
+        "light-ruby": "white",
+        "light-royal": "white"
+    },
     "font-contrast": {
         "default": "#121212",
         "apollo": "#121212",

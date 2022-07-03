@@ -77,6 +77,7 @@ class Player:
                            playlist: Optional[PlayerPlaylist],
                            atIndex: Optional[int] = None) -> bool:
         """loads a playlist"""
+        print(playlist, self._playerPlaylist)
         if not playlist:
             return False
         if self._playerPlaylist and self._playerPlaylist == playlist:
