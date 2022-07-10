@@ -1,9 +1,19 @@
 <template>
     <div class="export">
         <div class="action">
-            <h1>Cloud Save</h1>
-            <h2 v-if="userData.user">Hello {{userData.user.userinfo.name}} ({{userData.user.userinfo.email}})</h2>
-            <button @click="upload" class="iconWithText"><span class="material-symbols-rounded">cloud_upload</span> Synchronise</button>
+            <h1>Save to File</h1>
+            <a id="downloadAnchorElem" style="display:none"></a>
+            <button @click="downloadFile" class="iconWithText"><span class="material-symbols-rounded">file_download</span> Save</button>
+        </div>
+        <div class="action">
+            <h1>Save to Cloud</h1>
+            <template v-if="userData.user">
+                <h2 v-if="userData.user">Hello {{userData.user.userinfo.name}} ({{userData.user.userinfo.email}})</h2>
+                <button @click="upload" class="iconWithText"><span class="material-symbols-rounded">cloud_upload</span> Synchronise</button>
+            </template>
+            <template v-else>
+                <button @click="login" class="iconWithText"><span class="material-symbols-rounded">login</span> Log In</button>
+            </template>
         </div>
         <div class="data">
             <CloudPlaylist @remove="() => playlists.splice(index, 1)" v-for="(playlist, index) in playlists" :key="index" :playlist="playlist" :cloudPlaylists="userData.data?.playlists || []" />
@@ -21,6 +31,16 @@ const hashids = new Hashids("reapApollo")
 export default {
     name: "import",
     methods: {
+        login() {
+            window.location = `https://eu-apollo.herokuapp.com/user/accessToken?redirect=${encodeURIComponent(window.location.origin + "/#/export/<token>")}`;
+        },
+        downloadFile() {
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.playlists));
+            var dlAnchorElem = document.getElementById('downloadAnchorElem');
+            dlAnchorElem.setAttribute("href",     dataStr     );
+            dlAnchorElem.setAttribute("download", "lib.one.json");
+            dlAnchorElem.click();
+        },
         upload() {
             this.userData.data.playlists = this.playlists;
             console.error(this.userData.data);
@@ -39,18 +59,16 @@ export default {
             const accessToken = this.$route.params.data;
 
             fetch(`https://eu-apollo.herokuapp.com/user/${accessToken}`).then(async userData => this.userData = await userData.json())
+        }
 
-            fetch("/api/playlists").then(async (inRes) => {
-                const playlists = await inRes.json();
-                for (let id = 0; id < playlists.length; id++) {
-                    const res = await fetch(`/api/playlists/${id}`);
-                    this.playlists.push(await res.json());
-                }
-            });
-        }
-        else {
-            window.location = `https://eu-apollo.herokuapp.com/user/accessToken?redirect=${encodeURIComponent(window.location.origin + "/#/export/<token>")}`;
-        }
+        fetch("/api/playlists").then(async (inRes) => {
+            const playlists = await inRes.json();
+            for (let id = 0; id < playlists.length; id++) {
+                const res = await fetch(`/api/playlists/${id}`);
+                this.playlists.push(await res.json());
+            }
+        });
+
         return {
             playlists: [],
             userData: { }
@@ -69,7 +87,9 @@ export default {
     }
 
     .data {
-        .cloudPlaylist:not(:first-child)
+        border-top: 1px solid var(--border);
+
+        .cloudPlaylist
         {
             margin-top: 20px;
         }

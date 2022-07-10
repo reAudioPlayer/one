@@ -6,3 +6,4 @@ node_modules
 headers_auth.json
 config/*
 ui/public/assets/img/covers/*
+plotWaveForm.py

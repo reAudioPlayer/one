@@ -21,7 +21,7 @@
                 </div>
             </div>
             <div class="sidebar">
-                <h2>Cloud Synchronisation</h2>
+                <h2>Data Backup</h2>
                 <div class="wrapTogether spaceBetween">
                     <button @click="$router.push('/export')">Save</button>
                     <button @click="$router.push('/import')">Restore</button>

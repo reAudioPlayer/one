@@ -1,9 +1,20 @@
 <template>
     <div class="import">
         <div class="action">
-            <h1>Cloud Restore</h1>
-            <h2 v-if="userData.user">Hello {{userData.user.userinfo.name}} ({{userData.user.userinfo.email}})</h2>
-            <button @click="$refs.playlistsElements.forEach(x => x.import())" class="iconWithText"><span class="material-symbols-rounded">cloud_download</span> Synchronise</button>
+            <h1>Restore From File</h1>
+            <input type="file" ref="upFile" style="display: none" accept="application/json" />
+            <button @click="() => $refs.upFile.click()" class="iconWithText"><span class="material-symbols-rounded">file_upload</span> Upload</button>
+            <button @click="$refs.playlistsElements.forEach(x => x.import())" class="iconWithText"><span class="material-symbols-rounded">done</span> Apply</button>
+        </div>
+        <div class="action">
+            <h1>Restore From Cloud</h1>
+            <template v-if="userData.user">
+                <h2 v-if="userData.user">Hello {{userData.user.userinfo.name}} ({{userData.user.userinfo.email}})</h2>
+                <button @click="$refs.playlistsElements.forEach(x => x.import())" class="iconWithText"><span class="material-symbols-rounded">cloud_download</span> Synchronise</button>
+            </template>
+            <template v-else>
+                <button @click="login" class="iconWithText"><span class="material-symbols-rounded">login</span> Log In</button>
+            </template>
         </div>
         <div class="data">
             <CloudPlaylist @remove="() => cloudPlaylists.splice(index, 1)" ref="playlistsElements" v-for="(playlist, index) in cloudPlaylists" :key="index" :playlist="playlist" :localPlaylists="localPlaylists" />
@@ -20,6 +31,29 @@ const hashids = new Hashids("reapApollo")
 
 export default {
     name: "import",
+    methods: {
+        login() {
+            window.location = `https://eu-apollo.herokuapp.com/user/accessToken?redirect=${encodeURIComponent(window.location.origin + "/#/import/<token>")}`;
+        }
+    },
+    mounted() {
+        this.$refs.upFile.addEventListener("change", () => {
+            const file = this.$refs.upFile.files?.[0]
+            if (!file)
+            {
+                return;
+            }
+
+            this.uploadedCoverName = this.$refs.upFile?.files?.[0]?.name
+
+            var reader = new FileReader();
+            reader.onloadend = () => {
+                this.cloudPlaylists = JSON.parse(reader.result);
+            }
+            reader.readAsText(file);
+            return;
+        })
+    },
     data() {
         if (this.$route.params.data) {
             const accessToken = this.$route.params.data;
@@ -28,18 +62,16 @@ export default {
                 this.userData = await userData.json()
                 this.cloudPlaylists = this.userData.data.playlists
             })
+        }
 
-            fetch("/api/playlists").then(async (inRes) => {
-                const playlists = await inRes.json();
-                for (let id = 0; id < playlists.length; id++) {
-                    const res = await fetch(`/api/playlists/${id}`);
-                    this.localPlaylists.push(await res.json());
-                }
-            });
-        }
-        else {
-            window.location = `https://eu-apollo.herokuapp.com/user/accessToken?redirect=${encodeURIComponent(window.location.origin + "/#/import/<token>")}`;
-        }
+        fetch("/api/playlists").then(async (inRes) => {
+            const playlists = await inRes.json();
+            for (let id = 0; id < playlists.length; id++) {
+                const res = await fetch(`/api/playlists/${id}`);
+                this.localPlaylists.push(await res.json());
+            }
+        });
+
         return {
             localPlaylists: [ ],
             cloudPlaylists: [ ],
@@ -60,7 +92,9 @@ export default {
     }
 
     .data {
-        .cloudPlaylist:not(:first-child)
+        border-top: 1px solid var(--border);
+
+        .cloudPlaylist
         {
             margin-top: 20px;
         }
@@ -95,7 +129,7 @@ button.iconWithText {
         cursor: pointer;
         padding: 11px 26px 11px 26px;
         border-radius: 23px;
-        margin-bottom: 0;
+        margin-bottom: 20px;
     }
 }
 </style>

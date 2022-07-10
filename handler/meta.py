@@ -120,8 +120,8 @@ class MetaHandler:
         async for obj in (await request.multipart()):
             if obj.filename:
                 bytestream = await obj.read()
-                Path("./ui/public/assets/img/covers").mkdir(parents=True, exist_ok=True)
-                with open(f"./ui/public/assets/img/covers/{obj.filename}", "wb") as file:
+                Path("./ui/dist/assets/img/covers").mkdir(parents=True, exist_ok=True)
+                with open(f"./ui/dist/assets/img/covers/{obj.filename}", "wb") as file:
                     file.write(bytestream)
                 return web.Response(text = f"/assets/img/covers/{obj.filename}")
         return web.Response(status = 400)

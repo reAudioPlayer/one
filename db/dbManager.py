@@ -155,12 +155,12 @@ class DbManager:
         """get all playlists"""
         with self._db:
             return [ Playlist.fromSql(playlist)
-                     for playlist in self._db.execute("SELECT * FROM Playlists") ]
+                     for playlist in self._db.execute("SELECT id, name, description, songs, cover FROM Playlists") ] # pylint: disable=line-too-long
 
     def getPlaylistById(self, id_: int) -> Optional[Playlist]:
         """get playlist by id"""
         with self._db:
-            rows = self._db.execute(f"SELECT * FROM Playlists WHERE id={id_}")
+            rows = self._db.execute(f"SELECT id, name, description, songs, cover FROM Playlists WHERE id={id_}") # pylint: disable=line-too-long
             for row in rows:
                 return Playlist.fromSql(row)
             return None

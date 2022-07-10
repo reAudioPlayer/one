@@ -32,6 +32,8 @@ class Playlist:
     def fromSql(row: Tuple[int, str, str, str, str]) -> Playlist:
         """create playlist from sql row"""
         id_, name, description, songs, cover = row
+        if songs == "None":
+            songs = None
         return Playlist(name, json.loads(songs or "[]"), id_, description, cover)
 
     def __repr__(self) -> str:
