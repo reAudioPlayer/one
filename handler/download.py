@@ -27,11 +27,10 @@ class DownloadHandler:
         """get(/api/tracks/{id}/download)"""
         id_ = int(request.match_info['id'])
         song = self._dbManager.getSongById(id_)
-        pathAndName = f"./_cache/{song.id}.mp3"
+        pathAndName = f"./_cache/{song.id}.dl.mp3"
         if os.path.exists(pathAndName):
             os.remove(pathAndName)
-        await self._downloader.downloadSong(song.source, str(song.id))
-        pathAndName = f"./_cache/{song.id}.mp3"
+        await self._downloader.downloadSong(song.source, f"{song.id}.dl")
 
         file = eyed3.load(pathAndName)
         if song.artists:
