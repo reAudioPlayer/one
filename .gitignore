@@ -4,7 +4,7 @@ __pycache__
 node_modules
 .cache
 headers_auth.json
-config/*
+config/*.json
 ui/public/assets/img/covers/*
 ui/dist/assets/img/covers/*
 plotWaveForm.py

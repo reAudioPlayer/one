@@ -15,6 +15,7 @@ import pygame
 from dataModel.song import Song
 from db.dbManager import DbManager
 
+from config.config import PersistentConfig
 from player.playerPlaylist import PlayerPlaylist
 from player.playlistManager import PlaylistManager
 
@@ -26,12 +27,11 @@ class Player:
     def __init__(self,
                  dbManager: DbManager,
                  downloader: Downloader,
-                 playlistManager: PlaylistManager) -> None:
+                 playlistManager: PlaylistManager,
+                 config: PersistentConfig) -> None:
         pygame.init() # pylint: disable=no-member
-        if not env.get("TEST_MODE"):
-            pygame.mixer.init()
-            pygame.mixer.music.set_volume(1.0)
         self._dbManager = dbManager
+        self._config = config
         self._playlistManager = playlistManager
         self._playing: bool = False
         self._loopSong: bool = False
@@ -48,11 +48,26 @@ class Player:
         self._playStateChangeCallback: Optional[Callable[[bool], Awaitable[None]]] = None
         self._positionSyncCallback: Optional[Callable[[float], Awaitable[None]]] = None
 
+        if not env.get("TEST_MODE"):
+            pygame.mixer.init()
+            pygame.mixer.music.set_volume(config.volume)
+
     async def _updatePosition(self) -> None:
         while True:
             await asyncio.sleep(5)
             if self._positionSyncCallback:
                 await self._positionSyncCallback(self.position) # pylint: disable=not-callable
+
+    @property
+    def volume(self) -> int:
+        """volume (0 - 100)"""
+        return round(pygame.mixer.music.get_volume() * 100)
+
+    @volume.setter
+    def volume(self, value: int) -> None:
+        vol = value / 100
+        self._config.volume = vol
+        pygame.mixer.music.set_volume(vol)
 
     @property
     def position(self) -> float:

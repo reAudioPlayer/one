@@ -28,6 +28,10 @@ try:
     from handler.config import ConfigHandler
     from handler.websocket import Websocket
 
+    from helper.dictTool import DictEx
+
+    from config.config import PersistentConfig
+
     from player.player import Player
     from player.playlistManager import PlaylistManager
 
@@ -60,19 +64,17 @@ mimetypes.init()
 mimetypes.types_map['.js'] = 'application/javascript; charset=utf-8'
 
 dbManager = DbManager()
-
 downloader = Downloader()
-
+config = PersistentConfig()
 playlistManager = PlaylistManager(dbManager)
-
-player = Player(dbManager, downloader, playlistManager)
+player = Player(dbManager, downloader, playlistManager, config)
 
 SCOPE = "user-library-read user-follow-read user-follow-modify"
 
 def _getSpotifyAuthData() -> Tuple[str, str]:
     with open("./config/spotify.json", encoding = "utf-8") as file:
-        config = json.load(file)
-        return config.get("id"), config.get("secret")
+        spotifyConfig = DictEx(json.load(file))
+        return spotifyConfig.ensureString("id"), spotifyConfig.ensureString("secret")
 
 def _getSpotifyAuth(id_: str, secret: str) -> Optional[SpotifyOAuth]: # pylint: disable=invalid-name
     if "restricted" in (id_, secret):

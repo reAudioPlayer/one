@@ -20,7 +20,7 @@ goto end
 
 :lint
 python -m mypy
-python -m pylint main.py ./dataModel ./db ./downloader ./handler ./helper ./meta ./player
+python -m pylint main.py ./dataModel ./db ./downloader ./handler ./helper ./meta ./player ./config
 exit
 
 :install

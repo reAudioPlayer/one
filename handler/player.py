@@ -4,7 +4,6 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import asyncio
 
-import pygame
 from aiohttp import web
 
 from dataModel.song import Song
@@ -70,12 +69,12 @@ class PlayerHandler:
     async def setVolume(self, request: web.Request) -> web.Response:
         """post(/api/player/volume)"""
         x = await request.json()
-        pygame.mixer.music.set_volume(int(x["value"]) / 100.0)
+        self._player.volume = int(x["value"])
         return web.Response(status = 200, text = "success!")
 
     async def getVolume(self, _: web.Request) -> web.Response:
         """get(/api/player/volume)"""
-        return web.Response(status = 200, text = str(round(pygame.mixer.music.get_volume() * 100)))
+        return web.Response(status = 200, text = str(self._player.volume))
 
     async def loadSongAt(self, request: web.Request) -> web.Response:
         """post(/api/player/at)"""
