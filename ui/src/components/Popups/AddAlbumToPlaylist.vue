@@ -137,7 +137,6 @@
                 }
             },
             preview() {
-                console.log(this.href)
                 const event = new CustomEvent('player.play', { detail: {
                     artist: this.artist,
                     title: this.title,

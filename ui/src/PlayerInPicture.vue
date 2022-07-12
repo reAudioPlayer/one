@@ -125,11 +125,12 @@
                 
                 if (url.includes("spotify"))
                 {
-                    var myregexp = /spotify(?:.*\/album\/)([A-Za-z0-9_\-]{22})/;
+                    var myregexp = /spotify(?:.*\/(album|track)\/)([A-Za-z0-9_\-]{22})/;
                     const matches = url.match(myregexp)
                     
                     if (matches?.[1]) {
-                        this.el = `<iframe src="https://open.spotify.com/embed/album/${matches[1]}?utm_source=generator" width="100%" height="380" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>`
+                        console.log(matches)
+                        this.el = `<iframe src="https://open.spotify.com/embed/${matches[1]}/${matches[2]}?utm_source=generator" width="100%" height="380" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>`
                         
                         this.minimised = false;
                         this.disabled = false;

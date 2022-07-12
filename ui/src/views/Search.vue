@@ -1,22 +1,27 @@
 <template>
     <div class="search">
         <input @keyup="enterText" ref="searchBox" v-model="query" type="text">
-        <Shelf v-if="tracks.length" heading="Songs">
-            <TrackItem v-for="element in tracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
-        </Shelf>
-        <Shelf v-if="spotifyTracks.length" heading="Songs (Spotify)">
-            <search-item v-for="element in spotifyTracks" :key="element.url" :preview="element.preview" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
-        </Shelf>
-        <Shelf v-if="youtubeTracks.length" heading="Songs (Youtube)">
-            <search-item v-for="element in youtubeTracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
-        </Shelf>
-        <Shelf v-if="artists.length" heading="Artists">
-            <Item v-for="element in artists" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
-        </Shelf>
-        <Shelf v-if="spotifyArtists.length" heading="Artists (Spotify)">
-            <artist-item v-for="(element, index) in spotifyArtists" :key="index" :cover="element.cover"
-                    :description="element.description" :name="element.name" :id="element.id" :showFollowButton="true" />
-        </Shelf>
+        <div class="fillPage" v-if="loading">
+            <Loader />
+        </div>
+        <template v-else>
+            <Shelf v-if="tracks.length" heading="Songs">
+                <TrackItem v-for="element in tracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+            </Shelf>
+            <Shelf v-if="spotifyTracks.length" heading="Songs (Spotify)">
+                <search-item v-for="element in spotifyTracks" :key="element.url" :preview="element.preview" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+            </Shelf>
+            <Shelf v-if="youtubeTracks.length" heading="Songs (Youtube)">
+                <search-item v-for="element in youtubeTracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+            </Shelf>
+            <Shelf v-if="artists.length" heading="Artists">
+                <Item v-for="element in artists" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+            </Shelf>
+            <Shelf v-if="spotifyArtists.length" heading="Artists (Spotify)">
+                <artist-item v-for="(element, index) in spotifyArtists" :key="index" :cover="element.cover"
+                        :description="element.description" :name="element.name" :id="element.id" :showFollowButton="true" />
+            </Shelf>
+        </template>
     </div>
 </template>
 
@@ -26,6 +31,7 @@
     import SearchItem from '../components/Catalogue/Items/Search/SearchItem.vue'
     import Shelf from "../components/Catalogue/Shelf.vue"
     import TrackItem from "../components/Catalogue/Items/Tracks/TrackItem.vue"
+    import Loader from '../components/Loader.vue'
 
     export default {
         name: 'Search',
@@ -34,7 +40,8 @@
             Item,
             SearchItem,
             ArtistItem,
-            TrackItem
+            TrackItem,
+            Loader
         },
         data() {
             return {
@@ -43,7 +50,8 @@
                 spotifyArtists: [ ],
                 tracks: [ ],
                 artists: [ ],
-                youtubeTracks: [ ]
+                youtubeTracks: [ ],
+                loading: false
             }
         },
         methods: {
@@ -54,6 +62,8 @@
                 {
                     return
                 }
+
+                this.loading = true;
 
                 fetch("/api/search", {
                     method: "POST",
@@ -71,6 +81,7 @@
                         this.tracks.push(... (jdata.tracks || []) )
                         this.artists.push(... (jdata.artists || []) )
                         this.youtubeTracks.push(... (jdata.youtubeTracks || []) )
+                        this.loading = false;
                   })
 
             },
@@ -95,6 +106,7 @@
 <style scoped>
     .search {
         padding: 20px;
+        height: 100%;
     }
 
     input {
@@ -106,5 +118,13 @@
 
     input:focus {
         outline: none;
+    }
+
+    .fillPage {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
 </style>

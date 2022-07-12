@@ -21,14 +21,18 @@
                         v-observe-visibility="headerVisibilityChanged">
                         <img class="cover" :src="cover" />
                         <div class="details">
-                            <div class="detailswrapper"><h7>Song</h7><span class="material-icons-round share" @click="share">share</span></div>
+                            <div class="detailswrapper">
+                                <h7>Song</h7>
+                                <span class="material-icons-round share" @click="share">share</span>
+                                <span class="material-symbols-rounded share fill" @click="preview">play_arrow</span>
+                            </div>
                             <h1>{{title}}</h1>
                             <h5>{{artist}}</h5>
                         </div>
                     </div>
                 </div>
                 <div class="confirm">
-                    <mini-player class="miniPlayer" :src="preview" />
+                    <mini-player class="miniPlayer" :title="title" :artist="artist" :src="track.src" />
                     <button @click="add" class="negative">Add</button>
                 </div>
             </div>
@@ -56,6 +60,15 @@ import MiniPlayer from '../MiniPlayer.vue'
             }
         },
         methods: {
+            preview() {
+                console.log(this.href)
+                const event = new CustomEvent('player.play', { detail: {
+                    artist: this.artist,
+                    title: this.title,
+                    source: this.href
+                } });
+                window.dispatchEvent(event);
+            },
             share() {
                 window.open(this.href)
             },
@@ -125,10 +138,16 @@ import MiniPlayer from '../MiniPlayer.vue'
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
-    .share:hover {
-        cursor: pointer;
+    .share {
+        &:hover {
+            cursor: pointer;
+        }
+
+        &.fill {
+            font-variation-settings: 'FILL' 1;
+        }
     }
 
     .wrapper {
