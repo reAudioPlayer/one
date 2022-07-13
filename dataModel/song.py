@@ -5,9 +5,13 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from typing import Any, Dict, List, Optional, Tuple
 import math
+from hashids import Hashids # type: ignore
 
 from helper.dictTool import DictEx
 from dataModel.track import ITrack
+
+
+hashids = Hashids(salt="reapOne.track", min_length=22)
 
 
 class Song(ITrack):
@@ -59,7 +63,7 @@ class Song(ITrack):
     @property
     def url(self) -> str:
         """return url"""
-        return f"/track/{self._id}"
+        return f"/track/{hashids.encode(self.id)}"
 
     def sql(self) -> Tuple[str, str, str, str, int, int, Optional[str], Optional[str]]:
         """return sql values"""

@@ -117,7 +117,6 @@ import PlayerInPicture from "./PlayerInPicture.vue";
             updateData(jdata) {
                 if (jdata.path == "player.song") {
                     this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
-                    console.info("theme", window.getCurrentTheme())
                     if (window.getCurrentTheme() == "dynamic") {
                         console.log(this.cover)
                         /*Vibrant.from(this.cover).getPalette()

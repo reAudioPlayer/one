@@ -2,6 +2,9 @@
     <div class="itemBig">
         <add-album-to-playlist :id="this.href.replace('https://open.spotify.com/album/', '')" :cover="cover" :title="title" :artist="artist" ref="addAlbum" />
         <div class="item" @click="redirect">
+            <div v-if="icon" class="icon">
+                <span class="material-symbols-rounded">{{icon}}</span>
+            </div>
             <div class="wrapper">
                 <h4>{{title}}</h4>
             <p>{{description}}</p>
@@ -23,7 +26,8 @@ import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
         props: {
             title: String,
             description: String,
-            href: String
+            href: String,
+            icon: String
         }
     }
 </script>
@@ -36,12 +40,26 @@ import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
         font-size: .8em;
     }
 
+    .icon {
+        text-align: center;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .material-symbols-rounded {
+        font-variation-settings: 'FILL' 1;
+        font-size: 5em;
+    }
+
     .itemBig {
         grid-column: span 2;
-        background: linear-gradient(to bottom right, #450bf5, #8d8ce5);
+        background: var(--accent-gradient);
         border-radius: 5px;
         min-height: 10vh;
         margin: 10px;
+        color: var(--font-accent-contrast);
 
         @media screen and (max-width: $mobileWidth) {
             grid-column: span 1;
@@ -78,6 +96,5 @@ import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
 
     p {
         margin: 0;
-        color: var(--font-colour);
     }
 </style>

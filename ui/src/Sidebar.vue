@@ -1,15 +1,19 @@
+<script setup>
+import Logo from '/src/assets/images/logo/logo.svg'
+</script>
 <template>
     <div class="sidebar">
         <div class="static">
             <div class="collapseSidebar hideIfMobile" :class=" { 'minimised': minimised } ">
-                <h2 v-if="!minimised" @click="onLogoClick">reAudioPlayer One</h2>
+                <Logo class="logo" v-if="!minimised" @click="onLogoClick" />
                 <span @click="minimised = !minimised"
                     class="hideIfMobile clickSymbol material-symbols-rounded">{{ minimised ? "chevron_right" : "chevron_left" }}</span>
             </div>
-            <nav-entry :minimised="minimised" href="/" icon="home" name="Home" />
-            <nav-entry class="hideIfMobile" :minimised="minimised" href="/search" icon="search" name="Search" />
             <nav-entry :minimised="minimised" href="/collection/playlists" icon="library_music" name="Your Library"
                 :hasChildSites="true" parentHref="/collection" />
+            <nav-entry class="hideIfMobile" :minimised="minimised" href="/search" icon="search" name="Search" />
+            <nav-entry :minimised="minimised" href="/discover" icon="explore" name="Discover" />
+            <nav-entry :minimised="minimised" href="/preferences" icon="settings" name="Preferences" />
             <br v-if="showNewsTab || showSportsTab">
             <nav-entry :minimised="minimised" v-if="showNewsTab" href="/news" icon="newspaper" name="News"
                 :hasChildSites="true" />
@@ -17,7 +21,6 @@
                 :hasChildSites="true" />
             <br class="hideIfMobile">
             <nav-entry class="hideIfMobile" :minimised="minimised" href="/playlist/create" icon="add_circle" name="Create Playlist" />
-            <nav-entry :minimised="minimised" href="/collection/tracks/breaking" icon="trending_up" name="Breaking" />
             <nav-entry :minimised="minimised" href="/collection/tracks" icon="favorite" name="Liked Songs" />
         </div>
         <template v-if="!minimised">
@@ -114,7 +117,7 @@
                 this.$emit("expandCover", false)
             },
             onLogoClick() {
-                this.$router.push("/preferences")
+                this.$router.push("/")
             },
             updateData(jdata) {
                 if (jdata.path == "player.song") {
@@ -129,6 +132,16 @@
 <style scoped lang="scss">
     $horizontalWidth: 1200px;
     $mobileWidth: 950px;
+
+    .logo {
+        fill: var(--font-colour);
+        padding: 10px;
+        width: 60%;
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
 
     .collapseSidebar {
         display: flex;

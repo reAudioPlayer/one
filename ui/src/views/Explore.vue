@@ -6,7 +6,7 @@ import ImgCard from "@/components/explore/ImgCard.vue";
     <div class="explore" ref="container" @scroll="onScroll">
         <div class="item" v-for="song in picks" :key="song.name">
             <ImgCard :src="song.cover">
-                <div class="content">
+                <div class="songContent">
                     <div class="play">
                         <span id="loadPlaylist" @click="() => loadPlaylist(song.id)" class="material-symbols-rounded play">play_circle</span>
                     </div>
@@ -100,7 +100,7 @@ export default {
     width: 100%;
 }
 
-.content {
+.songContent {
     display: flex;
     flex-direction: row;
     align-items: flex-end;

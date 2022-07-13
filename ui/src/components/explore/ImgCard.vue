@@ -2,7 +2,7 @@
     <div class="image" :style="{ backgroundImage: 'url(' + src + ')' }">
         <div class="filter">
         </div>
-        <div class="content">
+        <div class="info">
             <slot />
         </div>
     </div>
@@ -17,7 +17,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.filter, .content, .video {
+.filter, .info, .video {
     position: absolute;
     top: 0;
     left: 0;
