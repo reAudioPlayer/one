@@ -1,40 +1,75 @@
+<script setup>
+import FlexShelf from "/src/components/Catalogue/FlexShelf.vue";
+import Playlist from "/src/components/Catalogue/Items/home/Playlist.vue";
+import TrackCompact from "/src/components/Catalogue/Items/home/TrackCompact.vue";
+import SpotifyPlaylistHeader from '../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
+import LightPlaylistEntry from '@/components/Playlist/LightPlaylistEntry.vue'
+</script>
+
 <template>
     <div class="home">
-        <h1>{{greeting}}</h1>
-        <full-shelf-smaller-grid>
-            <playlist-item-wide v-for="(element, index) in playlists" :key="index" :href="element.href" :cover="element.cover"
-                        :title="element.name" :spotify="false" :id="index" />
-        </full-shelf-smaller-grid>
-        <shelf v-if="releases.length" heading="New releases for you" href="/collection/releases">
-            <release-item v-for="element in releases" :key="element.url" :releaseDate="element.releaseDate" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
-        </shelf>
-        <shelf v-if="news.length" heading="Something to read while you're listening" href="/news">
-            <news-item-big v-for="element in news" :key="element.url" :title="element.title" :image="element.image" :summary="element.summary" :href="element.link" :updated="element.updated" :source="element.source" />
-        </shelf>
+        <div class="main">
+            <div class="playlists" v-if="playlists.length">
+                <h2><router-link to="/collection/playlists" class="linkOnHover">Playlists</router-link></h2>
+                <FlexShelf>
+                    <Playlist v-for="(playlist, index) in playlists" :key="index" :name="playlist.name" :cover="playlist.cover" :href="playlist?.href" />
+                </FlexShelf>
+            </div>
+            <div class="liked" v-if="liked.length">
+                <h2><router-link to="/collection/tracks" class="linkOnHover">Liked Songs</router-link></h2>
+                <spotify-playlist-header />
+                <light-playlist-entry v-for="(element, index) in liked" :key="index" :index="index" :loadAt="{ type: 'collection' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+            </div>
+            <div class="breaking" v-if="breaking.length">
+                <h2><router-link to="/collection/tracks/breaking" class="linkOnHover">Breaking Songs</router-link></h2>
+                <spotify-playlist-header />
+                <light-playlist-entry v-for="(element, index) in breaking" :key="index" :index="index" :loadAt="{ type: 'collection/breaking' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+            </div>
+        </div>
+        <div class="side">
+            <div class="releases" v-if="releases.length">
+                <h2><router-link to="/collection/releases" class="linkOnHover">Out now</router-link></h2>
+                <FlexShelf>
+                    <TrackCompact @play="() => playRecommendation(song)" v-for="(song, index) in releases" :key="index" :artist="song.artist" :title="song.title" :cover="song.cover" :href="song.url" />
+                </FlexShelf>
+            </div>
+
+            <div class="disovery" v-if="picks.length">
+                <h2><router-link to="/discover" class="linkOnHover">Discover</router-link></h2>
+                <FlexShelf>
+                    <TrackCompact @play="() => playDiscover(song)" v-for="(song, index) in picks" :key="index" :artist="song.artist" :title="song.title" :cover="song.cover" :id="song.id" />
+                </FlexShelf>
+            </div>
+
+            <div class="recommendations" v-if="recommendations.length">
+                <h2>Recommendations</h2>
+                <FlexShelf>
+                    <TrackCompact @play="() => playRecommendation(song)" v-for="(song, index) in recommendations" :key="index" :artist="song.artist" :title="song.title" :cover="song.cover" :href="song.src" />
+                </FlexShelf>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-import FullShelfSmallerGrid from '../components/Catalogue/FullShelfSmallerGrid.vue'
-import NewsItemBig from '../components/Catalogue/Items/News/NewsItemBig.vue'
-import PlaylistItemWide from '../components/Catalogue/Items/Playlists/PlaylistItemWide.vue'
-import ReleaseItem from '../components/Catalogue/Items/Release/ReleaseItem.vue'
-import Shelf from '../components/Catalogue/Shelf.vue'
-
 import Hashids from 'hashids'
 const hashids = new Hashids("reapOne.playlist", 22)
 
 export default {
-      components: { Shelf, ReleaseItem, PlaylistItemWide, FullShelfSmallerGrid, NewsItemBig },
     name: 'Home',
     data() {
         const time = new Date()
         const greeting = time.getHours() < 12 ? "Good morning" : time.getHours() < 18 ? "Good afternoon" : "Good evening"
         return {
             greeting,
-            releases: [ ],
-            playlists: [ ],
-            news: [ ]
+            releases: [],
+            playlists: [],
+            picks: [],
+            songs: [],
+            liked: [],
+            breaking: [],
+            recommendations: [],
+            releases: []
         }
     },
     mounted() {
@@ -48,18 +83,8 @@ export default {
         fetch("/api/releases")
             .then(x => x.json())
             .then(jdata => {
-                this.releases.length = 0
-                this.releases.push(...jdata)
+                this.releases = jdata.slice(0, 3);
             })
-        if (window.localStorage.getItem("sidebar.showNewsTab") == "true")
-        {
-            fetch("/api/news/articles")
-                .then(x => x.json())
-                .then(jdata => {
-                    this.news.length = 0
-                    this.news.push(...jdata)
-                })
-        }
         fetch("/api/playlists")
             .then(x => x.json())
             .then(async jdata => {
@@ -70,16 +95,75 @@ export default {
                         name: pdata.name,
                         description: pdata.description,
                         cover: pdata.songs?.[0]?.cover || "/assets/img/music_placeholder.png",
-                        href: `/playlist/${hashids.encode(i)}`
+                        href: `/playlist/${hashids.encode(i)}`,
+                        songs: pdata.songs
                     })
                 }
+                this.pick();
             })
+        fetch("/api/me/liked")
+            .then(x => x.json()).then(jdata => {
+                this.liked = jdata.songs.slice(0, 3)
+            })
+        fetch("/api/me/new")
+            .then(x => x.json()).then(jdata => {
+                this.breaking = jdata.songs.slice(0, 3)
+            })
+    },
+    methods: {
+        playDiscover(song) {
+            fetch("/api/player/load", {
+                method: "POST",
+                body: JSON.stringify({
+                    id: song.id,
+                    type: "track"
+                })
+            })
+        },
+        playRecommendation(song) {
+            const event = new CustomEvent('player.play', { detail: {
+                artist: song.artist,
+                title: song.title,
+                source: song.src || song.url
+            } });
+            window.dispatchEvent(event);
+        },
+        pick() {
+            this.songs = this.playlists.map(playlist => playlist.songs).flat();
+
+            for (let i = 0; i < 3; i++)
+            {
+                this.picks.push(this.songs[Math.floor(Math.random() * this.songs.length)])
+            }
+
+            fetch("/api/spotify/recommendations", {
+                method: "POST",
+                body: JSON.stringify({
+                    query: `${this.picks[0].artist} ${this.picks[0].title}`
+                })
+            }).then(x => x.json()).then(jdata => {
+                this.recommendations = jdata.slice(0, 3)
+            })
+        }
     }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
     .home {
         padding: 20px;
+        display: flex;
+        flex-direction: row;
+
+        .main {
+            flex: 2;
+            flex-shrink: 0;
+        }
+
+        .side {
+            flex: 1;
+            flex-shrink: 0;
+            margin-left: 20px;
+        }
     }
 </style>

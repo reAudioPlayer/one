@@ -9,8 +9,12 @@ a<template>
             <div class="track">
                 <img :src="cover || '/assets/img/music_placeholder.png'">
                 <div class="trackwrapper">
-                    <span class="title" :class="{ 'playing': playing }"><router-link class="linkOnHover" :to="`/track/${trackId}`"><Marquee :text="title" /></router-link></span>
-                    <span class="artist" :class="{ 'playing': playing }"><router-link class="linkOnHover" :to="`/search/${artist}`"><Marquee :text="artist" /></router-link></span>
+                    <span class="title" :class="{ 'playing': playing }">
+                        <router-link class="linkOnHover" :to="`/track/${trackId}`"><Marquee :text="title" /></router-link>
+                    </span>
+                    <span class="artist" :class="{ 'playing': playing }">
+                        <router-link class="linkOnHover" :to="`/search/artist:${artist}`"><Marquee :text="artist" /></router-link>
+                    </span>
                 </div>
             </div>
             <span class="duration">{{duration}}</span>
@@ -64,6 +68,9 @@ a<template>
             playing: {
                 type: Boolean,
                 default: false
+            },
+            loadAt: {
+                type: Object
             }
         },
         data() {
@@ -113,9 +120,8 @@ a<template>
             },
             playAt() {
                 console.log(this.$route.path)
-                const body = {
-                    index: this.index,
-                }
+                const body = this.loadAt || {};
+                body.index = this.index
                 fetch("/api/player/at", {
                     method: "POST",
                     body: JSON.stringify(body)

@@ -36,7 +36,7 @@
     <div class="centre">
       <div class="upper">
         <span @click="shuffle = !shuffle" class="material-icons-round defaultbtn hideIfMobile">{{ shuffle ? "shuffle_on" : "shuffle" }}</span>
-        <span @click="get('player/last')" class="material-icons-round defaultbtn hideIfMobile">skip_previous</span>
+        <span @click="get('player/previous')" class="material-icons-round defaultbtn hideIfMobile">skip_previous</span>
         <span @click="playPause" class="material-icons-round circle hideIfMobile">{{playing ? "pause_circle" : "play_circle"}}</span>
         <span @click="playPause" class="material-icons-round circle showIfMobile">{{playing ? "pause" : "play_arrow"}}</span>
         <span @click="get('player/next')" class="material-icons-round defaultbtn hideIfMobile">skip_next</span>
@@ -94,7 +94,7 @@
     </div>
     <div class="controls">
       <span @click="shuffle = !shuffle" class="material-icons-round defaultbtn">{{ shuffle ? "shuffle_on" : "shuffle" }}</span>
-      <span @click="get('player/last')" class="material-icons-round defaultbtn">skip_previous</span>
+      <span @click="get('player/previous')" class="material-icons-round defaultbtn">skip_previous</span>
       <span @click="playPause" class="material-icons-round circle">{{playing ? "pause_circle" : "play_circle"}}</span>
       <span @click="get('player/next')" class="material-icons-round defaultbtn">skip_next</span>
       <span @click="songLoop = !songLoop" class="material-icons-round defaultbtn">{{ songLoop ? "repeat_one" : "repeat" }}</span>

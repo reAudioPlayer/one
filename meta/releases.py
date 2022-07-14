@@ -64,6 +64,7 @@ class Releases:
         return {
             "title": track.title,
             "artists": track.artists,
+            "artist": ", ".join(track.artists),
             "cover": track.cover,
             "url": track.url,
             "releaseDate": track.releaseDate
