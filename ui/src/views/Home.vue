@@ -94,7 +94,7 @@ export default {
                     this.playlists.push({
                         name: pdata.name,
                         description: pdata.description,
-                        cover: pdata.songs?.[0]?.cover || "/assets/img/music_placeholder.png",
+                        cover: pdata.cover || pdata.songs?.[0]?.cover || "/assets/img/music_placeholder.png",
                         href: `/playlist/${hashids.encode(i)}`,
                         songs: pdata.songs
                     })
