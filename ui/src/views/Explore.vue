@@ -1,5 +1,6 @@
 <script setup>
 import ImgCard from "@/components/explore/ImgCard.vue";
+import Marquee from "@/components/Marquee.vue";
 </script>
 
 <template>
@@ -12,10 +13,14 @@ import ImgCard from "@/components/explore/ImgCard.vue";
                     </div>
                     <div class="info">
                         <router-link class="linkOnHover" :to="href(song)">
-                            <h1>{{ song.title }}</h1>
+                            <h1>
+                                <marquee :text="song.title"></marquee>
+                            </h1>
                         </router-link>
                         <router-link class="linkOnHover" :to="`/search/${song.artist}`">
-                            <p>{{ song.artist }}</p>
+                            <p>
+                                <marquee :text="song.artist"></marquee>
+                            </p>
                         </router-link>
                     </div>
                 </div>
@@ -88,12 +93,19 @@ export default {
 
     height: 40vh;
 
+    .info {
+        width: calc(100% - 40px - 64px);
+    }
+
     h1 {
         margin-bottom: 0;
+        width: calc(100% - 20px);
+        position: relative;
     }
 
     p {
         margin: 0;
+        width: calc(100% - 20px);
     }
 
     position: relative;
