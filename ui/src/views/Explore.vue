@@ -35,7 +35,6 @@ const hashidsTrack = new Hashids("reapOne.track", 22)
 
 export default {
     data() {
-        console.log("hello woodoasdjkp")
         fetch("/api/playlists").then(async (inRes) => {
             const playlists = await inRes.json();
             for (let id = 0; id < playlists.length; id++) {

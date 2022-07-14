@@ -91,6 +91,8 @@
                 const url = song.source;
                 this.name = `${song.artist} - ${song.title}`
 
+                fetch("/api/player/pause");
+
                 if (url.includes("youtu"))
                 {
                     var myregexp = /youtu(?:.*\/v\/|.*v\=|\.be\/)([A-Za-z0-9_\-]{11})/;

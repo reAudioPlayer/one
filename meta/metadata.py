@@ -36,6 +36,7 @@ class Metadata:
             "title": self._track.title,
             "album": self._track.album,
             "artists": self._track.artists,
+            "artist": self._track.artist,
             "cover": self._track.cover,
             "src": self._src,
             "preview": self._track.preview,

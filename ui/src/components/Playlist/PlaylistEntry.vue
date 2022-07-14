@@ -13,7 +13,7 @@
                         </router-link>
                     </span>
                     <span class="artist" :class="{ 'playing': playing }">
-                        <router-link class="linkOnHover" :to="`/search/${artist}`">
+                        <router-link class="linkOnHover" :to="`/search/artist:${artist}`">
                             <Marquee :text="artist" />
                         </router-link>
                     </span>

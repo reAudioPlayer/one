@@ -109,6 +109,7 @@
             close() {
                 this.showModal = false
                 this.$emit("close")
+                console.log(this.showModal)
             },
             loadMetadata() {
                 fetch("/api/browse/track", {
