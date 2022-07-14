@@ -103,21 +103,16 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
     .search {
         padding: 20px;
-        height: 100%;
+        height: calc(100% - 40px);
     }
 
     input {
         margin-left: 10px;
         margin-bottom: 20px;
-        padding: 10px;
         width: 20vw !important;
-    }
-
-    input:focus {
-        outline: none;
     }
 
     .fillPage {

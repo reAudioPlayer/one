@@ -223,26 +223,6 @@
         width: 100%;
     }
 
-    input[type="text"] {
-        background: var(--hover-2);
-        border: 1px solid var(--hover-3);
-        border-radius: 5px;
-        color: var(--font-colour);
-        padding: 10px;
-        width: auto;
-        flex-grow: 1;
-        font-family: var(--font-family);
-    }
-
-    input[type="text"]:focus {
-        outline: none;
-    }
-
-    input[type="text"]:hover {
-        background: var(--hover-1);
-        border: 1px solid var(--font-colour);
-    }
-
     button.negative {
         color: var(--font-contrast);
         background-color: var(--font-colour);

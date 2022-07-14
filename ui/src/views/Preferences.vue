@@ -51,10 +51,6 @@
         </div>
         <div>
             <h2>Themes</h2>
-            <div class="checkbox">
-                <input @change="changeCoverAsBackground" v-model="coverAsBackground" type="checkbox" id="bgcheck" name="" value="">
-                <label for="bgcheck"><span>Cover as background</span></label>
-            </div>
             <full-shelf :key="themeSelected">
                 <theme @selected="updateThemes" v-for="(theme, index) in themes" :key="index"
                     :name="theme" />
@@ -78,9 +74,6 @@
         methods: {
             updateThemes() {
                 this.themeSelected = window.getCurrentTheme()
-            },
-            changeCoverAsBackground() {
-                window.localStorage.setItem("player.coverAsBackground", this.coverAsBackground ? "true" : "false")
             },
             changeShowSportsTab() {
                 window.localStorage.setItem("sidebar.showSportsTab", this.showSportsTab ? "true" : "false")
@@ -122,22 +115,9 @@
         },
         data() {
             const themes = [
-                "night-jade",
-                "night-cobalt",
-                "night-crimson",
-                "night-fire",
-                "apollo",
-                "gradient",
-                "underground",
-                //"quarantine",
-                //"extraction",
-                //"neon",
-                "default",
-                "royal",
-                "ruby",
-                "light",
-                "light-royal",
-                "light-ruby"
+                "jade",
+                "dark",
+                "light"
             ]
             const themeSelected = window.getCurrentTheme()
 
@@ -212,13 +192,7 @@
 
     input[type="text"] {
         margin-bottom: 20px;
-        border-radius: 40px;
-        border: none;
-        padding: 5px;
-        font-family: var(--font-family);
-        width: 20vw;
-        color: var(--font-contrast);
-        background-color: var(--font-colour);
+        width: 20vw !important;
     }
 </style>
 

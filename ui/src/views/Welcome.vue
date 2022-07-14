@@ -123,22 +123,9 @@
                 }
             }, 7 * 1000)
             const themes = [
-                "night-jade",
-                "night-cobalt",
-                "night-crimson",
-                "night-fire",
-                "apollo",
-                "gradient",
-                "underground",
-                //"quarantine",
-                //"extraction",
-                //"neon",
-                "default",
-                "royal",
-                "ruby",
-                "light",
-                "light-royal",
-                "light-ruby"
+                "jade",
+                "dark",
+                "light"
             ]
             const themeSelected = window.getCurrentTheme()
             return {
@@ -187,13 +174,7 @@
     input {
         margin-left: 10px;
         margin-bottom: 20px;
-        border-radius: 40px;
-        border: none;
-        padding: 5px;
-        font-family: var(--font-family);
-        width: 20vw;
-        color: var(--font-contrast);
-        background-color: var(--font-colour);
+        width: 20vw !important;
     }
 
     .wrapTogether {

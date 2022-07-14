@@ -30,41 +30,6 @@ import PlayerInPicture from "./PlayerInPicture.vue";
 
     const LOCAL_STORAGE_KEY = "theme" // change it to whatever you like
 
-    window.getThemes = () => { // returns a string array of all available themes
-        window.themes = []
-        for (const key of Object.keys(themes)) {
-            for (const theme of Object.keys(themes[key])) {
-                if (!window.themes.includes(theme)) {
-                    window.themes.push(theme)
-                }
-            }
-        }
-        return window.themes;
-    }
-
-    window.getCurrentTheme = () => {
-        return window.localStorage.getItem(LOCAL_STORAGE_KEY) || "default"
-    }
-
-    window.setTheme = (theme) => { // accepts a string (theme name)
-        if (!window.getThemes().includes(theme) && theme != "dynamic") {
-            return;
-        }
-
-        window.localStorage.setItem(LOCAL_STORAGE_KEY, theme)
-
-        if (theme == "dynamic") {
-            theme = "underground"
-        }
-
-        for (const key of Object.keys(themes)) {
-            const value = themes[key]
-            document.documentElement.style.setProperty(`--${key}`, value[theme] || value.default);
-        }
-    }
-
-    window.setTheme(window.localStorage.getItem(LOCAL_STORAGE_KEY) || "default") // optional, loads the default theme
-
     export default {
         name: 'App',
         components: {
@@ -72,10 +37,45 @@ import PlayerInPicture from "./PlayerInPicture.vue";
             Body,
             Player
         },
-        computed: {
-            coverAsBackground() {
-                return window.localStorage.getItem("player.coverAsBackground") == "true"
+        mounted() {
+            window.getThemes = () => { // returns a string array of all available themes
+                window.themes = []
+                for (const key of Object.keys(themes)) {
+                    for (const theme of Object.keys(themes[key])) {
+                        if (!window.themes.includes(theme)) {
+                            window.themes.push(theme)
+                        }
+                    }
+                }
+                return window.themes;
             }
+
+            window.getCurrentTheme = () => {
+                return window.localStorage.getItem(LOCAL_STORAGE_KEY) || "jade"
+            }
+
+            window.setTheme = (theme) => { // accepts a string (theme name)
+                if (!window.getThemes().includes(theme)) {
+                    return;
+                }
+
+                window.localStorage.setItem(LOCAL_STORAGE_KEY, theme)
+
+                for (const key of Object.keys(themes)) {
+                    const value = themes[key]
+
+                    if (key == "coverAsBackground")
+                    {
+                        this.coverAsBackground = Boolean(value[theme])
+                        window.localStorage.setItem("player.coverAsBackground", this.coverAsBackground ? "true" : "false")
+                        continue;
+                    }
+
+                    document.documentElement.style.setProperty(`--${key}`, value[theme] || value.dark);
+                }
+            }
+
+            window.setTheme(window.localStorage.getItem(LOCAL_STORAGE_KEY) || "jade") // optional, loads the default theme
         },
         data() {
             const connect = () => {
@@ -102,6 +102,7 @@ import PlayerInPicture from "./PlayerInPicture.vue";
                 cover: null,
                 shallExpandCover: window.localStorage.getItem("player.expandCover") == "true",
                 maximised: false,
+                coverAsBackground: window.localStorage.getItem("player.coverAsBackground") == "true"
             }
         },
         watch: {
@@ -317,5 +318,25 @@ import PlayerInPicture from "./PlayerInPicture.vue";
         @media screen and (min-width: $mobileWidth) {
             display: none !important;
         }
+    }
+
+    input[type="text"] {
+        background: var(--hover-2);
+        border: 1px solid var(--hover-3);
+        border-radius: 5px;
+        color: var(--font-colour);
+        padding: 10px;
+        width: auto;
+        flex-grow: 1;
+        font-family: var(--font-family);
+    }
+
+    input[type="text"]:focus {
+        outline: none;
+    }
+
+    input[type="text"]:hover {
+        background: var(--hover-1);
+        border: 1px solid var(--font-colour);
     }
 </style>

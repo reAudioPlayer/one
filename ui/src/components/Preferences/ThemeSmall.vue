@@ -1,6 +1,6 @@
 <template>
     <div @click="select" class="wrapper">
-        <img :src="src" :class="{ 'selected': selected() }">
+        <img :src="`/assets/img/themes/${this.name}.svg`" :class="{ 'selected': selected() }">
     </div>
 </template>
 
@@ -9,11 +9,6 @@ export default {
     name: "ThemeSmall",
     props: {
         name: String
-    },
-    data() {
-        return {
-            src: new URL(`/src/assets/images/themes/${this.name}.svg`, import.meta.url).href
-        }
     },
     methods: {
         selected() {
