@@ -51,7 +51,7 @@
     .itemBig {
         grid-column: span 2;
         background: var(--background-light);
-        border-radius: 5px;
+        border-radius: 20px;
         min-height: 15vh;
         margin: 10px;
     }

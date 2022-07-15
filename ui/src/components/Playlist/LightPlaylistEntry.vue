@@ -178,7 +178,7 @@ a<template>
         flex-direction: row;
         color: var(--font-darker);
         font-size: 0.91em;
-        border-radius: 5px;
+        border-radius: 20px;
     }
 
     div.playlistEntry:hover {

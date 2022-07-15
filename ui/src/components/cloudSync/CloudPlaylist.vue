@@ -111,7 +111,7 @@ export default {
 
     background: var(--background-light);
     padding: 20px;
-    border-radius: 5px;
+    border-radius: 20px;
 
     .close {
         position: absolute;
@@ -133,6 +133,7 @@ export default {
         width: 150px;
         max-height: 150px;
         margin-right: 20px;
+        border-radius: 12px;
     }
 
     .lead {

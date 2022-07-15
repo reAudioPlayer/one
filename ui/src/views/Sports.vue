@@ -260,7 +260,7 @@
         border: none;
         width: calc(100% - 20px);
         margin: 10px;
-        border-radius: 5px;
+        border-radius: 20px;
     }
 
     .wrapIframe {

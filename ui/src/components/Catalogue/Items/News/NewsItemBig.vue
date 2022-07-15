@@ -49,7 +49,7 @@
     .itemBig {
         grid-column: span 2;
         background: var(--background-light);
-        border-radius: 5px;
+        border-radius: 20px;
         min-height: 15vh;
         margin: 10px;
     }
@@ -74,7 +74,7 @@
     }
 
     img {
-        border-radius: 2px;
+        border-radius: 12px;
         margin-bottom: 20px;
     }
 

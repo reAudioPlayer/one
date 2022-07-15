@@ -76,9 +76,10 @@
 
     .wrapper {
         background: var(--background-light);
-        border-radius: 5px;
+        border-radius: 20px;
         min-height: 10vh;
         margin: 10px;
+        padding: 20px;
     }
 
     .wrapper:hover {
@@ -87,13 +88,12 @@
     }
 
     .item {
-        padding: 20px;
         height: calc(100% - 40px);
     }
 
     img {
         width: 100%;
-        border-radius: 2px;
+        border-radius: 12px;
     }
 
     h4 {
