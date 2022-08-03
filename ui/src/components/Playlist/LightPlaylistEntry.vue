@@ -3,7 +3,7 @@ a<template>
         @like="favourited = !favourited" :isAutoPlaylist="isAutoPlaylist" :liked="favourited" ref="ctxMenu">
         <EditSong @close="updatePlaylist" ref="editSongPopup" :cover="cover" :id="id" :title="title" :album="album"
             :artist="artist" :source="source" />
-        <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry"
+        <div :id="'bplayer-entry-' + id" @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="lightPlaylistEntry"
             :class="{ 'selected': highlighted }">
             <span @click="playAt" ref="idOrPlay" :class="{ 'playing': playing }" class="id">{{index + 1}}</span>
             <div class="track">
@@ -170,7 +170,7 @@ a<template>
 </script>
 
 <style scoped>
-    div.playlistEntry {
+    div.lightPlaylistEntry {
         padding-top: 7px;
         padding-bottom: 7px;
         height: var(--playlistEntry-height);
@@ -181,11 +181,11 @@ a<template>
         border-radius: 20px;
     }
 
-    div.playlistEntry:hover {
+    div.lightPlaylistEntry:hover {
         background-color: var(--hover-1);
     }
 
-    div.playlistEntry.selected {
+    div.lightPlaylistEntry.selected {
         background-color: var(--hover-2);
     }
 
@@ -216,9 +216,9 @@ a<template>
         visibility: hidden;
     }
 
-    div.playlistEntry:hover .favourite,
+    divlightPlaylistEntry:hover .favourite,
     .showfavourite,
-    div.playlistEntry:hover .more {
+    divlightPlaylistEntry:hover .more {
         visibility: visible;
     }
 
@@ -266,12 +266,12 @@ a<template>
         color: var(--font-darker);
     }
 
-    div.playlistEntry:hover .album,
-    div.playlistEntry:hover .artist,
-    div.playlistEntry:hover .id,
-    div.playlistEntry.selected .album,
-    div.playlistEntry.selected .artist,
-    div.playlistEntry.selected .id {
+    divlightPlaylistEntry:hover .album,
+    divlightPlaylistEntry:hover .artist,
+    divlightPlaylistEntry:hover .id,
+    divlightPlaylistEntry.selected .album,
+    divlightPlaylistEntry.selected .artist,
+    divlightPlaylistEntry.selected .id {
         color: var(--font-colour);
     }
 

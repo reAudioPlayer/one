@@ -138,9 +138,13 @@ class DbManager:
 
         print(filter_)
 
-        with self._db:
-            return DbManager._castToSongList(
-                self._db.execute(f"SELECT * FROM Songs WHERE {filter_}"))
+        try:
+            with self._db:
+                return DbManager._castToSongList(
+                    self._db.execute(f"SELECT * FROM Songs WHERE {filter_}"))
+        except Exception as err:
+            print(err)
+            return [ ]
 
     def addPlaylist(self, playlist: Playlist) -> None:
         """add playlist to db"""

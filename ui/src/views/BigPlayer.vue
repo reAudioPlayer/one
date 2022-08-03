@@ -9,7 +9,7 @@
             </div>
         </div>
         <div v-if="!noPlaylist" class="playlistOverflow">
-            <div class="playlist">
+            <div class="playlist" ref="playlistScroll">
                 <spotify-playlist-header />
                 <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download" @requestUpdate="updatePlaylist" :index="playlist.songs.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.title == currentSongName" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
             </div>
@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import { nextTick } from '@vue/runtime-core';
     import LightPlaylistEntry from '../components/Playlist/LightPlaylistEntry.vue'
     import SpotifyPlaylistHeader from '../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
     export default {
@@ -40,13 +41,28 @@
                 fetch("/api/me/player/current-playlist").then(x => x.json()).then(jdata => this.playlist = jdata)
             },
             updateData(jdata) {
+                console.log(jdata)
                 if (jdata.path == "player.song")
                 {
                     this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
 
                     this.currentSongName = jdata?.data?.title || ""
 
-                    return
+                    if (this.$refs.playlistScroll.scrollTop) {
+                        return;
+                    }
+
+                    const scroll = document.getElementById(`bplayer-entry-${jdata?.data?.id}`)?.offsetTop;
+
+                    if (!scroll && scroll != 0) {
+                        window.setTimeout(() => this.updateData(jdata), 1000)
+                    }
+
+                    if (scroll >= 354)
+                    {
+                        this.$refs.playlistScroll.scrollTop = scroll - 354;
+                    }
+                    return;
                 }
 
                 if (jdata.path == "player.playState")
