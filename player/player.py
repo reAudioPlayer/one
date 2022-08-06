@@ -61,10 +61,14 @@ class Player:
     @property
     def volume(self) -> int:
         """volume (0 - 100)"""
+        if env.get("TEST_MODE"):
+            return 0.0
         return round(pygame.mixer.music.get_volume() * 100)
 
     @volume.setter
     def volume(self, value: int) -> None:
+        if env.get("TEST_MODE"):
+            return
         vol = value / 100
         self._config.volume = vol
         pygame.mixer.music.set_volume(vol)
@@ -72,11 +76,15 @@ class Player:
     @property
     def position(self) -> float:
         """gets the position"""
+        if env.get("TEST_MODE"):
+            return 0.0
         return pygame.mixer.music.get_pos() / 1000.0 + self._offset
 
     @position.setter
     def position(self, posInS: float) -> None:
         """sets the position"""
+        if env.get("TEST_MODE"):
+            return
         self._offset = posInS - (pygame.mixer.music.get_pos() / 1000.0)
         pygame.mixer.music.set_pos(posInS)
 
@@ -225,12 +233,13 @@ class Player:
             return
         print(f"load {song.id}")
         if self._preloaded == song.source:
-            pygame.mixer.music.load(f"./_cache/{song.id}.mp3")
-            sound = pygame.mixer.Sound(f"./_cache/{song.id}.mp3")
             self._song = song
+            if not env.get("TEST_MODE"):
+                pygame.mixer.music.load(f"./_cache/{song.id}.mp3")
+                pygame.mixer.music.play()
+            sound = pygame.mixer.Sound(f"./_cache/{song.id}.mp3")
             song.duration = int(sound.get_length())
             self._dbManager.updateSongMetadata(song.id, f"duration='{int(song.duration)}'")
-            pygame.mixer.music.play()
             if not self._updatePositionTask:
                 self._updatePositionTask = asyncio.create_task(self._updatePosition())
             self._playing = True
