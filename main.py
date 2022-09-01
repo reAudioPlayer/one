@@ -5,6 +5,7 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 import os
 from os import environ as env
 from os.path import exists
+from queue import Empty
 from typing import Awaitable, Callable
 
 
@@ -95,6 +96,9 @@ async def _exceptionMiddleware(request: web.Request,
     start = time.time()
     resp: Optional[web.StreamResponse] = None
     try:
+        resp = await handler(request)
+    except Empty:
+        os.unlink(".cache")
         resp = await handler(request)
     except Exception as exc: # pylint: disable=bare-except
         logger.exception(exc)
