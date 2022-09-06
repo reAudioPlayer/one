@@ -62,7 +62,7 @@ class Player:
     def volume(self) -> int:
         """volume (0 - 100)"""
         if env.get("TEST_MODE"):
-            return 0.0
+            return 0
         return round(pygame.mixer.music.get_volume() * 100)
 
     @volume.setter
