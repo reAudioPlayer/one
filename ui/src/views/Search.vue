@@ -1,6 +1,6 @@
 <template>
     <div class="search">
-        <input @keyup="enterText" ref="searchBox" v-model="query" type="text">
+        <!--input @keyup="enterText" ref="searchBox" v-model="query" type="text"-->
         <div class="fillPage" v-if="loading">
             <Loader />
         </div>

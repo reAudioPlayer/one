@@ -78,7 +78,7 @@
     }
 
     h4 {
-        margin: 0;
+        margin-bottom: 0;
 
         @media screen and (max-width: $mobileWidth) {
             margin-left: 20px;

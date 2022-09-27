@@ -33,7 +33,7 @@
         overflow-y: auto;
         overflow-x: hidden;
         max-width: calc(100vw - var(--sidebar-width));
-        max-height: calc(100vh - var(--player-height));
+        max-height: calc(100vh - var(--player-height) - var(--header-height));
 
         &.maximised {
             max-width: 100vw;
@@ -42,7 +42,7 @@
 
         @media screen and (max-width: $mobileWidth) {
             max-width: 100vw;
-            max-height: calc(100vh - var(--player-height-mobile) - var(--sidebar-height));
+            max-height: calc(100vh - var(--player-height-mobile) - var(--sidebar-height) - var(--header-height));
         }
     }
 </style>

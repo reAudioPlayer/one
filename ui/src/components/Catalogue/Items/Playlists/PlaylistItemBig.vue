@@ -1,7 +1,7 @@
 <template>
     <div class="itemBig">
         <add-album-to-playlist :id="this.href.replace('https://open.spotify.com/album/', '')" :cover="cover" :title="title" :artist="artist" ref="addAlbum" />
-        <div class="item" @click="redirect">
+        <div class="item h-full flex justify-between" @click="redirect">
             <div v-if="icon" class="icon">
                 <span class="material-symbols-rounded">{{icon}}</span>
             </div>
@@ -71,7 +71,6 @@ import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
         flex-direction: column;
         justify-content: flex-end;
         padding: 20px;
-        height: calc(100% - 40px);
     }
 
     .wrapper {

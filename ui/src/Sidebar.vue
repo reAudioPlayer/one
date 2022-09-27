@@ -5,15 +5,12 @@ import Logo from '/src/assets/images/logo/logo.svg'
     <div class="sidebar">
         <div class="static">
             <div class="collapseSidebar hideIfMobile" :class=" { 'minimised': minimised } ">
-                <Logo class="logo" v-if="!minimised" @click="onLogoClick" />
                 <span @click="minimised = !minimised"
                     class="hideIfMobile clickSymbol material-symbols-rounded">{{ minimised ? "chevron_right" : "chevron_left" }}</span>
             </div>
             <nav-entry :minimised="minimised" href="/collection/playlists" icon="library_music" name="Your Library"
                 :hasChildSites="true" parentHref="/collection" />
-            <nav-entry class="hideIfMobile" :minimised="minimised" href="/search" icon="search" name="Search" />
             <nav-entry :minimised="minimised" href="/discover" icon="explore" name="Discover" />
-            <nav-entry :minimised="minimised" href="/preferences" icon="settings" name="Preferences" />
             <br v-if="showNewsTab || showSportsTab">
             <nav-entry :minimised="minimised" v-if="showNewsTab" href="/news" icon="newspaper" name="News"
                 :hasChildSites="true" />
@@ -146,9 +143,9 @@ import Logo from '/src/assets/images/logo/logo.svg'
     .collapseSidebar {
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
-        height: 90px;
+        height: 40px;
 
         &.minimised {
             justify-content: center;
@@ -181,8 +178,9 @@ import Logo from '/src/assets/images/logo/logo.svg'
     }
 
     .cover {
-        height: calc(var(--sidebar-width) + 40px);
-        width: calc(var(--sidebar-width) + 40px);
+        position: absolute;
+        bottom: 10px;
+        width: 100%;
         transform: translate(-10px, 10px);
     }
 
@@ -220,8 +218,13 @@ import Logo from '/src/assets/images/logo/logo.svg'
         display: flex;
         flex-direction: column;
         padding: 10px;
-        max-height: calc(100vh - var(--player-height) - 20px);
+        margin: 10px;
+        border-radius: 8px;
+        max-height: 100%;
+        min-width: 64px;
         z-index: 1;
+        position: relative;
+        overflow: hidden;
 
         @media screen and (max-width: $mobileWidth) {
             flex-direction: row;

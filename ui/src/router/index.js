@@ -22,6 +22,7 @@ const routes = [{
         }
     },
     {
+        name: "Search",
         path: '/search/:query',
         component: () => import( /* webpackChunkName: "search" */ "@/views/Search.vue"),
         meta: {

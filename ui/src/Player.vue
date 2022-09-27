@@ -477,7 +477,7 @@ div.player.fullscreen {
 
 div.player {
   background: var(--player-background);
-  height: calc(var(--player-height) - 21px);
+  height: var(--player-height);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -486,7 +486,7 @@ div.player {
   z-index: 1;
 
   @media screen and (max-width: $mobileWidth) {
-    height: calc(var(--player-height-mobile) - 7px);
+    height: calc(var(--player-height-mobile) - 20px);
     padding: 3px;
     position: absolute;
     bottom: var(--sidebar-height);
@@ -498,7 +498,7 @@ div.player {
   }
 
   &.fullscreen {
-    height: calc(100vh - 40px);
+    height: 100vh;
     width: calc(100vw - 40px);
     border-top: none;
     border-bottom: none;
@@ -526,7 +526,7 @@ div.player {
 }
 
 .left {
-  max-height: calc(var(--player-height) - 40px);
+  max-height: var(--player-height);
   display: flex;
   flex-direction: row;
   padding: 10px;
