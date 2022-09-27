@@ -146,7 +146,7 @@ import { nextTick } from '@vue/runtime-core';
         padding: 40px;
         align-items: center;
         z-index: 1;
-        height: calc(100% - 80px);
+        height: 100%;
         filter: none;
     }
 

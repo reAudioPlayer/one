@@ -74,7 +74,7 @@
     }
 
     .icon {
-        width: 40px;
+        width: 34px;
 
         @media screen and (max-width: $mobileWidth) {
             width: 34px;

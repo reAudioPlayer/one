@@ -3,11 +3,13 @@ import Body from '@/Body.vue'
 import Player from '@/Player.vue'
 import Sidebar from '@/Sidebar.vue'
 import PlayerInPicture from "./PlayerInPicture.vue";
+import Header from './Header.vue';
 </script>
 
 <template>
     <div class="appRoot" id="appRoot">
         <div class="bgImageWrapper" :class="{ hidden: !coverAsBackground }" ><div class="bgImage" :style="{ backgroundImage: `url(${cover})` }" /></div>
+        <Header />
         <div class="interface">
             <Sidebar v-if="!maximised" @expandCover="expandCover" :expandCover="shallExpandCover" />
             <Body @maximise="val => maximised = val" />
@@ -240,6 +242,7 @@ import PlayerInPicture from "./PlayerInPicture.vue";
 
 <style lang="scss">
     @import "./assets/css/scrollbars.css";
+    @import "./assets/css/main.css";
 
     #app {
         font-family: var(--font-family) !important;
@@ -262,6 +265,7 @@ import PlayerInPicture from "./PlayerInPicture.vue";
         flex-direction: row;
         flex-grow: 1;
         z-index: 2;
+        max-height: calc(100vh - var(--player-height) - var(--header-height));
 
         @media screen and (max-width: $mobileWidth) {
             flex-direction: column;

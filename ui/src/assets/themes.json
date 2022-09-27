@@ -87,7 +87,7 @@
     },
 
     "playlistEntry-height": {
-        "dark": "50px"
+        "dark": "64px"
     },
     "player-height": {
         "dark": "88px"
@@ -96,6 +96,9 @@
         "dark": "64px"
     },
     "sidebar-height": {
+        "dark": "64px"
+    },
+    "header-height": {
         "dark": "64px"
     },
     "coverAsBackground": {
