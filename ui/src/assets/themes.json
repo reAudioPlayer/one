@@ -28,6 +28,11 @@
         "jade": "#c2bebe",
         "light": "#8b8c91"
     },
+    "font-darkest": {
+        "dark": "#999",
+        "light": "#8b8c91",
+        "jade": "#999"
+    },
     "hover-4": {
         "dark": "#242424"
     },
