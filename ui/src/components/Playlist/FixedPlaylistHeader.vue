@@ -31,7 +31,9 @@ export default {
     }
 
     .darkback {
-        background: var(--fixedplaylistheader-background);
+        /*background: var(--fixedplaylistheader-background);*/
+        backdrop-filter: blur(100px);
+
         padding-top: 10px;
         padding-bottom: 10px;
         border-bottom: 1px solid var(--fixedplaylistheader-border);
@@ -41,7 +43,8 @@ export default {
         padding: 10px;
         display: flex;
         flex-direction: row;
-        background: var(--accent-dark);
+        /*background: var(--accent-dark);*/
+        backdrop-filter: blur(100px);
 
         @media screen and (max-width: $mobileWidth) {
             justify-content: center;
@@ -79,8 +82,10 @@ export default {
         padding-right: 3px;
 
         z-index: 100;
-        height: 80px;
+        /*height: 80px;*/
+        overflow: clip;
         padding-bottom: 10px;
+        border-radius: 0 0 20px 20px;
 
         @media screen and (max-width: $mobileWidth) {
             left: 0;

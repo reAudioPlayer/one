@@ -2,7 +2,12 @@
     <div class="playlist">
         <AddSong @close="updatePlaylist" ref="addSongPopup" />
         <EditPlaylist @close="updatePlaylist" :playlistCover="playlistCover" :playlistName="playlistName" :playlistDescription="playlistDescription" ref="editPlaylistPopup" />
-        <fixed-playlist-header @loadPlaylist="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }" :title="playlistName" />
+        <fixed-playlist-header
+            @loadPlaylist="loadPlaylist"
+            ref="fixedHeading"
+            :class="{ 'hidden': fixedHeaderHidden }"
+            :title="playlistName"
+        />
         <div class="padding-20 playlisteditor" @click="editPlaylist" v-observe-visibility="headerVisibilityChanged">
             <img v-if="playlistCover" class="cover" :src="playlistCover" />
             <div class="details">
