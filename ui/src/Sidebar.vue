@@ -71,7 +71,7 @@ import Logo from '/src/assets/images/logo/logo.svg'
         },
         watch: {
             minimised() {
-                document.documentElement.style.setProperty("--sidebar-width", this.minimised ? "24px" : "200px");
+                document.documentElement.style.setProperty("--sidebar-width", this.minimised ? "44px" : "200px");
                 window.localStorage.setItem("player.collapsedSidebar", this.minimised)
             }
         },
@@ -99,7 +99,7 @@ import Logo from '/src/assets/images/logo/logo.svg'
 
             const minimised = window.localStorage.getItem("player.collapsedSidebar") == "true";
 
-            document.documentElement.style.setProperty("--sidebar-width", minimised ? "24px" : "200px");
+            document.documentElement.style.setProperty("--sidebar-width", minimised ? "44px" : "200px");
 
             return {
                 playlists: [],

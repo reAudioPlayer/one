@@ -281,7 +281,7 @@ import { nextTick } from '@vue/runtime-core';
 
     .bigPlayer .playlistOverflow .playlist {
         overflow-y: auto;
-        height: calc(100% - 20px);;
+        height: 100%;
         padding: 10px;
     }
 </style>
