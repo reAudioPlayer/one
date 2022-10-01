@@ -5,7 +5,7 @@ import AddSongToPlaylist from '../../../Popups/AddSongToPlaylist.vue';
 </script>
 
 <template>
-<div class="home-track-compact-wrapper">
+<div class="home-track-compact-wrapper drop-shadow-md">
     <add-album-to-playlist v-if="href" :id="href.replace('https://open.spotify.com/album/', '')" :cover="cover" :title="title" :artist="artist" :href="href" ref="addRelease" />
     <add-song-to-playlist v-if="href" :href="href" :cover="cover" :title="title" :artist="artist" :preview="preview" ref="addSong" />
     <div class="home-track-compact" @click="openModal">

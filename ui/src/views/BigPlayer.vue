@@ -1,14 +1,14 @@
 <template>
     <div class="bigPlayer">
         <div class="upNow">
-            <img :src="cover" :class="{ playing, animate }" />
+            <img :src="cover" :class="{ playing, animate }" class="drop-shadow-2xl" />
             <div class="blocks" :class="{ playing, animate }">
                 <div class="block" :style="{'animation-delay': '0s'}"></div>
                 <div class="block" :style="{'animation-delay': '.25s'}"></div>
                 <div class="block" :style="{'animation-delay': '.5s'}"></div>
             </div>
         </div>
-        <div v-if="!noPlaylist" class="playlistOverflow">
+        <div v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl">
             <div class="playlist" ref="playlistScroll">
                 <spotify-playlist-header />
                 <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download" @requestUpdate="updatePlaylist" :index="playlist.songs.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.title == currentSongName" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />

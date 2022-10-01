@@ -1,5 +1,5 @@
 <template>
-    <div @click="redirect" class="home-playlist">
+    <div @click="redirect" class="home-playlist drop-shadow-md">
         <img :src="cover" />
         <h2>{{name}}</h2>
     </div>

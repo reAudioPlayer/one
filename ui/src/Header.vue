@@ -1,5 +1,5 @@
 <template>
-    <div class="header flex flex-row justify-between">
+    <div class="header flex flex-row justify-between drop-shadow-md">
         <Logo class="logo" />
         <div class="search flex flex-row">
             <nav-entry minimised href="/" icon="home" name="Home" class="mr-2" />

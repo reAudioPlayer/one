@@ -1,5 +1,5 @@
 <template>
-    <div class="itemBig">
+    <div class="itemBig drop-shadow-md">
         <add-album-to-playlist :id="this.href.replace('https://open.spotify.com/album/', '')" :cover="cover" :title="title" :artist="artist" ref="addAlbum" />
         <div class="item h-full flex justify-between" @click="redirect">
             <div v-if="icon" class="icon">
