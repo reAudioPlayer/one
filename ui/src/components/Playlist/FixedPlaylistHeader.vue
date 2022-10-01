@@ -2,7 +2,7 @@
     <div class="fixedPlaylistHeader">
         <div class="upperWrapper">
             <span id="loadPlaylist" @click="this.$emit('loadPlaylist')" class="material-symbols-rounded hideIfMobile">play_circle</span>
-            <h3>{{title}}</h3>
+            <h3 class="font-bold">{{title}}</h3>
         </div>
         <grid-header class="padding-20 darkback hideIfMobile" />
     </div>
@@ -73,7 +73,7 @@ export default {
 
     .fixedPlaylistHeader {
         position: fixed;
-        top: 0;
+        top: var(--header-height);
         left: calc(var(--sidebar-width) + 40px);
         right: -3px;
         padding-right: 3px;

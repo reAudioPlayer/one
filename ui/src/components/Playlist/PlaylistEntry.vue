@@ -1,9 +1,26 @@
 <template>
     <SongCtx :playlists="playlists" :artist="artist" :src="source" :title="title" @download="download" @addto="addToPlaylist" @remove="remove" @update="update" @like="favourited = !favourited" :isAutoPlaylist="isAutoPlaylist" :liked="favourited" ref="ctxMenu">
-        <EditSong @close="updatePlaylist" ref="editSongPopup" :cover="cover" :id="id" :title="title" :album="album" :artist="artist" :source="source" />
-        <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry hideIfMobile"
-            :class="{ 'selected': highlighted }">
-            <span @click.stop="playAt" ref="idOrPlay" :class="{ 'playing': playing }" class="id">{{index + 1}}</span>
+        <EditSong
+            @close="updatePlaylist"
+            ref="editSongPopup"
+            :cover="cover"
+            :id="id"
+            :title="title"
+            :album="album"
+            :artist="artist"
+            :source="source"
+        />
+        <div
+            @dblclick="() => { playAt(); onselect() }"
+            @click="onselect"
+            @mouseover="displayPlay"
+            @mouseleave="displayId"
+            class="playlistEntry hideIfMobile"
+            :class="{ 'selected': highlighted }"
+        >
+            <div class="h-full flex flex-col justify-center">
+                <span @click.stop="playAt" ref="idOrPlay" :class="{ 'playing': playing }" class="id">{{index + 1}}</span>
+            </div>
             <div class="track">
                 <img :src="cover || '/assets/img/music_placeholder.png'">
                 <div class="trackwrapper">
@@ -19,10 +36,18 @@
                     </span>
                 </div>
             </div>
-            <span class="album" :class="{ 'playing': playing }"><Marquee :text="album" /></span>
-            <span @click.stop="favourited = !favourited" class="favourite material-icons-round" :class="{ 'showfavourite': favourited || highlighted }">{{favourited ? "favorite" : "favorite_border"}}</span>
-            <span class="duration">{{duration}}</span>
-            <span @click="showCtxMenu" class="more material-icons-round" :class="{ 'hidden': !highlighted }">more_horiz</span>
+            <div class="h-full flex flex-col justify-center w-full album">
+                <span class="" :class="{ 'playing': playing }"><Marquee :text="album" /></span>
+            </div>
+            <div class="h-full flex flex-col justify-center grow-0">
+                <span @click.stop="favourited = !favourited" class="favourite material-icons-round" :class="{ 'showfavourite': favourited || highlighted }">{{favourited ? "favorite" : "favorite_border"}}</span>
+            </div>
+            <div class="h-full flex flex-col justify-center">
+                <span class="duration">{{duration}}</span>
+            </div>
+            <div class="h-full flex flex-col justify-center">
+                <span @click="showCtxMenu" class="more material-icons-round" :class="{ 'hidden': !highlighted }">more_horiz</span>
+            </div>
         </div>
         <div class="mobilePlaylist showIfMobile">
         <div class="track">
@@ -240,11 +265,14 @@
     }
 
     div.playlistEntry {
-        padding-top: 7px;
-        padding-bottom: 7px;
         height: var(--playlistEntry-height);
-        display: flex;
-        flex-direction: row;
+
+        /*display: flex;
+        flex-direction: row;*/
+
+        display: grid;
+        grid-template-columns: 50px 1fr 1fr 60px 70px 40px;
+
         color: var(--font-darker);
         font-size: 0.91em;
         border-radius: 20px;
@@ -296,7 +324,6 @@
     }
 
     .track {
-        width: 40vw;
         margin-left: 10px;
         display: flex;
         flex-direction: row;
@@ -326,7 +353,6 @@
     .album {
         flex-grow: 1;
         margin-left: 5px;
-        line-height: var(--playlistEntry-height);
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
