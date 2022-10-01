@@ -3,7 +3,7 @@
         <EditSong @close="updatePlaylist" ref="editSongPopup" :cover="cover" :id="id" :title="title" :album="album" :artist="artist" :source="source" />
         <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="playlistEntry hideIfMobile"
             :class="{ 'selected': highlighted }">
-            <span @click="playAt" ref="idOrPlay" :class="{ 'playing': playing }" class="id">{{index + 1}}</span>
+            <span @click.stop="playAt" ref="idOrPlay" :class="{ 'playing': playing }" class="id">{{index + 1}}</span>
             <div class="track">
                 <img :src="cover || '/assets/img/music_placeholder.png'">
                 <div class="trackwrapper">
@@ -20,13 +20,13 @@
                 </div>
             </div>
             <span class="album" :class="{ 'playing': playing }"><Marquee :text="album" /></span>
-            <span @click="favourited = !favourited" class="favourite material-icons-round" :class="{ 'showfavourite': favourited || highlighted }">{{favourited ? "favorite" : "favorite_border"}}</span>
+            <span @click.stop="favourited = !favourited" class="favourite material-icons-round" :class="{ 'showfavourite': favourited || highlighted }">{{favourited ? "favorite" : "favorite_border"}}</span>
             <span class="duration">{{duration}}</span>
             <span @click="showCtxMenu" class="more material-icons-round" :class="{ 'hidden': !highlighted }">more_horiz</span>
         </div>
         <div class="mobilePlaylist showIfMobile">
         <div class="track">
-            <img @click="playAt" :src="cover || '/assets/img/music_placeholder.png'">
+            <img @click.stop="playAt" :src="cover || '/assets/img/music_placeholder.png'">
             <div class="trackwrapper">
                 <span class="title" :class="{ 'playing': playing }">
                     <!--router-link class="linkOnHover" :to="`/track/${trackId}`"-->
