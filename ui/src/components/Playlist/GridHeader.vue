@@ -3,6 +3,7 @@
         <span class="id">#</span>
         <span class="title">Title</span>
         <span class="album">Album</span>
+        <span />
         <span class="clock material-symbols-rounded">schedule</span>
     </div>
 </template>
@@ -15,7 +16,11 @@ export default {
 
 <style scoped>
     .gridHeader {
-        display: flex;
+        display: grid;
+        grid-template-columns: 50px 1fr 1fr 60px 70px 40px;
+
+        border-radius: 0 0 20px 20px;
+
         flex-direction: row;
         text-transform: uppercase;
         color: var(--font-darker);

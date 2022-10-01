@@ -5,7 +5,9 @@ a<template>
             :artist="artist" :source="source" />
         <div :id="'bplayer-entry-' + id" @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="lightPlaylistEntry"
             :class="{ 'selected': highlighted }">
-            <span @click.stop="playAt" ref="idOrPlay" :class="{ 'playing': playing }" class="id">{{index + 1}}</span>
+            <div class="h-full flex flex-col justify-center">
+                <span @click.stop="playAt" ref="idOrPlay" :class="{ 'playing': playing }" class="id">{{index + 1}}</span>
+            </div>
             <div class="track">
                 <img :src="cover || '/assets/img/music_placeholder.png'">
                 <div class="trackwrapper">
@@ -17,7 +19,9 @@ a<template>
                     </span>
                 </div>
             </div>
-            <span class="duration">{{duration}}</span>
+            <div class="h-full flex flex-col justify-center">
+                <span class="duration">{{duration}}</span>
+            </div>
         </div>
     </SongCtx>
 </template>
@@ -171,11 +175,15 @@ a<template>
 
 <style scoped>
     div.lightPlaylistEntry {
-        padding-top: 7px;
-        padding-bottom: 7px;
+
         height: var(--playlistEntry-height);
-        display: flex;
-        flex-direction: row;
+
+        /*display: flex;
+        flex-direction: row;*/
+
+        display: grid;
+        grid-template-columns: 50px 1fr 70px;
+
         color: var(--font-darker);
         font-size: 0.91em;
         border-radius: 20px;
@@ -194,7 +202,7 @@ a<template>
     .miniPlayer {
         width: 50px;
         text-align: right;
-        line-height: var(--playlistEntry-height);
+        /*line-height: var(--playlistEntry-height);*/
         flex-shrink: 0;
     }
 
@@ -232,12 +240,11 @@ a<template>
     }
 
     .track {
-        flex-grow: 1;
         margin-left: 10px;
         display: flex;
         flex-direction: row;
         align-items: center;
-        width: 50%;
+        overflow: hidden;
     }
 
     .title {
