@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper">
+    <div class="wrapper drop-shadow-md">
         <add-song-to-playlist :href="href" :cover="cover" :title="title" :artist="artist" :preview="preview" ref="addAlbum" />
         <div class="item" @click="redirect">
             <img :src="cover" />

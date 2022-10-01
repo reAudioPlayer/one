@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper">
+    <div class="wrapper drop-shadow-md">
         <add-artist-to-playlist :cover="cover" :name="name" :description="description" :id="id" :href="`https://open.spotify.com/artist/${id}`" ref="import" />
         <div class="item" @click="redirect">
             <img :src="cover" />

@@ -98,7 +98,6 @@
         },
         mounted() {
             this.search()
-            this.$refs.searchBox.focus()
         }
     }
 </script>

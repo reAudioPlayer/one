@@ -1,5 +1,5 @@
 <template>
-    <div class="itemBig">
+    <div class="itemBig drop-shadow-md">
         <PlaylistCtx :href="href" :id="id" :name="title">
             <div class="item" @click="redirect">
                 <img :src="cover" />

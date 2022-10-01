@@ -2,7 +2,7 @@
 import Logo from '/src/assets/images/logo/logo.svg'
 </script>
 <template>
-    <div class="sidebar">
+    <div class="sidebar drop-shadow-xl">
         <div class="static">
             <div class="collapseSidebar hideIfMobile" :class=" { 'minimised': minimised } ">
                 <span @click="minimised = !minimised"

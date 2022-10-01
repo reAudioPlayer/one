@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper">
+    <div class="wrapper drop-shadow-md">
         <div class="item" @click="redirect">
             <img :src="cover" />
             <h4>{{title}}</h4>
