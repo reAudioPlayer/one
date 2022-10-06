@@ -80,6 +80,7 @@
         min-height: 10vh;
         margin: 10px;
         padding: 20px;
+        position: relative;
     }
 
     .wrapper:hover {
@@ -94,6 +95,7 @@
     img {
         width: 100%;
         border-radius: 12px;
+        margin-bottom: 1em;
     }
 
     h4 {

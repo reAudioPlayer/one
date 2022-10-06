@@ -50,7 +50,7 @@ import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
         display: flex;
         flex-direction: row;
         padding: 20px;
-        height: calc(100% - 40px);
+        height: 100%;
     }
 
     .wrapper {

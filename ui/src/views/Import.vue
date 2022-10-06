@@ -6,7 +6,7 @@
             <button @click="() => $refs.upFile.click()" class="iconWithText"><span class="material-symbols-rounded">file_upload</span> Upload</button>
             <button @click="$refs.playlistsElements.forEach(x => x.import())" class="iconWithText"><span class="material-symbols-rounded">done</span> Apply</button>
         </div>
-        <div class="action">
+        <div class="action" v-if="false">
             <h1>Restore From Cloud</h1>
             <template v-if="userData.user">
                 <h2 v-if="userData.user">Hello {{userData.user.userinfo.name}} ({{userData.user.userinfo.email}})</h2>

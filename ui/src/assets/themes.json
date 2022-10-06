@@ -86,6 +86,10 @@
         "jade": "none",
         "light": "#D0D0D0"
     },
+    "input-background": {
+        "dark": "var(--background-light)",
+        "light": "var(--background)"
+    },
 
     "font-family": {
         "dark": "Poppins, sans-serif"

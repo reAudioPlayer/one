@@ -5,7 +5,7 @@
             <a id="downloadAnchorElem" style="display:none"></a>
             <button @click="downloadFile" class="iconWithText"><span class="material-symbols-rounded">file_download</span> Save</button>
         </div>
-        <div class="action">
+        <div class="action" v-if="false">
             <h1>Save to Cloud</h1>
             <template v-if="userData.user">
                 <h2 v-if="userData.user">Hello {{userData.user.userinfo.name}} ({{userData.user.userinfo.email}})</h2>

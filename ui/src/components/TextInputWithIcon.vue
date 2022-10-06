@@ -38,7 +38,7 @@ const onInput = e => {
 
 <style lang="scss" scoped>
 .text-input-with-icon {
-    background: var(--background-light);
+    background: var(--input-background);
     border: 1px solid transparent;
 
     &:focus-within, &:hover {

@@ -49,12 +49,13 @@ import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
 
     .item {
         padding: 20px;
-        height: calc(100% - 40px);
+        height: 100%;
     }
 
     img {
         width: 100%;
         border-radius: 12px;
+        margin-bottom: 1em;
     }
 
     h4 {

@@ -153,7 +153,7 @@ import Header from './Header.vue';
     }
 
     .modal-content {
-        position: relative;
+        position: absolute;
         width: 40%;
         max-height: 70vh;
         padding: 16px;
