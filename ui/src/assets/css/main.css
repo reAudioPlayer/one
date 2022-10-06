@@ -19,3 +19,7 @@
         @apply text-blue-600 underline;
     }
 }
+
+* {
+    --tw-invert: 0;
+}

@@ -1,6 +1,6 @@
 <template>
     <div class="header flex flex-row justify-between drop-shadow-md">
-        <Logo class="logo" />
+        <Logo class="logo" @click="$router.push('/')" />
         <div class="search flex flex-row">
             <nav-entry minimised href="/" icon="home" name="Home" class="mr-2" />
             <text-input-with-icon

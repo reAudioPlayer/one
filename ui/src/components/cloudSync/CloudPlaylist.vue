@@ -78,7 +78,7 @@ export default {
     },
     computed: {
         cover() {
-            return this.playlist.songs?.[0]?.cover || "/assets/img/music_placeholder.png"
+            return this.playlist.cover || this.playlist.songs?.[0]?.cover || "/assets/img/music_placeholder.png"
         },
         statusIcon() {
             if (this.statusText)

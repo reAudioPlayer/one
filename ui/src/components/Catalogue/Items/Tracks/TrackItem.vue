@@ -51,6 +51,7 @@
     img {
         width: 100%;
         border-radius: 12px;
+        margin-bottom: 1em;
     }
 
     h4 {
