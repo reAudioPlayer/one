@@ -15,9 +15,25 @@
             </div>
             <div class="sidebar">
                 <h2>Player</h2>
-                <div class="checkbox">
-                    <input @change="changePlayInBrowser" v-model="playInBrowser" type="checkbox" id="checkbox3" name="" value="">
-                    <label for="checkbox3"><span>Play in browser</span></label>
+                <div
+                    class="checkbox"
+                    :class="{ disabled: !supportsLocalPlayback }"
+                >
+                    <input
+                        @change="changePlayInBrowser"
+                        :disabled="!supportsLocalPlayback"
+                        v-model="playInBrowser"
+                        type="checkbox"
+                        id="checkbox3"
+                        name=""
+                        value=""
+                    >
+                    <template v-if="supportsLocalPlayback">
+                        <label for="checkbox3"><span>Play in browser</span></label>
+                    </template>
+                    <template v-else>
+                        <label for="checkbox3"><span>Play in browser (local playback not supported on this device)</span></label>
+                    </template>
                 </div>
             </div>
             <div class="sidebar">
@@ -71,6 +87,9 @@
     export default {
     components: { Theme, FullShelf },
         name: "Preferences",
+        mounted() {
+            this.checkSupportsLocalPlayback();
+        },
         methods: {
             updateThemes() {
                 this.themeSelected = window.getCurrentTheme()
@@ -111,7 +130,17 @@
                         "secret": this.spotifyClientSecret
                     })
                 }).then(x => console.log(x))
-            }
+            },
+            async checkSupportsLocalPlayback() {
+                const res = await fetch("/api/player/supports/local-playback");
+
+                if (res.status != 200) {
+                    this.supportsLocalPlayback();
+                    return;
+                }
+
+                this.supportsLocalPlayback = await res.json();
+            },
         },
         data() {
             const themes = [
@@ -132,7 +161,8 @@
                 showNewsTab: window.localStorage.getItem("sidebar.showNewsTab") == "true",
                 playInBrowser: window.localStorage.getItem("player.inBrowser") == "true",
                 spotifyClientId,
-                spotifyClientSecret 
+                spotifyClientSecret,
+                supportsLocalPlayback: false
             }
         }
     }
@@ -182,12 +212,17 @@
 
     input[type="checkbox"] {
         color: var(--font-contrast);
-        background-color: var(--font-colour);   
-    }
+        background-color: var(--font-colour);
 
-    input[type="checkbox"]:checked {
-        color: var(--accent);
-        background-color: var(--accent);
+        &:checked {
+            color: var(--accent);
+            background-color: var(--accent);
+        }
+
+        &.disabled {
+            color: var(--font-colour);
+            background-color: var(--font-colour);
+        }
     }
 
     input[type="text"] {
@@ -196,7 +231,7 @@
     }
 </style>
 
-<style scoped>
+<style scoped lang="scss">
 .checkbox {
   width: 100%;
   margin: 15px auto;
@@ -217,18 +252,26 @@
   top: 50%;
   transform: translateY(-50%);
 }
-.checkbox label:before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  margin: 4px;
-  width: 22px;
-  height: 22px;
-  transition: transform 0.28s ease;
-  border-radius: 3px;
-  border: 2px solid var(--font-colour);
-  transition: border ease 0.25s;
+.checkbox {
+    label:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin: 4px;
+        width: 22px;
+        height: 22px;
+        transition: transform 0.28s ease;
+        border-radius: 3px;
+        border: 2px solid var(--font-colour);
+        transition: border ease 0.25s;
+    }
+
+    &.disabled label {
+        &:before, &:after {
+            border-color: var(--font-darker) !important;
+        }
+    }
 }
 .checkbox label:after {
   content: "";
