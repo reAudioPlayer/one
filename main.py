@@ -55,7 +55,8 @@ try:
 
     import asyncio
 
-except: # pylint: disable=bare-except
+except Exception as e: # pylint: disable=bare-except
+    print(e)
     print("you need to run setup.bat (or the documented commands) first")
     import time, sys # pylint: disable=ungrouped-imports, multiple-imports
     time.sleep(5)
@@ -161,6 +162,8 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
 
     app.router.add_get('/api/player/stream', downloadHandler.stream)
     app.router.add_get('/api/player/stream/{id}', downloadHandler.streamFromCache)
+
+    app.router.add_get('/api/player/supports/local-playback', playerHandler.supportsLocalPlayback)
 
     # UNGROUPED
     app.router.add_post('/api/browse/track', metaHandler.getMetadata)

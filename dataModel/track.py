@@ -243,6 +243,8 @@ Make sure you are connected to the internet and no firewall is blocking or limit
     import time, sys # pylint: disable=ungrouped-imports, multiple-imports
     time.sleep(5)
     sys.exit()
+except Exception as e:
+    print(e)
 
 
 class YoutubeTrack(ITrack):

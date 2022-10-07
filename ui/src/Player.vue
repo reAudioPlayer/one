@@ -354,6 +354,7 @@ export default {
             this.progresslbl = `${Math.floor(value / 60)}:${this.zeroPad(Math.round(value % 60), 2)}`
 
             if (this.playInBrowser) {
+                console.log(this.$refs.audio.duration)
                 this.$refs.audio.currentTime = value;
                 return;
             }
@@ -379,6 +380,12 @@ export default {
                     this.get('player/pause')
                     this.$refs.audio.src = null;
                     this.$refs.audio.src = `/api/player/stream/${jdata?.data?.id}`;
+
+                    // get duration
+                    this.$refs.audio.onloadedmetadata = () => {
+                        this.durationStr = `${Math.floor(this.$refs.audio.duration / 60)}:${this.zeroPad(Math.round(this.$refs.audio.duration % 60), 2)}`
+                    }
+
                     this.$refs.audio.load();
                     this.$refs.audio.play();
                     this.playing = !this.$refs.audio.paused;

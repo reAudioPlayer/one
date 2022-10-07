@@ -78,6 +78,8 @@ import Header from './Header.vue';
             }
 
             window.setTheme(window.localStorage.getItem(LOCAL_STORAGE_KEY) || "jade") // optional, loads the default theme
+
+            this.supportsLocalPlayback();
         },
         data() {
             const connect = () => {
@@ -113,6 +115,25 @@ import Header from './Header.vue';
             }
         },
         methods: {
+            async supportsLocalPlayback() {
+                const playInBrowser = window.localStorage.getItem("player.inBrowser") == "true";
+                if (playInBrowser) {
+                    return true;
+                }
+
+                const res = await fetch("/api/player/supports/local-playback");
+
+                if (res.status != 200) {
+                    this.supportsLocalPlayback();
+                    return;
+                }
+
+                const supportsPlayback = await res.json();
+                if (!supportsPlayback) {
+                    window.localStorage.setItem("player.inBrowser", "true");
+                    window.location.reload();
+                }
+            },
             expandCover(shallExpand) {
                 this.shallExpandCover = shallExpand
                 window.localStorage.setItem("player.expandCover", shallExpand)

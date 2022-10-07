@@ -3,6 +3,7 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import asyncio
+from os import environ
 
 from aiohttp import web
 
@@ -22,6 +23,10 @@ class PlayerHandler:
         self._player = player
         self._playlistManager = playlistManager
         self._dbManager = dbManager
+
+    async def supportsLocalPlayback(self, _: web.Request) -> web.Response:
+        """get(/api/player/supports-local-playback)"""
+        return web.json_response(bool(not environ.get("TEST_MODE")))
 
     async def getPlay(self, _: web.Request) -> web.Response:
         """get(/api/player/play)"""

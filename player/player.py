@@ -125,17 +125,20 @@ class Player:
         """pause"""
         self._playing = False
         await self._onPlayStateChange()
-        pygame.mixer.music.pause()
+        if not env.get("TEST_MODE"):
+            pygame.mixer.music.pause()
 
     async def play(self) -> None:
         """play"""
         self._playing = True
         await self._onPlayStateChange()
-        pygame.mixer.music.unpause()
+        if not env.get("TEST_MODE"):
+            pygame.mixer.music.unpause()
 
     async def unload(self) -> None:
         """unload and unbind song file"""
-        pygame.mixer.music.unload()
+        if not env.get("TEST_MODE"):
+            pygame.mixer.music.unload()
         self._playing = False
         await self._onPlayStateChange()
         if not self._playerPlaylist:
@@ -237,8 +240,8 @@ class Player:
             if not env.get("TEST_MODE"):
                 pygame.mixer.music.load(f"./_cache/{song.id}.mp3")
                 pygame.mixer.music.play()
-            sound = pygame.mixer.Sound(f"./_cache/{song.id}.mp3")
-            song.duration = int(sound.get_length())
+                sound = pygame.mixer.Sound(f"./_cache/{song.id}.mp3")
+                song.duration = int(sound.get_length())
             self._dbManager.updateSongMetadata(song.id, f"duration='{int(song.duration)}'")
             if not self._updatePositionTask:
                 self._updatePositionTask = asyncio.create_task(self._updatePosition())
