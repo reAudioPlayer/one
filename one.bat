@@ -10,6 +10,7 @@ if /i "%command%" == "i" goto install
 if /i "%command%" == "install" goto install
 if /i "%command%" == "run" goto run
 if /i "%command%" == "start" goto run
+if /i "%command%" == "build" goto build
 if /i "%command%" == "" goto run
 
 echo unrecognised command '%command%'
@@ -21,6 +22,10 @@ goto end
 :lint
 python -m mypy
 python -m pylint main.py ./dataModel ./db ./downloader ./handler ./helper ./meta ./player ./config
+exit
+
+:build
+docker build -t ghcr.io/reaudioplayer/one/reap-one:0.9.0 .
 exit
 
 :install
