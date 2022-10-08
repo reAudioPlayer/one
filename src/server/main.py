@@ -224,7 +224,7 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
 
     app.router.add_get('/ws', websocket.wsHandler)
 
-    app.router.add_static('/', './ui/dist')
+    app.router.add_static('/', '../ui/dist')
 
     # Configure default CORS settings.
     cors = aiohttp_cors.setup(app, defaults={

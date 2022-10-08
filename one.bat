@@ -20,12 +20,13 @@ echo pass no argument to run the program
 goto end
 
 :lint
+cd src/server
 python -m mypy
 python -m pylint main.py ./dataModel ./db ./downloader ./handler ./helper ./meta ./player ./config
 exit
 
 :build
-docker build -t ghcr.io/reaudioplayer/reap-one:0.9.0 .
+docker build -t ghcr.io/reaudioplayer/reap-one:0.9.1 .
 exit
 
 :install
@@ -34,11 +35,12 @@ exit
 
 :run
 if /i "%arg%" == "dev-ui" (
-    start "" http://localhost:3000
+    start "" http://localhost:5173
 ) else (
     start "" http://localhost:1234
 )
 echo run
+cd src/server
 python3 ./main.py
 exit
 

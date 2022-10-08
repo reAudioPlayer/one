@@ -1,2 +1,2 @@
-db/db/main.db
-config/*.json
+src/server/db/db/main.db
+src/server/config/*.json
