@@ -115,90 +115,17 @@
 </template>
 
 <script>
-import {useKeypress} from 'vue3-keypress'
-import {useRouter} from 'vue-router'
 import Marquee from '@/components/Marquee.vue'
 import ProgressBar from "@/components/ProgressBar";
+
+import Hashids from 'hashids'
+const hashids = new Hashids("reapOne.playlist", 22)
 
 export default {
     components: {ProgressBar, Marquee},
     name: 'Player',
     props: {
         expandCover: Boolean
-    },
-    setup() {
-        const router = useRouter()
-
-        useKeypress({
-            keyEvent: "keydown",
-            keyBinds: [
-                {
-                    keyCode: "space",
-                    success: () => fetch(`/api/player/playPause`),
-                    modifiers: ["ctrlKey"],
-                },
-                {
-                    keyCode: "right",
-                    success: () => fetch(`/api/player/next`),
-                    modifiers: ["ctrlKey"],
-                },
-                {
-                    keyCode: "left",
-                    success: () => fetch(`/api/player/previous`),
-                    modifiers: ["ctrlKey"],
-                },
-                {
-                    keyCode: 49,
-                    success: () => router.push("/playlist/0"),
-                    modifiers: ["altKey"],
-                },
-                {
-                    keyCode: 50,
-                    success: () => router.push("/playlist/1"),
-                    modifiers: ["altKey"],
-                },
-                {
-                    keyCode: 51,
-                    success: () => router.push("/playlist/2"),
-                    modifiers: ["altKey"],
-                },
-                {
-                    keyCode: 52,
-                    success: () => router.push("/playlist/3"),
-                    modifiers: ["altKey"],
-                },
-                {
-                    keyCode: 53,
-                    success: () => router.push("/playlist/4"),
-                    modifiers: ["altKey"],
-                },
-                {
-                    keyCode: 54,
-                    success: () => router.push("/playlist/5"),
-                    modifiers: ["altKey"],
-                },
-                {
-                    keyCode: 55,
-                    success: () => router.push("/playlist/6"),
-                    modifiers: ["altKey"],
-                },
-                {
-                    keyCode: 56,
-                    success: () => router.push("/playlist/7"),
-                    modifiers: ["altKey"],
-                },
-                {
-                    keyCode: 57,
-                    success: () => router.push("/playlist/8"),
-                    modifiers: ["altKey"],
-                },
-                {
-                    keyCode: 58,
-                    success: () => router.push("/playlist/9"),
-                    modifiers: ["altKey"],
-                },
-            ]
-        })
     },
     data() {
         const ctx = this
@@ -284,6 +211,48 @@ export default {
             expandedMobile: false
         }
     },
+    mounted() {
+        window.addEventListener('keydown', (e) => {
+            if (e.key == " " && e.ctrlKey) {
+                this.playPause();
+                return;
+            }
+            if (e.key == "ArrowRight" && e.ctrlKey) {
+                this.get('player/next');
+                return;
+            }
+            if (e.key == "ArrowLeft" && e.ctrlKey) {
+                this.get('player/previous');
+                return;
+            }
+            if (e.key == "ArrowUp" && e.ctrlKey) {
+                this.$refs.volume.value = Math.max(0, Math.min(this.$refs.volume.value + 5, 100));
+                this.volumechange();
+                return;
+            }
+            if (e.key == "ArrowDown" && e.ctrlKey) {
+                this.$refs.volume.value = Math.max(0, Math.min(this.$refs.volume.value - 5, 100));
+                this.volumechange();
+                return;
+            }
+            if (e.key == "ArrowRight") {
+                this.progress = Math.saturate(this.progress + 10, 0, 100);
+                this.progresschange();
+                return;
+            }
+            if (e.key == "ArrowLeft") {
+                this.progress = Math.saturate(this.progress - 10, 0, 100);
+                this.progresschange();
+                return;
+            }
+            if (e.key && !isNaN(e.key)  && e.altKey) {
+                const playlist = hashids.encode(e.key);
+                console.error(playlist)
+                this.$router.push(`/playlist/${playlist}`);
+                return;
+            }
+        });
+    },
     watch: {
         favourited() {
             this.setFavourite();
@@ -317,7 +286,6 @@ export default {
             this.$emit('expandCover', true)
         },
         playPause() {
-            console.log("playpause")
             if (this.playInBrowser) {
                 if (this.$refs.audio.paused) {
                     this.$refs.audio.play();
@@ -368,6 +336,10 @@ export default {
         },
         updateData(jdata) {
             if (jdata.path == "player.song") {
+                if (jdata?.data?.id == this.track?.id) {
+                    return;
+                }
+
                 this.track = jdata?.data
                 this.title = jdata?.data?.title || "N/A"
                 this.artist = jdata?.data?.artist || "N/A"
