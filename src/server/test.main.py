@@ -20,7 +20,7 @@ logger = logging.getLogger("test")
 logger.info("launching audio player")
 
 def _second() -> None:
-    call(["python", "main.py"])
+    call(["python", "main.py", "--no-local-playback"])
 processThread = threading.Thread(target=_second)
 processThread.start()
 

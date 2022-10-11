@@ -25,5 +25,5 @@ jobs:
       id: main
       working-directory: ./src/server
       run: |
-        python3 ./test.main.py --no-local-playback
+        python3 ./test.main.py
       continue-on-error: false
