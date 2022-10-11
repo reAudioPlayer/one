@@ -29,7 +29,7 @@ class Router:
         os._exit(0) # pylint: disable=protected-access
 
     @staticmethod
-    def applyRoutes(app: web.Application,
+    def applyRoutes(app: web.Application, # pylint: disable=too-many-statements
                     playerHandler: PlayerHandler,
                     downloadHandler: DownloadHandler,
                     metaHandler: MetaHandler,
