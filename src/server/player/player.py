@@ -3,7 +3,6 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import os
-from os import environ as env
 
 import asyncio
 from asyncio.tasks import Task
@@ -11,12 +10,13 @@ from asyncio.tasks import Task
 from typing import Any, Awaitable, Callable, Optional
 
 import pygame
+
 from config.runtime import Runtime
+from config.config import PersistentConfig
 
 from dataModel.song import Song
 from db.dbManager import DbManager
 
-from config.config import PersistentConfig
 from player.playerPlaylist import PlayerPlaylist
 from player.playlistManager import PlaylistManager
 

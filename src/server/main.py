@@ -3,7 +3,6 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import os
-from os.path import exists
 from queue import Empty
 from typing import Awaitable, Callable
 
@@ -32,6 +31,7 @@ try:
 
     from config.config import PersistentConfig
     from config.runtime import Runtime
+    from config.config import Migrator
 
     from player.player import Player
     from player.playlistManager import PlaylistManager
@@ -53,7 +53,6 @@ try:
 
     import mimetypes
     import shutil
-    import json
 
     import asyncio
 
@@ -67,6 +66,7 @@ except Exception as e: # pylint: disable=bare-except, broad-except
 mimetypes.init()
 mimetypes.types_map['.js'] = 'application/javascript; charset=utf-8'
 
+Migrator.migrate()
 dbManager = DbManager()
 downloader = Downloader()
 config = PersistentConfig()
@@ -76,9 +76,8 @@ player = Player(dbManager, downloader, playlistManager, config)
 SCOPE = "user-library-read user-follow-read user-follow-modify"
 
 def _getSpotifyAuthData() -> Tuple[str, str]:
-    with open("./config/spotify.json", encoding = "utf-8") as file:
-        spotifyConfig = DictEx(json.load(file))
-        return spotifyConfig.ensureString("id"), spotifyConfig.ensureString("secret")
+    spotifyConfig = Runtime.spotifyConfig() or DictEx()
+    return spotifyConfig.ensureString("id"), spotifyConfig.ensureString("secret")
 
 def _getSpotifyAuth(id_: str, secret: str) -> Optional[SpotifyOAuth]: # pylint: disable=invalid-name
     if "restricted" in (id_, secret):
@@ -107,13 +106,13 @@ async def _exceptionMiddleware(request: web.Request,
 async def _init() -> web.Application: # pylint: disable=too-many-statements
     spotify = spotipy.Spotify()
 
-    if exists("./config/spotify.json"):
+    if Runtime.spotifyConfig():
         spotify.auth_manager = _getSpotifyAuth(*_getSpotifyAuthData())
     else:
         async def _implement() -> None:
             while True:
                 await asyncio.sleep(1)
-                if exists("./config/spotify.json"):
+                if Runtime.spotifyConfig():
                     spotify.auth_manager = _getSpotifyAuth(*_getSpotifyAuthData())
                     return
         asyncio.create_task(_implement())
