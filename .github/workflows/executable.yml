@@ -25,6 +25,5 @@ jobs:
       id: main
       working-directory: ./src/server
       run: |
-        export TEST_MODE=true
-        python3 ./test.main.py
+        python3 ./test.main.py --no-local-playback
       continue-on-error: false

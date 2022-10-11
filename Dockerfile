@@ -14,6 +14,4 @@ RUN pip3 install -r requirements.txt
 
 EXPOSE 80
 
-ENV TEST_MODE=true
-
-ENTRYPOINT [ "./entry.sh" ]
+ENTRYPOINT [ "bash", "entry.sh" ]
