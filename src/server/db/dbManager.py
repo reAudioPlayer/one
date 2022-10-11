@@ -5,17 +5,20 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 import os
 import sqlite3 as sl
 from typing import List, Optional
-from dataModel.playlist import Playlist
 
+from dataModel.playlist import Playlist
 from dataModel.song import Song
+
+from config.runtime import Runtime
 
 
 class DbManager:
     """(sqlite) db manager"""
     def __init__(self) -> None:
-        if not os.path.exists('./db/db'):
-            os.makedirs('./db/db')
-        self._db = sl.connect('./db/db/main.db')
+        file = Runtime.args.db
+        if not os.path.exists(os.path.dirname(file)):
+            os.makedirs(os.path.dirname(file))
+        self._db = sl.connect(file)
         self._createSongTable()
         self._createPlaylistTable()
         self._updatePlaylistTable()
