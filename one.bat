@@ -26,7 +26,7 @@ python -m pylint main.py ./dataModel ./db ./downloader ./handler ./helper ./meta
 exit
 
 :build
-docker build -t ghcr.io/reaudioplayer/reap-one:0.9.1 .
+docker build -t ghcr.io/reaudioplayer/reap-one:latest .
 exit
 
 :install
