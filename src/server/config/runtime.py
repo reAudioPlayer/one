@@ -30,6 +30,10 @@ class Args(metaclass = Singleton):
         argparser.add_argument('--api-only',
                                action='store_true',
                                help='Disable the web interface. (host ui w/ nginx)')
+        argparser.add_argument('--db',
+                               type=str,
+                               default='./db/db/main.db',
+                               help='The path to the database.')
         self._args = argparser.parse_args()
 
     @property
@@ -66,6 +70,11 @@ class Args(metaclass = Singleton):
     def apiOnly(self) -> bool:
         """Returns true if the server should not serve the web interface."""
         return self._args.api_only
+
+    @property
+    def db(self) -> str:
+        """The path to the database."""
+        return self._args.db
 
 
 class Runtime:
