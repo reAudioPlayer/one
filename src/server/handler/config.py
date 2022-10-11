@@ -24,5 +24,5 @@ class ConfigHandler:
         if None in (jdata.get("id"), jdata.get("secret")):
             return web.Response(status = 400)
 
-        Runtime.spotifyConfig = DictEx(jdata)
+        Runtime.setSpotifyConfig(DictEx(jdata))
         return web.Response()

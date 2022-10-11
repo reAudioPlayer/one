@@ -62,7 +62,7 @@ class Migrator:
         Migrator._migrateFile("./db/db/main.db")
 
     @staticmethod
-    def _migrateFile(file) -> None:
+    def _migrateFile(file: str) -> None:
         """move to new location"""
         if not os.path.exists(file):
             return

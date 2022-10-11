@@ -363,7 +363,8 @@ good-names=a,
            id,
            id_,
            type_,
-           db
+           db,
+           T
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted

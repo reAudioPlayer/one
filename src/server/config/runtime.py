@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
+from __future__ import annotations
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import argparse
@@ -16,7 +17,7 @@ from config.config import SPOTIFY
 
 class Args(metaclass = Singleton):
     """The args class is used to store the command line arguments."""
-    def __init__(self):
+    def __init__(self) -> None:
         argparser = argparse.ArgumentParser(description='Run the server.')
         argparser.add_argument('--port',
                                type=int,
@@ -47,16 +48,19 @@ class Args(metaclass = Singleton):
     @property
     def port(self) -> int:
         """The port to run the server on."""
+        assert isinstance(self._args.port, int)
         return self._args.port
 
     @property
     def host(self) -> str:
         """The host to run the server on."""
+        assert isinstance(self._args.host, str)
         return self._args.host
 
     @property
     def noLocalPlayback(self) -> bool:
         """Returns true if the server should not play music locally."""
+        assert isinstance(self._args.no_local_playback, bool)
         return self._args.no_local_playback
 
     @property
@@ -67,21 +71,25 @@ class Args(metaclass = Singleton):
     @property
     def noSpotify(self) -> bool:
         """Returns true if the server should not play music from spotify."""
+        assert isinstance(self._args.no_spotify, bool)
         return self._args.no_spotify
 
     @property
     def noYoutube(self) -> bool:
         """Returns true if the server should not play music from youtube."""
+        assert isinstance(self._args.no_youtube, bool)
         return self._args.no_youtube
 
     @property
     def apiOnly(self) -> bool:
         """Returns true if the server should not serve the web interface."""
+        assert isinstance(self._args.api_only, bool)
         return self._args.api_only
 
     @property
     def usr(self) -> str:
         """The path to the database dir."""
+        assert isinstance(self._args.usr, str)
         return self._args.usr
 
     @property
@@ -92,7 +100,7 @@ class Args(metaclass = Singleton):
 
 class Runtime:
     """The runtime class is used to store the runtime configuration of the server."""
-    args = Args()
+    args: Args = Args()
 
     @staticmethod
     def spotifyConfig() -> Optional[DictEx]:
