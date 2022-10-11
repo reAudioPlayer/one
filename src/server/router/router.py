@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+
 import logging
 import os
 from aiohttp import web
-from config.runtime import Args, Runtime
+
+from config.runtime import Runtime
 
 from handler.download import DownloadHandler
 from handler.meta import MetaHandler

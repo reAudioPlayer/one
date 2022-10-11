@@ -3,7 +3,15 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import argparse
-from dataModel.singleton import Singleton
+import os
+from os.path import exists
+import json
+from typing import Optional
+
+from helper.singleton import Singleton
+from helper.dictTool import DictEx
+
+from config.config import SPOTIFY
 
 
 class Args(metaclass = Singleton):
@@ -30,10 +38,10 @@ class Args(metaclass = Singleton):
         argparser.add_argument('--api-only',
                                action='store_true',
                                help='Disable the web interface. (host ui w/ nginx)')
-        argparser.add_argument('--db',
+        argparser.add_argument('--usr',
                                type=str,
-                               default='./db/db/main.db',
-                               help='The path to the database.')
+                               default='../usr',
+                help='The path to the user config (e.g. db, persistent settings, spotify cache).')
         self._args = argparser.parse_args()
 
     @property
@@ -72,11 +80,32 @@ class Args(metaclass = Singleton):
         return self._args.api_only
 
     @property
+    def usr(self) -> str:
+        """The path to the database dir."""
+        return self._args.usr
+
+    @property
     def db(self) -> str:
         """The path to the database."""
-        return self._args.db
+        return os.path.join(self.usr, 'main.db')
 
 
 class Runtime:
     """The runtime class is used to store the runtime configuration of the server."""
     args = Args()
+
+    @staticmethod
+    def spotifyConfig() -> Optional[DictEx]:
+        """The spotify configuration."""
+        if Runtime.args.noSpotify:
+            return None
+        if not exists(SPOTIFY):
+            return None
+        with open(SPOTIFY, encoding = "utf-8") as file:
+            return DictEx(json.load(file))
+
+    @staticmethod
+    def setSpotifyConfig(value: DictEx) -> None:
+        """Sets the spotify configuration."""
+        with open(SPOTIFY, "w", encoding = "utf-8") as file:
+            json.dump(value, file, indent = 4)

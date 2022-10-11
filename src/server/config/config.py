@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+import logging
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import json
@@ -8,7 +9,9 @@ import os
 from typing import Any, Dict
 
 
-FILE = "./config/config.json"
+BASE = "../usr"
+FILE = os.path.join(BASE, "config.json")
+SPOTIFY = os.path.join(BASE, "spotify.json")
 
 
 def _read() -> Dict[str, Any]:
@@ -45,3 +48,27 @@ class PersistentConfig(Dict[str, Any]):
         """set volume"""
         self._config["volume"] = value
         _write(self._config)
+
+class Migrator:
+    """migrates old files to new location"""
+    @staticmethod
+    def migrate() -> None:
+        """migrate"""
+        if not os.path.exists(BASE):
+            os.makedirs(BASE)
+
+        Migrator._migrateFile("./config/config.json")
+        Migrator._migrateFile("./config/spotify.json")
+        Migrator._migrateFile("./db/db/main.db")
+
+    @staticmethod
+    def _migrateFile(file) -> None:
+        """move to new location"""
+        if not os.path.exists(file):
+            return
+
+        logger = logging.getLogger("Migrator")
+
+        logger.debug("[Migration] Moving %s to %s", file, BASE)
+        filename = os.path.basename(file)
+        os.rename(file, os.path.join(BASE, filename))

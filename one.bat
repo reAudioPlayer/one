@@ -1,5 +1,7 @@
 @echo off
 
+set VERSION=0.9.1
+
 set command=%1
 set arg=%2
 
@@ -26,7 +28,7 @@ python -m pylint main.py ./dataModel ./db ./downloader ./handler ./helper ./meta
 exit
 
 :build
-docker build -t ghcr.io/reaudioplayer/reap-one:latest .
+docker build -t ghcr.io/reaudioplayer/reap-one:%VERSION% .
 exit
 
 :install
