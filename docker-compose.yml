@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  reap-one:
+    image: "ghcr.io/reaudioplayer/reap-one:0.9.1"
+    ports:
+      - "1234:80"
+    volumes:
+      - ./src/usr/:/opt/reAudioPlayer/usr/

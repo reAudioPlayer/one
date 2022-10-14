@@ -13,6 +13,7 @@ if /i "%command%" == "install" goto install
 if /i "%command%" == "run" goto run
 if /i "%command%" == "start" goto run
 if /i "%command%" == "build" goto build
+if /i "%command%" == "deploy" goto deploy
 if /i "%command%" == "" goto run
 
 echo unrecognised command '%command%'
@@ -20,6 +21,10 @@ echo.
 echo pass "install" or "i" to install required dependencies
 echo pass no argument to run the program
 goto end
+
+:deploy
+docker compose up -d
+exit
 
 :lint
 cd src/server
