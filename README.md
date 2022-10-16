@@ -17,13 +17,6 @@ If you don't have a spotify account and don't want to create one or don't want t
   - [Supported sources](#supported-sources)
   - [Web Scraping](#web-scraping)
   - [Installation](#installation)
-    - [Clone or download this project from github](#clone-or-download-this-project-from-github)
-    - [Navigate to the downloaded repository and run the setup](#navigate-to-the-downloaded-repository-and-run-the-setup)
-      - [Windows](#windows)
-      - [Linux](#linux)
-  - [Launch](#launch)
-      - [Windows](#windows-1)
-      - [Linux](#linux-1)
   - [Bugs / Requests](#bugs--requests)
   - [Contribute](#contribute)
   - [License](#license)
@@ -55,39 +48,19 @@ The owner makes every effort to ensure that the content provided on this website
 In such cases, users are requested, without prejudice to their legal rights, to submit complaints preferably by creating an issue.
 
 ## Installation
+This project is available from Docker, but you can [also run reAudioPlayer One locally](docs/running-locally.md).
 
-Make sure you have [Python 3](https://www.python.org/downloads/) installed on your computer.
-You'll also need [ffmpeg](https://ffmpeg.org/download.html).
+The fastest way to get started is to use the docker image.
 
-### Clone or download this project from github
 ```sh
-git clone https://github.com/reAudioPlayer-Apollo/online.git
-```
+mkdir reAudioPlayer-One
+cd reAudioPlayer-One
 
-### Navigate to the downloaded repository and run the setup
+# Download the docker-compose.yml file
+curl https://raw.githubusercontent.com/reAudioPlayer/one/master/docker-compose.yml -o docker-compose.yml
 
-#### Windows
-
-Run `setup.bat`
-
-#### Linux
-
-Run the equivalent in any terminal
-```sh
-pip3 install -r ./requirements.txt
-```
-
-## Launch
-
-#### Windows
-
-Run `one.bat`
-
-#### Linux
-
-Run the equivalent in any terminal
-```sh
-python3 ./main.py
+# Start the container
+docker-compose up -d
 ```
 
 ## Bugs / Requests
