@@ -150,6 +150,10 @@
 
 <style scoped>
 
+    h1 {
+        padding: .4em 0;
+    }
+
     button {
         color: var(--font-contrast);
         background-color: var(--font-colour);
