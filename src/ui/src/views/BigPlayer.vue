@@ -27,11 +27,20 @@
 import { nextTick } from '@vue/runtime-core';
     import LightPlaylistEntry from '../components/Playlist/LightPlaylistEntry.vue'
     import SpotifyPlaylistHeader from '../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
+import {mapState} from "vuex";
     export default {
         components: {
             LightPlaylistEntry, SpotifyPlaylistHeader
         },
         name: "BigPlayer",
+        computed: {
+            ...mapState({
+                "currentSongName": state => state.player.song.title,
+                "playing": state => state.player.playing,
+                "cover": state => state.player.song.cover,
+                "songId": state => state.player.song.id,
+            })
+        },
         methods: {
             toggleMaximise() {
                 this.maximised = !this.maximised;
@@ -40,68 +49,27 @@ import { nextTick } from '@vue/runtime-core';
             fetchPlaylist() {
                 fetch("/api/me/player/current-playlist").then(x => x.json()).then(jdata => this.playlist = jdata)
             },
-            updateData(jdata) {
-                console.log(jdata)
-                if (jdata.path == "player.song")
-                {
-                    this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
-
-                    this.currentSongName = jdata?.data?.title || ""
-
-                    if (this.$refs.playlistScroll.scrollTop) {
-                        return;
-                    }
-
-                    const scroll = document.getElementById(`bplayer-entry-${jdata?.data?.id}`)?.offsetTop;
-
-                    if (!scroll && scroll != 0) {
-                        window.setTimeout(() => this.updateData(jdata), 1000)
-                    }
-
-                    if (scroll >= 354)
-                    {
-                        this.$refs.playlistScroll.scrollTop = scroll - 354;
-                    }
+        },
+        mounted() {
+            window.setTimeout(() => {
+                if (this.$refs.playlistScroll.scrollTop) {
                     return;
                 }
 
-                if (jdata.path == "player.playState")
-                {
-                    this.playing = jdata?.data || false
-                    return
-                }                
-            }
+                const scroll = document.getElementById(`bplayer-entry-${this.songId}`)?.offsetTop;
+
+                if (scroll >= 354) {
+                    this.$refs.playlistScroll.scrollTop = scroll - 354;
+                }
+            }, 1000);
         },
         data() {
-            const connect = () => {
-                console.log("attempting reconnect")
-                let ws = new WebSocket('ws://localhost:1234/ws');
-
-                ws.onclose = () => {
-                    console.log("ws closed")
-
-                    setTimeout(connect, 1000);
-                }
-
-                ws.onopen = () => {
-                    console.log("ws connected")
-                }
-
-                ws.onmessage = msg => {
-                    const jdata = JSON.parse(msg.data);
-                    this.updateData(jdata)
-                }
-            }
-            connect()
             this.fetchPlaylist();
 
             return {
-                cover: "/assets/img/music_placeholder.png",
                 playlist: [ ],
-                currentSongName: "",
                 maximised: false,
                 noPlaylist: false,
-                playing: false,
                 animate: false
             }
         }

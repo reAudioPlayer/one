@@ -24,6 +24,7 @@
     import FixedPlaylistHeader from '@/components/Playlist/FixedPlaylistHeader.vue'
     import GridHeader from '@/components/Playlist/GridHeader.vue'
     import PlaylistEntry from '@/components/Playlist/PlaylistEntry.vue'
+    import {mapState} from "vuex";
 
     export default {
         components: {
@@ -31,7 +32,6 @@
             FixedPlaylistHeader,
             GridHeader
         },
-        name: 'Tracks',
         data() {
             this.updateTracks()
             return {
@@ -40,37 +40,20 @@
                 playlistName: "N/A"
             }
         },
+        computed: mapState("player", {
+            "currentSong": state => state.song.id,
+        }),
+        watch: {
+            currentSong() {
+                this.updateIsPlaying()
+            }
+        },
         methods: {
-            connect() {
-                const ctx = this
-                console.log("attempting reconnect")
-                let ws = new WebSocket('ws://localhost:1234/ws');
-
-                ws.onclose = function() {
-                    console.log("ws closed")
-
-                    setTimeout(this.connect, 1000);
-                }
-                
-                ws.onopen = () => {
-                    console.log("ws connected")
-                }
-
-                ws.onmessage = function(msg) {
-                    const jdata = JSON.parse(msg.data);
-                    ctx.updateData(jdata)
-                }
-            },
-            updateData(jdata) {
-                if (jdata.path == "player.song")
-                {
-                    let title = jdata?.data?.title || "N/A"
-
-                    for (const entry of this.playlist)
-                    {
-                        entry.playing = entry.title == title;
-                    }
-                }
+            updateIsPlaying() {
+                console.log("Updating is playing", this.currentSong)
+                this.playlist.forEach((element) => {
+                    element.playing = element.id == this.currentSong
+                })
             },
             headerVisibilityChanged(a) {
                 this.fixedHeaderHidden = a
@@ -78,14 +61,12 @@
             updateTracks() {
                 fetch("/api/me/new")
                     .then(x => x.json()).then(jdata => {
-                        this.playlist = jdata.songs
-                        this.playlistName = jdata.name
-                        console.log(this.playlist)
-                        this.connect()
+                        this.playlist = jdata.songs;
+                        this.playlistName = jdata.name;
+                        this.updateIsPlaying();
                     })
             },
             loadPlaylist() {
-                console.log("hello")
                 fetch("/api/player/load", {
                     method: "POST",
                     body: JSON.stringify({

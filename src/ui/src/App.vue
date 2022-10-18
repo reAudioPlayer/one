@@ -27,6 +27,8 @@ import Header from './Header.vue';
 
     //import * as Vibrant from 'node-vibrant'
     import themes from "./assets/themes.json";
+    import {connect} from "@/ws";
+    import {mapGetters} from "vuex";
     //fetch("/assets/themes/themes.json").then(x => x.json()).then(json => themes = json) // in case you can't use import
 
 
@@ -39,7 +41,12 @@ import Header from './Header.vue';
             Body,
             Player
         },
+        computed: mapGetters({
+            "cover": "player/cover"
+        }),
         mounted() {
+            connect(this.$store);
+
             window.getThemes = () => { // returns a string array of all available themes
                 window.themes = []
                 for (const key of Object.keys(themes)) {
@@ -82,28 +89,7 @@ import Header from './Header.vue';
             this.supportsLocalPlayback();
         },
         data() {
-            const connect = () => {
-                console.log("attempting reconnect")
-                let ws = new WebSocket('ws://localhost:1234/ws');
-
-                ws.onclose = () => {
-                    console.log("ws closed")
-
-                    setTimeout(connect, 1000);
-                }
-
-                ws.onopen = () => {
-                    console.log("ws connected")
-                }
-
-                ws.onmessage = msg => {
-                    const jdata = JSON.parse(msg.data);
-                    this.updateData(jdata)
-                }
-            }
-            connect()
             return {
-                cover: null,
                 shallExpandCover: window.localStorage.getItem("player.expandCover") == "true",
                 maximised: false,
                 coverAsBackground: window.localStorage.getItem("player.coverAsBackground") == "true"
@@ -138,28 +124,6 @@ import Header from './Header.vue';
                 this.shallExpandCover = shallExpand
                 window.localStorage.setItem("player.expandCover", shallExpand)
             },
-            updateData(jdata) {
-                if (jdata.path == "player.song") {
-                    this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
-                    if (window.getCurrentTheme() == "dynamic") {
-                        console.log(this.cover)
-                        /*Vibrant.from(this.cover).getPalette()
-                            .then((palette) => {
-                                /*for (const key of Object.keys(themes)) {
-                                    const value = themes[key]
-                                    document.documentElement.style.setProperty(`--${key}`, value[theme] || value.default);
-                                }*
-                                console.log(palette)
-                                document.documentElement.style.setProperty(`--accent-dark`, palette.DarkVibrant.hex);
-                                document.documentElement.style.setProperty(`--fixedplaylistheader-background`, palette.DarkVibrant.hex);
-                                document.documentElement.style.setProperty(`--fixedplaylistheader-border`, palette.DarkVibrant.hex);
-                                document.documentElement.style.setProperty(`--fixedplaylistheader-border`, palette.DarkVibrant.hex);
-                                document.documentElement.style.setProperty(`--accent`, palette.Vibrant.hex);
-                            })*/
-                    }
-                    return;
-                }
-            }
         }
     }
 </script>
