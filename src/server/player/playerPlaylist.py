@@ -78,7 +78,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
             self._playlist.update(songs)
             return
 
-        assert playlistIndex is not None
+        if playlistIndex is None:
+            return
 
         playlist = self._dbManager.getPlaylistById(playlistIndex)
         if not playlist:
@@ -87,6 +88,14 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         self._name = playlist.name
         self._description = playlist.description
         self._updateCover(playlist.cover)
+
+    @property
+    def valid(self) -> bool:
+        """valid state"""
+        return len(self._playlist) > 0
+
+    def __bool__(self) -> bool:
+        return self.valid
 
     @property
     def cursor(self) -> int:
