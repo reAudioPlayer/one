@@ -32,22 +32,19 @@ import {mapState} from "vuex";
         components: {
             LightPlaylistEntry, SpotifyPlaylistHeader
         },
-        name: "BigPlayer",
         computed: {
             ...mapState({
                 "currentSongName": state => state.player.song.title,
                 "playing": state => state.player.playing,
                 "cover": state => state.player.song.cover,
                 "songId": state => state.player.song.id,
+                "playlist": state => state.player.playlist,
             })
         },
         methods: {
             toggleMaximise() {
                 this.maximised = !this.maximised;
                 this.$emit('maximise', this.maximised);
-            },
-            fetchPlaylist() {
-                fetch("/api/me/player/current-playlist").then(x => x.json()).then(jdata => this.playlist = jdata)
             },
         },
         mounted() {
@@ -64,10 +61,7 @@ import {mapState} from "vuex";
             }, 1000);
         },
         data() {
-            this.fetchPlaylist();
-
             return {
-                playlist: [ ],
                 maximised: false,
                 noPlaylist: false,
                 animate: false
