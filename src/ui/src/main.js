@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { ObserveVisibility } from 'vue-observe-visibility';
 import VueFinalModal from 'vue-final-modal'
+import store from "@/store";
 
 import router from "./router";
 
@@ -15,10 +16,11 @@ app.directive("observe-visibility", {
     },
     updated: ObserveVisibility.update,
     unmounted: ObserveVisibility.unbind,
-  })
-app.use(VueFinalModal())
+});
+app.use(VueFinalModal());
 app.use(contextmenu);
 
-app.use(router)
+app.use(router);
+app.use(store);
 
 app.mount('#app')

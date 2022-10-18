@@ -14,9 +14,9 @@
         </span>
             </div>
             <span
-                @click="favourited = !favourited"
+                @click="setFavourite"
                 class="favourite material-icons-round hideIfMobile">
-        {{ favourited ? "favorite" : "favorite_border" }}</span>
+        {{ favourite ? "favorite" : "favorite_border" }}</span>
         </div>
         <div class="left showIfMobile" @click="expandedMobile = true">
             <img v-if="expandCover" @click="onExpandCover" :src="cover"/>
@@ -29,9 +29,9 @@
         </span>
             </div>
             <span
-                @click="favourited = !favourited"
+                @click="favourite = !favourite"
                 class="favourite material-icons-round hideIfMobile">
-        {{ favourited ? "favorite" : "favorite_border" }}</span>
+        {{ favourite ? "favorite" : "favorite_border" }}</span>
         </div>
         <div class="centre w-2/5">
             <div class="upper">
@@ -119,6 +119,8 @@ import Marquee from '@/components/Marquee.vue'
 import ProgressBar from "@/components/ProgressBar";
 
 import Hashids from 'hashids'
+import {mapGetters, mapState} from "vuex";
+import {zeroPad} from "@/common";
 const hashids = new Hashids("reapOne.playlist", 22)
 
 export default {
@@ -128,40 +130,13 @@ export default {
         expandCover: Boolean
     },
     data() {
-        const ctx = this
         const playInBrowser = window.localStorage.getItem("player.inBrowser") == "true"
 
-        function connect() {
-            console.log("attempting reconnect")
-            let ws = new WebSocket('ws://localhost:1234/ws');
-
-            ws.onclose = function () {
-                console.log("ws closed")
-
-                setTimeout(connect, 1000);
-            }
-
-            ws.onopen = () => {
-                console.log("ws connected")
-            }
-
-            ws.onmessage = function (msg) {
-                const jdata = JSON.parse(msg.data);
-                ctx.updateData(jdata)
-            }
-        }
-
-        connect()
-
         setInterval(() => {
-            if (!ctx.playing) {
+            if (!this.playing) {
                 return;
             }
-            const duration = Number(ctx.durationStr.split(':')[0]) * 60 + Number(ctx.durationStr.split(':')[1])
-            let progress = Number(ctx.progresslbl.split(':')[0]) * 60 + Number(ctx.progresslbl.split(':')[1])
-            progress += 1;
-            ctx.progress = progress / duration * 1000;
-            ctx.progresslbl = `${Math.floor(progress / 60)}:${ctx.zeroPad(progress % 60, 2)}`
+            this.$store.commit("player/incrementProgress")
         }, 1000)
 
         if (playInBrowser) {
@@ -196,15 +171,6 @@ export default {
             })
 
         return {
-            favourited: this.favourite,
-            title: "N/A",
-            artist: "N/A",
-            durationStr: "0:00",
-            cover: "/assets/img/music_placeholder.png",
-            playing: false,
-            progress: 0,
-            progresslbl: "0:00",
-            track: {},
             songLoop: false,
             shuffle: false,
             playInBrowser,
@@ -253,10 +219,23 @@ export default {
             }
         });
     },
+    computed: {
+        ...mapState({
+            "playing": state => state.player.playing,
+            "title": state => state.player.song.title,
+            "artist": state => state.player.song.artist,
+            "durationStr": state => state.player.song.duration,
+            "favourite": state => state.player.song.favourite,
+        }),
+        ...mapGetters({
+            "cover": "player/cover",
+            "stream": "player/stream",
+            "durationSeconds": "player/durationSeconds",
+            "progresslbl": "player/progress",
+            "progress": "player/progressPercent"
+        })
+    },
     watch: {
-        favourited() {
-            this.setFavourite();
-        },
         songLoop() {
             fetch("/api/player/repeat", {
                 method: "POST",
@@ -272,14 +251,36 @@ export default {
                     value: this.shuffle
                 })
             })
-        }
+        },
+        stream() {
+            if (this.playInBrowser) {
+                this.get('player/pause')
+
+                this.$refs.audio.src = null;
+                this.$refs.audio.src = this.stream;
+
+                // get duration
+                this.$refs.audio.onloadedmetadata = () => {
+                    this.$store.commit("player/setDuration", this.$refs.audio.duration);
+                }
+
+                this.$refs.audio.load();
+                if (this.playing) {
+                    this.$refs.audio.play();
+                }
+                this.playing = !this.$refs.audio.paused;
+            }
+        },
     },
     methods: {
         setFavourite() {
-            this.track.favourite = this.favourited
-            fetch(`/api/tracks/${this.track.id}`, {
+            this.$store.commit("player/setFavourite", !this.favourite)
+
+            const track = this.$store.state.player.song;
+
+            fetch(`/api/tracks/${track.id}`, {
                 method: "PUT",
-                body: JSON.stringify(this.track)
+                body: JSON.stringify(track)
             });
         },
         onExpandCover() {
@@ -292,7 +293,7 @@ export default {
                 } else {
                     this.$refs.audio.pause();
                 }
-                this.playing = !this.$refs.audio.paused;
+                this.$store.commit("player/setPlaying", !this.$refs.audio.paused);
                 return;
             }
             this.get('player/playPause')
@@ -313,16 +314,13 @@ export default {
                 })
             })
         },
-        zeroPad(num, places) {
-            return String(num).padStart(places, '0')
-        },
-        progresschange() {
-            let duration = Number(this.durationStr.split(':')[0]) * 60 + Number(this.durationStr.split(':')[1])
-            let value = this.progress * duration / 1000
-            this.progresslbl = `${Math.floor(value / 60)}:${this.zeroPad(Math.round(value % 60), 2)}`
+        progresschange(newVal) {
+            let duration = this.durationSeconds;
+            let value = newVal * duration / 1000; // in 1/1000
+
+            this.$store.commit("player/setProgress", value);
 
             if (this.playInBrowser) {
-                console.log(this.$refs.audio.duration)
                 this.$refs.audio.currentTime = value;
                 return;
             }
@@ -335,36 +333,6 @@ export default {
             })
         },
         updateData(jdata) {
-            if (jdata.path == "player.song") {
-                if (jdata?.data?.id == this.track?.id) {
-                    return;
-                }
-
-                this.track = jdata?.data
-                this.title = jdata?.data?.title || "N/A"
-                this.artist = jdata?.data?.artist || "N/A"
-                this.durationStr = jdata?.data?.duration || "N/A"
-                this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
-                this.progresslbl = "0:00"
-                this.favourited = jdata?.data?.favourite || false
-
-                if (this.playInBrowser) {
-                    this.get('player/pause')
-                    this.$refs.audio.src = null;
-                    this.$refs.audio.src = `/api/player/stream/${jdata?.data?.id}`;
-
-                    // get duration
-                    this.$refs.audio.onloadedmetadata = () => {
-                        this.durationStr = `${Math.floor(this.$refs.audio.duration / 60)}:${this.zeroPad(Math.round(this.$refs.audio.duration % 60), 2)}`
-                    }
-
-                    this.$refs.audio.load();
-                    this.$refs.audio.play();
-                    this.playing = !this.$refs.audio.paused;
-                }
-
-                return;
-            }
             if (jdata.path == "player.playState") {
                 if (this.playInBrowser) {
                     return;
@@ -378,7 +346,7 @@ export default {
                     return;
                 }
                 let value = jdata?.data || 0
-                this.progresslbl = `${Math.floor(value / 60)}:${this.zeroPad(Math.round(value % 60), 2)}`
+                this.progresslbl = `${Math.floor(value / 60)}:${zeroPad(Math.round(value % 60), 2)}`
             }
         }
     }

@@ -42,6 +42,7 @@
     import SpotifyPlaylistEntry from '../components/SpotifyPlaylist/SpotifyPlaylistEntry.vue'
 
     import Hashids from 'hashids'
+    import {mapState} from "vuex";
     const hashids = new Hashids("reapOne.track", 22)
 
     export default {
@@ -51,7 +52,6 @@
             draggable,
             SpotifyPlaylistEntry
         },
-        name: 'Track',
         data() {
             this.updatePlaylist()
 
@@ -63,6 +63,9 @@
                 recommendations: []
             }
         },
+        computed: mapState("player", {
+            "currentSong": state => state.song.id,
+        }),
         methods: {
             getId() {
                 return hashids.decode(this.$route.params.id);
@@ -74,26 +77,6 @@
                     return;
                 }
             },
-            connect() {
-                const ctx = this
-                console.log("attempting reconnect")
-                let ws = new WebSocket('ws://localhost:1234/ws');
-
-                ws.onclose = function () {
-                    console.log("ws closed")
-
-                    setTimeout(this.connect, 1000);
-                }
-
-                ws.onopen = () => {
-                    console.log("ws connected")
-                }
-
-                ws.onmessage = function (msg) {
-                    const jdata = JSON.parse(msg.data);
-                    ctx.updateData(jdata)
-                }
-            },
             headerVisibilityChanged(a) {
                 this.fixedHeaderHidden = a
             },
@@ -103,14 +86,11 @@
             editPlaylist() {
                 this.$refs.editPlaylistPopup.showModal = true
             },
-            updateData(jdata) {
-                if (jdata.path == "player.song") {
-                    let title = jdata?.data?.title || "N/A"
-
-                    for (const entry of this.playlist) {
-                        entry.playing = entry.title == title;
-                    }
-                }
+            updateIsPlaying() {
+                console.log("Updating is playing", this.currentSong)
+                this.playlist.forEach((element) => {
+                    element.playing = element.id == this.currentSong
+                })
             },
             updatePlaylist() {
                 if (!this.getId()) {
@@ -157,6 +137,9 @@
         watch: {
             $route() {
                 this.updatePlaylist()
+            },
+            currentSong() {
+                this.updateIsPlaying()
             }
         }
     }

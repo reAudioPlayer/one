@@ -42,6 +42,7 @@ import Logo from '/src/assets/images/logo/logo.svg'
     import NavEntry from '@/components/Sidebar/NavEntry.vue'
 
     import Hashids from 'hashids'
+    import {mapGetters} from "vuex";
     const hashids = new Hashids("reapOne.playlist", 22)
 
     export default {
@@ -75,35 +76,16 @@ import Logo from '/src/assets/images/logo/logo.svg'
                 window.localStorage.setItem("player.collapsedSidebar", this.minimised)
             }
         },
+        computed: mapGetters({
+            "cover": "player/cover"
+        }),
         data() {
-            const connect = () => {
-                console.log("attempting reconnect")
-                let ws = new WebSocket('ws://localhost:1234/ws');
-
-                ws.onclose = () => {
-                    console.log("ws closed")
-
-                    setTimeout(connect, 1000);
-                }
-
-                ws.onopen = () => {
-                    console.log("ws connected")
-                }
-
-                ws.onmessage = msg => {
-                    const jdata = JSON.parse(msg.data);
-                    this.updateData(jdata)
-                }
-            }
-            connect()
-
             const minimised = window.localStorage.getItem("player.collapsedSidebar") == "true";
 
             document.documentElement.style.setProperty("--sidebar-width", minimised ? "44px" : "200px");
 
             return {
                 playlists: [],
-                cover: "/assets/img/music_placeholder.png",
                 showSportsTab: window.localStorage.getItem("sidebar.showSportsTab") == "true",
                 showNewsTab: window.localStorage.getItem("sidebar.showNewsTab") == "true",
                 minimised
@@ -115,12 +97,6 @@ import Logo from '/src/assets/images/logo/logo.svg'
             },
             onLogoClick() {
                 this.$router.push("/")
-            },
-            updateData(jdata) {
-                if (jdata.path == "player.song") {
-                    this.cover = jdata?.data?.cover || "/assets/img/music_placeholder.png"
-                    return;
-                }
             }
         }
     }
