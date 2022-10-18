@@ -18,5 +18,20 @@ export const connect = ($store) => {
         if (jdata.path == "player.song") {
             $store.commit("player/setSong", jdata.data);
         }
+
+        if (jdata.path == "player.playlist") {
+            $store.commit("player/setPlaylist", jdata.data);
+        }
+
+        // TODO only if NOT play in browser
+        return
+
+        if (jdata.path == "player.playState") {
+            $store.commit("player/setPlaying", jdata.data);
+        }
+
+        if (jdata.path == "player.posSync") {
+            $store.commit("player/setProgress", jdata.data);
+        }
     }
 }

@@ -14,6 +14,13 @@ export default {
             duration: null,
             favourite: false,
             id: -1,
+        },
+        playlist: {
+            cover: null,
+            description: null,
+            index: -1, // of song in playlist
+            name: null,
+            songs: [],
         }
     }),
     mutations: {
@@ -36,6 +43,9 @@ export default {
         },
         setFavourite(state, favourite) {
             state.song.favourite = favourite;
+        },
+        setPlaylist(state, playlist) {
+            state.playlist = playlist;
         }
     },
     getters: {
