@@ -11,7 +11,10 @@ from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 from dataModel.song import Song
 
+from config.runtime import Runtime
+
 from player.player import Player
+from player.playerPlaylist import PlayerPlaylist
 
 class Message(Dict[str, Any]):
     """websocket message"""
@@ -41,9 +44,18 @@ class Websocket:
     def __init__(self, player: Player) -> None:
         self._connections: List[WebSocketResponse] = [ ]
         self._player = player
-        self._player._songChangeCallback = self._onSongChange
-        self._player._playStateChangeCallback = self._onPlayStateChange
-        self._player._positionSyncCallback = self._onPositionSync
+        self._player._playlistChangeCallback = self._onPlaylistChange # pylint: disable=protected-access
+        self._player._songChangeCallback = self._onSongChange # pylint: disable=protected-access
+
+        if Runtime.args.localPlayback:
+            self._player._playStateChangeCallback = self._onPlayStateChange # pylint: disable=protected-access
+            self._player._positionSyncCallback = self._onPositionSync # pylint: disable=protected-access
+
+    async def _onPlaylistChange(self, playlist: PlayerPlaylist) -> None:
+        await self.publish(Message({
+            "path": "player.playlist",
+            "data": playlist.toDict()
+        }))
 
     async def _onSongChange(self, song: Song) -> None:
         await self.publish(Message({
@@ -69,6 +81,8 @@ class Websocket:
         self._connections.append(ws)
         await ws.prepare(request)
 
+        if self._player.currentPlaylist:
+            await self._onPlaylistChange(self._player.currentPlaylist)
         if self._player.currentSong:
             await self._onSongChange(self._player.currentSong)
         await self._onPlayStateChange(self._player.playing)

@@ -45,6 +45,7 @@ class Player:
 
         self._updatePositionTask: Optional[Task[Any]] = None
 
+        self._playlistChangeCallback: Optional[Callable[[PlayerPlaylist], Awaitable[None]]] = None
         self._songChangeCallback: Optional[Callable[[Song], Awaitable[None]]] = None
         self._playStateChangeCallback: Optional[Callable[[bool], Awaitable[None]]] = None
         self._positionSyncCallback: Optional[Callable[[float], Awaitable[None]]] = None
@@ -89,6 +90,10 @@ class Player:
         self._offset = posInS - (pygame.mixer.music.get_pos() / 1000.0)
         pygame.mixer.music.set_pos(posInS)
 
+    async def _onPlaylistChange(self, playlist: PlayerPlaylist) -> None:
+        if self._playlistChangeCallback:
+            await self._playlistChangeCallback(playlist) # pylint: disable=not-callable
+
     async def _onSongChange(self, newSong: Song) -> None:
         if self._songChangeCallback:
             await self._songChangeCallback(newSong) # pylint: disable=not-callable
@@ -107,6 +112,7 @@ class Player:
         if self._playerPlaylist and self._playerPlaylist == playlist:
             return False
         self._playerPlaylist = playlist
+        await self._onPlaylistChange(self._playerPlaylist)
         if atIndex is not None:
             await self.at(atIndex)
         else:
