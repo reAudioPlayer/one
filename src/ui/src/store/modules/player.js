@@ -21,7 +21,8 @@ export default {
             index: -1, // of song in playlist
             name: null,
             songs: [],
-        }
+        },
+        volume: 50
     }),
     mutations: {
         setSong(state, song) {
@@ -46,6 +47,15 @@ export default {
         },
         setPlaylist(state, playlist) {
             state.playlist = playlist;
+        },
+        setVolume(state, volume) {
+            state.volume = volume;
+            localStorage.setItem("reap.volume", volume);
+        },
+        initialise(state) {
+            console.log("hello", state.volume)
+            state.volume = localStorage.getItem("reap.volume") || 50;
+            console.log("hello", state.volume)
         }
     },
     getters: {
