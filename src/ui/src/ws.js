@@ -5,7 +5,7 @@ export const connect = ($store) => {
     ws.onclose = () => {
         console.log("ws closed")
 
-        setTimeout(connect, 1000);
+        setTimeout(() => connect($store), 1000);
     }
 
     ws.onopen = () => {
