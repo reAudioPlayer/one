@@ -1,6 +1,6 @@
 @echo off
 
-set VERSION=0.9.1
+set VERSION=0.9.2
 
 set command=%1
 set arg=%2
@@ -14,6 +14,7 @@ if /i "%command%" == "run" goto run
 if /i "%command%" == "start" goto run
 if /i "%command%" == "build" goto build
 if /i "%command%" == "deploy" goto deploy
+if /i "%command%" == "push" goto push
 if /i "%command%" == "" goto run
 
 echo unrecognised command '%command%'
@@ -21,6 +22,11 @@ echo.
 echo pass "install" or "i" to install required dependencies
 echo pass no argument to run the program
 goto end
+
+:push
+echo pushing to github
+docker push ghcr.io/reaudioplayer/reap-one:%VERSION%
+exit
 
 :deploy
 docker compose up -d
