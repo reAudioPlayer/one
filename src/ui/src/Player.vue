@@ -64,7 +64,7 @@
         <div class="right hideIfMobile">
             <span class="material-icons-round defaultbtn">volume_up</span>
             <div class="max-w-[8vw] w-4/5 mr-[20px]">
-                <ProgressBar @change="volumechange" ref="volume" type="range" class="volume"/>
+                <ProgressBar @change="volumechange" v-model="volume" type="range" class="volume"/>
             </div>
         </div>
     </div>
@@ -140,10 +140,6 @@ export default {
         }, 1000)
 
         if (playInBrowser) {
-            this.$nextTick(() => {
-                this.$refs.volume.value = 100;
-            })
-
             fetch("/api/player/volume", {
                 method: "POST",
                 body: JSON.stringify({
@@ -154,7 +150,7 @@ export default {
             fetch("/api/player/volume")
                 .then(x => x.text())
                 .then(value => {
-                    this.$refs.volume.value = value
+                    this.volume = value
                 })
         }
 
@@ -174,7 +170,8 @@ export default {
             songLoop: false,
             shuffle: false,
             playInBrowser,
-            expandedMobile: false
+            expandedMobile: false,
+            volume: this.$store.state.player.volume
         }
     },
     mounted() {
@@ -192,12 +189,12 @@ export default {
                 return;
             }
             if (e.key == "ArrowUp" && e.ctrlKey) {
-                this.$refs.volume.value = Math.max(0, Math.min(this.$refs.volume.value + 5, 100));
+                this.volume = Math.max(0, Math.min(this.volume + 5, 100));
                 this.volumechange();
                 return;
             }
             if (e.key == "ArrowDown" && e.ctrlKey) {
-                this.$refs.volume.value = Math.max(0, Math.min(this.$refs.volume.value - 5, 100));
+                this.volume = Math.max(0, Math.min(this.volume - 5, 100));
                 this.volumechange();
                 return;
             }
@@ -226,6 +223,7 @@ export default {
             "artist": state => state.player.song.artist,
             "durationStr": state => state.player.song.duration,
             "favourite": state => state.player.song.favourite,
+            "storedVolume": state => state.player.volume,
         }),
         ...mapGetters({
             "cover": "player/cover",
@@ -271,6 +269,10 @@ export default {
                 this.playing = !this.$refs.audio.paused;
             }
         },
+        storedVolume() {
+            this.volume = this.storedVolume
+            this.volumechange();
+        },
     },
     methods: {
         setFavourite() {
@@ -303,14 +305,15 @@ export default {
         },
         volumechange() {
             if (this.playInBrowser) {
-                this.$refs.audio.volume = this.$refs.volume.value / 100;
+                this.$refs.audio.volume = this.volume / 100;
+                this.$store.commit("player/setVolume", this.volume);
                 return;
             }
 
             fetch("/api/player/volume", {
                 method: "POST",
                 body: JSON.stringify({
-                    value: this.$refs.volume.value
+                    value: this.volume
                 })
             })
         },
