@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+import asyncio
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import os
@@ -81,11 +82,21 @@ class SpotifyAuth:
 
     async def clientSideAuthHandler(self, _: web.Request) -> web.Response:
         """Returns the client side auth data"""
+        if os.path.isfile(".cache"):
+            return web.HTTPNoContent()
         if not self.shouldAuth():
             return web.HTTPExpectationFailed()
         if self._attemptedClientAuth:
             return web.HTTPUnauthorized()
+
+        async def _reset() -> None:
+            await asyncio.sleep(60)
+            self._attemptedClientAuth = False
+
+        asyncio.create_task(_reset())
+
         self._attemptedClientAuth = True
+
         # redirect to spotify auth
         return web.Response(text = self.authorizeUrl)
 
