@@ -22,8 +22,7 @@
     import PlaylistItemBig from '@/components/Catalogue/Items/Playlists/PlaylistItemBig.vue'
     import CollectionHeader from '@/components/CollectionHeader.vue'
 
-    import Hashids from 'hashids'
-    const hashids = new Hashids("reapOne.playlist", 22)
+    import {mapState} from "vuex";
 
     export default {
         components: {
@@ -32,23 +31,10 @@
             FullShelf,
             PlaylistItemBig
         },
-        name: 'Playlists',
-
+        computed: mapState({
+            "playlists": state => state.playlists,
+        }),
         data() {
-            fetch("/api/playlists")
-                .then(x => x.json())
-                .then(async jdata => {
-                    for (let i = 0; i < jdata.length; i++) {
-                        const resp = await fetch(`/api/playlists/${i}`)
-                        const jdata = await resp.json()
-                        this.playlists.push({
-                            name: jdata.name,
-                            description: jdata.description,
-                            cover: jdata.songs[0].cover,
-                            href: `/playlist/${hashids.encode(i)}`
-                        })
-                    }
-                })
             fetch("/api/me/liked")
                 .then(x => x.json())
                 .then(jdata => {
@@ -61,7 +47,6 @@
                 })
 
             return {
-                playlists: [],
                 likedTracks: null,
                 spotifyPlaylists: []
             }

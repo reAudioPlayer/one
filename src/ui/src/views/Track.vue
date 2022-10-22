@@ -1,5 +1,12 @@
 <template>
     <div class="playlist">
+        <AddSongToPlaylist
+            :cover="cover"
+            :title="title"
+            :artist="artist"
+            ref="addSongPopup"
+            :src="src"
+        />
         <fixed-playlist-header @loadPlaylist="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }"
             :title="playlistName" />
         <div class="padding-20 songdetails" @click="editPlaylist" v-observe-visibility="headerVisibilityChanged">
@@ -43,10 +50,12 @@
 
     import Hashids from 'hashids'
     import {mapState} from "vuex";
+    import AddSongToPlaylist from "@/components/Popups/AddSongToPlaylist";
     const hashids = new Hashids("reapOne.track", 22)
 
     export default {
         components: {
+            AddSongToPlaylist,
             FixedPlaylistHeader,
             GridHeader,
             draggable,
@@ -60,6 +69,7 @@
                 title: "N/A",
                 artist: "N/A",
                 cover: "/assets/img/music_placeholder.png",
+                src: "",
                 recommendations: []
             }
         },
@@ -84,7 +94,7 @@
                 this.$refs.addSongPopup.showModal = true
             },
             editPlaylist() {
-                this.$refs.editPlaylistPopup.showModal = true
+                this.$refs.addSongPopup.showModal = true
             },
             updateIsPlaying() {
                 console.log("Updating is playing", this.currentSong)
@@ -111,8 +121,8 @@
                     this.title = jdata.title || "N/A"
                     this.artist = jdata.artist || "N/A"
                     this.cover = jdata.cover || "/assets/img/music_placeholder.png"
+                    this.src = jdata.source
                     document.title = `${this.title} • ${this.artist}`;
-                    this.connect()
 
                     const resp = await fetch("/api/spotify/recommendations", {
                         method: "POST",
