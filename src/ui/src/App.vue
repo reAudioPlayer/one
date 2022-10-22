@@ -86,7 +86,7 @@ import Header from './Header.vue';
 
             window.setTheme(window.localStorage.getItem(LOCAL_STORAGE_KEY) || "jade") // optional, loads the default theme
 
-            this.$store.commit("player/initialise");
+            this.$store.dispatch("initialise")
 
             this.supportsLocalPlayback();
 

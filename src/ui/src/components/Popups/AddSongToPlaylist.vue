@@ -1,7 +1,7 @@
 <template>
     <div>
         <vue-final-modal v-model="showModal" classes="modal-container"
-            content-class="addAlbumToPlaylistPopup">
+            content-class="modal-content">
             <div class="wrapper">
                 <div class="header">
                     <h3>Add song</h3>
@@ -23,8 +23,6 @@
                         <div class="details">
                             <div class="detailswrapper">
                                 <h7>Song</h7>
-                                <span class="material-icons-round share" @click="share">share</span>
-                                <span class="material-symbols-rounded share fill" @click="preview">play_arrow</span>
                             </div>
                             <h1>{{title}}</h1>
                             <h5>{{artist}}</h5>
@@ -32,7 +30,7 @@
                     </div>
                 </div>
                 <div class="confirm">
-                    <mini-player class="miniPlayer" :title="title" :artist="artist" :src="track.src" />
+                    <mini-player v-if="false" class="miniPlayer" :title="title" :artist="artist" :src="track.src" />
                     <button @click="add" class="negative">Add</button>
                 </div>
             </div>
@@ -48,8 +46,7 @@ import MiniPlayer from '../MiniPlayer.vue'
             cover: String,
             artist: String,
             title: String,
-            href: String,
-            preview: String
+            src: String
         },
         data() {
             return {
@@ -102,14 +99,15 @@ import MiniPlayer from '../MiniPlayer.vue'
                     return
                 }
 
+                console.log("jioqwejioqwjeioqwjheioüqwheuioqwhruioqwhneiopqwe")
+
+
+                console.log(this.src)
+
                 fetch(`/api/playlists/${id}/tracks`, {
                     method: "POST",
                     body: JSON.stringify({
-                        source: track.src,
-                        title: track.title,
-                        artist: track.artists.join(", "),
-                        album: this.title,
-                        cover: this.cover
+                        source: this.src
                     })
                 }).then(x => {
                     if (x.status == 200) {
@@ -306,7 +304,7 @@ import MiniPlayer from '../MiniPlayer.vue'
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
-    }  
+    }
 
     .playlisteditor>.details>.detailswrapper>.share {
         margin-left: 10px;

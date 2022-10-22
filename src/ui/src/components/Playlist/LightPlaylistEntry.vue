@@ -1,8 +1,27 @@
 a<template>
-    <SongCtx @download="download" @addto="addToPlaylist" @remove="remove" @update="update"
-        @like="favourited = !favourited" :isAutoPlaylist="isAutoPlaylist" :liked="favourited" ref="ctxMenu">
-        <EditSong @close="updatePlaylist" ref="editSongPopup" :cover="cover" :id="id" :title="title" :album="album"
-            :artist="artist" :source="source" />
+    <SongCtx
+        :artist="artist"
+        :src="source"
+        :title="title"
+        @download="download"
+        @addto="addToPlaylist"
+        @remove="remove"
+        @update="update"
+        @like="favourited = !favourited"
+        :isAutoPlaylist="isAutoPlaylist"
+        :liked="favourited"
+        ref="ctxMenu"
+    >
+        <EditSong
+            @close="updatePlaylist"
+            ref="editSongPopup"
+            :cover="cover"
+            :id="id"
+            :title="title"
+            :album="album"
+            :artist="artist"
+            :source="source"
+        />
         <div :id="'bplayer-entry-' + id" @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="lightPlaylistEntry"
             :class="{ 'selected': highlighted }">
             <div class="h-full flex flex-col justify-center">

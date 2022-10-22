@@ -1,5 +1,17 @@
 <template>
-    <SongCtx :playlists="playlists" :artist="artist" :src="source" :title="title" @download="download" @addto="addToPlaylist" @remove="remove" @update="update" @like="favourited = !favourited" :isAutoPlaylist="isAutoPlaylist" :liked="favourited" ref="ctxMenu">
+    <SongCtx
+        :artist="artist"
+        :src="source"
+        :title="title"
+        @download="download"
+        @addto="addToPlaylist"
+        @remove="remove"
+        @update="update"
+        @like="favourited = !favourited"
+        :isAutoPlaylist="isAutoPlaylist"
+        :liked="favourited"
+        ref="ctxMenu"
+    >
         <EditSong
             @close="updatePlaylist"
             ref="editSongPopup"
@@ -87,7 +99,6 @@
             Marquee
         },
         props: {
-            playlists: Array,
             index: Number,
             id: Number,
             source: String,

@@ -42,7 +42,7 @@ import Logo from '/src/assets/images/logo/logo.svg'
     import NavEntry from '@/components/Sidebar/NavEntry.vue'
 
     import Hashids from 'hashids'
-    import {mapGetters} from "vuex";
+    import {mapGetters, mapState} from "vuex";
     const hashids = new Hashids("reapOne.playlist", 22)
 
     export default {
@@ -53,39 +53,26 @@ import Logo from '/src/assets/images/logo/logo.svg'
         props: {
             expandCover: Boolean
         },
-        mounted() {
-            fetch("/api/playlists")
-                .then(x => x.json())
-                .then(async jdata => {
-                    for (let i = 0; i < jdata.length; i++) {
-                        console.log(jdata[i])
-                        const resp = await fetch(`/api/playlists/${i}`)
-                        const pdata = await resp.json()
-                        this.playlists.push({
-                            name: pdata.name,
-                            description: pdata.description,
-                            cover: pdata.cover,
-                            href: `/playlist/${hashids.encode(i)}`
-                        })
-                    }
-                })
-        },
         watch: {
             minimised() {
                 document.documentElement.style.setProperty("--sidebar-width", this.minimised ? "44px" : "200px");
                 window.localStorage.setItem("player.collapsedSidebar", this.minimised)
             }
         },
-        computed: mapGetters({
-            "cover": "player/cover"
-        }),
+        computed: {
+            ...mapGetters({
+                "cover": "player/cover",
+            }),
+            ...mapState({
+                "playlists": "playlists"
+            })
+        },
         data() {
             const minimised = window.localStorage.getItem("player.collapsedSidebar") == "true";
 
             document.documentElement.style.setProperty("--sidebar-width", minimised ? "44px" : "200px");
 
             return {
-                playlists: [],
                 showSportsTab: window.localStorage.getItem("sidebar.showSportsTab") == "true",
                 showNewsTab: window.localStorage.getItem("sidebar.showNewsTab") == "true",
                 minimised

@@ -9,7 +9,7 @@
             <v-contextmenu-submenu title="Add to playlist">
                 <v-contextmenu-item @click="() => addto('new')">Add to new playlist</v-contextmenu-item>
                 <v-contextmenu-divider />
-                <v-contextmenu-item v-for="(element, index) in playlists" :key="index" @click="() => addto(index)">{{element}}</v-contextmenu-item>
+                <v-contextmenu-item v-for="(element, index) in playlists" :key="index" @click="() => addto(index)">{{element.name}}</v-contextmenu-item>
             </v-contextmenu-submenu>
             <v-contextmenu-divider />
             <v-contextmenu-item @click="update">Update Metadata</v-contextmenu-item>
@@ -20,6 +20,8 @@
 </template>
 
 <script>
+    import {mapState} from "vuex";
+
     export default {
         name: "SongCtx",
         props: {
@@ -28,8 +30,10 @@
             src: String,
             artist: String,
             title: String,
-            playlists: Array
         },
+        computed: mapState({
+            "playlists": "playlists"
+        }),
         methods: {
             preview() {
                 const event = new CustomEvent('player.play', { detail: {

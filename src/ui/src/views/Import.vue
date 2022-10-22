@@ -64,13 +64,9 @@ export default {
             })
         }
 
-        fetch("/api/playlists").then(async (inRes) => {
-            const playlists = await inRes.json();
-            for (let id = 0; id < playlists.length; id++) {
-                const res = await fetch(`/api/playlists/${id}`);
-                this.localPlaylists.push(await res.json());
-            }
-        });
+        for (let id = 0; id < this.$store.state.playlists.length; id++) {
+            fetch(`/api/playlists/${id}`).then(x => x.json()).then(playlist => this.localPlaylists.push(playlist));
+        }
 
         return {
             localPlaylists: [ ],
