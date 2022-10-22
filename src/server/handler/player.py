@@ -3,7 +3,6 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import asyncio
-from os import environ
 
 from aiohttp import web
 
