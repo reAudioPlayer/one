@@ -17,6 +17,7 @@ from handler.news import NewsHandler
 from handler.playlist import PlaylistHandler
 from handler.sports import SportsHandler
 from handler.websocket import Websocket
+from handler.spotifyAuth import SpotifyAuth
 
 
 class Router:
@@ -38,7 +39,8 @@ class Router:
                     newsHandler: NewsHandler,
                     playlistHandler: PlaylistHandler,
                     configHandler: ConfigHandler,
-                    websocket: Websocket) -> None:
+                    websocket: Websocket,
+                    spotify: SpotifyAuth) -> None:
         """Apply routes to the app"""
         # /api/player/
         app.router.add_get('/api/player/previous', playerHandler.getPrevious)
@@ -87,6 +89,7 @@ class Router:
         app.router.add_post('/api/spotify/following', metaHandler.spotifyFollow)
         app.router.add_delete('/api/spotify/following', metaHandler.spotifyUnfollow)
         app.router.add_post('/api/spotify/recommendations', metaHandler.spotifyRecommend)
+        app.router.add_get('/api/spotify/callback', spotify.callbackHandler)
 
         # /api/me/
         app.router.add_get('/api/me/liked', collectionHandler.tracks)

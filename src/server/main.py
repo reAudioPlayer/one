@@ -6,12 +6,10 @@ import os
 from queue import Empty
 from typing import Awaitable, Callable
 
-
 try:
-    from typing import Optional, Tuple
+    from typing import Optional
 
     import spotipy # type: ignore
-    from spotipy.oauth2 import  SpotifyOAuth # type: ignore
 
     from db.dbManager import DbManager
 
@@ -26,8 +24,7 @@ try:
     from handler.meta import MetaHandler
     from handler.config import ConfigHandler
     from handler.websocket import Websocket
-
-    from helper.dictTool import DictEx
+    from handler.spotifyAuth import SpotifyAuth
 
     from config.config import PersistentConfig
     from config.runtime import Runtime
@@ -73,16 +70,6 @@ config = PersistentConfig()
 playlistManager = PlaylistManager(dbManager)
 player = Player(dbManager, downloader, playlistManager, config)
 
-SCOPE = "user-library-read user-follow-read user-follow-modify"
-
-def _getSpotifyAuthData() -> Tuple[str, str]:
-    spotifyConfig = Runtime.spotifyConfig() or DictEx()
-    return spotifyConfig.ensureString("id"), spotifyConfig.ensureString("secret")
-
-def _getSpotifyAuth(id_: str, secret: str) -> Optional[SpotifyOAuth]: # pylint: disable=invalid-name
-    if "restricted" in (id_, secret):
-        return None
-    return SpotifyOAuth(id_, secret, "http://reap.ml/", scope = SCOPE)
 
 @middleware
 async def _exceptionMiddleware(request: web.Request,
@@ -104,16 +91,18 @@ async def _exceptionMiddleware(request: web.Request,
     return resp
 
 async def _init() -> web.Application: # pylint: disable=too-many-statements
+    spotifyToken = SpotifyAuth()
+
     spotify = spotipy.Spotify()
 
     if Runtime.spotifyConfig():
-        spotify.auth_manager = _getSpotifyAuth(*_getSpotifyAuthData())
+        spotify.auth_manager = SpotifyAuth.getSpotifyAuth()
     else:
         async def _implement() -> None:
             while True:
                 await asyncio.sleep(1)
                 if Runtime.spotifyConfig():
-                    spotify.auth_manager = _getSpotifyAuth(*_getSpotifyAuthData())
+                    spotify.auth_manager = SpotifyAuth.getSpotifyAuth()
                     return
         asyncio.create_task(_implement())
 
@@ -140,7 +129,8 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
                        newsHandler,
                        playlistHandler,
                        configHandler,
-                       websocket)
+                       websocket,
+                       spotifyToken)
 
     # Configure default CORS settings.
     cors = aiohttp_cors.setup(app, defaults={
