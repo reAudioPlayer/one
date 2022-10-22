@@ -25,15 +25,32 @@ REDIRECT = "http://localhost:1234/api/spotify/callback"
 class SpotifyAuth:
     """Handles Spotify Authentication"""
     def __init__(self) -> None:
-        if SpotifyAuth.isDisabled():
-            return
-        if not os.path.isfile(".cache"):
+        self._attemptedClientAuth = False
+
+        if self.shouldAuth():
             self._openSpotifyAuth()
 
+    def shouldAuth(self) -> bool:
+        """Returns if the user should be authenticated"""
+        if SpotifyAuth.isDisabled():
+            return False
+
+        if not os.path.isfile(".cache"):
+            return True
+
+        with open(".cache", "r", encoding = "utf8") as file:
+            data = json.loads(file.read())
+
+        return DictEx(data).ensure("expires_at", int) < time()
+
+    @property
+    def authorizeUrl(self) -> str:
+        """Returns the Spotify Authorize Url"""
+        clientId, _ = SpotifyAuth._getSpotifyAuthData()
+        return f"https://accounts.spotify.com/authorize?client_id={clientId}&response_type=code&redirect_uri={REDIRECT}&scope={SCOPE}" # pylint: disable=line-too-long
 
     def _openSpotifyAuth(self) -> None:
-        clientId, _ = SpotifyAuth._getSpotifyAuthData()
-        webbrowser.open(f"https://accounts.spotify.com/authorize?client_id={clientId}&response_type=code&redirect_uri={REDIRECT}&scope={SCOPE}") # pylint: disable=line-too-long
+        webbrowser.open(self.authorizeUrl)
 
     @staticmethod
     def isDisabled() -> bool:
@@ -62,9 +79,23 @@ class SpotifyAuth:
         id_, secret = SpotifyAuth._getSpotifyAuthData()
         return SpotifyOAuth(id_, secret, "http://reap.ml/", scope = SCOPE)
 
-    async def callbackHandler(self, request: web.Request) -> None:
+    async def clientSideAuthHandler(self, _: web.Request) -> web.Response:
+        """Returns the client side auth data"""
+        if not self.shouldAuth():
+            return web.HTTPExpectationFailed()
+        if self._attemptedClientAuth:
+            return web.HTTPUnauthorized()
+        self._attemptedClientAuth = True
+        # redirect to spotify auth
+        return web.Response(text = self.authorizeUrl)
+
+    async def callbackHandler(self, request: web.Request) -> web.Response:
         """Handles the callback from Spotify"""
         code = request.query.get("code")
+
+        if not isinstance(code, str):
+            return web.HTTPBadRequest()
+
         await self.getSpotifyToken(code)
 
         # redirect to /
@@ -96,6 +127,6 @@ class SpotifyAuth:
                     with open(".cache", "w", encoding = "utf8") as file:
                         file.write(json.dumps(data))
 
-                    return data["access_token"]
+                    return DictEx(data).ensure("access_token", str)
 
                 return None
