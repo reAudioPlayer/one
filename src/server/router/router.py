@@ -30,7 +30,7 @@ class Router:
         os._exit(0) # pylint: disable=protected-access
 
     @staticmethod
-    def applyRoutes(app: web.Application, # pylint: disable=too-many-statements
+    def applyRoutes(app: web.Application, # pylint: disable=too-many-statements, too-many-arguments
                     playerHandler: PlayerHandler,
                     downloadHandler: DownloadHandler,
                     metaHandler: MetaHandler,
@@ -90,6 +90,7 @@ class Router:
         app.router.add_delete('/api/spotify/following', metaHandler.spotifyUnfollow)
         app.router.add_post('/api/spotify/recommendations', metaHandler.spotifyRecommend)
         app.router.add_get('/api/spotify/callback', spotify.callbackHandler)
+        app.router.add_get('/api/spotify/authorise', spotify.clientSideAuthHandler)
 
         # /api/me/
         app.router.add_get('/api/me/liked', collectionHandler.tracks)
