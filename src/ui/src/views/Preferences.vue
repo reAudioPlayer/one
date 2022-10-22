@@ -1,3 +1,8 @@
+<script setup>
+// http://{host}:{port}/api/spotify/callback
+const host = window.location.host
+const spotifyRedirect = `http://${host}/api/spotify/callback`
+</script>
 <template>
     <div class="preferences">
         <div class="padding-10">
@@ -47,10 +52,10 @@
                 <h2>Spotify</h2>
                 <details>
                     <summary>How to</summary>
-                <p>1) Head over to the <a @click="() => redirect('https://developer.spotify.com/dashboard/applications')">spotify developer dashboard</a></p>
+                <p>1) Head over to the <a href="https://developer.spotify.com/dashboard/applications" target="_blank">spotify developer dashboard</a></p>
                 <p>2) Create An App</p>
                 <p>3) Enter any name and any description</p>
-                <p>4) Edit the settings: set the redirect url to <a href="http://reap.ml/">http://reap.ml/</a></p>
+                <p>4) Edit the settings: set the redirect url to <a :href="spotifyRedirect">{{spotifyRedirect}}</a></p>
                 <p>5) Copy and enter the client id and secret into the corresponding input field</p>
                 </details>
                 <div class="wrapTogether">
