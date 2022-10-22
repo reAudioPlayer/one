@@ -12,6 +12,7 @@ from db.dbManager import DbManager
 from player.player import Player
 from player.playerPlaylist import PlayerPlaylist
 from player.playlistManager import PlaylistManager
+from config.runtime import Runtime
 
 
 class PlayerHandler:
@@ -26,7 +27,7 @@ class PlayerHandler:
 
     async def supportsLocalPlayback(self, _: web.Request) -> web.Response:
         """get(/api/player/supports-local-playback)"""
-        return web.json_response(bool(not environ.get("TEST_MODE")))
+        return web.json_response(Runtime.args.localPlayback)
 
     async def getPlay(self, _: web.Request) -> web.Response:
         """get(/api/player/play)"""

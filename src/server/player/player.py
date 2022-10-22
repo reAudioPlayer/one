@@ -121,6 +121,9 @@ class Player:
 
     async def playPause(self) -> None:
         """toggle play state"""
+        if Runtime.args.noLocalPlayback:
+            return
+
         if self._playing:
             pygame.mixer.music.pause()
         else:
@@ -130,17 +133,21 @@ class Player:
 
     async def pause(self) -> None:
         """pause"""
+        if Runtime.args.noLocalPlayback:
+            return
+
         self._playing = False
         await self._onPlayStateChange()
-        if Runtime.args.localPlayback:
-            pygame.mixer.music.pause()
+        pygame.mixer.music.pause()
 
     async def play(self) -> None:
         """play"""
+        if Runtime.args.noLocalPlayback:
+            return
+
         self._playing = True
         await self._onPlayStateChange()
-        if Runtime.args.localPlayback:
-            pygame.mixer.music.unpause()
+        pygame.mixer.music.unpause()
 
     async def unload(self) -> None:
         """unload and unbind song file"""
