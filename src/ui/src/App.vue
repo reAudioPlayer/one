@@ -44,7 +44,7 @@ import Header from './Header.vue';
         computed: mapGetters({
             "cover": "player/cover"
         }),
-        mounted() {
+        async mounted() {
             connect(this.$store);
 
             window.getThemes = () => { // returns a string array of all available themes
@@ -89,6 +89,11 @@ import Header from './Header.vue';
             this.$store.commit("player/initialise");
 
             this.supportsLocalPlayback();
+
+            const res = await fetch("/api/spotify/authorise");
+            if (res.status == 200) {
+                window.location.href = await res.text();
+            }
         },
         data() {
             return {
