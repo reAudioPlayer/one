@@ -9,8 +9,6 @@ from typing import Awaitable, Callable
 try:
     from typing import Optional
 
-    import spotipy # type: ignore
-
     from db.dbManager import DbManager
 
     from downloader.downloader import Downloader
@@ -24,7 +22,8 @@ try:
     from handler.meta import MetaHandler
     from handler.config import ConfigHandler
     from handler.websocket import Websocket
-    from handler.spotifyAuth import SpotifyAuth
+
+    from meta.spotify import Spotify
 
     from config.config import PersistentConfig
     from config.runtime import Runtime
@@ -80,9 +79,11 @@ async def _exceptionMiddleware(request: web.Request,
     resp: Optional[web.StreamResponse] = None
     try:
         resp = await handler(request)
-    except Empty:
-        os.unlink(".cache")
-        resp = await handler(request)
+    except Empty as exc:
+        #os.unlink(".cache")
+        logger.exception(exc)
+        resp = web.Response(status = 500, text = str(exc))
+        pass
     except Exception as exc: # pylint: disable=bare-except
         logger.exception(exc)
         resp = web.Response(status = 500, text = str(exc))
@@ -91,20 +92,7 @@ async def _exceptionMiddleware(request: web.Request,
     return resp
 
 async def _init() -> web.Application: # pylint: disable=too-many-statements
-    spotifyToken = SpotifyAuth()
-
-    spotify = spotipy.Spotify()
-
-    if Runtime.spotifyConfig():
-        spotify.auth_manager = SpotifyAuth.getSpotifyAuth()
-    else:
-        async def _implement() -> None:
-            while True:
-                await asyncio.sleep(1)
-                if Runtime.spotifyConfig():
-                    spotify.auth_manager = SpotifyAuth.getSpotifyAuth()
-                    return
-        asyncio.create_task(_implement())
+    spotify = Spotify()
 
     playerHandler = PlayerHandler(player, playlistManager, dbManager)
     playlistHandler = PlaylistHandler(player, playlistManager)
@@ -130,7 +118,7 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
                        playlistHandler,
                        configHandler,
                        websocket,
-                       spotifyToken)
+                       spotify.auth)
 
     # Configure default CORS settings.
     cors = aiohttp_cors.setup(app, defaults={

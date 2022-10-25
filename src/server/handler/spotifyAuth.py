@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
-import asyncio
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import os
@@ -10,6 +9,7 @@ from time import time
 import webbrowser
 import base64
 from typing import Optional, Tuple
+import asyncio
 
 import aiohttp
 from aiohttp import web
@@ -34,15 +34,21 @@ class SpotifyAuth:
     def shouldAuth(self) -> bool:
         """Returns if the user should be authenticated"""
         if SpotifyAuth.isDisabled():
+            print("Spotify is disabled")
             return False
 
         if not os.path.isfile(".cache"):
+            print("Spotify is not authenticated")
             return True
 
         with open(".cache", "r", encoding = "utf8") as file:
             data = json.loads(file.read())
 
         return DictEx(data).ensure("expires_at", int) < time()
+
+    def isAuth(self) -> bool:
+        """Returns if the user is authenticated"""
+        return os.path.isfile(".cache")
 
     @property
     def authorizeUrl(self) -> str:
@@ -77,8 +83,7 @@ class SpotifyAuth:
         """Returns the SpotifyOAuth object"""
         if SpotifyAuth.isDisabled():
             return None
-        id_, secret = SpotifyAuth._getSpotifyAuthData()
-        return SpotifyOAuth(id_, secret, "http://reap.ml/", scope = SCOPE)
+        return SpotifyOAuth("", "", "localhost", scope = SCOPE)
 
     async def clientSideAuthHandler(self, _: web.Request) -> web.Response:
         """Returns the client side auth data"""
@@ -90,7 +95,7 @@ class SpotifyAuth:
             return web.HTTPUnauthorized()
 
         async def _reset() -> None:
-            await asyncio.sleep(60)
+            await asyncio.sleep(10)
             self._attemptedClientAuth = False
 
         asyncio.create_task(_reset())
@@ -141,3 +146,7 @@ class SpotifyAuth:
                     return DictEx(data).ensure("access_token", str)
 
                 return None
+
+    async def invalidate(self) -> None:
+        if os.path.isfile(".cache"):
+            os.remove(".cache")
