@@ -19,10 +19,20 @@
 import Logo from '/src/assets/images/logo/logo.svg'
 import NavEntry from '@/components/Sidebar/NavEntry.vue'
 import router from "@/router";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import TextInputWithIcon from "@/components/TextInputWithIcon";
 
 let query = ref('');
+
+onMounted(() => {
+    query.value = router.currentRoute.value.params.query || "";
+
+    router.afterEach(to => {
+        query.value = to.params.query || "";
+        console.log(query.value);
+    });
+});
+
 let submit = () => {
     router.push({ name: 'Search', params: { query: query.value } });
 }

@@ -23,6 +23,16 @@
                         <div class="details">
                             <div class="detailswrapper">
                                 <h7>Song</h7>
+                                <span
+                                    v-if="href"
+                                    class="material-symbols-rounded share"
+                                    @click="share"
+                                >share</span>
+                                <span
+                                    v-if="href"
+                                    class="material-symbols-rounded share fill"
+                                    @click="preview"
+                                >play_arrow</span>
                             </div>
                             <h1>{{title}}</h1>
                             <h5>{{artist}}</h5>
@@ -30,7 +40,7 @@
                     </div>
                 </div>
                 <div class="confirm">
-                    <mini-player v-if="false" class="miniPlayer" :title="title" :artist="artist" :src="track.src" />
+                    <mini-player v-if="track?.src" class="miniPlayer" :title="title" :artist="artist" :src="track.src" />
                     <button @click="add" class="negative">Add</button>
                 </div>
             </div>
@@ -46,7 +56,12 @@ import MiniPlayer from '../MiniPlayer.vue'
             cover: String,
             artist: String,
             title: String,
-            src: String
+            preview: String,
+            href: String,
+            exists: {
+                type: Boolean,
+                default: false
+            }
         },
         data() {
             return {
@@ -99,16 +114,21 @@ import MiniPlayer from '../MiniPlayer.vue'
                     return
                 }
 
-                console.log("jioqwejioqwjeioqwjheioüqwheuioqwhruioqwhneiopqwe")
+                console.log(track, this.exists, id)
 
-
-                console.log(this.src)
+                let body = this.exists ? {
+                    source: this.href
+                } : {
+                    source: this.track.src,
+                    title: this.title,
+                    artist: this.artist,
+                    album: this.track.album,
+                    cover: this.cover
+                };
 
                 fetch(`/api/playlists/${id}/tracks`, {
                     method: "POST",
-                    body: JSON.stringify({
-                        source: this.src
-                    })
+                    body: JSON.stringify(body)
                 }).then(x => {
                     if (x.status == 200) {
                         track.added = true

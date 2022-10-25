@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import {ref} from "vue";
+import {ref, watch} from "vue";
 
 const props = defineProps({
     icon: String,
@@ -21,6 +21,10 @@ const props = defineProps({
 })
 
 const value = ref(props.modelValue);
+
+watch(() => props.modelValue, (nValue) => {
+    value.value = nValue
+})
 
 const emits = defineEmits(['update:modelValue', 'change', 'submit']);
 
@@ -41,8 +45,18 @@ const onInput = e => {
     background: var(--input-background);
     border: 1px solid transparent;
 
+    color: var(--font-darker);
+    input {
+        color: var(--font-darker);
+    }
+
     &:focus-within, &:hover {
         border-color: var(--font-colour);
+
+        color: var(--font-colour);
+        input {
+            color: var(--font-colour);
+        }
     }
 }
 
