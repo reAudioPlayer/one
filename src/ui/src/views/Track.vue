@@ -5,11 +5,22 @@
             :title="title"
             :artist="artist"
             ref="addSongPopup"
-            :src="src"
+            :href="src"
+            exists
+        />
+        <EditSong
+            @close="updatePlaylist"
+            ref="editSongPopup"
+            :cover="cover"
+            :id="id"
+            :title="title"
+            :album="album"
+            :artist="artist"
+            :source="src"
         />
         <fixed-playlist-header @loadPlaylist="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }"
-            :title="playlistName" />
-        <div class="padding-20 songdetails" @click="editPlaylist" v-observe-visibility="headerVisibilityChanged">
+            :title="`${artist} - ${title}`" />
+        <div class="padding-20 songdetails" @click="editSong" v-observe-visibility="headerVisibilityChanged">
             <img class="cover" :src="cover" />
             <div class="details">
                 <h7>Song</h7>
@@ -45,6 +56,7 @@
 <script>
     import FixedPlaylistHeader from '../components/Playlist/FixedPlaylistHeader.vue'
     import GridHeader from '../components/Playlist/GridHeader.vue'
+    import EditSong from "@/components/Popups/EditSong";
     import draggable from 'vuedraggable'
     import SpotifyPlaylistEntry from '../components/SpotifyPlaylist/SpotifyPlaylistEntry.vue'
 
@@ -59,7 +71,8 @@
             FixedPlaylistHeader,
             GridHeader,
             draggable,
-            SpotifyPlaylistEntry
+            SpotifyPlaylistEntry,
+            EditSong
         },
         data() {
             this.updatePlaylist()
@@ -68,8 +81,10 @@
                 fixedHeaderHidden: true,
                 title: "N/A",
                 artist: "N/A",
+                album: "N/A",
                 cover: "/assets/img/music_placeholder.png",
                 src: "",
+                id: -1,
                 recommendations: []
             }
         },
@@ -90,10 +105,10 @@
             headerVisibilityChanged(a) {
                 this.fixedHeaderHidden = a
             },
-            addToPlaylist() {
-                this.$refs.addSongPopup.showModal = true
+            editSong() {
+                this.$refs.editSongPopup.showModal = true;
             },
-            editPlaylist() {
+            addToPlaylist() {
                 this.$refs.addSongPopup.showModal = true
             },
             updateIsPlaying() {
@@ -122,6 +137,8 @@
                     this.artist = jdata.artist || "N/A"
                     this.cover = jdata.cover || "/assets/img/music_placeholder.png"
                     this.src = jdata.source
+                    this.album = jdata.album || "N/A"
+                    this.id = jdata.id
                     document.title = `${this.title} • ${this.artist}`;
 
                     const resp = await fetch("/api/spotify/recommendations", {
