@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
-from functools import wraps
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
+from functools import wraps
 from enum import Enum
-from typing import Any, Callable, Dict, Generic, List, Optional, ParamSpec, TypeVar
+from typing import Any, Callable, Dict, Generic, List, Optional, ParamSpec, Type, TypeVar
 
 from aiohttp import web
 import spotipy # type: ignore
@@ -50,7 +50,7 @@ class SpotifyResult(Generic[T]):
         return SpotifyResult(SpotifyState.Authorised, data)
 
     @staticmethod
-    def errorResult(state = SpotifyState.Disabled) -> SpotifyResult[T]:
+    def errorResult(state: SpotifyState = SpotifyState.Disabled) -> SpotifyResult[T]:
         """Returns an error result"""
         return SpotifyResult(state)
 
@@ -61,7 +61,8 @@ class SpotifyResult(Generic[T]):
 
     def httpResponse(self) -> web.Response:
         """Returns the http response of the operation"""
-        return self._state.value()
+        response: Type[web.Response] = self._state.value
+        return response()
 
     def success(self) -> bool:
         """Returns if the operation was successful"""
@@ -80,15 +81,17 @@ class SpotifyResult(Generic[T]):
         """Returns the data of the operation"""
         if not self.success():
             raise Exception("unwrap called on error result")
+        assert self._data is not None
         return self._data
 
     def unwrapOr(self, value: T) -> T:
         """Returns the data of the operation or a default value"""
         if not self.success():
             return value
+        assert self._data is not None
         return self._data
 
-    def map(self, func: S) -> SpotifyResult[S]:
+    def map(self, func: S) -> SpotifyResult[Type[S]]:
         """Maps the result"""
         if not self.success():
             return SpotifyResult(self._state)
@@ -150,6 +153,8 @@ class Spotify:
         """Returns a track"""
         if not self._connect():
             return SpotifyResult.errorResult()
+
+        assert self._spotify is not None
         track: Dict[str, Any] = self._spotify.track(trackId)
         return SpotifyResult.successResult(SpotifyTrack(track))
 
@@ -159,6 +164,7 @@ class Spotify:
         if not self._connect():
             return SpotifyResult.errorResult()
 
+        assert self._spotify is not None
         track = self._spotify.track(url)
         return SpotifyResult.successResult(SpotifyTrack(track))
 
@@ -168,6 +174,7 @@ class Spotify:
         if not self._connect():
             return SpotifyResult.errorResult()
 
+        assert self._spotify is not None
         search = self._spotify.search(query, limit = 10, type = "track")
         tracks = DictEx(search).ensureDictChain("tracks").ensureList("items")
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
@@ -178,6 +185,7 @@ class Spotify:
         if not self._connect():
             return SpotifyResult.errorResult()
 
+        assert self._spotify is not None
         search = self._spotify.search(query, limit = 10, type = "artist")
         artists = DictEx(search).ensureDictChain("artists").ensureList("items")
         return SpotifyResult.successResult([SpotifyArtist(artist) for artist in artists])
@@ -188,6 +196,7 @@ class Spotify:
         if not self._connect():
             return SpotifyResult.errorResult()
 
+        assert self._spotify is not None
         tracks = self._spotify.playlist_items(playlistId)
         tracks = DictEx(tracks).ensureList("items")
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
@@ -198,6 +207,7 @@ class Spotify:
         if not self._connect():
             return SpotifyResult.errorResult()
 
+        assert self._spotify is not None
         tracks = self._spotify.album_tracks(albumId)
         tracks = DictEx(tracks).ensureList("items")
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
@@ -208,6 +218,7 @@ class Spotify:
         if not self._connect():
             return SpotifyResult.errorResult()
 
+        assert self._spotify is not None
         tracks = self._spotify.artist_top_tracks(artistId)
         tracks = DictEx(tracks).ensureList("tracks")
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
@@ -218,6 +229,7 @@ class Spotify:
         if not self._connect():
             return SpotifyResult.errorResult()
 
+        assert self._spotify is not None
         albums = self._spotify.artist_albums(artistId)
         albums = DictEx(albums).ensureList("items")
         return SpotifyResult.successResult([SpotifyAlbum(album) for album in albums])
@@ -231,6 +243,7 @@ class Spotify:
         if not self._connect():
             return SpotifyResult.errorResult()
 
+        assert self._spotify is not None
         tracks = self._spotify.recommendations(seed_artists = seedArtists,
                                                seed_tracks = seedTracks,
                                                seed_genres = seedGenres)
@@ -243,6 +256,7 @@ class Spotify:
         if not self._connect():
             return SpotifyResult.errorResult()
 
+        assert self._spotify is not None
         playlists = self._spotify.current_user_playlists()
         playlists = DictEx(playlists).ensureList("items")
         return SpotifyResult.successResult([SpotifyPlaylist(playlist) for playlist in playlists])
@@ -253,6 +267,7 @@ class Spotify:
         if not self._connect():
             return SpotifyResult.errorResult()
 
+        assert self._spotify is not None
         artists = self._spotify.current_user_top_artists()
         artists = DictEx(artists).ensureList("items")
         return SpotifyResult.successResult([SpotifyArtist(artist) for artist in artists])
@@ -265,6 +280,7 @@ class Spotify:
 
         got: int = 50
 
+        assert self._spotify is not None
         result = self._spotify.current_user_followed_artists(limit=50)
         artists = DictEx(result).ensure("artists", DictEx)
         fartists: List[Dict[str, Any]] = [ ]
@@ -282,3 +298,21 @@ class Spotify:
             got += 50
 
         return SpotifyResult.successResult([SpotifyArtist(artist) for artist in fartists])
+
+    def follow(self, artistId: str) -> SpotifyResult[None]:
+        """Follows an artist"""
+        if not self._connect():
+            return SpotifyResult.errorResult()
+
+        assert self._spotify is not None
+        self._spotify.user_follow_artists([artistId])
+        return SpotifyResult.successResult(None)
+
+    def unfollow(self, artistId: str) -> SpotifyResult[None]:
+        """Unfollows an artist"""
+        if not self._connect():
+            return SpotifyResult.errorResult()
+
+        assert self._spotify is not None
+        self._spotify.user_unfollow_artists([artistId])
+        return SpotifyResult.successResult(None)

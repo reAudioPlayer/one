@@ -53,7 +53,7 @@ class OneFootballMatch(Match):
             nurl = OneFootballTeam.getFirstMatch(url)
         super().__init__(nurl)
         self._sref = url
-        self._html = requests.get(nurl).text
+        self._html = requests.get(nurl, timeout = 10).text
         self._soup = BeautifulSoup(self._html, "html.parser")
         section = self._soup.find("div", class_="match-score__main")
         teams = section.find_all("of-match-score-team")
@@ -92,7 +92,7 @@ class OneFootballTeam:
         """gets the first match of the specified team"""
         if not url.endswith("/fixtures"):
             url += "/fixtures"
-        html = requests.get(url).text
+        html = requests.get(url, timeout = 10).text
         soup = BeautifulSoup(html, "html.parser")
         matches = soup.find_all("a", class_="match-card", href=True)
         href: Optional[str] = None

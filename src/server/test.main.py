@@ -34,7 +34,7 @@ try:
     logger.info("==========================================================")
 
     # get all playlists
-    with requests.get("http://localhost:1234/api/playlists") as res:
+    with requests.get("http://localhost:1234/api/playlists", timeout = 10) as res:
         logger.info(res.status_code)
         logger.info(res.text)
 
@@ -45,14 +45,14 @@ try:
     id_= -1
 
     # create Playlist
-    with requests.get("http://localhost:1234/api/playlists/new") as res:
+    with requests.get("http://localhost:1234/api/playlists/new", timeout = 10) as res:
         logger.info(res.status_code)
         id_ = int(res.text)
 
     logger.info(id_)
 
     # get all playlists
-    with requests.get("http://localhost:1234/api/playlists") as res:
+    with requests.get("http://localhost:1234/api/playlists", timeout = 10) as res:
         logger.info(res.status_code)
         logger.info(res.text)
 
@@ -68,19 +68,21 @@ try:
     }
 
     # update data
-    with requests.post(f"http://localhost:1234/api/playlists/{id_}", json=playlist) as res:
+    with requests.post(f"http://localhost:1234/api/playlists/{id_}",
+                       json=playlist,
+                       timeout = 10) as res:
         logger.info(res.status_code)
         logger.info(res.text)
 
     # get all playlists
-    with requests.get("http://localhost:1234/api/playlists") as res:
+    with requests.get("http://localhost:1234/api/playlists", timeout = 10) as res:
         logger.info(res.status_code)
         playlists = ListEx(res.json())
         newPlaylist = playlists.ensureString(0) # pylint: disable=invalid-name
         assert newPlaylist == playlist["name"]
 
     # get our playlist
-    with requests.get(f"http://localhost:1234/api/playlists/{id_}") as res:
+    with requests.get(f"http://localhost:1234/api/playlists/{id_}", timeout = 10) as res:
         playlist = DictEx(res.json())
         logger.info(res.status_code)
         logger.info(playlist)
@@ -95,7 +97,8 @@ try:
 
     # get metadata
     with requests.post("http://localhost:1234/api/browse/track",
-                    json={"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}) as res:
+                    json={"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"},
+                    timeout = 10) as res:
         metadata = DictEx(res.json())
         logger.info(res.status_code)
         logger.info(metadata)
@@ -113,12 +116,14 @@ try:
     }
 
     # add song
-    with requests.post(f"http://localhost:1234/api/playlists/{id_}/tracks", json=song) as res:
+    with requests.post(f"http://localhost:1234/api/playlists/{id_}/tracks",
+                       json=song,
+                       timeout = 10) as res:
         logger.info(res.status_code)
         logger.info(res.text)
 
     # get our playlist
-    with requests.get(f"http://localhost:1234/api/playlists/{id_}") as res:
+    with requests.get(f"http://localhost:1234/api/playlists/{id_}", timeout = 10) as res:
         playlist = DictEx(res.json())
         logger.info(res.status_code)
         logger.info(playlist)
@@ -134,7 +139,7 @@ try:
 except: # pylint: disable=bare-except
     SUCCESS = False
 try:
-    requests.get("http://localhost:1234/api/system/kill")
+    requests.get("http://localhost:1234/api/system/kill", timeout = 10)
 except: # pylint: disable=bare-except
     pass
 
