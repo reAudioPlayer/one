@@ -91,7 +91,7 @@ class SpotifyResult(Generic[T]):
         assert self._data is not None
         return self._data
 
-    def map(self, func: S) -> SpotifyResult[Type[S]]:
+    def map(self, func: Callable[..., S]) -> SpotifyResult[S]:
         """Maps the result"""
         if not self.success():
             return SpotifyResult(self._state)
@@ -108,7 +108,7 @@ def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
     @wraps(func)
     def wrapper(self: Spotify, *args: Any, **kwargs: Any) -> Any:
         try:
-            return func(self, *args, **kwargs)
+            return func(self, *args, **kwargs) # type: ignore
         except SpotifyException as exc:
             if exc.http_status == 401:
                 self.auth.invalidate()
@@ -122,7 +122,7 @@ def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
         except Exception as exc:
             print(exc)
             return SpotifyResult.errorResult(SpotifyState.InternalError)
-    return wrapper
+    return wrapper # type: ignore
 
 
 class Spotify:
