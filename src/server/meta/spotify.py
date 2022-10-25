@@ -5,16 +5,16 @@ from functools import wraps
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from enum import Enum
-from typing import Any, Callable, Dict, Generic, List, Optional, ParamSpec, Type, TypeVar
+from typing import Any, Callable, Dict, Generic, List, Optional, ParamSpec, TypeVar
 
 from aiohttp import web
 import spotipy # type: ignore
+from spotipy.exceptions import SpotifyException # type: ignore
 
 from handler.spotifyAuth import SpotifyAuth
 from dataModel.track import SpotifyArtist, SpotifyTrack, SpotifyPlaylist, SpotifyAlbum
 from helper.dictTool import DictEx
 
-from spotipy.exceptions import SpotifyException
 
 P = ParamSpec('P')
 U = TypeVar("U")
@@ -102,24 +102,24 @@ class SpotifyResult(Generic[T]):
 
 
 def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
-        @wraps(func)
-        def wrapper(self: Spotify, *args: Any, **kwargs: Any) -> Any:
-            try:
-                return func(self, *args, **kwargs)
-            except SpotifyException as exc:
-                if exc.http_status == 401:
-                    self.auth.invalidate()
-                    return SpotifyResult.errorResult(SpotifyState.Unauthorised)
+    @wraps(func)
+    def wrapper(self: Spotify, *args: Any, **kwargs: Any) -> Any:
+        try:
+            return func(self, *args, **kwargs)
+        except SpotifyException as exc:
+            if exc.http_status == 401:
+                self.auth.invalidate()
+                return SpotifyResult.errorResult(SpotifyState.Unauthorised)
 
-                if exc.http_status == 429:
-                    return SpotifyResult.errorResult(SpotifyState.QuoteExceeded)
+            if exc.http_status == 429:
+                return SpotifyResult.errorResult(SpotifyState.QuoteExceeded)
 
-                print(exc)
-                return SpotifyResult.errorResult(SpotifyState.InternalError)
-            except Exception as exc:
-                print(exc)
-                return SpotifyResult.errorResult(SpotifyState.InternalError)
-        return wrapper
+            print(exc)
+            return SpotifyResult.errorResult(SpotifyState.InternalError)
+        except Exception as exc:
+            print(exc)
+            return SpotifyResult.errorResult(SpotifyState.InternalError)
+    return wrapper
 
 
 class Spotify:

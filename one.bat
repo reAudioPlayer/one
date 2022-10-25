@@ -35,7 +35,7 @@ exit
 :lint
 cd src/server
 python -m mypy
-python -m pylint main.py ./dataModel ./db ./downloader ./handler ./helper ./meta ./player ./config
+python -m pylint main.py ./config ./dataModel ./db ./downloader ./handler ./helper ./meta ./player ./router
 exit
 
 :build
