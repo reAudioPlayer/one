@@ -85,18 +85,15 @@ class PlayerHandler:
         """post(/api/player/at)"""
         x = await request.json()
         async def _implement() -> None:
-            print(x.get("type"))
             if "playlistIndex" in x:
                 if not await self._player.loadPlaylist(
                         self._playlistManager.get(x.get("playlistIndex")),
                                                   x["index"]):
                     await self._player.at(x["index"])
             elif x.get("type") == "collection/breaking":
-                print("do breaking!!")
                 if not await self._player.loadPlaylist(PlayerPlaylist.breaking(self._dbManager),
                                                        x["index"]):
                     await self._player.at(x["index"])
-                print("hello??")
             elif x.get("type") == "collection":
                 if not await self._player.loadPlaylist(PlayerPlaylist.liked(self._dbManager),
                                                        x["index"]):

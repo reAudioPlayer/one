@@ -11,7 +11,7 @@ T = TypeVar("T")
 
 
 async def asyncRunInThread(target: Callable[..., None],
-                           *args: ...) -> None:
+                           *args: Any) -> None:
     """runs the callable in a thread while providing an async interface for it"""
     thread = Thread(target = target, args = args)
     thread.start()
@@ -19,7 +19,7 @@ async def asyncRunInThread(target: Callable[..., None],
         await asyncio.sleep(1)
 
 async def asyncRunInThreadWithReturn(target: Callable[..., T],
-                                     *args: ...) -> T:
+                                     *args: Any) -> T:
     """
     runs the callable in a thread while providing an async interface for it
     (allows return value)
