@@ -8,7 +8,6 @@ import re
 from typing import Any, Dict, List, Optional
 import requests
 
-import spotipy # type: ignore
 from ytmusicapi import YTMusic # type: ignore
 
 from sclib import SoundcloudAPI, Track # type: ignore
@@ -112,43 +111,6 @@ class SpotifyTrack(ITrack):
     def url(self) -> str:
         return f"https://open.spotify.com/track/{self._id}"
 
-    @staticmethod
-    def fromQuery(spotify: spotipy.Spotify, query: str) -> List[SpotifyTrack]:
-        """return list of tracks from query"""
-        tracks = DictEx(spotify.search(query)).ensureDictChain("tracks").ensureList("items")
-        return [ SpotifyTrack(track) for track in tracks ]
-
-    @staticmethod
-    def fromAlbum(spotify: spotipy.Spotify, id_: str) -> List[SpotifyTrack]:
-        """return list of tracks from album"""
-        tracks = DictEx(spotify.album_tracks(id_)).ensureList("items")
-        return [ SpotifyTrack(track) for track in tracks ]
-
-    @staticmethod
-    def fromUrl(spotify: spotipy.Spotify, url: str) -> SpotifyTrack:
-        """return track from url"""
-        return SpotifyTrack(spotify.track(url))
-
-    @staticmethod
-    def fromPlaylist(spotify: spotipy.Spotify, id_: str) -> List[SpotifyTrack]:
-        """return list of tracks from playlist"""
-        tracks = DictEx(spotify.playlist_tracks(id_)).ensureList("items")
-        return [ SpotifyTrack(track["track"]) for track in tracks ]
-
-    @staticmethod
-    def fromArtist(spotify: spotipy.Spotify, id_: str) -> List[SpotifyTrack]:
-        """return list of tracks from artist"""
-        tracks = DictEx(spotify.artist_top_tracks(id_)).ensureList("tracks")
-        return [ SpotifyTrack(track) for track in tracks ]
-
-    @staticmethod
-    def fromRecommendation(spotify: spotipy.Spotify,
-                           artists: Optional[List[str]],
-                           tracks: Optional[List[str]]) -> List[SpotifyTrack]:
-        """return list of tracks from recommendations"""
-        recommendations = DictEx(spotify.recommendations(seed_artists=artists,
-            seed_tracks=tracks, limit = 10)).ensureList("tracks")
-        return [ SpotifyTrack(track) for track in recommendations ]
 
 class SpotifyPlaylist:
     """spotify playlist model"""
@@ -182,13 +144,10 @@ class SpotifyArtist:
         self._cover = dex.ensureListChain("images").ensureDictChain(0).ensureString("url")
         self._description = f"{dex.ensureDictChain('followers').ensureInt('total'):,} followers"
 
-    @staticmethod
-    def fromQuery(spotify: spotipy.Spotify, query: str) -> List[SpotifyArtist]:
-        """return list of artists from query"""
-        artists = DictEx(spotify.search(query, type="artist"))\
-                    .ensureDictChain("artists")\
-                    .ensureList("items")
-        return [ SpotifyArtist(artist) for artist in artists ]
+    @property
+    def id(self) -> str:
+        """return id"""
+        return self._id
 
     def toDict(self) -> Dict[str, Any]:
         """return dict of artist"""
@@ -198,6 +157,7 @@ class SpotifyArtist:
             "cover": self._cover,
             "id": self._id
         }
+
 
 class SpotifyAlbum:
     """spotify album model"""

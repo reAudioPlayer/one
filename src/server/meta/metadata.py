@@ -3,16 +3,16 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from typing import Any, Dict, Optional
-import spotipy # type: ignore
 
 import validators # type: ignore
 
-from dataModel.track import ITrack, SoundcloudTrack, SpotifyTrack, YoutubeTrack
+from meta.spotify import Spotify
+from dataModel.track import ITrack, SoundcloudTrack, YoutubeTrack
 
 
 class Metadata:
     """metadata finder"""
-    def __init__(self, spotify: spotipy.Spotify, url: str) -> None:
+    def __init__(self, spotify: Spotify, url: str) -> None:
         self._track: Optional[ITrack] = None
         self._src = None
         if not validators.url(url):
@@ -21,7 +21,10 @@ class Metadata:
             self._src = url
             self._track = YoutubeTrack.fromUrl(url)
         elif "spotify" in url:
-            self._track = SpotifyTrack.fromUrl(spotify, url)
+            result = spotify.url(url)
+            if not result:
+                return
+            self._track = result.unwrap()
             ytTrack = YoutubeTrack.fromSpotifyTrack(self._track)
             if ytTrack:
                 self._src = f"https://music.youtube.com/watch?v={ytTrack._id}"
