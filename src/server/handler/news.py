@@ -46,4 +46,3 @@ class NewsHandler:
             return web.json_response(data = data)
         if isinstance(data, str):
             return web.Response(status = 400, text = data)
-        return web.Response(status = 500)

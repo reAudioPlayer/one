@@ -12,7 +12,7 @@ class Article:
     """News Article"""
     def __init__(self, url: str) -> None:
         self._url: str = url
-        self._html = requests.get(self._url).text
+        self._html = requests.get(self._url, timeout = 10).text
         self._soup = BeautifulSoup(self._html, "html.parser")
         self._topic: Optional[str] = None
         self._headline: Optional[str] = None

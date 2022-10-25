@@ -22,7 +22,7 @@ class Releases:
             albums = result.unwrap()
 
             latest: int = self._dateToInt("1990-0-0")
-            latestAlbum: Optional[Dict[str, Any]] = None
+            latestAlbum: Optional[SpotifyAlbum] = None
             for album in albums:
                 release = self._dateToInt(album.releaseDate)
                 if release > latest:

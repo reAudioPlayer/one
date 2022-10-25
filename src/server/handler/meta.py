@@ -70,7 +70,7 @@ class MetaHandler:
     @useCache(900) # type: ignore
     async def spotifyPlaylists(self, _: web.Request) -> web.Response:
         """get(/api/spotify/playlists)"""
-        def _implement() -> SpotifyResult[SpotifyPlaylist]:
+        def _implement() -> SpotifyResult[List[SpotifyPlaylist]]:
             result = self._spotify.userPlaylists()
             if not result:
                 return result.transform([ ])
@@ -110,7 +110,7 @@ class MetaHandler:
     @useCache(900) # type: ignore
     async def spotifyArtists(self, _: web.Request) -> web.Response:
         """get(/api/spotify/artists)"""
-        def _implement() -> SpotifyResult[SpotifyArtist]:
+        def _implement() -> SpotifyResult[List[SpotifyArtist]]:
             result = self._spotify.allUserArtists()
             if not result:
                 return result.transform([ ])
@@ -144,13 +144,13 @@ class MetaHandler:
     async def spotifyFollow(self, request: web.Request) -> web.Response:
         """post(/api/spotify/following)"""
         jdata = await request.json()
-        self._spotify.user_follow_artists([jdata.get("artistId")])
+        self._spotify.follow(jdata.get("artistId"))
         return web.json_response(status=200)
 
     async def spotifyUnfollow(self, request: web.Request) -> web.Response:
         """delete(/api/spotify/following)"""
         jdata = await request.json()
-        self._spotify.user_unfollow_artists([jdata.get("artistId")])
+        self._spotify.unfollow(jdata.get("artistId"))
         return web.json_response(status=200)
 
     async def upload(self, request: web.Request) -> web.Response:
