@@ -148,5 +148,6 @@ class SpotifyAuth:
                 return None
 
     async def invalidate(self) -> None:
+        """Invalidates the cached Spotify Token"""
         if os.path.isfile(".cache"):
             os.remove(".cache")

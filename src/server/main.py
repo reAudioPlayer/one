@@ -83,7 +83,6 @@ async def _exceptionMiddleware(request: web.Request,
         #os.unlink(".cache")
         logger.exception(exc)
         resp = web.Response(status = 500, text = str(exc))
-        pass
     except Exception as exc: # pylint: disable=bare-except
         logger.exception(exc)
         resp = web.Response(status = 500, text = str(exc))
