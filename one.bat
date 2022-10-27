@@ -50,7 +50,7 @@ exit
 if /i "%arg%" == "dev-ui" (
     start "" http://localhost:5173
 ) else (
-    start "" http://localhost:1234
+   start "" http://localhost:1234
 )
 echo run
 cd src/server

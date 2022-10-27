@@ -9,9 +9,9 @@ from os.path import exists
 import json
 from typing import Optional
 
-from helper.singleton import Singleton
-from helper.dictTool import DictEx
+from pyaddict import JDict
 
+from helper.singleton import Singleton
 from config.config import SPOTIFY
 
 
@@ -103,17 +103,17 @@ class Runtime:
     args: Args = Args()
 
     @staticmethod
-    def spotifyConfig() -> Optional[DictEx]:
+    def spotifyConfig() -> Optional[JDict]:
         """The spotify configuration."""
         if Runtime.args.noSpotify:
             return None
         if not exists(SPOTIFY):
             return None
         with open(SPOTIFY, encoding = "utf-8") as file:
-            return DictEx(json.load(file))
+            return JDict(json.load(file))
 
     @staticmethod
-    def setSpotifyConfig(value: DictEx) -> None:
+    def setSpotifyConfig(value: JDict) -> None:
         """Sets the spotify configuration."""
         with open(SPOTIFY, "w", encoding = "utf-8") as file:
             json.dump(value, file, indent = 4)

@@ -8,11 +8,9 @@ import re
 from typing import Any, Dict, List, Optional
 import requests
 
+from pyaddict import JDict, JList
 from ytmusicapi import YTMusic # type: ignore
-
 from sclib import SoundcloudAPI, Track # type: ignore
-
-from helper.dictTool import DictEx
 
 
 class ITrack(ABC):
@@ -61,22 +59,23 @@ class ITrack(ABC):
 class SpotifyTrack(ITrack):
     """spotify track model"""
     def __init__(self, track: Dict[str, Any]) -> None:
-        dex = DictEx(track)
-        self._title = dex.ensureString("name")
-        album = dex.ensureDictChain("album")
+        dex = JDict(track)
+        self._title = dex.ensure("name", str)
+        album = dex.ensureCast("album", JDict)
         if album:
-            self._album = album.ensureString("name")
-            self._cover = album.ensureListChain("images").ensureDictChain(0).ensureString("url")
+            self._album = album.ensure("name", str)
+            self._cover = album.ensureCast("images", JList).ensureCast(0, JDict).ensure("url", str)
         elif "images" in track: # probably album
-            self._cover = dex.ensureListChain("images").ensureDictChain(0).ensureString("url")
-            self._releaseDate = dex.ensureString("release_date")
-        self._artists = [DictEx(x).ensureString("name") for x in dex.ensureList("artists")]
-        self._id = dex.ensureString("id")
-        self._preview = dex.ensureString("preview_url")
-        self._markets = dex.ensureList("available_markets")
+            self._cover = dex.ensureCast("images", JList).ensureCast(0, JDict).ensure("url", str)
+            self._releaseDate = dex.ensure("release_date", str)
+        self._artists    = [x.ensure("name", str)
+                            for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)]
+        self._id = dex.ensure("id", str)
+        self._preview = dex.ensure("preview_url", str)
+        self._markets = dex.ensureCast("available_markets", JList).iterator().ensure(str)
 
     @property
-    def markets(self) -> Optional[List[str]]:
+    def markets(self) -> List[str]:
         """return markets/regions"""
         return self._markets
 
@@ -115,13 +114,13 @@ class SpotifyTrack(ITrack):
 class SpotifyPlaylist:
     """spotify playlist model"""
     def __init__(self, playlist: Dict[str, Any]) -> None:
-        dex = DictEx(playlist)
-        self._name = dex.ensureString("name")
-        self._description = dex.ensureString("description")
-        self._cover = dex.ensureListChain("images").ensureDictChain(0).ensureString("url")
-        self._id = dex.ensureString("id")
-        self._owner = dex.ensureString("owner")
-        self._trackCount = dex.ensureDictChain("tracks").ensureInt("total")
+        dex = JDict(playlist)
+        self._name = dex.ensure("name", str)
+        self._description = dex.ensure("description", str)
+        self._cover = dex.ensureCast("images", JList).ensureCast(0, JDict).ensure("url", str)
+        self._id = dex.ensure("id", str)
+        self._owner = dex.ensure("owner", str)
+        self._trackCount = dex.ensureCast("tracks", JDict).ensure("total", int)
 
     def toDict(self) -> Dict[str, Any]:
         """return dict of playlist"""
@@ -138,11 +137,11 @@ class SpotifyPlaylist:
 class SpotifyArtist:
     """spotify artist model"""
     def __init__(self, artist: Dict[str, Any]) -> None:
-        dex = DictEx(artist)
-        self._name = dex.ensureString("name")
-        self._id = dex.ensureString("id")
-        self._cover = dex.ensureListChain("images").ensureDictChain(0).ensureString("url")
-        self._description = f"{dex.ensureDictChain('followers').ensureInt('total'):,} followers"
+        dex = JDict(artist)
+        self._name = dex.ensure("name", str)
+        self._id = dex.ensure("id", str)
+        self._cover = dex.ensureCast("images", JList).ensureCast(0, JDict).ensure("url", str)
+        self._description = f"{dex.ensureCast('followers', JDict).ensure('total', int):,} followers"
 
     @property
     def id(self) -> str:
@@ -162,12 +161,13 @@ class SpotifyArtist:
 class SpotifyAlbum:
     """spotify album model"""
     def __init__(self, album: Dict[str, Any]) -> None:
-        dex = DictEx(album)
-        self._title = dex.ensureString("name")
-        self._cover = dex.ensureListChain("images").ensureDictChain(0).ensureString("url")
-        self._releaseDate = dex.ensureString("release_date")
-        self._artists = [DictEx(x).ensureString("name") for x in dex.ensureList("artists")]
-        self._id = dex.ensureString("id")
+        dex = JDict(album)
+        self._title = dex.ensure("name", str)
+        self._cover = dex.ensureCast("images", JList).ensureCast(0, JDict).ensure("url", str)
+        self._releaseDate = dex.ensure("release_date", str)
+        self._artists = [x.ensure("name", str)
+                         for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)]
+        self._id = dex.ensure("id", str)
 
     @property
     def title(self) -> str:
@@ -210,15 +210,16 @@ except Exception as e:
 class YoutubeTrack(ITrack):
     """youtube track model"""
     def __init__(self, track: Dict[str, Any]) -> None:
-        dex = DictEx(track)
-        self._title = dex.ensureString("title")
-        album = dex.ensureDictChain("album")
-        self._album = album.ensureString("name")
-        self._artists = [DictEx(x).ensureString("name") for x in dex.ensureList("artists")]
-        self._id = dex.ensureString("videoId")
-        self._cover = dex.ensureListChain("thumbnails")\
-                        .ensureDictChain(0)\
-                        .ensureString("url")\
+        dex = JDict(track)
+        self._title = dex.ensure("title", str)
+        album = dex.ensureCast("album", JDict)
+        self._album = album.ensure("name", str)
+        self._artists = [x.ensure("name", str)
+                         for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)]
+        self._id = dex.ensure("videoId", str)
+        self._cover = dex.ensureCast("thumbnails", JList)\
+                        .ensureCast(0, JDict)\
+                        .ensure("url", str)\
                         .replace("w60-h60", "w500-h500")
         self._preview = None
         self._markets: Optional[List[str]] = [ ]
@@ -280,6 +281,7 @@ class YoutubeTrack(ITrack):
         if len(results) > 0:
             return YoutubeTrack(results[0])
         return None
+
 
 class SoundcloudTrack(ITrack):
     """soundcloud track model"""

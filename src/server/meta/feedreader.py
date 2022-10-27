@@ -7,9 +7,8 @@ from enum import Enum
 from typing import Dict, Any, List, Optional
 import hashlib
 
+from pyaddict import JDict
 import feedparser # type: ignore
-
-from helper.dictTool import DictEx
 
 
 HASH_LOOKUP = { }
@@ -18,28 +17,28 @@ HASH_LOOKUP = { }
 class Article:
     """Feedreader Article"""
     def __init__(self, entry: Dict[str, Any], feedTitle: str) -> None:
-        dex = DictEx(entry)
-        self._title = dex.ensureString("title")
-        self._author = dex.ensureString("author")
-        self._summary = dex.ensureString("summary")
-        self._link = dex.ensureString("link")
+        dex = JDict(entry)
+        self._title = dex.ensure("title", str)
+        self._author = dex.ensure("author", str)
+        self._summary = dex.ensure("summary", str)
+        self._link = dex.ensure("link", str)
         self._href = hashlib.md5(self._link.encode('utf-8')).hexdigest()
         HASH_LOOKUP[self._href] = self._link
-        self._updated = dex.ensureString("updated")
-        self._mediaContent = dex.ensureList("media_content") or [ ]
+        self._updated = dex.ensure("updated", str)
+        self._mediaContent = dex.ensure("media_content", list)
         self._feedTitle = feedTitle.replace('"when:24h allinurl:', '')\
                                    .replace('" - Google News', '')
         self._image: Optional[str] = None
         bestQuality = 0
         for image in self._mediaContent:
-            dex = DictEx(image)
+            dex = JDict(image)
             if image.get("width"):
-                quality = dex.ensureInt("width")
+                quality = dex.ensure("width", int)
                 if quality > bestQuality:
                     bestQuality = quality
-                    self._image = dex.ensureString("url")
+                    self._image = dex.ensure("url", str)
             else:
-                self._image = dex.ensureString("url")
+                self._image = dex.ensure("url", str)
 
     def toJson(self) -> Dict[str, Any]:
         """serialise"""
@@ -67,7 +66,7 @@ class Feed(Enum):
     def take(cls, url: Feed, count: int, offset: int = 0) -> List[Article]:
         """take [count] articles from the [url] feed"""
         feed = feedparser.parse(url.value)
-        return [ Article(entry, DictEx(feed).ensureDictChain("feed").ensureString("title"))
+        return [ Article(entry, JDict(feed).ensureCast("feed", JDict).ensure("title", str))
                  for (index, entry) in enumerate(feed.entries)
                  if offset <= index < (count + offset) ]
 
