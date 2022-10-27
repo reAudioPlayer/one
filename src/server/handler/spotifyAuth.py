@@ -13,10 +13,10 @@ import asyncio
 
 import aiohttp
 from aiohttp import web
+from pyaddict import JDict
 from spotipy.oauth2 import  SpotifyOAuth # type: ignore
 
 from config.runtime import Runtime
-from helper.dictTool import DictEx
 
 
 SCOPE = "user-library-read user-follow-read user-follow-modify"
@@ -44,7 +44,7 @@ class SpotifyAuth:
         with open(".cache", "r", encoding = "utf8") as file:
             data = json.loads(file.read())
 
-        return DictEx(data).ensure("expires_at", int) < time()
+        return JDict(data).ensure("expires_at", int) < time()
 
     def isAuth(self) -> bool:
         """Returns if the user is authenticated"""
@@ -75,8 +75,8 @@ class SpotifyAuth:
     @staticmethod
     def _getSpotifyAuthData() -> Tuple[str, str]:
         """Returns the client_id and client_secret"""
-        spotifyConfig = Runtime.spotifyConfig() or DictEx()
-        return spotifyConfig.ensureString("id"), spotifyConfig.ensureString("secret")
+        spotifyConfig = Runtime.spotifyConfig() or JDict()
+        return spotifyConfig.ensure("id", str), spotifyConfig.ensure("secret", str)
 
     @staticmethod
     def getSpotifyAuth() -> Optional[SpotifyOAuth]: # pylint: disable=invalid-name
@@ -143,7 +143,7 @@ class SpotifyAuth:
                     with open(".cache", "w", encoding = "utf8") as file:
                         file.write(json.dumps(data))
 
-                    return DictEx(data).ensure("access_token", str)
+                    return JDict(data).ensure("access_token", str)
 
                 return None
 

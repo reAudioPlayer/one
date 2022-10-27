@@ -6,10 +6,11 @@ from pathlib import Path
 from typing import Any, Dict, List
 from aiohttp import web
 
+from pyaddict import JDict
+
 from db.dbManager import DbManager
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.cacheDecorator import useCache
-from helper.dictTool import DictEx
 from meta.metadata import Metadata
 from meta.releases import Releases
 from meta.search import Search
@@ -168,7 +169,7 @@ class MetaHandler:
         """post(/api/spotify/recommendations)"""
         jdata = await request.json()
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
-            dex = DictEx(jdata)
+            dex = JDict(jdata)
             query = dex.tryGet("query", str)
             if query:
                 result = self._spotify.searchTrack(query)
@@ -178,9 +179,9 @@ class MetaHandler:
                     if len(tracks) > 0:
                         dex["tracks"] = [ tracks[0].id ]
 
-            result = self._spotify.recommendations(dex.get("artists", [ ]),
-                                                   dex.get("tracks", [ ]),
-                                                   dex.get("genres", [ ]))
+            result = self._spotify.recommendations(dex.ensure("artists", list),
+                                                   dex.ensure("tracks", list),
+                                                   dex.ensure("genres", list))
 
             if not result:
                 return result.transform([ ])

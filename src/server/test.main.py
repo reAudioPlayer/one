@@ -7,10 +7,9 @@ import threading
 from subprocess import call
 import time
 import logging
-
 import requests
 
-from helper.dictTool import DictEx, ListEx
+from pyaddict import JDict, JList
 
 
 logging.basicConfig(level = logging.INFO)
@@ -77,19 +76,19 @@ try:
     # get all playlists
     with requests.get("http://localhost:1234/api/playlists", timeout = 10) as res:
         logger.info(res.status_code)
-        playlists = ListEx(res.json())
-        newPlaylist = playlists.ensureString(0) # pylint: disable=invalid-name
+        playlists = JList(res.json())
+        newPlaylist = playlists.ensure(0, str) # pylint: disable=invalid-name
         assert newPlaylist == playlist["name"]
 
     # get our playlist
     with requests.get(f"http://localhost:1234/api/playlists/{id_}", timeout = 10) as res:
-        playlist = DictEx(res.json())
+        playlist = JDict(res.json())
         logger.info(res.status_code)
         logger.info(playlist)
-        assert playlist.ensureString("name") == playlist["name"]
-        assert playlist.ensureString("description") == playlist["description"]
-        assert playlist.ensureString("cover") == playlist["cover"]
-        assert len(playlist.ensureList("songs")) == 0
+        assert playlist.ensure("name", str) == playlist["name"]
+        assert playlist.ensure("description", str) == playlist["description"]
+        assert playlist.ensure("cover", str) == playlist["cover"]
+        assert len(playlist.ensure("songs", list)) == 0
 
     logger.info("==========================================================")
     logger.info("====================== Get Metadata ======================")
@@ -99,7 +98,7 @@ try:
     with requests.post("http://localhost:1234/api/browse/track",
                     json={"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"},
                     timeout = 10) as res:
-        metadata = DictEx(res.json())
+        metadata = JDict(res.json())
         logger.info(res.status_code)
         logger.info(metadata)
 
@@ -108,11 +107,11 @@ try:
     logger.info("==========================================================")
 
     song = {
-        "artist": ", ".join(metadata.ensureList("artists")),
-        "title": metadata.ensureString("title"),
-        "album": metadata.ensureString("album"),
-        "cover": metadata.ensureString("cover"),
-        "source": metadata.ensureString("src")
+        "artist": ", ".join(metadata.ensure("artists", list)),
+        "title": metadata.ensure("title", str),
+        "album": metadata.ensure("album", str),
+        "cover": metadata.ensure("cover", str),
+        "source": metadata.ensure("src", str)
     }
 
     # add song
@@ -124,13 +123,13 @@ try:
 
     # get our playlist
     with requests.get(f"http://localhost:1234/api/playlists/{id_}", timeout = 10) as res:
-        playlist = DictEx(res.json())
+        playlist = JDict(res.json())
         logger.info(res.status_code)
         logger.info(playlist)
-        assert playlist.ensureString("name") == playlist["name"]
-        assert playlist.ensureString("description") == playlist["description"]
-        assert playlist.ensureString("cover") == playlist["cover"]
-        assert len(playlist.ensureList("songs")) == 1
+        assert playlist.ensure("name", str) == playlist["name"]
+        assert playlist.ensure("description", str) == playlist["description"]
+        assert playlist.ensure("cover", str) == playlist["cover"]
+        assert len(playlist.ensure("songs", list)) == 1
 
     logger.info("==========================================================")
     logger.info("======================== END TEST ========================")

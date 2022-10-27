@@ -3,9 +3,9 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from aiohttp import web
+from pyaddict import JDict
 
 from config.runtime import Runtime
-from helper.dictTool import DictEx
 
 
 class ConfigHandler:
@@ -24,5 +24,5 @@ class ConfigHandler:
         if None in (jdata.get("id"), jdata.get("secret")):
             return web.Response(status = 400)
 
-        Runtime.setSpotifyConfig(DictEx(jdata))
+        Runtime.setSpotifyConfig(JDict(jdata))
         return web.Response()

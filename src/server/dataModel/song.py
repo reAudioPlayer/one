@@ -7,7 +7,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import math
 from hashids import Hashids # type: ignore
 
-from helper.dictTool import DictEx
+from pyaddict import JDict
+
 from dataModel.track import ITrack
 
 
@@ -145,15 +146,15 @@ spotify=[{self._spotify}] source=[{self._source}]"
                 return int(string.split(":")[0]) * 60 + int(string.split(":")[1])
             except: # pylint: disable=bare-except
                 return -1
-        dex = DictEx(data)
-        return Song(dex.ensureString("title"),
-                    dex.ensureString("artist"),
-                    dex.ensureString("spotify"),
-                    dex.ensureString("source"),
-                    album = dex.ensureString("album"),
-                    cover = dex.ensureString("cover"),
-                    duration = _castDuration(dex.ensureString("duration")),
-                    favourite = dex.ensureBool("favourite"))
+        dex = JDict(data)
+        return Song(dex.ensure("title", str),
+                    dex.ensure("artist", str),
+                    dex.ensure("spotify", str),
+                    dex.ensure("source", str),
+                    album = dex.ensure("album", str),
+                    cover = dex.ensure("cover", str),
+                    duration = _castDuration(dex.ensure("duration", str)),
+                    favourite = dex.ensure("favourite", bool))
 
     @property
     def duration(self) -> int:

@@ -8,12 +8,12 @@ from enum import Enum
 from typing import Any, Callable, Dict, Generic, List, Optional, ParamSpec, Type, TypeVar
 
 from aiohttp import web
+from pyaddict import JDict
 import spotipy # type: ignore
 from spotipy.exceptions import SpotifyException # type: ignore
 
 from handler.spotifyAuth import SpotifyAuth
 from dataModel.track import SpotifyArtist, SpotifyTrack, SpotifyPlaylist, SpotifyAlbum
-from helper.dictTool import DictEx
 
 
 P = ParamSpec('P')
@@ -104,6 +104,15 @@ class SpotifyResult(Generic[T]):
         return SpotifyResult.successResult(value)
 
 
+def _connectionRequired(func: Callable[P, U]) -> Callable[P, U]:
+    @wraps(func)
+    def wrapper(self: Spotify, *args: Any, **kwargs: Any) -> Any:
+        if not self.connect():
+            return SpotifyResult.errorResult(SpotifyState.Unauthorised)
+        return func(self, *args, **kwargs) # type: ignore
+    return wrapper # type: ignore
+
+
 def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
     @wraps(func)
     def wrapper(self: Spotify, *args: Any, **kwargs: Any) -> Any:
@@ -119,7 +128,7 @@ def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
 
             print(exc)
             return SpotifyResult.errorResult(SpotifyState.InternalError)
-        except Exception as exc:
+        except Exception as exc: # pylint: disable=broad-except
             print(exc)
             return SpotifyResult.errorResult(SpotifyState.InternalError)
     return wrapper # type: ignore
@@ -132,7 +141,7 @@ class Spotify:
         self._spotify: Optional[spotipy.Spotify] = None
         self._auth = SpotifyAuth()
 
-    def _connect(self) -> bool:
+    def connect(self) -> bool:
         """Connects to Spotify"""
         if self._auth.isDisabled():
             return False
@@ -148,141 +157,117 @@ class Spotify:
         """Spotify auth"""
         return self._auth
 
+    @_connectionRequired
     @_mayFail
     def track(self, trackId: str) -> SpotifyResult[SpotifyTrack]:
         """Returns a track"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         track: Dict[str, Any] = self._spotify.track(trackId)
         return SpotifyResult.successResult(SpotifyTrack(track))
 
+    @_connectionRequired
     @_mayFail
     def url(self, url: str) -> SpotifyResult[SpotifyTrack]:
         """Returns a track from a url"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         track = self._spotify.track(url)
         return SpotifyResult.successResult(SpotifyTrack(track))
 
+    @_connectionRequired
     @_mayFail
     def searchTrack(self, query: str) -> SpotifyResult[List[SpotifyTrack]]:
         """Searches for a track"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         search = self._spotify.search(query, limit = 10, type = "track")
-        tracks = DictEx(search).ensureDictChain("tracks").ensureList("items")
+        tracks = JDict(search).ensureCast("tracks", JDict).ensure("items", list)
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
 
+    @_connectionRequired
     @_mayFail
     def searchArtist(self, query: str) -> SpotifyResult[List[SpotifyArtist]]:
         """Searches for an artist"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         search = self._spotify.search(query, limit = 10, type = "artist")
-        artists = DictEx(search).ensureDictChain("artists").ensureList("items")
+        artists = JDict(search).ensureCast("artists", JDict).ensure("items", list)
         return SpotifyResult.successResult([SpotifyArtist(artist) for artist in artists])
 
+    @_connectionRequired
     @_mayFail
     def playlistTracks(self, playlistId: str) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns the tracks from a playlist"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         tracks = self._spotify.playlist_items(playlistId)
-        tracks = DictEx(tracks).ensureList("items")
+        tracks = JDict(tracks).ensure("items", list)
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
 
+    @_connectionRequired
     @_mayFail
     def albumTracks(self, albumId: str) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns the tracks from an album"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         tracks = self._spotify.album_tracks(albumId)
-        tracks = DictEx(tracks).ensureList("items")
+        tracks = JDict(tracks).ensure("items", list)
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
 
+    @_connectionRequired
     @_mayFail
     def artistTracks(self, artistId: str) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns the tracks from an artist"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         tracks = self._spotify.artist_top_tracks(artistId)
-        tracks = DictEx(tracks).ensureList("tracks")
+        tracks = JDict(tracks).ensure("tracks", list)
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
 
+    @_connectionRequired
     @_mayFail
     def artistAlbums(self, artistId: str) -> SpotifyResult[List[SpotifyAlbum]]:
         """Returns the albums from an artist"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         albums = self._spotify.artist_albums(artistId)
-        albums = DictEx(albums).ensureList("items")
+        albums = JDict(albums).ensure("items", list)
         return SpotifyResult.successResult([SpotifyAlbum(album) for album in albums])
 
+    @_connectionRequired
     @_mayFail
     def recommendations(self,
                         seedArtists: List[str],
                         seedTracks: List[str],
                         seedGenres: List[str]) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns recommendations"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         tracks = self._spotify.recommendations(seed_artists = seedArtists,
                                                seed_tracks = seedTracks,
                                                seed_genres = seedGenres)
-        tracks = DictEx(tracks).ensureList("tracks")
+        tracks = JDict(tracks).ensure("tracks", list)
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
 
+    @_connectionRequired
     @_mayFail
     def userPlaylists(self) -> SpotifyResult[List[SpotifyPlaylist]]:
         """Returns the user's playlists"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         playlists = self._spotify.current_user_playlists()
-        playlists = DictEx(playlists).ensureList("items")
+        playlists = JDict(playlists).ensure("items", list)
         return SpotifyResult.successResult([SpotifyPlaylist(playlist) for playlist in playlists])
 
+    @_connectionRequired
     @_mayFail
     def userArtists(self) -> SpotifyResult[List[SpotifyArtist]]:
         """Returns the user's artists"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         artists = self._spotify.current_user_top_artists()
-        artists = DictEx(artists).ensureList("items")
+        artists = JDict(artists).ensure("items", list)
         return SpotifyResult.successResult([SpotifyArtist(artist) for artist in artists])
 
+    @_connectionRequired
     @_mayFail
     def allUserArtists(self) -> SpotifyResult[List[SpotifyArtist]]:
         """Returns all the user's artists"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         got: int = 50
 
         assert self._spotify is not None
         result = self._spotify.current_user_followed_artists(limit=50)
-        artists = DictEx(result).ensure("artists", DictEx)
+        artists = JDict(result).ensureCast("artists", JDict)
         fartists: List[Dict[str, Any]] = [ ]
         fartists.extend(artists.ensure("items", list))
         total: int = artists.ensure("total", int)
@@ -293,26 +278,24 @@ class Spotify:
                 break
             after = cursors.get("after")
             result = self._spotify.current_user_followed_artists(limit=50, after=after)
-            artists = DictEx(result).ensure("artists", DictEx)
+            artists = JDict(result).ensureCast("artists", JDict)
             fartists.extend(artists.ensure("items", list))
             got += 50
 
         return SpotifyResult.successResult([SpotifyArtist(artist) for artist in fartists])
 
+    @_connectionRequired
+    @_mayFail
     def follow(self, artistId: str) -> SpotifyResult[None]:
         """Follows an artist"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         self._spotify.user_follow_artists([artistId])
         return SpotifyResult.successResult(None)
 
+    @_connectionRequired
+    @_mayFail
     def unfollow(self, artistId: str) -> SpotifyResult[None]:
         """Unfollows an artist"""
-        if not self._connect():
-            return SpotifyResult.errorResult()
-
         assert self._spotify is not None
         self._spotify.user_unfollow_artists([artistId])
         return SpotifyResult.successResult(None)
