@@ -235,9 +235,12 @@ class Spotify:
                         seedGenres: List[str]) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns recommendations"""
         assert self._spotify is not None
+        if len([*seedTracks, *seedArtists, *seedGenres]) < 1:
+            return SpotifyResult.successResult([])
         tracks = self._spotify.recommendations(seed_artists = seedArtists,
                                                seed_tracks = seedTracks,
-                                               seed_genres = seedGenres)
+                                               seed_genres = seedGenres,
+                                               limit = 10)
         tracks = JDict(tracks).ensure("tracks", list)
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
 

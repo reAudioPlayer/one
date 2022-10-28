@@ -82,7 +82,7 @@ class MetaHandler:
         if not data:
             return data.httpResponse()
 
-        return web.json_response(data = data.unwrap())
+        return web.json_response(data = [ pl.toDict() for pl in data.unwrap() ])
 
     async def spotifyPlaylist(self, request: web.Request) -> web.Response:
         """post(/api/spotify/playlists/{id})"""
