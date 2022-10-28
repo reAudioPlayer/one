@@ -5,13 +5,13 @@
         <div class="padding-20" v-observe-visibility="headerVisibilityChanged">
             <h7>Playlist</h7>
             <h1>{{ playlistName }}</h1>
-            <h5>Your {{ playlist.length }} newest tracks, auto-generated just for you</h5>
+            <h5>Your {{ playlist.length }} favourite tracks, auto-generated just for you</h5>
         </div>
         <hr>
         <div class="padding-20">
             <span id="loadPlaylist" @click="loadPlaylist" class="material-icons-outlined">play_circle_filled</span>
             <div class="grid">
-                <grid-header/>
+                <grid-header class="hideIfMobile"/>
                 <hr>
                 <div class="playlistEntries">
                     <playlist-entry
@@ -48,12 +48,18 @@ export default {
         FixedPlaylistHeader,
         GridHeader
     },
+    props: {
+        src: {
+            type: String,
+            required: true
+        }
+    },
     data() {
         this.updateTracks()
         return {
             fixedHeaderHidden: true,
             playlist: [],
-            playlistName: "N/A"
+            playlistName: ""
         }
     },
     computed: mapState("player", {
@@ -79,18 +85,18 @@ export default {
             this.fixedHeaderHidden = a
         },
         updateTracks() {
-            fetch("/api/me/new")
+            fetch(this.src)
                 .then(x => x.json()).then(jdata => {
-                this.playlist = jdata.songs;
-                this.playlistName = jdata.name;
-                this.updateIsPlaying();
+                this.playlist = jdata.songs
+                this.playlistName = jdata.name
+                this.updateIsPlaying()
             })
         },
         loadPlaylist() {
             fetch("/api/player/load", {
                 method: "POST",
                 body: JSON.stringify({
-                    type: "collection/breaking"
+                    type: "collection"
                 })
             })
         }

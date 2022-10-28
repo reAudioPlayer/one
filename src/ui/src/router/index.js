@@ -59,14 +59,14 @@ const routes = [{
     },
     {
         path: '/collection/tracks',
-        component: () => import( /* webpackChunkName: "tracks" */ "@/views/Collection/Tracks.vue"),
+        component: () => import( /* webpackChunkName: "tracks" */ "@/views/Collection/SmartPlaylist/Tracks.vue"),
         meta: {
             title: "Liked Songs - reAudioPlayer One"
         }
     },
     {
         path: '/collection/tracks/breaking',
-        component: () => import( /* webpackChunkName: "tracks" */ "@/views/Collection/Breaking.vue"),
+        component: () => import( /* webpackChunkName: "tracks" */ "@/views/Collection/SmartPlaylist/Breaking.vue"),
         meta: {
             title: "Breaking Songs - reAudioPlayer One"
         }
