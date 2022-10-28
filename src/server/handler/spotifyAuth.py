@@ -83,7 +83,8 @@ class SpotifyAuth:
         """Returns the SpotifyOAuth object"""
         if SpotifyAuth.isDisabled():
             return None
-        return SpotifyOAuth("", "", "localhost", scope = SCOPE)
+        id_, secret = SpotifyAuth._getSpotifyAuthData()
+        return SpotifyOAuth(id_, secret, "localhost", scope = SCOPE)
 
     async def clientSideAuthHandler(self, _: web.Request) -> web.Response:
         """Returns the client side auth data"""
