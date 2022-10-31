@@ -13,6 +13,7 @@ const app = createApp(App)
 
 app.directive("observe-visibility", {
     beforeMount: (el, binding, vnode) => {
+        // @ts-ignore
         vnode.context = binding.instance
         ObserveVisibility.bind(el, binding, vnode)
     },
