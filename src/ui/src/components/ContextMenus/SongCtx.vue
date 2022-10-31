@@ -1,3 +1,12 @@
+<script setup>
+import {useDataStore} from "@/store/data";
+import {computed} from "vue";
+
+const dataStore = useDataStore();
+
+const playlists = computed(() => dataStore.playlists);
+</script>
+
 <template>
     <div ref="box" v-contextmenu:contextmenu>
         <slot />
@@ -20,8 +29,6 @@
 </template>
 
 <script>
-    import {mapState} from "vuex";
-
     export default {
         name: "SongCtx",
         props: {
@@ -31,9 +38,6 @@
             artist: String,
             title: String,
         },
-        computed: mapState({
-            "playlists": "playlists"
-        }),
         methods: {
             preview() {
                 const event = new CustomEvent('player.play', { detail: {

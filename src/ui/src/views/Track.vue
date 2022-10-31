@@ -61,7 +61,6 @@
     import SpotifyPlaylistEntry from '../components/SpotifyPlaylist/SpotifyPlaylistEntry.vue'
 
     import Hashids from 'hashids'
-    import {mapState} from "vuex";
     import AddSongToPlaylist from "@/components/Popups/AddSongToPlaylist";
     const hashids = new Hashids("reapOne.track", 22)
 
@@ -88,9 +87,6 @@
                 recommendations: []
             }
         },
-        computed: mapState("player", {
-            "currentSong": state => state.song.id,
-        }),
         methods: {
             getId() {
                 return hashids.decode(this.$route.params.id);
@@ -110,12 +106,6 @@
             },
             addToPlaylist() {
                 this.$refs.addSongPopup.showModal = true
-            },
-            updateIsPlaying() {
-                console.log("Updating is playing", this.currentSong)
-                this.playlist.forEach((element) => {
-                    element.playing = element.id == this.currentSong
-                })
             },
             updatePlaylist() {
                 if (!this.getId()) {

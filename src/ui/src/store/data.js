@@ -1,30 +1,25 @@
-import { createStore } from 'vuex'
-import player from "./modules/player.js";
+import { defineStore } from 'pinia'
 
 import { hashPlaylist } from "@/common";
-
+import {usePlayerStore} from "@/store/player";
 
 // Create a new store instance.
-const store = createStore({
-    modules: {
-        player
-    },
+export const useDataStore = defineStore({
+    id: 'data',
     state: () => ({
         playlists: [ ]
     }),
-    mutations: {
-        setPlaylists(state, playlists) {
-            console.log("setPlaylists", playlists, state.playlists);
-            state.playlists = playlists;
-            console.log("setPlaylists", playlists, state.playlists);
-        }
-    },
     actions: {
-        initialise({ dispatch, commit }) {
-            dispatch("fetchPlaylists");
-            commit("player/initialise");
+        setPlaylists(playlists) {
+            this.playlists = playlists;
         },
-        async fetchPlaylists({ commit }) {
+        initialise() {
+            this.fetchPlaylists();
+
+            const playerStore = usePlayerStore();
+            playerStore.initialise();
+        },
+        async fetchPlaylists() {
             const res = await fetch("/api/playlists");
             const availablePlaylists = await res.json();
             const playlists = [ ];
@@ -41,9 +36,7 @@ const store = createStore({
                 })
             }
 
-            commit("setPlaylists", playlists);
+            this.setPlaylists(playlists);
         }
     }
 });
-
-export default store;

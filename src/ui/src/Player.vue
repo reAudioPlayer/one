@@ -1,3 +1,22 @@
+<script setup>
+import { computed } from 'vue'
+import { usePlayerStore} from "@/store/player";
+
+const playerStore = usePlayerStore();
+
+const playing = computed(() => playerStore.playing);
+const title = computed(() => playerStore.song.title);
+const artist = computed(() => playerStore.song.artist);
+const durationStr = computed(() => playerStore.song.duration);
+const favourite = computed(() => playerStore.song.favourite);
+const storedVolume = computed(() => playerStore.volume);
+const cover = computed(() => playerStore.cover);
+const stream = computed(() => playerStore.stream);
+const durationSeconds = computed(() => playerStore.durationSeconds);
+const progresslbl = computed(() => playerStore.getProgress);
+const progress = computed(() => playerStore.progressPercent);
+</script>
+
 <template>
     <div v-if="!expandedMobile" class="player">
         <audio ref="audio" @ended="get('player/next')" src="/api/player/stream" style="display: none"/>
@@ -119,8 +138,8 @@ import Marquee from '@/components/Marquee.vue'
 import ProgressBar from "@/components/ProgressBar";
 
 import Hashids from 'hashids'
-import {mapGetters, mapState} from "vuex";
 import {zeroPad} from "@/common";
+import {usePlayerStore} from "@/store/player";
 const hashids = new Hashids("reapOne.playlist", 22)
 
 export default {
@@ -130,13 +149,14 @@ export default {
         expandCover: Boolean
     },
     data() {
+        const player = usePlayerStore();
         const playInBrowser = window.localStorage.getItem("player.inBrowser") == "true"
 
         setInterval(() => {
             if (!this.playing) {
                 return;
             }
-            this.$store.commit("player/incrementProgress")
+            player.incrementProgress();
         }, 1000)
 
         if (playInBrowser) {
@@ -171,7 +191,8 @@ export default {
             shuffle: false,
             playInBrowser,
             expandedMobile: false,
-            volume: this.$store.state.player.volume
+            volume: player.volume,
+            store: player,
         }
     },
     mounted() {
@@ -216,23 +237,6 @@ export default {
             }
         });
     },
-    computed: {
-        ...mapState({
-            "playing": state => state.player.playing,
-            "title": state => state.player.song.title,
-            "artist": state => state.player.song.artist,
-            "durationStr": state => state.player.song.duration,
-            "favourite": state => state.player.song.favourite,
-            "storedVolume": state => state.player.volume,
-        }),
-        ...mapGetters({
-            "cover": "player/cover",
-            "stream": "player/stream",
-            "durationSeconds": "player/durationSeconds",
-            "progresslbl": "player/progress",
-            "progress": "player/progressPercent"
-        })
-    },
     watch: {
         songLoop() {
             fetch("/api/player/repeat", {
@@ -259,7 +263,7 @@ export default {
 
                 // get duration
                 this.$refs.audio.onloadedmetadata = () => {
-                    this.$store.commit("player/setDuration", this.$refs.audio.duration);
+                    this.store.setDuration(this.$refs.audio.duration);
                 }
 
                 this.$refs.audio.load();
@@ -276,9 +280,9 @@ export default {
     },
     methods: {
         setFavourite() {
-            this.$store.commit("player/setFavourite", !this.favourite)
+            this.store.setFavourite(!this.favourite)
 
-            const track = this.$store.state.player.song;
+            const track = this.state.song;
 
             fetch(`/api/tracks/${track.id}`, {
                 method: "PUT",
@@ -295,7 +299,7 @@ export default {
                 } else {
                     this.$refs.audio.pause();
                 }
-                this.$store.commit("player/setPlaying", !this.$refs.audio.paused);
+                this.store.setPlaying(!this.$refs.audio.paused);
                 return;
             }
             this.get('player/playPause')
@@ -306,7 +310,7 @@ export default {
         volumechange() {
             if (this.playInBrowser) {
                 this.$refs.audio.volume = this.volume / 100;
-                this.$store.commit("player/setVolume", this.volume);
+                this.store.setVolume(this.volume);
                 return;
             }
 
@@ -321,7 +325,7 @@ export default {
             let duration = this.durationSeconds;
             let value = newVal * duration / 1000; // in 1/1000
 
-            this.$store.commit("player/setProgress", value);
+            this.store.setProgress(value);
 
             if (this.playInBrowser) {
                 this.$refs.audio.currentTime = value;

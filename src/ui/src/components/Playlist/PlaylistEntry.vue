@@ -180,10 +180,10 @@
                 this.$refs.editSongPopup.showModal = true
             },
             hideCtxMenu() {
+                if (!this.$refs.songCtx) return;
                 this.$refs.ctxMenu.hide()
             },
             showCtxMenu(evt) {
-                console.log("show")
                 this.$refs.ctxMenu.show(evt)
             },
             onselect() {
