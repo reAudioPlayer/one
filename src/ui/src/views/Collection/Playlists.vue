@@ -1,3 +1,12 @@
+<script setup>
+import {useDataStore} from "@/store/data";
+import {computed} from "vue";
+
+const dataStore = useDataStore();
+
+const playlists = computed(() => dataStore.playlists);
+</script>
+
 <template>
     <div class="padding-20">
         <CollectionHeader />
@@ -22,8 +31,6 @@
     import PlaylistItemBig from '@/components/Catalogue/Items/Playlists/PlaylistItemBig.vue'
     import CollectionHeader from '@/components/CollectionHeader.vue'
 
-    import {mapState} from "vuex";
-
     export default {
         components: {
             CollectionHeader,
@@ -31,9 +38,6 @@
             FullShelf,
             PlaylistItemBig
         },
-        computed: mapState({
-            "playlists": state => state.playlists,
-        }),
         data() {
             fetch("/api/me/liked")
                 .then(x => x.json())

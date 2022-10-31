@@ -1,7 +1,21 @@
+<script setup>
+import {usePlayerStore} from "@/store/player";
+import {computed} from "vue";
+
+const player = usePlayerStore();
+
+const currentSongName = computed(() => player.song.title);
+const playing = computed(() => player.playing);
+const cover = computed(() => player.song.cover);
+const songId = computed(() => player.song.id);
+const playlist = computed(() => player.playlist);
+const title = computed(() => `${player.song.title} • ${player.song.artist}`);
+</script>
+
 <template>
     <div class="bigPlayer">
         <div class="upNow">
-            <img :src="cover" :class="{ playing, animate }" class="drop-shadow-2xl" />
+            <img :src="cover" :class="{ playing, animate }" class="drop-shadow-2xl"/>
             <div class="blocks" :class="{ playing, animate }">
                 <div class="block" :style="{'animation-delay': '0s'}"></div>
                 <div class="block" :style="{'animation-delay': '.25s'}"></div>
@@ -10,240 +24,245 @@
         </div>
         <div v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl">
             <div class="playlist" ref="playlistScroll">
-                <spotify-playlist-header />
-                <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download" @requestUpdate="updatePlaylist" :index="playlist.songs.findIndex(x => x.source == element.source)" :source="element.source" :playing="element.title == currentSongName" :id="element.id" :title="element.title" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                <spotify-playlist-header/>
+                <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download"
+                                      @requestUpdate="updatePlaylist"
+                                      :index="playlist.songs.findIndex(x => x.source == element.source)"
+                                      :source="element.source" :playing="element.title == currentSongName"
+                                      :id="element.id" :title="element.title" :album="element.album"
+                                      :artist="element.artist" :cover="element.cover" :favourite="element.favourite"
+                                      :duration="element.duration"/>
             </div>
         </div>
 
         <div class="settings">
-            <span @click="toggleMaximise" class="iconButton material-symbols-rounded">{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span>
-            <span @click="() => noPlaylist = !noPlaylist" class="iconButton material-symbols-rounded" :style="{ transform: `rotate(${ noPlaylist ? 0 : 180 }deg)` }">menu_open</span>
-            <span @click="() => animate = !animate" class="iconButton material-symbols-rounded">{{ !animate ? "animation" : "motion_photos_off" }}</span>
+            <span @click="toggleMaximise"
+                  class="iconButton material-symbols-rounded">{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span>
+            <span @click="() => noPlaylist = !noPlaylist" class="iconButton material-symbols-rounded"
+                  :style="{ transform: `rotate(${ noPlaylist ? 0 : 180 }deg)` }">menu_open</span>
+            <span @click="() => animate = !animate"
+                  class="iconButton material-symbols-rounded">{{ !animate ? "animation" : "motion_photos_off" }}</span>
         </div>
     </div>
 </template>
 
 <script>
-import { nextTick } from '@vue/runtime-core';
-    import LightPlaylistEntry from '../components/Playlist/LightPlaylistEntry.vue'
-    import SpotifyPlaylistHeader from '../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
-import {mapState} from "vuex";
-    export default {
-        components: {
-            LightPlaylistEntry, SpotifyPlaylistHeader
-        },
-        computed: {
-            ...mapState({
-                "currentSongName": state => state.player.song.title,
-                "playing": state => state.player.playing,
-                "cover": state => state.player.song.cover,
-                "songId": state => state.player.song.id,
-                "playlist": state => state.player.playlist,
-            })
-        },
-        methods: {
-            toggleMaximise() {
-                this.maximised = !this.maximised;
-                this.$emit('maximise', this.maximised);
-            },
-        },
-        mounted() {
-            window.setTimeout(() => {
-                if (this.$refs.playlistScroll.scrollTop) {
-                    return;
-                }
+import LightPlaylistEntry from '../components/Playlist/LightPlaylistEntry.vue'
+import SpotifyPlaylistHeader from '../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
 
-                const scroll = document.getElementById(`bplayer-entry-${this.songId}`)?.offsetTop;
-
-                if (scroll >= 354) {
-                    this.$refs.playlistScroll.scrollTop = scroll - 354;
-                }
-            }, 1000);
+export default {
+    components: {
+        LightPlaylistEntry, SpotifyPlaylistHeader
+    },
+    watch: {
+        title(newTitle) {
+            document.title = newTitle
+        }
+    },
+    methods: {
+        toggleMaximise() {
+            this.maximised = !this.maximised;
+            this.$emit('maximise', this.maximised);
         },
-        data() {
-            return {
-                maximised: false,
-                noPlaylist: false,
-                animate: false
+    },
+    mounted() {
+        window.setTimeout(() => {
+            if (this.$refs.playlistScroll.scrollTop) {
+                return;
             }
+
+            const scroll = document.getElementById(`bplayer-entry-${this.songId}`)?.offsetTop;
+
+            if (scroll >= 354) {
+                this.$refs.playlistScroll.scrollTop = scroll - 354;
+            }
+        }, 1000);
+        document.title = this.title;
+    },
+    data() {
+        return {
+            maximised: false,
+            noPlaylist: false,
+            animate: false
         }
     }
+}
 </script>
 
 <style scoped lang="scss">
-    .settings {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
+.settings {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
 
-        padding: 10px;
+    padding: 10px;
+}
+
+.bigPlayer {
+    overflow: hidden;
+}
+
+.iconButton {
+    font-size: 2em;
+    border-radius: 10px;
+    padding: 5px;
+
+    &:hover {
+        cursor: pointer;
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        background: var(--font-darker);
+        color: var(--accent);
     }
+}
 
-    .bigPlayer {
-        overflow: hidden;
-    }
+.bigPlayer {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    padding: 40px;
+    align-items: center;
+    z-index: 1;
+    height: 100%;
+    filter: none;
+}
 
-    .iconButton {
-        font-size: 2em;
-        border-radius: 10px;
-        padding: 5px;
+.bigPlayer .upNow {
+    flex: 3;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    position: relative;
 
-        &:hover {
-            cursor: pointer;
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            background: var(--font-darker);
-            color: var(--accent);
+    @keyframes pump {
+        0% {
+            transform: scale(1);
+            opacity: 0;
+        }
+        6% {
+            transform: scale(1);
+            opacity: 0;
+        }
+        7% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        85% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        95% {
+            transform: scale(5);
+            opacity: 0;
+        }
+        97% {
+            transform: scale(0);
+            opacity: 0;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 0;
         }
     }
 
-    .bigPlayer {
-        position: relative;
-        display: flex;
-        flex-direction: row;
-        padding: 40px;
-        align-items: center;
-        z-index: 1;
-        height: 100%;
-        filter: none;
+    img {
+        transition: transform .5s;
+        animation: pump 20s infinite ease-in-out;
+
+        &:not(.playing) {
+            transform: scale(0.95);
+            animation: none;
+        }
+
+        &:not(.animate) {
+            animation: none;
+        }
     }
 
-    .bigPlayer .upNow {
-        flex: 3;
+    .blocks {
         display: flex;
-        flex-direction: row;
-        justify-content: center;
-        position: relative;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        width: 80%;
+        height: 100%;
+        max-width: min(80%, 600px);
+        border-radius: 20px;
+        position: absolute;
 
-        @keyframes pump {
+        @keyframes increase1 {
             0% {
-                transform: scale(1);
-                opacity: 0;
+                transform: scaleX(0);
+                transform-origin: 0% 50%;
+            }
+            1% {
+                transform: scaleX(0);
+            }
+            4% {
+                transform: scaleX(1);
+                transform-origin: 0% 50%;
             }
             6% {
-                transform: scale(1);
-                opacity: 0;
+                transform: scaleX(1);
+                transform-origin: 100% 50%;
             }
-            7% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            85% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            95% {
-                transform: scale(5);
-                opacity: 0;
-            }
-            97% {
-                transform: scale(0);
-                opacity: 0;
+            9% {
+                transform: scaleX(0);
             }
             100% {
-                transform: scale(1);
-                opacity: 0;
-            }
-        }
-
-        img {
-            transition: transform .5s;
-            animation: pump 20s infinite ease-in-out;
-
-            &:not(.playing) {
-                transform: scale(0.95);
-                animation: none;
-            }
-
-            &:not(.animate) {
-                animation: none;
-            }
-        }
-
-        .blocks {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start;
-            width: 80%;
-            height: 100%;
-            max-width: min(80%, 600px);
-            border-radius: 20px;
-            position: absolute;
-
-            @keyframes increase1 {
-                0% {
-                    transform: scaleX(0);
-                    transform-origin: 0% 50%;
-                }
-                1% {
-                    transform: scaleX(0);
-                }
-                4% {
-                    transform: scaleX(1);
-                    transform-origin: 0% 50%;
-                }
-                6% {
-                    transform: scaleX(1);
-                    transform-origin: 100% 50%;
-                }
-                9% {
-                    transform: scaleX(0);
-                }
-                100% {
-                    transform: scaleX(0);
-                    transform-origin: 100% 50%;
-                }
-            }
-
-            .block {
                 transform: scaleX(0);
-                background: var(--font-contrast);
-                width: 100%;
-                flex: 1;
-                transform-origin: 0% 50%;
-
-                animation: increase1 20s infinite ease-in-out;
-
-                &:first-child {
-                    border-radius: 20px 20px 0 0;
-                }
-
-                &:last-child {
-                    border-radius: 0 0 20px 20px;
-                }
-            }
-
-            &:not(.animate) .block, &:not(.playing) .block {
-                animation: none;
-                opacity: 0;
+                transform-origin: 100% 50%;
             }
         }
-    }
 
-    .bigPlayer .upNow img {
-        width: 80%;
-        height: auto;
-        max-width: 600px;
-        border-radius: 20px;
-    }
+        .block {
+            transform: scaleX(0);
+            background: var(--font-contrast);
+            width: 100%;
+            flex: 1;
+            transform-origin: 0% 50%;
 
-    .bigPlayer .playlistOverflow {
-        flex: 2;
-        height: calc(100% - 220px);
-        margin: 100px 0;
-        background: var(--background-light);
-        border-radius: 20px;
-        overflow: hidden;
-    }
+            animation: increase1 20s infinite ease-in-out;
 
-    .bigPlayer .playlistOverflow .playlist {
-        overflow-y: auto;
-        height: 100%;
-        padding: 10px;
+            &:first-child {
+                border-radius: 20px 20px 0 0;
+            }
+
+            &:last-child {
+                border-radius: 0 0 20px 20px;
+            }
+        }
+
+        &:not(.animate) .block, &:not(.playing) .block {
+            animation: none;
+            opacity: 0;
+        }
     }
+}
+
+.bigPlayer .upNow img {
+    width: 80%;
+    height: auto;
+    max-width: 600px;
+    border-radius: 20px;
+}
+
+.bigPlayer .playlistOverflow {
+    flex: 2;
+    height: calc(100% - 220px);
+    margin: 100px 0;
+    background: var(--background-light);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.bigPlayer .playlistOverflow .playlist {
+    overflow-y: auto;
+    height: 100%;
+    padding: 10px;
+}
 </style>

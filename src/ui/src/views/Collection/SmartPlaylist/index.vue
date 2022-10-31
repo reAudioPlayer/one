@@ -1,3 +1,11 @@
+<script setup>
+import {usePlayerStore} from "@/store/player";
+import {computed} from "vue";
+
+const playerStore = usePlayerStore();
+const currentSong = computed(() => playerStore.song.id);
+</script>
+
 <template>
     <div class="playlist">
         <fixed-playlist-header @click="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }"
@@ -40,7 +48,6 @@
 import FixedPlaylistHeader from '@/components/Playlist/FixedPlaylistHeader.vue'
 import GridHeader from '@/components/Playlist/GridHeader.vue'
 import PlaylistEntry from '@/components/Playlist/PlaylistEntry.vue'
-import {mapState} from "vuex";
 
 export default {
     components: {
@@ -62,9 +69,6 @@ export default {
             playlistName: ""
         }
     },
-    computed: mapState("player", {
-        "currentSong": state => state.song.id,
-    }),
     watch: {
         currentSong() {
             this.updateIsPlaying()

@@ -1,7 +1,8 @@
+import { defineStore } from 'pinia'
 import {zeroPad} from "@/common";
 
-export default {
-    namespaced: true,
+export const usePlayerStore = defineStore({
+    id: 'player',
     state: () => ({
         playing: false,
         progress: 0,
@@ -24,38 +25,36 @@ export default {
         },
         volume: 50
     }),
-    mutations: {
-        setSong(state, song) {
-            if (song.id == state.song.id) return;
-            state.song = song;
-            state.progress = 0;
+    actions: {
+        setSong(song) {
+            if (song.id == this.song.id) return;
+            this.song = song;
+            this.progress = 0;
         },
-        setDuration(state, duration) {
-            state.song.duration = `${Math.floor(duration / 60)}:${zeroPad(Math.round(duration % 60), 2)}`;
+        setDuration(duration) {
+            this.song.duration = `${Math.floor(duration / 60)}:${zeroPad(Math.round(duration % 60), 2)}`;
         },
-        setPlaying(state, playing) {
-            state.playing = playing;
+        setPlaying(playing) {
+            this.playing = playing;
         },
-        setProgress(state, progress) {
-            state.progress = progress;
+        setProgress(progress) {
+            this.progress = progress;
         },
-        incrementProgress(state) {
-            state.progress += 1;
+        incrementProgress() {
+            this.progress += 1;
         },
-        setFavourite(state, favourite) {
-            state.song.favourite = favourite;
+        setFavourite(favourite) {
+            this.song.favourite = favourite;
         },
-        setPlaylist(state, playlist) {
-            state.playlist = playlist;
+        setPlaylist(playlist) {
+            this.playlist = playlist;
         },
-        setVolume(state, volume) {
-            state.volume = volume;
+        setVolume(volume) {
+            this.volume = volume;
             localStorage.setItem("reap.volume", volume);
         },
-        initialise(state) {
-            console.log("hello", state.volume)
-            state.volume = localStorage.getItem("reap.volume") || 50;
-            console.log("hello", state.volume)
+        initialise() {
+            this.volume = localStorage.getItem("reap.volume") || 50;
         }
     },
     getters: {
@@ -71,12 +70,12 @@ export default {
         cover(state) {
             return state.song.cover || "/assets/img/music_placeholder.png";
         },
-        progressPercent(state, getters) {
-            return state.progress / getters.durationSeconds * 1000;
+        progressPercent(state) {
+            return state.progress / state.durationSeconds * 1000;
         },
-        progress(state) {
+        getProgress(state) {
             const progress = state.progress;
             return `${Math.floor(progress / 60)}:${zeroPad(Math.floor(progress % 60), 2)}`
         }
     }
-}
+});

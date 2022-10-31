@@ -1,11 +1,13 @@
-export const connect = ($store) => {
+import {usePlayerStore} from "@/store/player";
+
+export const connect = () => {
     console.log("attempting reconnect")
     let ws = new WebSocket('ws://localhost:1234/ws');
 
     ws.onclose = () => {
         console.log("ws closed")
 
-        setTimeout(() => connect($store), 1000);
+        setTimeout(() => connect(), 1000);
     }
 
     ws.onopen = () => {
@@ -13,25 +15,26 @@ export const connect = ($store) => {
     }
 
     ws.onmessage = msg => {
+        const player = usePlayerStore();
         const jdata = JSON.parse(msg.data);
 
         if (jdata.path == "player.song") {
-            $store.commit("player/setSong", jdata.data);
+            player.setSong(jdata.data);
         }
 
         if (jdata.path == "player.playlist") {
-            $store.commit("player/setPlaylist", jdata.data);
+            player.setPlaylist(jdata.data);
         }
 
         // TODO only if NOT play in browser
         return
 
         if (jdata.path == "player.playState") {
-            $store.commit("player/setPlaying", jdata.data);
+            player.setPlaying(jdata.data);
         }
 
         if (jdata.path == "player.posSync") {
-            $store.commit("player/setProgress", jdata.data);
+            player.setProgress(jdata.data);
         }
     }
 }
