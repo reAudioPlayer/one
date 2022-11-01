@@ -1,4 +1,5 @@
 import {usePlayerStore} from "@/store/player";
+import {useSettingsStore} from "@/store/settings";
 
 export const connect = () => {
     console.log("attempting reconnect")
@@ -16,6 +17,7 @@ export const connect = () => {
 
     ws.onmessage = msg => {
         const player = usePlayerStore();
+        const settings = useSettingsStore();
         const jdata = JSON.parse(msg.data);
 
         if (jdata.path == "player.song") {
@@ -26,8 +28,7 @@ export const connect = () => {
             player.setPlaylist(jdata.data);
         }
 
-        // TODO only if NOT play in browser
-        return
+        if (settings.player.inBrowser) return;
 
         if (jdata.path == "player.playState") {
             player.setPlaying(jdata.data);

@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 
-import { hashPlaylist } from "@/common";
-import {usePlayerStore} from "@/store/player";
+import { hashPlaylist } from "../common";
+import {usePlayerStore} from "./player";
+import {useSettingsStore} from "./settings";
 
 // Create a new store instance.
 export const useDataStore = defineStore({
@@ -15,9 +16,6 @@ export const useDataStore = defineStore({
         },
         initialise() {
             this.fetchPlaylists();
-
-            const playerStore = usePlayerStore();
-            playerStore.initialise();
         },
         async fetchPlaylists() {
             const res = await fetch("/api/playlists");
@@ -32,7 +30,8 @@ export const useDataStore = defineStore({
                     name: playlist.name,
                     description: playlist.description,
                     cover: playlist.cover || playlist.songs[0].cover,
-                    href: `/playlist/${hashPlaylist(i)}`
+                    href: `/playlist/${hashPlaylist( String(i) )}`,
+                    id: i
                 })
             }
 

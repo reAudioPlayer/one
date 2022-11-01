@@ -52,8 +52,7 @@ import LightPlaylistEntry from '@/components/Playlist/LightPlaylistEntry.vue'
 </template>
 
 <script>
-import Hashids from 'hashids'
-const hashids = new Hashids("reapOne.playlist", 22)
+import {hashPlaylist} from "@/common";
 
 export default {
     name: 'Home',
@@ -68,8 +67,7 @@ export default {
             songs: [],
             liked: [],
             breaking: [],
-            recommendations: [],
-            releases: []
+            recommendations: []
         }
     },
     mounted() {
@@ -95,7 +93,7 @@ export default {
                         name: pdata.name,
                         description: pdata.description,
                         cover: pdata.cover || pdata.songs?.[0]?.cover || "/assets/img/music_placeholder.png",
-                        href: `/playlist/${hashids.encode(i)}`,
+                        href: `/playlist/${hashPlaylist(i)}`, // #TODO migrate to pinia
                         songs: pdata.songs
                     })
                 }

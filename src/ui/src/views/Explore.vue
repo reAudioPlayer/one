@@ -30,8 +30,7 @@ import Marquee from "@/components/Marquee.vue";
 </template>
 
 <script>
-import Hashids from 'hashids'
-const hashidsTrack = new Hashids("reapOne.track", 22)
+import {hashTrack} from "@/common";
 
 export default {
     data() {
@@ -67,7 +66,7 @@ export default {
             }
         },
         href(song) {
-            return `/track/${hashidsTrack.encode(song.id)}`
+            return `/track/${hashTrack(song.id)}`
         },
         loadPlaylist(id) {
             console.log(id)

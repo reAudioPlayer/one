@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import {zeroPad} from "@/common";
+import {zeroPad} from "../common";
 
 export const usePlayerStore = defineStore({
     id: 'player',
@@ -23,7 +23,7 @@ export const usePlayerStore = defineStore({
             name: null,
             songs: [],
         },
-        volume: 50
+        volume: 50,
     }),
     actions: {
         setSong(song) {
@@ -55,6 +55,15 @@ export const usePlayerStore = defineStore({
         },
         initialise() {
             this.volume = localStorage.getItem("reap.volume") || 50;
+        },
+        loadPlaylist(playlistId: number) {
+            fetch("/api/player/load", {
+                method: "POST",
+                body: JSON.stringify({
+                    id: playlistId,
+                    type: "playlist"
+                })
+            })
         }
     },
     getters: {
@@ -71,7 +80,7 @@ export const usePlayerStore = defineStore({
             return state.song.cover || "/assets/img/music_placeholder.png";
         },
         progressPercent(state) {
-            return state.progress / state.durationSeconds * 1000;
+            return state.progress / this.durationSeconds * 1000;
         },
         getProgress(state) {
             const progress = state.progress;

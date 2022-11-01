@@ -1,8 +1,11 @@
 <script setup>
 import {usePlayerStore} from "@/store/player";
+import {useDataStore} from "@/store/data";
 import {computed} from "vue";
+import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem";
 
 const player = usePlayerStore();
+const data = useDataStore();
 
 const currentSongName = computed(() => player.song.title);
 const playing = computed(() => player.playing);
@@ -10,39 +13,62 @@ const cover = computed(() => player.song.cover);
 const songId = computed(() => player.song.id);
 const playlist = computed(() => player.playlist);
 const title = computed(() => `${player.song.title} • ${player.song.artist}`);
+
+const playlists = computed(() => data.playlists);
 </script>
 
 <template>
     <div class="bigPlayer">
-        <div class="upNow">
-            <img :src="cover" :class="{ playing, animate }" class="drop-shadow-2xl"/>
-            <div class="blocks" :class="{ playing, animate }">
-                <div class="block" :style="{'animation-delay': '0s'}"></div>
-                <div class="block" :style="{'animation-delay': '.25s'}"></div>
-                <div class="block" :style="{'animation-delay': '.5s'}"></div>
+        <template v-if="playlist.index >= 0">
+            <div class="upNow">
+                <img :src="cover" :class="{ playing, animate }" class="drop-shadow-2xl"/>
+                <div class="blocks" :class="{ playing, animate }">
+                    <div class="block" :style="{'animation-delay': '0s'}"></div>
+                    <div class="block" :style="{'animation-delay': '.25s'}"></div>
+                    <div class="block" :style="{'animation-delay': '.5s'}"></div>
+                </div>
             </div>
-        </div>
-        <div v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl">
-            <div class="playlist" ref="playlistScroll">
-                <spotify-playlist-header/>
-                <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download"
-                                      @requestUpdate="updatePlaylist"
-                                      :index="playlist.songs.findIndex(x => x.source == element.source)"
-                                      :source="element.source" :playing="element.title == currentSongName"
-                                      :id="element.id" :title="element.title" :album="element.album"
-                                      :artist="element.artist" :cover="element.cover" :favourite="element.favourite"
-                                      :duration="element.duration"/>
+            <div v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl">
+                <div class="playlist" ref="playlistScroll">
+                    <spotify-playlist-header/>
+                    <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download"
+                                          @requestUpdate="updatePlaylist"
+                                          :index="playlist.songs.findIndex(x => x.source == element.source)"
+                                          :source="element.source" :playing="element.title == currentSongName"
+                                          :id="element.id" :title="element.title" :album="element.album"
+                                          :artist="element.artist" :cover="element.cover" :favourite="element.favourite"
+                                          :duration="element.duration"/>
+                </div>
             </div>
-        </div>
 
-        <div class="settings">
+            <div class="settings">
             <span @click="toggleMaximise"
                   class="iconButton material-symbols-rounded">{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span>
-            <span @click="() => noPlaylist = !noPlaylist" class="iconButton material-symbols-rounded"
-                  :style="{ transform: `rotate(${ noPlaylist ? 0 : 180 }deg)` }">menu_open</span>
-            <span @click="() => animate = !animate"
-                  class="iconButton material-symbols-rounded">{{ !animate ? "animation" : "motion_photos_off" }}</span>
-        </div>
+                <span @click="() => noPlaylist = !noPlaylist" class="iconButton material-symbols-rounded"
+                      :style="{ transform: `rotate(${ noPlaylist ? 0 : 180 }deg)` }">menu_open</span>
+                <span @click="() => animate = !animate"
+                      class="iconButton material-symbols-rounded">{{
+                        !animate ? "animation" : "motion_photos_off"
+                    }}</span>
+            </div>
+        </template>
+        <template v-else>
+            <div class="no-playlist-selected">
+                <div class="wrapper">
+                    <h2>Nothing playing yet...</h2>
+                    <div class="playlists">
+                        <playlist-item
+                            v-for="playlist in playlists"
+                            :key="playlist.id"
+                            :cover="playlist.cover"
+                            :title="playlist.title"
+                            :description="playlist.description"
+                            @click.stop="() => player.loadPlaylist(playlist.id)"
+                        />
+                    </div>
+                </div>
+            </div>
+        </template>
     </div>
 </template>
 
@@ -264,5 +290,35 @@ export default {
     overflow-y: auto;
     height: 100%;
     padding: 10px;
+}
+
+.no-playlist-selected {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+
+    .wrapper {
+        width: 80%;
+        background: var(--background-light);
+        border-radius: 20px;
+        overflow: hidden;
+        padding: 20px;
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .playlists {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+            .wrapper {
+                padding: 0;
+            }
+        }
+    }
 }
 </style>

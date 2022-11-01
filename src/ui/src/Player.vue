@@ -1,6 +1,6 @@
 <script setup>
-import { computed } from 'vue'
-import { usePlayerStore} from "@/store/player";
+import {computed} from 'vue'
+import {usePlayerStore} from "@/store/player";
 
 const playerStore = usePlayerStore();
 
@@ -15,13 +15,15 @@ const stream = computed(() => playerStore.stream);
 const durationSeconds = computed(() => playerStore.durationSeconds);
 const progresslbl = computed(() => playerStore.getProgress);
 const progress = computed(() => playerStore.progressPercent);
+
+const settings = useSettingsStore();
 </script>
 
 <template>
     <div v-if="!expandedMobile" class="player">
         <audio ref="audio" @ended="get('player/next')" src="/api/player/stream" style="display: none"/>
         <div class="left hideIfMobile">
-            <img v-if="expandCover" @click="onExpandCover" :src="cover"/>
+            <img v-if="!settings.player.expandedCover" @click="settings.player.expandedCover = true" :src="cover"/>
             <div class="titleartist">
         <span class="title">
             <router-link class="linkOnHover" to="/player">
@@ -38,7 +40,11 @@ const progress = computed(() => playerStore.progressPercent);
         {{ favourite ? "favorite" : "favorite_border" }}</span>
         </div>
         <div class="left showIfMobile" @click="expandedMobile = true">
-            <img v-if="expandCover" @click="onExpandCover" :src="cover"/>
+            <img
+                v-if="settings.player.expandedCover"
+                @click="settings.player.expandedCover = true"
+                :src="cover"
+            />
             <div class="titleartist">
         <span class="title">
             <Marquee :text="title"/>
@@ -60,7 +66,9 @@ const progress = computed(() => playerStore.progressPercent);
                 <span @click="get('player/previous')"
                       class="material-icons-round defaultbtn hideIfMobile">skip_previous</span>
                 <span @click="playPause"
-                      class="material-icons-round circle hideIfMobile">{{ playing ? "pause_circle" : "play_circle" }}</span>
+                      class="material-icons-round circle hideIfMobile">{{
+                        playing ? "pause_circle" : "play_circle"
+                    }}</span>
                 <span @click="playPause"
                       class="material-icons-round circle showIfMobile">{{ playing ? "pause" : "play_arrow" }}</span>
                 <span @click="get('player/next')" class="material-icons-round defaultbtn hideIfMobile">skip_next</span>
@@ -137,20 +145,17 @@ const progress = computed(() => playerStore.progressPercent);
 import Marquee from '@/components/Marquee.vue'
 import ProgressBar from "@/components/ProgressBar";
 
-import Hashids from 'hashids'
-import {zeroPad} from "@/common";
+import {hashPlaylist, zeroPad} from "@/common";
 import {usePlayerStore} from "@/store/player";
-const hashids = new Hashids("reapOne.playlist", 22)
+import {useSettingsStore} from "@/store/settings";
 
 export default {
     components: {ProgressBar, Marquee},
     name: 'Player',
-    props: {
-        expandCover: Boolean
-    },
     data() {
         const player = usePlayerStore();
-        const playInBrowser = window.localStorage.getItem("player.inBrowser") == "true"
+        const settings = useSettingsStore();
+        const playInBrowser = settings.player.inBrowser;
 
         setInterval(() => {
             if (!this.playing) {
@@ -229,8 +234,8 @@ export default {
                 this.progresschange();
                 return;
             }
-            if (e.key && !isNaN(e.key)  && e.altKey) {
-                const playlist = hashids.encode(e.key);
+            if (e.key && !isNaN(e.key) && e.altKey) {
+                const playlist = hashPlaylist(e.key);
                 console.error(playlist)
                 this.$router.push(`/playlist/${playlist}`);
                 return;

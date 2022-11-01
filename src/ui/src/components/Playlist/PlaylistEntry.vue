@@ -86,10 +86,7 @@
     import SongCtx from '../ContextMenus/SongCtx.vue'
     import Marquee from '../Marquee.vue'
     import EditSong from '../Popups/EditSong.vue'
-
-    import Hashids from 'hashids'
-    const hashidsTrack = new Hashids("reapOne.track", 22)
-    const hashidsPlaylist = new Hashids("reapOne.playlist", 22)
+    import {hashTrack} from "@/common";
 
     export default {
         name: 'PlaylistEntry',
@@ -140,12 +137,12 @@
         },
         computed: {
             trackId() {
-                return hashidsTrack.encode(this.id);
+                return hashTrack(this.id);
             }
         },
         methods: {
             getPlaylistId() {
-                return hashidsPlaylist.decode(this.$route.params.id);
+                return unhashPlaylist(this.$route.params.id);
             },
             download() {
                 this.$emit("download", this.index)

@@ -44,8 +44,7 @@
     </div>
 </template>
 <script>
-    import Hashids from 'hashids'
-    const hashids = new Hashids("reapOne.playlist", 22)
+    import {unhashPlaylist} from "@/common";
 
     export default {
         name: "EditPlaylist",
@@ -75,7 +74,6 @@
         data() {
             return {
                 showModal: false,
-                cover: "",
                 name: this.playlistName,
                 description: this.playlistDescription,
                 cover: this.playlistCover,
@@ -99,7 +97,7 @@
             apply() {                
                 this.showModal = false
                 console.log("fetch")
-                fetch(`/api/playlists/${hashids.decode(this.$route.params.id)}`, {
+                fetch(`/api/playlists/${unhashPlaylist(this.$route.params.id)}`, {
                     method: "POST",
                     body: JSON.stringify({
                         name: this.name || "N/A",
@@ -112,7 +110,7 @@
                 })
             },
             remove() {
-                fetch(`/api/playlists/${Number(hashids.decode(this.$route.params.id))}`, {
+                fetch(`/api/playlists/${Number(unhashPlaylist(this.$route.params.id))}`, {
                     method: "DELETE"
                 }).then(() => {
                     this.$router.push("/")

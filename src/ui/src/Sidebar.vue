@@ -1,20 +1,22 @@
 <script setup>
-import Logo from '/src/assets/images/logo/logo.svg'
 import {usePlayerStore} from "@/store/player";
 import {useDataStore} from "@/store/data";
 import {computed} from "vue";
+import {useSettingsStore} from "@/store/settings";
 
 const player = usePlayerStore();
 const data = useDataStore();
 
 const cover = computed(() => player.song.cover);
 const playlists = computed(() => data.playlists);
+
+const settings = useSettingsStore();
 </script>
 <template>
     <div class="sidebar drop-shadow-xl">
         <div class="static">
             <div class="collapseSidebar hideIfMobile" :class=" { 'minimised': minimised } ">
-                <span @click="minimised = !minimised"
+                <span @click="settings.sidebar.collapsed = !minimised"
                       class="hideIfMobile clickSymbol material-symbols-rounded">{{
                         minimised ? "chevron_right" : "chevron_left"
                     }}</span>
@@ -22,10 +24,11 @@ const playlists = computed(() => data.playlists);
             <nav-entry :minimised="minimised" href="/collection/playlists" icon="library_music" name="Your Library"
                        :hasChildSites="true" parentHref="/collection"/>
             <nav-entry :minimised="minimised" href="/discover" icon="explore" name="Discover"/>
-            <br v-if="showNewsTab || showSportsTab">
-            <nav-entry :minimised="minimised" v-if="showNewsTab" href="/news" icon="newspaper" name="News"
+            <br v-if="settings.sidebar.news || settings.sidebar.sports">
+            <nav-entry :minimised="minimised" v-if="settings.sidebar.news" href="/news" icon="newspaper" name="News"
                        :hasChildSites="true"/>
-            <nav-entry :minimised="minimised" v-if="showSportsTab" href="/sports" icon="sports_soccer" name="Sports"
+            <nav-entry :minimised="minimised" v-if="settings.sidebar.sports" href="/sports" icon="sports_soccer"
+                       name="Sports"
                        :hasChildSites="true"/>
             <br class="hideIfMobile">
             <nav-entry class="hideIfMobile" :minimised="minimised" href="/playlist/create" icon="add_circle"
@@ -46,48 +49,51 @@ const playlists = computed(() => data.playlists);
                            :href="element.href" :img="element.cover" :name="element.name"/>
             </div>
         </template>
-        <img v-if="expandCover" @click="hideCover" :src="cover" class="cover hideIfMobile"/>
+        <img
+            v-if="settings.player.expandedCover"
+            @click="settings.player.expandedCover = false"
+            :src="cover"
+            class="cover hideIfMobile"
+        />
     </div>
 </template>
 
 <script>
 import NavEntry from '@/components/Sidebar/NavEntry.vue'
-
-import Hashids from 'hashids'
-
-const hashids = new Hashids("reapOne.playlist", 22)
+import {computed} from "vue";
+import {useSettingsStore} from "@/store/settings";
 
 export default {
     name: 'Sidebar',
     components: {
         NavEntry
     },
-    props: {
-        expandCover: Boolean
+    setup() {
+        const settings = useSettingsStore();
+
+        return {
+            settings
+        }
     },
     watch: {
         minimised() {
-            document.documentElement.style.setProperty("--sidebar-width", this.minimised ? "44px" : "200px");
-            window.localStorage.setItem("player.collapsedSidebar", this.minimised)
+            this.collapseSidebar();
         }
     },
-    data() {
-        const minimised = window.localStorage.getItem("player.collapsedSidebar") == "true";
-
-        document.documentElement.style.setProperty("--sidebar-width", minimised ? "44px" : "200px");
-
-        return {
-            showSportsTab: window.localStorage.getItem("sidebar.showSportsTab") == "true",
-            showNewsTab: window.localStorage.getItem("sidebar.showNewsTab") == "true",
-            minimised
+    mounted() {
+        this.collapseSidebar();
+    },
+    computed: {
+        minimised() {
+            return this.settings.sidebar.collapsed;
         }
     },
     methods: {
         hideCover() {
             this.$emit("expandCover", false)
         },
-        onLogoClick() {
-            this.$router.push("/")
+        collapseSidebar() {
+            document.documentElement.style.setProperty("--sidebar-width", this.minimised ? "44px" : "200px");
         }
     }
 }
@@ -182,13 +188,13 @@ div.sidebar {
     background: var(--sidebar-background);
     width: calc(var(--sidebar-width) + 20px);
     min-width: calc(var(--sidebar-width) + 20px);
+    max-width: calc(var(--sidebar-width) + 20px);
     display: flex;
     flex-direction: column;
     padding: 10px;
     margin: 10px;
     border-radius: 8px;
     max-height: 100%;
-    min-width: 64px;
     z-index: 1;
     position: relative;
     overflow: hidden;

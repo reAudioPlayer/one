@@ -49,9 +49,8 @@ a<template>
     import SongCtx from '../ContextMenus/SongCtx.vue'
     import Marquee from '../Marquee.vue'
     import EditSong from '../Popups/EditSong.vue'
+    import {hashTrack} from "@/common";
 
-    import Hashids from 'hashids'
-    const hashids = new Hashids("reapOne.track", 22)
 
     export default {
         name: 'LightPlaylistEntry',
@@ -106,7 +105,7 @@ a<template>
         },
         computed: {
             trackId() {
-                return hashids.encode(this.id);
+                return hashTrack(this.id);
             }
         },
         methods: {

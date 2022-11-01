@@ -19,11 +19,11 @@ const cover = computed(() => playerStore.song.cover);
         </div>
         <Header/>
         <div class="interface">
-            <Sidebar v-if="!maximised" @expandCover="expandCover" :expandCover="shallExpandCover"/>
+            <Sidebar v-if="!maximised"/>
             <Body @maximise="val => maximised = val"/>
         </div>
-        <Player v-if="!maximised" @expandCover="expandCover" :expandCover="!shallExpandCover"/>
-        <PlayerInPicture v-if="!maximised" @expandCover="expandCover" :expandCover="!shallExpandCover"/>
+        <Player v-if="!maximised"/>
+        <PlayerInPicture v-if="!maximised"/>
     </div>
 </template>
 
@@ -36,7 +36,8 @@ import "v-contextmenu/dist/themes/dark.css";
 //import * as Vibrant from 'node-vibrant'
 import themes from "./assets/themes.json";
 import {connect} from "@/ws";
-import {useDataStore} from "@/store/data";
+import {initialiseStores} from "@/store";
+import {useSettingsStore} from "@/store/settings";
 
 
 const LOCAL_STORAGE_KEY = "theme" // change it to whatever you like
@@ -49,6 +50,8 @@ export default {
         Player
     },
     async mounted() {
+        const settings = useSettingsStore();
+
         window.getThemes = () => { // returns a string array of all available themes
             window.themes = []
             for (const key of Object.keys(themes)) {
@@ -62,7 +65,7 @@ export default {
         }
 
         window.getCurrentTheme = () => {
-            return window.localStorage.getItem(LOCAL_STORAGE_KEY) || "jade"
+            return settings.theme;
         }
 
         window.setTheme = (theme) => { // accepts a string (theme name)
@@ -70,14 +73,13 @@ export default {
                 return;
             }
 
-            window.localStorage.setItem(LOCAL_STORAGE_KEY, theme)
+            settings.theme = theme;
 
             for (const key of Object.keys(themes)) {
                 const value = themes[key]
 
                 if (key == "coverAsBackground") {
-                    this.coverAsBackground = Boolean(value[theme])
-                    window.localStorage.setItem("player.coverAsBackground", this.coverAsBackground ? "true" : "false")
+                    this.coverAsBackground = Boolean(value[theme]);
                     continue;
                 }
 
@@ -85,12 +87,10 @@ export default {
             }
         }
 
-        window.setTheme(window.localStorage.getItem(LOCAL_STORAGE_KEY) || "jade") // optional, loads the default theme
+        window.setTheme(settings.theme || "jade") // optional, loads the default theme
 
-        useDataStore().initialise();
+        initialiseStores();
         connect();
-
-        this.supportsLocalPlayback();
 
         const res = await fetch("/api/spotify/authorise");
         if (res.status == 200) {
@@ -99,9 +99,8 @@ export default {
     },
     data() {
         return {
-            shallExpandCover: window.localStorage.getItem("player.expandCover") == "true",
             maximised: false,
-            coverAsBackground: window.localStorage.getItem("player.coverAsBackground") == "true"
+            coverAsBackground: false
         }
     },
     watch: {
@@ -109,31 +108,6 @@ export default {
             document.title = to.meta.title || 'reAudioPlayer One'
         }
     },
-    methods: {
-        async supportsLocalPlayback() {
-            const playInBrowser = window.localStorage.getItem("player.inBrowser") == "true";
-            if (playInBrowser) {
-                return true;
-            }
-
-            const res = await fetch("/api/player/supports/local-playback");
-
-            if (res.status != 200) {
-                this.supportsLocalPlayback();
-                return;
-            }
-
-            const supportsPlayback = await res.json();
-            if (!supportsPlayback) {
-                window.localStorage.setItem("player.inBrowser", "true");
-                window.location.reload();
-            }
-        },
-        expandCover(shallExpand) {
-            this.shallExpandCover = shallExpand
-            window.localStorage.setItem("player.expandCover", shallExpand)
-        },
-    }
 }
 </script>
 
