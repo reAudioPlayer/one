@@ -43,9 +43,8 @@
     </div>
 </template>
 <script>
-    import FindSources from '../ContextMenus/FindSources.vue'
-    import Hashids from 'hashids'
-    const hashids = new Hashids("reapOne.playlist", 22)
+    import FindSources from '../ContextMenus/FindSources.vue';
+    import {unhashPlaylist} from "@/common";
 
     export default {
         name: "AddSong",
@@ -96,7 +95,7 @@
                 this.$refs.findSources.hide()
             },
             getId() {
-                return Number(hashids.decode(this.$route.params.id));
+                return Number(unhashPlaylist(this.$route.params.id));
             },
             add() {
                 this.showModal = false

@@ -31,8 +31,7 @@ import AddSongToPlaylist from '../../../Popups/AddSongToPlaylist.vue';
 </div>
 </template>
 <script>
-import Hashids from 'hashids'
-const hashidsTrack = new Hashids("reapOne.track", 22)
+import {hashTrack} from "@/common";
 
 export default {
     name: 'FlexShelf',
@@ -67,7 +66,7 @@ export default {
     },
     computed: {
         trackId() {
-            return hashidsTrack.encode(this.id);
+            return hashTrack(this.id);
         },
         trackHref() {
             return `/track/${this.trackId}`

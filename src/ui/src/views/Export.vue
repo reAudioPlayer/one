@@ -24,8 +24,8 @@
 <script>
 import { Buffer } from 'buffer';
 window.Buffer = Buffer;
-import Hashids from 'hashids'
 import CloudPlaylist from '../components/cloudSync/CloudPlaylist.vue';
+import Hashids from 'hashids'
 const hashids = new Hashids("reapApollo")
 
 export default {

@@ -59,10 +59,8 @@
     import EditSong from "@/components/Popups/EditSong";
     import draggable from 'vuedraggable'
     import SpotifyPlaylistEntry from '../components/SpotifyPlaylist/SpotifyPlaylistEntry.vue'
-
-    import Hashids from 'hashids'
     import AddSongToPlaylist from "@/components/Popups/AddSongToPlaylist";
-    const hashids = new Hashids("reapOne.track", 22)
+    import {hashTrack} from "@/common";
 
     export default {
         components: {
@@ -89,7 +87,7 @@
         },
         methods: {
             getId() {
-                return hashids.decode(this.$route.params.id);
+                return hashTrack(this.$route.params.id);
             },
             onPlaylistRearrange(type) {
                 const moved = type.moved

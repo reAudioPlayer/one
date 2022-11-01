@@ -1,7 +1,11 @@
 <script setup>
 // http://{host}:{port}/api/spotify/callback
+import {useSettingsStore} from "@/store/settings";
+
 const host = window.location.host
 const spotifyRedirect = `http://${host}/api/spotify/callback`
+
+const settings = useSettingsStore();
 </script>
 <template>
     <div class="preferences">
@@ -9,12 +13,12 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
             <div class="sidebar">
                 <h2>Sidebar</h2>
                 <div class="checkbox">
-                    <input @change="changeShowNewsTab" v-model="showNewsTab" type="checkbox" id="checkbox" name="" value="">
+                    <input @change="changeShowNewsTab" v-model="settings.sidebar.news" type="checkbox" id="checkbox" name="" value="">
                     <label for="checkbox"><span>Show "News" tab</span></label>
                 </div>
 
                 <div class="checkbox">
-                    <input @change="changeShowSportsTab" v-model="showSportsTab" type="checkbox" id="checkbox2" name="" value="">
+                    <input @change="changeShowSportsTab" v-model="settings.sidebar.sports" type="checkbox" id="checkbox2" name="" value="">
                     <label for="checkbox2"><span>Show "Sports" tab</span></label>
                 </div>
             </div>
@@ -22,18 +26,18 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
                 <h2>Player</h2>
                 <div
                     class="checkbox"
-                    :class="{ disabled: !supportsLocalPlayback }"
+                    :class="{ disabled: !settings.player.supportsLocalPlayback }"
                 >
                     <input
                         @change="changePlayInBrowser"
-                        :disabled="!supportsLocalPlayback"
-                        v-model="playInBrowser"
+                        :disabled="!settings.player.supportsLocalPlayback"
+                        v-model="settings.player.inBrowser"
                         type="checkbox"
                         id="checkbox3"
                         name=""
                         value=""
                     >
-                    <template v-if="supportsLocalPlayback">
+                    <template v-if="settings.player.supportsLocalPlayback">
                         <label for="checkbox3"><span>Play in browser</span></label>
                     </template>
                     <template v-else>
@@ -87,26 +91,28 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
     import { Buffer } from 'buffer';
     window.Buffer = Buffer;
     import Hashids from 'hashids'
+    import {useSettingsStore} from "@/store/settings";
     const hashids = new Hashids("reapApollo")
 
     export default {
     components: { Theme, FullShelf },
         name: "Preferences",
-        mounted() {
-            this.checkSupportsLocalPlayback();
+        setup() {
+            const settings = useSettingsStore();
+            return { settings }
         },
         methods: {
             updateThemes() {
                 this.themeSelected = window.getCurrentTheme()
             },
             changeShowSportsTab() {
-                window.localStorage.setItem("sidebar.showSportsTab", this.showSportsTab ? "true" : "false")
+                //this.settings.toggleSidebarSports();
             },
             changeShowNewsTab() {
-                window.localStorage.setItem("sidebar.showNewsTab", this.showNewsTab ? "true" : "false")
+                //this.settings.toggleSidebarNews();
             },
             changePlayInBrowser() {
-                window.localStorage.setItem("player.inBrowser", this.playInBrowser ? "true" : "false")
+                //this.settings.togglePlayerInBrowser();
             },
             saveRestrictedMode() {
                 if (this.spotifyClientId || this.spotifyClientSecret)
@@ -136,16 +142,6 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
                     })
                 }).then(x => console.log(x))
             },
-            async checkSupportsLocalPlayback() {
-                const res = await fetch("/api/player/supports/local-playback");
-
-                if (res.status != 200) {
-                    this.supportsLocalPlayback();
-                    return;
-                }
-
-                this.supportsLocalPlayback = await res.json();
-            },
         },
         data() {
             const themes = [
@@ -159,15 +155,10 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
             let spotifyClientSecret = "";
 
             return {
-                coverAsBackground: window.localStorage.getItem("player.coverAsBackground") == "true",
                 themes,
                 themeSelected,
-                showSportsTab: window.localStorage.getItem("sidebar.showSportsTab") == "true",
-                showNewsTab: window.localStorage.getItem("sidebar.showNewsTab") == "true",
-                playInBrowser: window.localStorage.getItem("player.inBrowser") == "true",
                 spotifyClientId,
-                spotifyClientSecret,
-                supportsLocalPlayback: false
+                spotifyClientSecret
             }
         }
     }
@@ -176,6 +167,12 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
 <style scoped lang="scss">
     .preferences, .padding-20 {
         padding: 20px;
+    }
+
+    .preferences {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .padding-10 {

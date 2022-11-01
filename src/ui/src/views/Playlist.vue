@@ -69,10 +69,8 @@ import PlaylistEntry from '../components/Playlist/PlaylistEntry.vue'
 import AddSong from "../components/Popups/AddSong.vue"
 import EditPlaylist from '../components/Popups/EditPlaylist.vue'
 import draggable from 'vuedraggable'
+import {hashPlaylist} from "@/common";
 
-import Hashids from 'hashids'
-
-const hashids = new Hashids("reapOne.playlist", 22)
 
 export default {
     components: {
@@ -102,7 +100,7 @@ export default {
     },
     methods: {
         getId() {
-            return hashids.decode(this.$route.params.id);
+            return hashPlaylist(this.$route.params.id);
         },
         download(index) {
             const data = this.playlist?.[index]
