@@ -1,10 +1,11 @@
 {
   "name": "reAudioPlayer",
-  "version": "0.1.0",
+  "version": "0.9.5",
   "scripts": {
     "dev": "vite",
     "preview": "vite preview --port 8080",
-    "build": "vite build"
+    "build": "vite build",
+    "build:patch": "npm version patch && npm run build"
   },
   "dependencies": {
     "hashids": "2.2.10",
