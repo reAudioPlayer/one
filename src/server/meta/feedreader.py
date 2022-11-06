@@ -66,7 +66,7 @@ class Feed(Enum):
     def take(cls, url: Feed, count: int, offset: int = 0) -> List[Article]:
         """take [count] articles from the [url] feed"""
         feed = feedparser.parse(url.value)
-        return [ Article(entry, JDict(feed).ensureCast("feed", JDict).ensure("title", str))
+        return [ Article(entry, JDict(feed).chain().ensure("feed.title", str))
                  for (index, entry) in enumerate(feed.entries)
                  if offset <= index < (count + offset) ]
 
