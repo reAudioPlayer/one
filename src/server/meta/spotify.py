@@ -179,7 +179,7 @@ class Spotify:
         """Searches for a track"""
         assert self._spotify is not None
         search = self._spotify.search(query, limit = 10, type = "track")
-        tracks = JDict(search).ensureCast("tracks", JDict).ensure("items", list)
+        tracks = JDict(search).chain().ensure("tracks.items", list)
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
 
     @_connectionRequired
@@ -188,7 +188,7 @@ class Spotify:
         """Searches for an artist"""
         assert self._spotify is not None
         search = self._spotify.search(query, limit = 10, type = "artist")
-        artists = JDict(search).ensureCast("artists", JDict).ensure("items", list)
+        artists = JDict(search).chain().ensure("artists.items", list)
         return SpotifyResult.successResult([SpotifyArtist(artist) for artist in artists])
 
     @_connectionRequired

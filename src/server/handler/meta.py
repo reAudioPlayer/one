@@ -170,7 +170,7 @@ class MetaHandler:
         jdata = await request.json()
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             dex = JDict(jdata)
-            query = dex.tryGet("query", str)
+            query = dex.optionalGet("query", str)
             if query:
                 result = self._spotify.searchTrack(query)
 

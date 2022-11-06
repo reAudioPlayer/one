@@ -59,14 +59,14 @@ class ITrack(ABC):
 class SpotifyTrack(ITrack):
     """spotify track model"""
     def __init__(self, track: Dict[str, Any]) -> None:
-        dex = JDict(track)
+        dex = JDict(track).chain()
         self._title = dex.ensure("name", str)
-        album = dex.ensureCast("album", JDict)
+        album = dex.ensureCast("album", JDict).chain()
         if album:
             self._album = album.ensure("name", str)
-            self._cover = album.ensureCast("images", JList).ensureCast(0, JDict).ensure("url", str)
+            self._cover = album.ensure("images.[0].url", str)
         elif "images" in track: # probably album
-            self._cover = dex.ensureCast("images", JList).ensureCast(0, JDict).ensure("url", str)
+            self._cover = dex.ensure("images.[0].url", str)
             self._releaseDate = dex.ensure("release_date", str)
         self._artists    = [x.ensure("name", str)
                             for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)]
@@ -114,13 +114,13 @@ class SpotifyTrack(ITrack):
 class SpotifyPlaylist:
     """spotify playlist model"""
     def __init__(self, playlist: Dict[str, Any]) -> None:
-        dex = JDict(playlist)
+        dex = JDict(playlist).chain()
         self._name = dex.ensure("name", str)
         self._description = dex.ensure("description", str)
-        self._cover = dex.ensureCast("images", JList).ensureCast(0, JDict).ensure("url", str)
+        self._cover = dex.ensure("images.[0].url", str)
         self._id = dex.ensure("id", str)
         self._owner = dex.ensure("owner", str)
-        self._trackCount = dex.ensureCast("tracks", JDict).ensure("total", int)
+        self._trackCount = dex.ensure("tracks.total", int)
 
     def toDict(self) -> Dict[str, Any]:
         """return dict of playlist"""
@@ -137,11 +137,11 @@ class SpotifyPlaylist:
 class SpotifyArtist:
     """spotify artist model"""
     def __init__(self, artist: Dict[str, Any]) -> None:
-        dex = JDict(artist)
+        dex = JDict(artist).chain()
         self._name = dex.ensure("name", str)
         self._id = dex.ensure("id", str)
-        self._cover = dex.ensureCast("images", JList).ensureCast(0, JDict).ensure("url", str)
-        self._description = f"{dex.ensureCast('followers', JDict).ensure('total', int):,} followers"
+        self._cover = dex.ensure("images.[0].url", str)
+        self._description = f"{dex.ensure('followers.total', int)} followers"
 
     @property
     def id(self) -> str:
@@ -161,9 +161,9 @@ class SpotifyArtist:
 class SpotifyAlbum:
     """spotify album model"""
     def __init__(self, album: Dict[str, Any]) -> None:
-        dex = JDict(album)
+        dex = JDict(album).chain()
         self._title = dex.ensure("name", str)
-        self._cover = dex.ensureCast("images", JList).ensureCast(0, JDict).ensure("url", str)
+        self._cover = dex.ensure("images.[0].url", str)
         self._releaseDate = dex.ensure("release_date", str)
         self._artists = [x.ensure("name", str)
                          for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)]
@@ -210,17 +210,15 @@ except Exception as e:
 class YoutubeTrack(ITrack):
     """youtube track model"""
     def __init__(self, track: Dict[str, Any]) -> None:
-        dex = JDict(track)
+        dex = JDict(track).chain()
         self._title = dex.ensure("title", str)
         album = dex.ensureCast("album", JDict)
         self._album = album.ensure("name", str)
         self._artists = [x.ensure("name", str)
                          for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)]
         self._id = dex.ensure("videoId", str)
-        self._cover = dex.ensureCast("thumbnails", JList)\
-                        .ensureCast(0, JDict)\
-                        .ensure("url", str)\
-                        .replace("w60-h60", "w500-h500")
+        self._cover = dex.ensure("thumbnails.[0].url", str)\
+                         .replace("w60-h60", "w500-h500")
         self._preview = None
         self._markets: Optional[List[str]] = [ ]
 
