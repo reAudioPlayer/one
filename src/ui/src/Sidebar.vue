@@ -11,6 +11,7 @@ const cover = computed(() => player.song.cover);
 const playlists = computed(() => data.playlists);
 
 const settings = useSettingsStore();
+console.log(settings)
 </script>
 <template>
     <div class="sidebar drop-shadow-xl">
@@ -68,13 +69,6 @@ export default {
     components: {
         NavEntry
     },
-    setup() {
-        const settings = useSettingsStore();
-
-        return {
-            settings
-        }
-    },
     watch: {
         minimised() {
             this.collapseSidebar();
@@ -85,7 +79,12 @@ export default {
     },
     computed: {
         minimised() {
-            return this.settings.sidebar.collapsed;
+            const settings = useSettingsStore();
+            console.log("me is problem")
+            console.log(settings)
+            console.log(settings.sidebar)
+            console.log("me is not problem")
+            return settings.sidebar.collapsed;
         }
     },
     methods: {

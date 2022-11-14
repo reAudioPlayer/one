@@ -69,7 +69,7 @@ import PlaylistEntry from '../components/Playlist/PlaylistEntry.vue'
 import AddSong from "../components/Popups/AddSong.vue"
 import EditPlaylist from '../components/Popups/EditPlaylist.vue'
 import draggable from 'vuedraggable'
-import {hashPlaylist} from "@/common";
+import {hashPlaylist, unhashPlaylist} from "@/common";
 
 
 export default {
@@ -100,7 +100,7 @@ export default {
     },
     methods: {
         getId() {
-            return hashPlaylist(this.$route.params.id);
+            return unhashPlaylist(this.$route.params.id);
         },
         download(index) {
             const data = this.playlist?.[index]
@@ -131,7 +131,6 @@ export default {
             this.$refs.editPlaylistPopup.showModal = true
         },
         updateIsPlaying() {
-            console.log("Updating is playing", this.currentSong)
             this.playlist.forEach((element) => {
                 element.playing = element.id == this.currentSong
             })
@@ -147,9 +146,8 @@ export default {
             if (this.$route.params.id == "create") {
                 fetch("/api/playlists/new")
                     .then(x => x.text()).then(y => {
-                    const link = hashids.encode(y);
-                    console.log(link)
-                    this.$router.push(link)
+                        const link = hashPlaylist(y);
+                        this.$router.push(link)
                 })
                 return
             }
@@ -213,6 +211,9 @@ export default {
 
             return prefix + duration + " sec";
         }
+    },
+    mounted() {
+        this.updatePlaylist()
     },
     watch: {
         $route() {

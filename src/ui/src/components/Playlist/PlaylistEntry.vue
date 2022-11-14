@@ -86,7 +86,7 @@
     import SongCtx from '../ContextMenus/SongCtx.vue'
     import Marquee from '../Marquee.vue'
     import EditSong from '../Popups/EditSong.vue'
-    import {hashTrack} from "@/common";
+    import {unhashPlaylist, hashTrack} from "@/common";
 
     export default {
         name: 'PlaylistEntry',
