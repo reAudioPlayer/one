@@ -77,7 +77,7 @@ export const usePlayerStore = defineStore({
             return `/api/player/stream/${state.song.id}`;
         },
         cover(state) {
-            return state.song.cover || "/assets/img/music_placeholder.png";
+            return state.song.cover || "/assets/img/placeholders/song.svg";
         },
         progressPercent(state) {
             return state.progress / this.durationSeconds * 1000;

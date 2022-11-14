@@ -1,7 +1,7 @@
 <script setup>
 import {usePlayerStore} from "@/store/player";
 import {useDataStore} from "@/store/data";
-import {computed} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem";
 
 const player = usePlayerStore();
@@ -13,8 +13,29 @@ const cover = computed(() => player.song.cover);
 const songId = computed(() => player.song.id);
 const playlist = computed(() => player.playlist);
 const title = computed(() => `${player.song.title} • ${player.song.artist}`);
-
 const playlists = computed(() => data.playlists);
+
+// watch title
+watch(title, (newTitle) => {
+    document.title = newTitle;
+});
+
+const playlistScroll = ref(null);
+
+onMounted(() => {
+    window.setTimeout(() => {
+        if (playlistScroll.value.scrollTop) {
+            return;
+        }
+
+        const scroll = document.getElementById(`bplayer-entry-${songId.value}`)?.offsetTop;
+
+        if (scroll >= 354) {
+            playlistScroll.value.scrollTop = scroll - 354;
+        }
+    }, 1000);
+})
+
 </script>
 
 <template>
@@ -80,30 +101,11 @@ export default {
     components: {
         LightPlaylistEntry, SpotifyPlaylistHeader
     },
-    watch: {
-        title(newTitle) {
-            document.title = newTitle
-        }
-    },
     methods: {
         toggleMaximise() {
             this.maximised = !this.maximised;
             this.$emit('maximise', this.maximised);
         },
-    },
-    mounted() {
-        window.setTimeout(() => {
-            if (this.$refs.playlistScroll.scrollTop) {
-                return;
-            }
-
-            const scroll = document.getElementById(`bplayer-entry-${this.songId}`)?.offsetTop;
-
-            if (scroll >= 354) {
-                this.$refs.playlistScroll.scrollTop = scroll - 354;
-            }
-        }, 1000);
-        document.title = this.title;
     },
     data() {
         return {

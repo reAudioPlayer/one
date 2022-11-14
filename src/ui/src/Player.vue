@@ -11,7 +11,6 @@ const durationStr = computed(() => playerStore.song.duration);
 const favourite = computed(() => playerStore.song.favourite);
 const storedVolume = computed(() => playerStore.volume);
 const cover = computed(() => playerStore.cover);
-const stream = computed(() => playerStore.stream);
 const durationSeconds = computed(() => playerStore.durationSeconds);
 const progresslbl = computed(() => playerStore.getProgress);
 const progress = computed(() => playerStore.progressPercent);
@@ -91,7 +90,7 @@ const settings = useSettingsStore();
         <div class="right hideIfMobile">
             <span class="material-icons-round defaultbtn">volume_up</span>
             <div class="max-w-[8vw] w-4/5 mr-[20px]">
-                <ProgressBar @change="volumechange" v-model="volume" type="range" class="volume"/>
+                <ProgressBar @change="volumechange" v-model="store.volume" type="range" class="volume"/>
             </div>
         </div>
     </div>
@@ -158,7 +157,7 @@ export default {
         const playInBrowser = settings.player.inBrowser;
 
         setInterval(() => {
-            if (!this.playing) {
+            if (!player.playing) {
                 return;
             }
             player.incrementProgress();
@@ -191,13 +190,15 @@ export default {
                 this.shuffle = value == "True"
             })
 
+        this.$nextTick(this.volumechange);
+
         return {
             songLoop: false,
             shuffle: false,
             playInBrowser,
             expandedMobile: false,
-            volume: player.volume,
             store: player,
+            progress: 0
         }
     },
     mounted() {
@@ -242,6 +243,11 @@ export default {
             }
         });
     },
+    computed: {
+          stream() {
+              return this.store.stream;
+          }
+    },
     watch: {
         songLoop() {
             fetch("/api/player/repeat", {
@@ -272,10 +278,10 @@ export default {
                 }
 
                 this.$refs.audio.load();
-                if (this.playing) {
+                if (this.store.playing) {
                     this.$refs.audio.play();
                 }
-                this.playing = !this.$refs.audio.paused;
+                this.store.setPlaying(!this.$refs.audio.paused);
             }
         },
         storedVolume() {
@@ -314,8 +320,7 @@ export default {
         },
         volumechange() {
             if (this.playInBrowser) {
-                this.$refs.audio.volume = this.volume / 100;
-                this.store.setVolume(this.volume);
+                this.$refs.audio.volume = this.store.volume / 100;
                 return;
             }
 
@@ -327,7 +332,7 @@ export default {
             })
         },
         progresschange(newVal) {
-            let duration = this.durationSeconds;
+            let duration = this.store.durationSeconds;
             let value = newVal * duration / 1000; // in 1/1000
 
             this.store.setProgress(value);

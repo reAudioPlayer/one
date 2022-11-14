@@ -40,7 +40,7 @@ export default {
     data() {
         return {
             hover: false,
-            value: this.modelValue,
+            value: this.modelValue || 0,
         }
     }
 }
