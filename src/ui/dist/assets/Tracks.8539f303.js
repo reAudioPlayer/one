@@ -1,1 +1,0 @@
-import{I as r}from"./index.87181aa2.js";import{o,f as t,z as e}from"./index.6686ce7a.js";import"./FixedPlaylistHeader.a069c8be.js";import"./PlaylistEntry.f9cd521f.js";import"./SongCtx.5def33db.js";import"./EditSong.00a5b270.js";import"./FindSources.87d8275b.js";const k={__name:"Tracks",setup(p){return(a,m)=>(o(),t(e(r),{src:"/api/me/liked"}))}};export{k as default};

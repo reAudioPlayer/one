@@ -24,19 +24,30 @@ const settings = useSettingsStore();
         <div class="left hideIfMobile">
             <img v-if="!settings.player.expandedCover" @click="settings.player.expandedCover = true" :src="cover"/>
             <div class="titleartist">
-        <span class="title">
-            <router-link class="linkOnHover" to="/player">
-            <Marquee :text="title"/></router-link>
-        </span>
-                <span class="artist">
-          <router-link class="linkOnHover" :to="`/search/${artist}`">
-            <Marquee :text="artist"/></router-link>
-        </span>
+                <template v-if="title || artist">
+                    <span class="title">
+                        <router-link class="linkOnHover" to="/player">
+                            <Marquee :text="title"/>
+                        </router-link>
+                    </span>
+                    <span class="artist">
+                        <router-link class="linkOnHover" :to="`/search/${artist}`">
+                            <Marquee :text="artist"/></router-link>
+                    </span>
+                </template>
+                <template v-else>
+                    <span class="artist">
+                        <router-link to="/collection/playlists" class="linkOnHover">
+                            (No song playing)
+                        </router-link>
+                    </span>
+                </template>
             </div>
             <span
                 @click="setFavourite"
                 class="favourite material-icons-round hideIfMobile">
-        {{ favourite ? "favorite" : "favorite_border" }}</span>
+                {{ favourite ? "favorite" : "favorite_border" }}
+            </span>
         </div>
         <div class="left showIfMobile" @click="expandedMobile = true">
             <img
@@ -44,18 +55,27 @@ const settings = useSettingsStore();
                 @click="settings.player.expandedCover = true"
                 :src="cover"
             />
-            <div class="titleartist">
-        <span class="title">
-            <Marquee :text="title"/>
-        </span>
+        <div class="titleartist">
+            <template v-if="title">
+                <span class="title">
+                    <img class="cover" :src="cover"/>
+                    <Marquee :text="title"/>
+                </span>
                 <span class="artist">
-            <Marquee :text="artist"/>
-        </span>
-            </div>
-            <span
+                    <Marquee :text="artist"/>
+                </span>
+            </template>
+            <template v-else>
+                <span class="artist">
+                    Nothing playing yet...
+                </span>
+            </template>
+        </div>
+        <span
                 @click="favourite = !favourite"
                 class="favourite material-icons-round hideIfMobile">
-        {{ favourite ? "favorite" : "favorite_border" }}</span>
+        {{ favourite ? "favorite" : "favorite_border" }}
+        </span>
         </div>
         <div class="centre w-2/5">
             <div class="upper">
@@ -244,9 +264,9 @@ export default {
         });
     },
     computed: {
-          stream() {
-              return this.store.stream;
-          }
+        stream() {
+            return this.store.stream;
+        }
     },
     watch: {
         songLoop() {
