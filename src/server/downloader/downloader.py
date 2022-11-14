@@ -7,7 +7,7 @@ from os import path
 import os
 from typing import Optional
 import logging
-import tarfile
+import shutil
 
 from yt_dlp import YoutubeDL # type: ignore
 
@@ -15,7 +15,7 @@ from helper.asyncThread import asyncRunInThreadWithReturn
 from config.runtime import Runtime
 
 
-SERVICE_NAME = "reap-one"
+SERVICE_NAME = "one-reap-one-1"
 DOWNLOADING = [ ]
 
 
@@ -33,12 +33,11 @@ class Downloader:
         self._ydl = YoutubeDL(self._opts)
         self._logger = logging.getLogger("downloader")
 
-        if Runtime.args.withDocker:
-            import docker # type: ignore # pylint: disable=import-outside-toplevel
-            self._docker = docker.from_env()
-
     async def downloadSong(self, link: Optional[str], filename: str) -> bool:
         """downloads a song"""
+
+        self._logger.warning("downloading %s (%s)", link, filename)
+
         if link is None:
             return False
 
@@ -59,12 +58,9 @@ class Downloader:
 
         # is local file
         if path.exists(link):
-            os.link(os.path.normpath(link), os.path.normpath(relName.replace("%(ext)s", "mp3")))
+            self._logger.warning("copying %s to %s", link, dest)
+            shutil.copy(os.path.normpath(link), os.path.normpath(relName.replace("%(ext)s", "mp3")))
             return True
-
-        if Runtime.args.withDocker and not isLink:
-            # attempt to copy via docker sdk
-            self._copyToDocker(link, dest)
 
         # already at dest
         if path.exists(dest):
@@ -86,27 +82,3 @@ class Downloader:
             print(f"{filename} could not be downloaded ({relName.replace('%(ext)s', 'mp3')})")
             DOWNLOADING.remove(filename)
             return path.exists(relName.replace("%(ext)s", "mp3"))
-
-    def _copyToDocker(self, src: str, dst: str) -> bool:
-        """copies a file to the docker container"""
-        assert self._docker is not None
-        service = self._docker.services.get(SERVICE_NAME)
-        if service is None:
-            print(f"Service {SERVICE_NAME} not found")
-            return False
-
-        from docker.models import containers, services # type: ignore # pylint: disable=import-outside-toplevel
-        assert isinstance(service, services.Service)
-        container = service.tasks()[0]["Status"]["ContainerStatus"]["ContainerID"]
-        assert isinstance(container, containers.Container)
-
-        os.chdir(os.path.dirname(src))
-        srcname = os.path.basename(src)
-        with tarfile.open(src + '.tar', mode='w') as tar:
-            tar.add(srcname)
-
-        with open(src + '.tar', 'rb') as file:
-            data = file.read()
-
-        container.put_archive(os.path.dirname(dst), data)
-        return True
