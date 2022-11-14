@@ -1,6 +1,6 @@
 <template>
     <div>
-        <vue-final-modal @click="hideFindSourcesCtx" v-model="showModal" classes="modal-container" content-class="modal-content">
+        <vue-final-modal @contextmenu.stop @click="hideFindSourcesCtx" v-model="showModal" classes="modal-container" content-class="modal-content">
             <div class="wrapper">
                 <div class="header">
                     <h3>Edit song</h3>
@@ -13,7 +13,12 @@
                 <h4>Source</h4>
                 <FindSources ref="findSourcesEdit" :src="dSource" :title="dTitle" :artist="dArtist">
                     <div class="content">
+                        <button @click="() => $refs.upSong.click()">
+                            <span class="material-symbols-rounded">file_upload</span>
+                        </button>
                         <input v-model="dSource" type="text" ref="source">
+                        <input type="file" ref="upSong" style="display: none" accept="audio/*" />
+
                         <span class="material-icons-round more" ref="sourceMore" @click="opencontextmenu">more_vert</span>
                     </div>
                 </FindSources>
@@ -56,6 +61,18 @@ import FindSources from '../ContextMenus/FindSources.vue'
             source: String,
             title: String,
             id: Number
+        },
+        mounted() {
+            this.$refs.upSong.addEventListener("change", () => {
+                const data = new FormData()
+                data.append('file', this.$refs.upSong.files[0])
+                data.append('user', 'hubot')
+
+                fetch('/api/config/tracks', {
+                    method: 'POST',
+                    body: data
+                }).then(x => x.text()).then(url => this.dSource = url)
+            });
         },
         data() {
             return {
@@ -124,7 +141,7 @@ import FindSources from '../ContextMenus/FindSources.vue'
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
     .wrapper {
         display: flex;
@@ -143,6 +160,31 @@ import FindSources from '../ContextMenus/FindSources.vue'
         display: flex;
         flex-wrap: wrap;
         width: 100%;
+
+        button {
+            border: none;
+            border-radius: 5px;
+            width: 42px;
+            background: var(--font-colour);
+
+            span {
+                color: var(--font-contrast);
+                font-variation-settings: 'wght' 250
+            }
+
+            &:first-child {
+                margin-right: 10px;
+            }
+
+            &:not(:first-child) {
+                margin-left: 10px;
+            }
+
+            &:hover {
+                background: var(--font-darker);
+                cursor: pointer;
+            }
+        }
     }
 
     input[type="text"] {

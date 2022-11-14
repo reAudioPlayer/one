@@ -2,6 +2,7 @@
 """reAudioPlayer ONE"""
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
+import logging
 from pathlib import Path
 from typing import Any, Dict, List
 from aiohttp import web
@@ -16,6 +17,7 @@ from meta.releases import Releases
 from meta.search import Search
 from meta.spotify import Spotify, SpotifyResult
 from dataModel.track import SpotifyArtist, SpotifyPlaylist
+from config.runtime import Runtime
 
 
 class MetaHandler:
@@ -156,13 +158,30 @@ class MetaHandler:
 
     async def upload(self, request: web.Request) -> web.Response:
         """post(/api/config/images)"""
+        if not Runtime.args.withDocker:
+            return web.HTTPExpectationFailed(text = "must run in docker")
+
         async for obj in (await request.multipart()):
             if obj.filename:
                 bytestream = await obj.read()
-                Path("./ui/dist/assets/img/covers").mkdir(parents=True, exist_ok=True)
-                with open(f"./ui/dist/assets/img/covers/{obj.filename}", "wb") as file:
+                Path("/opt/reAudioPlayer/usr/covers").mkdir(parents=True, exist_ok=True)
+                with open(f"/opt/reAudioPlayer/usr/covers/{obj.filename}", "wb") as file:
                     file.write(bytestream)
-                return web.Response(text = f"/assets/img/covers/{obj.filename}")
+                return web.Response(text = f"/opt/reAudioPlayer/usr/covers/{obj.filename}")
+        return web.Response(status = 400)
+
+    async def uploadSong(self, request: web.Request) -> web.Response:
+        """post(/api/config/tracks)"""
+        if not Runtime.args.withDocker:
+            return web.HTTPExpectationFailed(text = "must run in docker")
+
+        async for obj in (await request.multipart()):
+            if obj.filename:
+                bytestream = await obj.read()
+                Path("/opt/reAudioPlayer/usr/tracks").mkdir(parents=True, exist_ok=True)
+                with open(f"/opt/reAudioPlayer/usr/tracks/{obj.filename}", "wb") as file:
+                    file.write(bytestream)
+                return web.Response(text = f"/opt/reAudioPlayer/usr/tracks/{obj.filename}")
         return web.Response(status = 400)
 
     async def spotifyRecommend(self, request: web.Request) -> web.Response:

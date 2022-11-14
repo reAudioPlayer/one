@@ -39,13 +39,13 @@ class Args(metaclass = Singleton):
         argparser.add_argument('--api-only',
                                action='store_true',
                                help='Disable the web interface. (host ui w/ nginx)')
+        argparser.add_argument('--with-docker',
+                               action='store_true',
+                               help='if run inside docker')
         argparser.add_argument('--usr',
                                type=str,
                                default='../usr',
                 help='The path to the user config (e.g. db, persistent settings, spotify cache).')
-        argparser.add_argument("-with-docker",
-                               action='store_true',
-                               help='Run with docker.')
         self._args = argparser.parse_args()
 
     @property

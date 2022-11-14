@@ -125,6 +125,7 @@ class Router:
         app.router.add_get('/api/config', configHandler.ready)
 
         app.router.add_post('/api/config/images', metaHandler.upload)
+        app.router.add_post('/api/config/tracks', metaHandler.uploadSong)
         app.router.add_post('/api/config/spotify', configHandler.spotifyConfig)
 
         # /api/system
