@@ -43,6 +43,9 @@ class Args(metaclass = Singleton):
                                type=str,
                                default='../usr',
                 help='The path to the user config (e.g. db, persistent settings, spotify cache).')
+        argparser.add_argument("-with-docker",
+                               action='store_true',
+                               help='Run with docker.')
         self._args = argparser.parse_args()
 
     @property
@@ -96,6 +99,12 @@ class Args(metaclass = Singleton):
     def db(self) -> str:
         """The path to the database."""
         return os.path.join(self.usr, 'main.db')
+
+    @property
+    def withDocker(self) -> bool:
+        """Returns true if the server runs inside docker."""
+        assert isinstance(self._args.with_docker, bool)
+        return self._args.with_docker
 
 
 class Runtime:
