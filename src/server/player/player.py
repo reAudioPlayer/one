@@ -2,6 +2,7 @@
 """reAudioPlayer ONE"""
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
+import logging
 import os
 
 import asyncio
@@ -23,7 +24,7 @@ from player.playlistManager import PlaylistManager
 from downloader.downloader import Downloader
 
 
-class Player:
+class Player: # pylint: disable=too-many-instance-attributes
     """Player"""
     def __init__(self,
                  dbManager: DbManager,
@@ -42,6 +43,7 @@ class Player:
         self._song: Optional[Song] = None
         self._preloaded: Optional[str] = None
         self._offset: float = 0 # in s
+        self._logger = logging.getLogger("player")
 
         self._updatePositionTask: Optional[Task[Any]] = None
 
@@ -106,7 +108,7 @@ class Player:
                            playlist: Optional[PlayerPlaylist],
                            atIndex: Optional[int] = None) -> bool:
         """loads a playlist"""
-        print(playlist, self._playerPlaylist)
+        self._logger.debug("loadPlaylist [%s] (at %d)", playlist, atIndex)
         if not playlist:
             return False
         if self._playerPlaylist and self._playerPlaylist == playlist:
@@ -159,7 +161,7 @@ class Player:
             return
         current = self._playerPlaylist.current()
         cId = current.id if current else 0
-        print(f"unload {cId}")
+        self._logger.debug("unload %d", cId)
         if os.path.exists(f"./_cache/{cId}.mp3"):
             os.remove(f"./_cache/{cId}.mp3")
 
@@ -210,7 +212,7 @@ class Player:
             return
         initial = self._playerPlaylist.cursor
         while not await self._downloader.downloadSong(song.source, str(song.id)):
-            print("invalid, preload next")
+            self._logger.debug("invalid [%s], preload next", song)
             song = self._playerPlaylist.next()
             if initial == self._playerPlaylist.cursor:
                 raise Exception("no valid song")
@@ -248,7 +250,7 @@ class Player:
         song = song or self._playerPlaylist.current()
         if not song:
             return
-        print(f"load {song.id}")
+        self._logger.debug("load [%s]", song)
         if self._preloaded == song.source:
             self._song = song
 
