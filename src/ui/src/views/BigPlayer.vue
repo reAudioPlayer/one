@@ -24,7 +24,7 @@ const playlistScroll = ref(null);
 
 onMounted(() => {
     window.setTimeout(() => {
-        if (playlistScroll.value.scrollTop) {
+        if (playlistScroll.value?.scrollTop) {
             return;
         }
 
@@ -82,7 +82,7 @@ onMounted(() => {
                             v-for="playlist in playlists"
                             :key="playlist.id"
                             :cover="playlist.cover"
-                            :title="playlist.title"
+                            :title="playlist.name"
                             :description="playlist.description"
                             @click.stop="() => player.loadPlaylist(playlist.id)"
                         />
