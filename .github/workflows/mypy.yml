@@ -19,7 +19,7 @@ jobs:
       working-directory: ./src/server
       run: |
         python3 -m pip install --upgrade pip
-        pip3 install mypy types-requests
+        pip3 install mypy types-requests docker
         pip3 install -r requirements.txt
     - name: Analysing...
       id: main

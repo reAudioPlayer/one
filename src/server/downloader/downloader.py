@@ -34,7 +34,7 @@ class Downloader:
         self._logger = logging.getLogger("downloader")
 
         if Runtime.args.withDocker:
-            import docker # type: ignore
+            import docker # type: ignore # pylint: disable=import-outside-toplevel
             self._docker = docker.from_env()
 
     async def downloadSong(self, link: Optional[str], filename: str) -> bool:
@@ -95,7 +95,7 @@ class Downloader:
             print(f"Service {SERVICE_NAME} not found")
             return False
 
-        from docker.models import containers, services # type: ignore
+        from docker.models import containers, services # type: ignore # pylint: disable=import-outside-toplevel
         assert isinstance(service, services.Service)
         container = service.tasks()[0]["Status"]["ContainerStatus"]["ContainerID"]
         assert isinstance(container, containers.Container)
