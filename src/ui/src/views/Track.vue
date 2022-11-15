@@ -60,7 +60,7 @@
     import draggable from 'vuedraggable'
     import SpotifyPlaylistEntry from '../components/SpotifyPlaylist/SpotifyPlaylistEntry.vue'
     import AddSongToPlaylist from "@/components/Popups/AddSongToPlaylist";
-    import {hashTrack} from "@/common";
+    import {hashTrack, parseCover} from "@/common";
 
     export default {
         components: {
@@ -79,7 +79,7 @@
                 title: "N/A",
                 artist: "N/A",
                 album: "N/A",
-                cover: "/assets/img/music_placeholder.png",
+                cover: parseCover(null),
                 src: "",
                 id: -1,
                 recommendations: []
@@ -123,7 +123,7 @@
                     console.log(jdata)
                     this.title = jdata.title || "N/A"
                     this.artist = jdata.artist || "N/A"
-                    this.cover = jdata.cover || "/assets/img/music_placeholder.png"
+                    this.cover = parseCover(jdata.cover)
                     this.src = jdata.source
                     this.album = jdata.album || "N/A"
                     this.id = jdata.id

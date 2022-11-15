@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import {zeroPad} from "../common";
+import {parseCover, zeroPad} from "../common";
 
 export const usePlayerStore = defineStore({
     id: 'player',
@@ -10,7 +10,7 @@ export const usePlayerStore = defineStore({
             title: null,
             artist: null,
             album: null,
-            cover: null,
+            cover: parseCover(null),
             src: null,
             duration: null,
             favourite: false,
@@ -29,6 +29,7 @@ export const usePlayerStore = defineStore({
         setSong(song) {
             if (song.id == this.song.id) return;
             this.song = song;
+            this.song.cover = parseCover(song.cover);
             this.progress = 0;
         },
         setDuration(duration) {
@@ -77,7 +78,7 @@ export const usePlayerStore = defineStore({
             return `/api/player/stream/${state.song.id}`;
         },
         cover(state) {
-            return state.song.cover || "/assets/img/placeholders/song.svg";
+            return state.song.cover;
         },
         progressPercent(state) {
             return state.progress / this.durationSeconds * 1000;

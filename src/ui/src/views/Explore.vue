@@ -6,7 +6,7 @@ import Marquee from "@/components/Marquee.vue";
 <template>
     <div class="explore" ref="container" @scroll="onScroll">
         <div class="item" v-for="song in picks" :key="song.name">
-            <ImgCard :src="song.cover">
+            <ImgCard :src="parseCover(song.cover)">
                 <div class="songContent">
                     <div class="play">
                         <span id="loadPlaylist" @click="() => loadPlaylist(song.id)" class="material-symbols-rounded play">play_circle</span>
@@ -30,7 +30,7 @@ import Marquee from "@/components/Marquee.vue";
 </template>
 
 <script>
-import {hashTrack} from "@/common";
+import {hashTrack, parseCover} from "@/common";
 
 export default {
     data() {
@@ -51,6 +51,7 @@ export default {
 
     },
     methods: {
+        parseCover,
         pick() {
             console.log("pick")
             this.songs = this.playlists.map(playlist => playlist.songs).flat();

@@ -13,6 +13,11 @@
                 <h4>Source</h4>
                 <FindSources ref="findSources" :src="$refs.source?.value" :title="title" :artist="artist">
                     <div class="content">
+                        <button @click="() => $refs.upSong.click()">
+                            <span class="material-symbols-rounded">file_upload</span>
+                        </button>
+                        <input type="file" ref="upSong" style="display: none" accept="audio/mp3" />
+
                         <input @change="loadMetadata" type="text" ref="source">
                         <span class="material-icons-round more" ref="sourceMore" @click="opencontextmenu">more_vert</span>
                     </div>
@@ -31,9 +36,14 @@
                 </div>
                 <h4>Cover</h4>
                 <div class="content">
+                    <button @click="() => $refs.upCover.click()">
+                        <span class="material-symbols-rounded">file_upload</span>
+                    </button>
+                    <input type="file" ref="upCover" style="display: none" accept="image/*" />
+
                     <input type="text" class="addSong cover" v-model="cover" ref="cover">
                     <img @click="openInNewTab" class="addSong cover"
-                        :src="cover ? cover : '/assets/img/music_placeholder.png'">
+                        :src="parseCover(cover)">
                 </div>
                 <div class="confirm">
                     <button @click="add" class="negative">Add</button>
@@ -44,7 +54,7 @@
 </template>
 <script>
     import FindSources from '../ContextMenus/FindSources.vue';
-    import {unhashPlaylist} from "@/common";
+    import {unhashPlaylist, hashTrack, parseCover} from "@/common";
 
     export default {
         name: "AddSong",
@@ -58,6 +68,40 @@
                 artist: "",
                 title: ""
             }
+        },
+        mounted() {
+            const id = hashTrack(String(new Date().getTime()));
+
+            this.$refs.upSong.addEventListener("change", () => {
+                const data = new FormData()
+                var file = this.$refs.upSong.files[0];
+
+                var blob = file.slice(0, file.size, file.type);
+                var newFile = new File([blob], id + ".mp3", {type: file.type});
+
+                data.append('file', newFile);
+
+                fetch('/api/config/tracks', {
+                    method: 'POST',
+                    body: data
+                }).then(x => x.text()).then(url => this.$refs.source.value = url)
+            });
+
+            this.$refs.upCover.addEventListener("change", () => {
+                const data = new FormData()
+                var file = this.$refs.upCover.files[0];
+
+                var blob = file.slice(0, file.size, file.type);
+                const ext = file.name.split('.').pop();
+                var newFile = new File([blob], id + `.${ext}`, {type: file.type});
+
+                data.append('file', newFile);
+
+                fetch('/api/config/images', {
+                    method: 'POST',
+                    body: data
+                }).then(x => x.text()).then(url => this.cover = url)
+            });
         },
         watch: {
             showModal() {
@@ -77,6 +121,7 @@
             }
         },
         methods: {
+            parseCover,
             isValidHttpUrl(string) {
                 let url;
                 
@@ -138,7 +183,7 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
     .wrapper {
         display: flex;
@@ -157,6 +202,33 @@
         display: flex;
         flex-wrap: wrap;
         width: 100%;
+
+        button {
+            border: none;
+            border-radius: 5px;
+            width: 42px;
+            background: var(--font-colour);
+            display: flex;
+
+            span {
+                color: var(--font-contrast);
+                font-variation-settings: 'wght' 250;
+                margin: auto;
+            }
+
+            &:first-child {
+                 margin-right: 10px;
+             }
+
+            &:not(:first-child) {
+                 margin-left: 10px;
+             }
+
+            &:hover {
+                 background: var(--font-darker);
+                 cursor: pointer;
+             }
+        }
     }
 
     input[type="text"] {

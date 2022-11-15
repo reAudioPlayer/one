@@ -28,7 +28,7 @@ a<template>
                 <span @click.stop="playAt" ref="idOrPlay" :class="{ 'playing': playing }" class="id">{{index + 1}}</span>
             </div>
             <div class="track">
-                <img :src="cover || '/assets/img/music_placeholder.png'">
+                <img :src="parseCover(cover)">
                 <div class="trackwrapper">
                     <span class="title" :class="{ 'playing': playing }">
                         <router-link class="linkOnHover" :to="`/track/${trackId}`"><Marquee :text="title" /></router-link>
@@ -49,7 +49,7 @@ a<template>
     import SongCtx from '../ContextMenus/SongCtx.vue'
     import Marquee from '../Marquee.vue'
     import EditSong from '../Popups/EditSong.vue'
-    import {hashTrack} from "@/common";
+    import {hashTrack, parseCover} from "@/common";
 
 
     export default {
@@ -109,6 +109,7 @@ a<template>
             }
         },
         methods: {
+            parseCover,
             download() {
                 window.open(`/api/tracks/${this.id}/download`)
             },

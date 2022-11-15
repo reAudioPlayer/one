@@ -39,10 +39,10 @@
                     <button @click="() => $refs.upCover.click()">
                         <span class="material-symbols-rounded">file_upload</span>
                     </button>
-                    <input type="file" ref="upCover" style="display: none" accept="images/*" />
+                    <input type="file" ref="upCover" style="display: none" accept="image/*" />
                     <input type="text" class="addSong cover" v-model="dCover" ref="cover">
                     <img @click="openInNewTab" class="addSong cover"
-                        :src="cover ? cover : '/assets/img/music_placeholder.png'">
+                        :src="parseCover(dCover)">
                 </div>
                 <div class="confirm">
                     <button @click="add" class="negative">Save</button>
@@ -53,7 +53,9 @@
 </template>
 <script>
 import FindSources from '../ContextMenus/FindSources.vue'
-    export default {
+import {parseCover} from "@/common";
+
+export default {
         name: "EditSong",
         components: {
             FindSources
@@ -109,6 +111,7 @@ import FindSources from '../ContextMenus/FindSources.vue'
             }
         },
         methods: {
+            parseCover,
             opencontextmenu(evt) {                
                 this.$refs.findSourcesEdit.show(evt)
             },
@@ -190,10 +193,12 @@ import FindSources from '../ContextMenus/FindSources.vue'
             border-radius: 5px;
             width: 42px;
             background: var(--font-colour);
+            display: flex;
 
             span {
                 color: var(--font-contrast);
-                font-variation-settings: 'wght' 250
+                font-variation-settings: 'wght' 250;
+                margin: auto;
             }
 
             &:first-child {

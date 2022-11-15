@@ -3,7 +3,6 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from typing import Any, Dict, List
-import logging
 
 from aiohttp import web
 from pyaddict import JDict

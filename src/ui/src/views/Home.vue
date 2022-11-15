@@ -4,6 +4,8 @@ import Playlist from "/src/components/Catalogue/Items/home/Playlist.vue";
 import TrackCompact from "/src/components/Catalogue/Items/home/TrackCompact.vue";
 import SpotifyPlaylistHeader from '../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
 import LightPlaylistEntry from '@/components/Playlist/LightPlaylistEntry.vue'
+
+import {parseCover} from "@/common";
 </script>
 
 <template>
@@ -18,12 +20,12 @@ import LightPlaylistEntry from '@/components/Playlist/LightPlaylistEntry.vue'
             <div class="liked" v-if="liked.length">
                 <h2><router-link to="/collection/tracks" class="linkOnHover">Liked Songs</router-link></h2>
                 <spotify-playlist-header />
-                <light-playlist-entry v-for="(element, index) in liked" :key="index" :index="index" :loadAt="{ type: 'collection' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                <light-playlist-entry v-for="(element, index) in liked" :key="index" :index="index" :loadAt="{ type: 'collection' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="parseCover(element.cover)" :favourite="element.favourite" :duration="element.duration" />
             </div>
             <div class="breaking" v-if="breaking.length">
                 <h2><router-link to="/collection/tracks/breaking" class="linkOnHover">Breaking Songs</router-link></h2>
                 <spotify-playlist-header />
-                <light-playlist-entry v-for="(element, index) in breaking" :key="index" :index="index" :loadAt="{ type: 'collection/breaking' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                <light-playlist-entry v-for="(element, index) in breaking" :key="index" :index="index" :loadAt="{ type: 'collection/breaking' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="parseCover(element.cover)" :favourite="element.favourite" :duration="element.duration" />
             </div>
         </div>
         <div class="side">
@@ -37,7 +39,7 @@ import LightPlaylistEntry from '@/components/Playlist/LightPlaylistEntry.vue'
             <div class="disovery" v-if="picks.length">
                 <h2><router-link to="/discover" class="linkOnHover">Discover</router-link></h2>
                 <FlexShelf>
-                    <TrackCompact @play="() => playDiscover(song)" v-for="(song, index) in picks" :key="index" :artist="song.artist" :title="song.title" :cover="song.cover" :id="song.id" />
+                    <TrackCompact @play="() => playDiscover(song)" v-for="(song, index) in picks" :key="index" :artist="song.artist" :title="song.title" :cover="parseCover(song.cover)" :id="song.id" />
                 </FlexShelf>
             </div>
 
