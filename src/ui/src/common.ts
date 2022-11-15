@@ -24,6 +24,18 @@ export const zeroPad = (num: number, places: number) => {
     return String(num).padStart(places, '0')
 }
 
+export const parseCover = (cover: string) => {
+    if (cover == null) return "/assets/img/placeholders/song.svg";
+    if (cover.startsWith("local:")) return cover.replace("local:", "/src/covers/");
+    return cover;
+}
+
+export const parsePlaylistCover = (cover: string) => {
+    if (cover == null) return "/assets/img/placeholders/playlist.svg";
+    if (cover.startsWith("local:")) return cover.replace("local:", "/src/covers/");
+    return cover;
+}
+
 export interface ISong {
     id: number;
     title: string;

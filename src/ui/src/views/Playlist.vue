@@ -61,7 +61,7 @@ import PlaylistEntry from '../components/Playlist/PlaylistEntry.vue'
 import AddSong from "../components/Popups/AddSong.vue"
 import EditPlaylist from '../components/Popups/EditPlaylist.vue'
 import draggable from 'vuedraggable'
-import {hashPlaylist, unhashPlaylist} from "@/common";
+import {hashPlaylist, parseCover, parsePlaylistCover, unhashPlaylist} from "@/common";
 import {usePlayerStore} from "@/store/player";
 
 
@@ -93,6 +93,7 @@ export default {
         }
     },
     methods: {
+        parseCover,
         getId() {
             return unhashPlaylist(this.$route.params.id);
         },
@@ -155,7 +156,7 @@ export default {
                 this.playlist = jdata.songs
                 this.playlistName = jdata.name
                 this.playlistDescription = jdata.description
-                this.playlistCover = jdata.cover
+                this.playlistCover = parsePlaylistCover(jdata.cover)
                 document.title = `${this.playlistName} - reAudioPlayer One`;
                 this.updateIsPlaying()
             })

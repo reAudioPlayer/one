@@ -24,7 +24,7 @@
                         :playing="element.playing"
                         :album="element.album"
                         :artist="element.artist"
-                        :cover="element.cover"
+                        :cover="parseCover(element.cover)"
                         :favourite="element.favourite"
                         :duration="element.duration"
                         @download="download"
@@ -41,6 +41,7 @@ import FixedPlaylistHeader from '@/components/Playlist/FixedPlaylistHeader.vue'
 import GridHeader from '@/components/Playlist/GridHeader.vue'
 import PlaylistEntry from '@/components/Playlist/PlaylistEntry.vue'
 import {usePlayerStore} from "@/store/player";
+import {parseCover} from "@/common";
 
 export default {
     components: {
@@ -74,6 +75,7 @@ export default {
         }
     },
     methods: {
+        parseCover,
         download(index) {
             const data = this.playlist?.[index]
             window.open(`/api/tracks/${data.id}/download`)
