@@ -12,10 +12,9 @@ import shutil
 from yt_dlp import YoutubeDL # type: ignore
 
 from helper.asyncThread import asyncRunInThreadWithReturn
-from config.runtime import Runtime
+from config.customData import LocalTrack
 
 
-SERVICE_NAME = "one-reap-one-1"
 DOWNLOADING = [ ]
 
 
@@ -55,6 +54,10 @@ class Downloader:
             while filename in DOWNLOADING:
                 await asyncio.sleep(1)
             return path.exists(dest)
+
+        if link.startswith("local:"):
+            link = LocalTrack.fromDisplayPath(link).absPath
+            self._logger.warning("using local file %s", link)
 
         # is local file
         if path.exists(link):

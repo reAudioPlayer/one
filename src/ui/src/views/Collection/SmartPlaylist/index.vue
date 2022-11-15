@@ -1,11 +1,3 @@
-<script setup>
-import {usePlayerStore} from "@/store/player";
-import {computed} from "vue";
-
-const playerStore = usePlayerStore();
-const currentSong = computed(() => playerStore.song.id);
-</script>
-
 <template>
     <div class="playlist">
         <fixed-playlist-header @click="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }"
@@ -48,6 +40,7 @@ const currentSong = computed(() => playerStore.song.id);
 import FixedPlaylistHeader from '@/components/Playlist/FixedPlaylistHeader.vue'
 import GridHeader from '@/components/Playlist/GridHeader.vue'
 import PlaylistEntry from '@/components/Playlist/PlaylistEntry.vue'
+import {usePlayerStore} from "@/store/player";
 
 export default {
     components: {
@@ -66,12 +59,18 @@ export default {
         return {
             fixedHeaderHidden: true,
             playlist: [],
-            playlistName: ""
+            playlistName: "",
+            store: usePlayerStore()
         }
     },
     watch: {
         currentSong() {
             this.updateIsPlaying()
+        }
+    },
+    computed: {
+        currentSong() {
+            return this.store.song.id
         }
     },
     methods: {

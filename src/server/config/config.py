@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
-import logging
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
+import logging
 import json
 import os
 from typing import Any, Dict
