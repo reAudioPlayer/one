@@ -11,7 +11,6 @@ COPY src /opt/reAudioPlayer
 WORKDIR /opt/reAudioPlayer/server
 
 RUN pip3 install -r requirements.txt
-RUN pip3 install docker
 
 EXPOSE 80
 

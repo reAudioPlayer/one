@@ -101,7 +101,7 @@ export const useSettingsStore = defineStore("settings", () => {
         const res = await fetch("/api/player/supports/local-playback");
 
         if (res.status != 200) {
-            checkLocalPlayback();
+            setTimeout(checkLocalPlayback, 1000);
             return;
         }
 

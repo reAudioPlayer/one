@@ -2,6 +2,9 @@
 import {usePlayerStore} from "@/store/player";
 import {useDataStore} from "@/store/data";
 import {computed, onMounted, ref, watch} from "vue";
+
+import LightPlaylistEntry from '../components/Playlist/LightPlaylistEntry.vue'
+import SpotifyPlaylistHeader from '../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
 import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem";
 
 const player = usePlayerStore();
@@ -15,12 +18,14 @@ const playlist = computed(() => player.playlist);
 const title = computed(() => `${player.song.title} • ${player.song.artist}`);
 const playlists = computed(() => data.playlists);
 
+const playlistScroll = ref(null);
+
+const emit = defineEmits(["maximise"]);
+
 // watch title
 watch(title, (newTitle) => {
     document.title = newTitle;
 });
-
-const playlistScroll = ref(null);
 
 onMounted(() => {
     window.setTimeout(() => {
@@ -36,6 +41,13 @@ onMounted(() => {
     }, 1000);
 })
 
+const maximised = ref(false);
+const toggleMaximise = () => {
+    maximised.value = !maximised.value;
+    emit("maximise", maximised.value);
+};
+const noPlaylist = ref(false); // hide playlist
+const animate = ref(false); // animations
 </script>
 
 <template>
@@ -92,30 +104,6 @@ onMounted(() => {
         </template>
     </div>
 </template>
-
-<script>
-import LightPlaylistEntry from '../components/Playlist/LightPlaylistEntry.vue'
-import SpotifyPlaylistHeader from '../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
-
-export default {
-    components: {
-        LightPlaylistEntry, SpotifyPlaylistHeader
-    },
-    methods: {
-        toggleMaximise() {
-            this.maximised = !this.maximised;
-            this.$emit('maximise', this.maximised);
-        },
-    },
-    data() {
-        return {
-            maximised: false,
-            noPlaylist: false,
-            animate: false
-        }
-    }
-}
-</script>
 
 <style scoped lang="scss">
 .settings {

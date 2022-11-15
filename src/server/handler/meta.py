@@ -2,11 +2,10 @@
 """reAudioPlayer ONE"""
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-import logging
-from pathlib import Path
 from typing import Any, Dict, List
-from aiohttp import web
+import logging
 
+from aiohttp import web
 from pyaddict import JDict
 
 from db.dbManager import DbManager
@@ -18,6 +17,7 @@ from meta.search import Search
 from meta.spotify import Spotify, SpotifyResult
 from dataModel.track import SpotifyArtist, SpotifyPlaylist
 from config.runtime import Runtime
+from config.customData import LocalTrack, LocalCover
 
 
 class MetaHandler:
@@ -163,11 +163,9 @@ class MetaHandler:
 
         async for obj in (await request.multipart()):
             if obj.filename:
-                bytestream = await obj.read()
-                Path("/opt/reAudioPlayer/usr/covers").mkdir(parents=True, exist_ok=True)
-                with open(f"/opt/reAudioPlayer/usr/covers/{obj.filename}", "wb") as file:
-                    file.write(bytestream)
-                return web.Response(text = f"/opt/reAudioPlayer/usr/covers/{obj.filename}")
+                file = LocalCover.createNew(obj.filename)
+                file.write(await obj.read())
+                return web.Response(text = file.displayPath)
         return web.Response(status = 400)
 
     async def uploadSong(self, request: web.Request) -> web.Response:
@@ -177,11 +175,9 @@ class MetaHandler:
 
         async for obj in (await request.multipart()):
             if obj.filename:
-                bytestream = await obj.read()
-                Path("/opt/reAudioPlayer/usr/tracks").mkdir(parents=True, exist_ok=True)
-                with open(f"/opt/reAudioPlayer/usr/tracks/{obj.filename}", "wb") as file:
-                    file.write(bytestream)
-                return web.Response(text = f"/opt/reAudioPlayer/usr/tracks/{obj.filename}")
+                file = LocalTrack.createNew(obj.filename)
+                file.write(await obj.read())
+                return web.Response(text = file.displayPath)
         return web.Response(status = 400)
 
     async def spotifyRecommend(self, request: web.Request) -> web.Response:

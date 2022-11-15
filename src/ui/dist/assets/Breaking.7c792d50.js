@@ -1,0 +1,1 @@
+import{I as r}from"./index.afb5f590.js";import{o,f as e,z as t}from"./index.f2b9c799.js";import"./FixedPlaylistHeader.1a962db3.js";import"./PlaylistEntry.8fe9e5d3.js";import"./SongCtx.27a38f72.js";import"./EditSong.991f19bd.js";import"./FindSources.bb6a5b0e.js";const k={__name:"Breaking",setup(p){return(a,m)=>(o(),e(t(r),{src:"/api/me/new"}))}};export{k as default};

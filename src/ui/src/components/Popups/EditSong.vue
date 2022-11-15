@@ -16,8 +16,8 @@
                         <button @click="() => $refs.upSong.click()">
                             <span class="material-symbols-rounded">file_upload</span>
                         </button>
+                        <input type="file" ref="upSong" style="display: none" accept="audio/mp3" />
                         <input v-model="dSource" type="text" ref="source">
-                        <input type="file" ref="upSong" style="display: none" accept="audio/*" />
 
                         <span class="material-icons-round more" ref="sourceMore" @click="opencontextmenu">more_vert</span>
                     </div>
@@ -36,6 +36,10 @@
                 </div>
                 <h4>Cover</h4>
                 <div class="content">
+                    <button @click="() => $refs.upCover.click()">
+                        <span class="material-symbols-rounded">file_upload</span>
+                    </button>
+                    <input type="file" ref="upCover" style="display: none" accept="images/*" />
                     <input type="text" class="addSong cover" v-model="dCover" ref="cover">
                     <img @click="openInNewTab" class="addSong cover"
                         :src="cover ? cover : '/assets/img/music_placeholder.png'">
@@ -65,13 +69,33 @@ import FindSources from '../ContextMenus/FindSources.vue'
         mounted() {
             this.$refs.upSong.addEventListener("change", () => {
                 const data = new FormData()
-                data.append('file', this.$refs.upSong.files[0])
-                data.append('user', 'hubot')
+                var file = this.$refs.upSong.files[0];
+
+                var blob = file.slice(0, file.size, file.type);
+                var newFile = new File([blob], this.id + ".mp3", {type: file.type});
+
+                data.append('file', newFile);
 
                 fetch('/api/config/tracks', {
                     method: 'POST',
                     body: data
                 }).then(x => x.text()).then(url => this.dSource = url)
+            });
+
+            this.$refs.upCover.addEventListener("change", () => {
+                const data = new FormData()
+                var file = this.$refs.upCover.files[0];
+
+                var blob = file.slice(0, file.size, file.type);
+                const ext = file.name.split('.').pop();
+                var newFile = new File([blob], this.id + `.${ext}`, {type: file.type});
+
+                data.append('file', newFile);
+
+                fetch('/api/config/images', {
+                    method: 'POST',
+                    body: data
+                }).then(x => x.text()).then(url => this.dCover = url)
             });
         },
         data() {

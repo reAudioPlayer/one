@@ -339,8 +339,10 @@ export default {
             fetch(`/api/${endpoint}`)
         },
         volumechange() {
+            console.log(this.volume)
             if (this.playInBrowser) {
                 this.$refs.audio.volume = this.store.volume / 100;
+                this.store.setVolume(this.store.volume);
                 return;
             }
 
