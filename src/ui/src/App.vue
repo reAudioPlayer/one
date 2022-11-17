@@ -7,23 +7,29 @@ import Header from './Header.vue';
 
 import {usePlayerStore} from "@/store/player";
 import {computed} from "vue";
+import Startup from "@/views/Startup.vue";
 
 const playerStore = usePlayerStore();
 const cover = computed(() => playerStore.song.cover);
 </script>
 
 <template>
+    <div class="bgImageWrapper" :class="{ hidden: !coverAsBackground }">
+        <div class="bgImage" :style="{ backgroundImage: `url(${cover})` }"/>
+    </div>
     <div class="appRoot" id="appRoot">
-        <div class="bgImageWrapper" :class="{ hidden: !coverAsBackground }">
-            <div class="bgImage" :style="{ backgroundImage: `url(${cover})` }"/>
-        </div>
-        <Header/>
-        <div class="interface">
-            <Sidebar v-if="!maximised"/>
-            <Body @maximise="val => maximised = val"/>
-        </div>
-        <Player v-if="!maximised"/>
-        <PlayerInPicture v-if="!maximised"/>
+        <template v-if="playerStore.ready">
+            <Header/>
+            <div class="interface">
+                <Sidebar v-if="!maximised"/>
+                <Body @maximise="val => maximised = val"/>
+            </div>
+            <Player v-if="!maximised"/>
+            <PlayerInPicture v-if="!maximised"/>
+        </template>
+        <template v-else>
+            <Startup />
+        </template>
     </div>
 </template>
 

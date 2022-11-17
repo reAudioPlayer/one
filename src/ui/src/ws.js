@@ -7,12 +7,14 @@ export const connect = () => {
 
     ws.onclose = () => {
         console.log("ws closed")
+        usePlayerStore().setReady(false);
 
         setTimeout(() => connect(), 1000);
     }
 
     ws.onopen = () => {
         console.log("ws connected")
+        usePlayerStore().setReady(true);
     }
 
     ws.onmessage = msg => {

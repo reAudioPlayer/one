@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import {ref, watch} from "vue";
+import {usePlayerStore} from "./player";
 
 const KEY = "reapOne.settings";
 
@@ -52,7 +53,7 @@ const migrateSettings = () => {
     const news = localStorage.getItem("sidebar.showNewsTab");
     const playInBrowser = localStorage.getItem("player.inBrowser");
     const collapsedSidebar = localStorage.getItem("player.collapsedSidebar");
-    const exapndedCover = localStorage.getItem("player.exapndCover");
+    const expandedCover = localStorage.getItem("player.exapndCover");
     const theme = localStorage.getItem("theme");
 
     if (sports) {
@@ -71,8 +72,8 @@ const migrateSettings = () => {
         settings.sidebar.collapsed = collapsedSidebar === "true";
         localStorage.removeItem("player.collapsedSidebar");
     }
-    if (exapndedCover) {
-        settings.player.expandedCover = exapndedCover === "true";
+    if (expandedCover) {
+        settings.player.expandedCover = expandedCover === "true";
         localStorage.removeItem("player.exapndCover");
     }
     if (theme) {
@@ -97,7 +98,7 @@ export const useSettingsStore = defineStore("settings", () => {
     }
 
     const checkLocalPlayback = async () => {
-        console.log("checkLocalPlayback");
+        const playerStore = usePlayerStore();
         const res = await fetch("/api/player/supports/local-playback");
 
         if (res.status != 200) {
@@ -106,6 +107,7 @@ export const useSettingsStore = defineStore("settings", () => {
         }
 
         playerState.value.supportsLocalPlayback = await res.json();
+        playerStore.setReady(true);
         update();
     };
     checkLocalPlayback();
