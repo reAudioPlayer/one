@@ -176,7 +176,11 @@ export default {
         const settings = useSettingsStore();
         const playInBrowser = settings.player.inBrowser;
 
+        console.log("player: setInterval");
+
         setInterval(() => {
+            console.log("player: setInterval:triggered");
+
             if (!player.playing) {
                 return;
             }

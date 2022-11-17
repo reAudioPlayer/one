@@ -77,7 +77,7 @@ class Websocket:
 
     async def wsHandler(self, request: web.Request) -> WebSocketResponse:
         """get(/ws)"""
-        ws = WebSocketResponse()
+        ws = WebSocketResponse(heartbeat = 10)
         self._connections.append(ws)
         await ws.prepare(request)
 
