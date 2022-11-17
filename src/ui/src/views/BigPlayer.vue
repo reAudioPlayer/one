@@ -52,7 +52,7 @@ const animate = ref(false); // animations
 
 <template>
     <div class="bigPlayer">
-        <template v-if="playlist.index >= 0">
+        <template v-if="player.loaded">
             <div class="upNow">
                 <img :src="cover" :class="{ playing, animate }" class="drop-shadow-2xl"/>
                 <div class="blocks" :class="{ playing, animate }">

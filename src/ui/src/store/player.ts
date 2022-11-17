@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import {parseCover, zeroPad} from "../common";
+import {useDataStore} from "./data";
 
 export const usePlayerStore = defineStore({
     id: 'player',
     state: () => ({
         playing: false,
         progress: 0,
+        ready: false,
         song: {
             title: null,
             artist: null,
@@ -31,6 +33,15 @@ export const usePlayerStore = defineStore({
             this.song = song;
             this.song.cover = parseCover(song.cover);
             this.progress = 0;
+        },
+        setReady(ready) {
+            if (this.ready === ready) return;
+
+            this.ready = ready;
+
+            if (ready) {
+                useDataStore().initialise();
+            }
         },
         setDuration(duration) {
             this.song.duration = `${Math.floor(duration / 60)}:${zeroPad(Math.round(duration % 60), 2)}`;
@@ -86,6 +97,9 @@ export const usePlayerStore = defineStore({
         getProgress(state) {
             const progress = state.progress;
             return `${Math.floor(progress / 60)}:${zeroPad(Math.floor(progress % 60), 2)}`
+        },
+        loaded(state) {
+            return state.song.id != -1;
         }
     }
 });
