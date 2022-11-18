@@ -41,6 +41,9 @@ export const usePlayerStore = defineStore({
 
             if (ready) {
                 useDataStore().initialise();
+            } else {
+                this.$reset();
+                useDataStore().$reset();
             }
         },
         setDuration(duration) {
