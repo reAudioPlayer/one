@@ -16,24 +16,15 @@
                 <div class="content">
                     <input v-model="description" type="text" ref="description">
                 </div>
-                <h4>Upload Cover</h4>
-                <div class="content">
-                    <button @click="() => $refs.upFile.click()">
-                        <span class="material-symbols-rounded">search</span>
-                    </button>
-                    <input type="file" ref="upFile" style="display: none" accept="image/*" />
-                    <input type="text" class="addSong cover" readonly v-model="uploadedCoverName" ref="cover" />
-                    <img @click="openInNewTab" class="addSong cover"
-                        :src="uploadedCover ? uploadedCover : '/assets/img/music_placeholder.png'">
-                    <button @click="uploadFile">
-                        <span class="material-symbols-rounded">file_upload</span>
-                    </button>
-                </div>
                 <h4>Cover</h4>
                 <div class="content">
+                    <button @click="() => $refs.upCover.click()">
+                        <span class="material-symbols-rounded">file_upload</span>
+                    </button>
+                    <input type="file" ref="upCover" style="display: none" accept="image/*" />
                     <input type="text" class="addSong cover" v-model="cover" ref="cover" />
                     <img @click="openInNewTab" class="addSong cover"
-                        :src="cover ? cover : '/assets/img/music_placeholder.png'">
+                        :src="parsePlaylistCover(cover)">
                 </div>
                 <div class="confirm">
                     <button @click="remove" class="negative left">Delete</button>
@@ -44,7 +35,7 @@
     </div>
 </template>
 <script>
-    import {unhashPlaylist} from "@/common";
+    import {unhashPlaylist, parsePlaylistCover} from "@/common";
 
     export default {
         name: "EditPlaylist",
@@ -54,22 +45,21 @@
             playlistCover: String
         },
         mounted() {
-            this.$refs.upFile.addEventListener("change", () => {
-                const file = this.$refs.upFile.files?.[0]
-                if (!file)
-                {
-                    return;
-                }
+            this.$refs.upCover.addEventListener("change", () => {
+                const data = new FormData()
+                var file = this.$refs.upCover.files[0];
 
-                this.uploadedCoverName = this.$refs.upFile?.files?.[0]?.name
+                var blob = file.slice(0, file.size, file.type);
+                const ext = file.name.split('.').pop();
+                var newFile = new File([blob], this.playlistName + `.${ext}`, {type: file.type});
 
-                var reader = new FileReader();
-                reader.onloadend = () => {
-                    this.uploadedCover = reader.result;
-                }
-                reader.readAsDataURL(file);
-                return;
-            })
+                data.append('file', newFile);
+
+                fetch('/api/config/images', {
+                    method: 'POST',
+                    body: data
+                }).then(x => x.text()).then(url => this.cover = url)
+            });
         },
         data() {
             return {
@@ -77,26 +67,12 @@
                 name: this.playlistName,
                 description: this.playlistDescription,
                 cover: this.playlistCover,
-                uploadedCover: null,
-                uploadedCoverName: null
             }
         },
         methods: {
-            uploadFile() {
-                console.log(this.$refs.upFile)
-
-                const data = new FormData()
-                data.append('file', this.$refs.upFile.files[0])
-                data.append('user', 'hubot')
-
-                fetch('/api/config/images', {
-                    method: 'POST',
-                    body: data
-                }).then(x => x.text()).then(url => this.cover = url)
-            },
+            parsePlaylistCover,
             apply() {                
                 this.showModal = false
-                console.log("fetch")
                 fetch(`/api/playlists/${unhashPlaylist(this.$route.params.id)}`, {
                     method: "POST",
                     body: JSON.stringify({

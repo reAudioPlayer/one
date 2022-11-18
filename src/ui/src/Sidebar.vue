@@ -3,6 +3,7 @@ import {usePlayerStore} from "@/store/player";
 import {useDataStore} from "@/store/data";
 import {computed} from "vue";
 import {useSettingsStore} from "@/store/settings";
+import {parsePlaylistCover} from "@/common";
 
 const player = usePlayerStore();
 const data = useDataStore();
@@ -11,7 +12,6 @@ const cover = computed(() => player.song.cover);
 const playlists = computed(() => data.playlists);
 
 const settings = useSettingsStore();
-console.log(settings)
 </script>
 <template>
     <div class="sidebar drop-shadow-xl">
@@ -47,7 +47,7 @@ console.log(settings)
             <hr class="hideIfMobile">
             <div class="playlistList hideIfMobile">
                 <nav-entry v-for="(element, index) in playlists" :key="index" :minimised="minimised"
-                           :href="element.href" :img="element.cover" :name="element.name"/>
+                           :href="element.href" :img="parsePlaylistCover(element.cover)" :name="element.name"/>
             </div>
         </template>
         <img

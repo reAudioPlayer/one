@@ -10,7 +10,7 @@
             :title="playlistName"
         />
         <div class="padding-20 playlisteditor" @click="editPlaylist" v-observe-visibility="headerVisibilityChanged">
-            <img v-if="playlistCover" class="cover" :src="playlistCover"/>
+            <img v-if="playlistCover" class="cover" :src="parsePlaylistCover(playlistCover)"/>
             <div class="details">
                 <h7 class="hideIfMobile">Playlist</h7>
                 <h1>{{ playlistName }}</h1>
@@ -94,6 +94,7 @@ export default {
     },
     methods: {
         parseCover,
+        parsePlaylistCover,
         getId() {
             return unhashPlaylist(this.$route.params.id);
         },
@@ -156,7 +157,7 @@ export default {
                 this.playlist = jdata.songs
                 this.playlistName = jdata.name
                 this.playlistDescription = jdata.description
-                this.playlistCover = parsePlaylistCover(jdata.cover)
+                this.playlistCover = jdata.cover
                 document.title = `${this.playlistName} - reAudioPlayer One`;
                 this.updateIsPlaying()
             })
