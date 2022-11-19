@@ -1,23 +1,28 @@
 <template>
-    <div @click="redirect" class="home-playlist drop-shadow-md">
-        <img :src="cover" />
-        <h2>{{name}}</h2>
-    </div>
+    <router-link to="href" class="no-underline">
+        <div @click="redirect" class="home-playlist drop-shadow-md">
+            <img :src="parsePlaylistCover(cover)" />
+            <h2>{{name}}</h2>
+        </div>
+    </router-link>
 </template>
-<script>
-export default {
-    name: 'FlexShelf',
-    props: {
-        name: String,
-        cover: String,
-        href: String
+<script setup>
+import {parsePlaylistCover} from "@/common";
+
+defineProps({
+    name: {
+        type: String,
+        required: true
     },
-    methods: {
-        redirect() {
-            this.$router.push(this.href)
-        }
+    cover: {
+        type: String,
+        required: true
+    },
+    href: {
+        type: String,
+        required: true
     }
-}
+})
 </script>
 
 <style scoped lang="scss">
@@ -46,6 +51,7 @@ export default {
     h2 {
         font-size: 1em;
         margin-bottom: 0;
+        color: var(--font-colour);
     }
 }
 

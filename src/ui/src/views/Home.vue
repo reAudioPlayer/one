@@ -20,12 +20,12 @@ import {parseCover} from "@/common";
             <div class="liked" v-if="liked.length">
                 <h2><router-link to="/collection/tracks" class="linkOnHover">Liked Songs</router-link></h2>
                 <spotify-playlist-header />
-                <light-playlist-entry v-for="(element, index) in liked" :key="index" :index="index" :loadAt="{ type: 'collection' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="parseCover(element.cover)" :favourite="element.favourite" :duration="element.duration" />
+                <light-playlist-entry v-for="(element, index) in liked" :key="index" :index="index" :loadAt="{ type: 'collection' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
             </div>
             <div class="breaking" v-if="breaking.length">
                 <h2><router-link to="/collection/tracks/breaking" class="linkOnHover">Breaking Songs</router-link></h2>
                 <spotify-playlist-header />
-                <light-playlist-entry v-for="(element, index) in breaking" :key="index" :index="index" :loadAt="{ type: 'collection/breaking' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="parseCover(element.cover)" :favourite="element.favourite" :duration="element.duration" />
+                <light-playlist-entry v-for="(element, index) in breaking" :key="index" :index="index" :loadAt="{ type: 'collection/breaking' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
             </div>
         </div>
         <div class="side">
@@ -54,7 +54,7 @@ import {parseCover} from "@/common";
 </template>
 
 <script>
-import {hashPlaylist} from "@/common";
+import {useDataStore} from "@/store/data";
 
 export default {
     name: 'Home',
@@ -64,12 +64,12 @@ export default {
         return {
             greeting,
             releases: [],
-            playlists: [],
             picks: [],
             songs: [],
             liked: [],
             breaking: [],
-            recommendations: []
+            recommendations: [],
+            data: useDataStore()
         }
     },
     mounted() {
@@ -85,22 +85,6 @@ export default {
             .then(jdata => {
                 this.releases = jdata.slice(0, 3);
             })
-        fetch("/api/playlists")
-            .then(x => x.json())
-            .then(async jdata => {
-                for (let i = 0; i < jdata.length; i++) {
-                    const resp = await fetch(`/api/playlists/${i}`)
-                    const pdata = await resp.json()
-                    this.playlists.push({
-                        name: pdata.name,
-                        description: pdata.description,
-                        cover: pdata.cover || pdata.songs?.[0]?.cover || "/assets/img/music_placeholder.png",
-                        href: `/playlist/${hashPlaylist(i)}`, // #TODO migrate to pinia
-                        songs: pdata.songs
-                    })
-                }
-                this.pick();
-            })
         fetch("/api/me/liked")
             .then(x => x.json()).then(jdata => {
                 this.liked = jdata.songs.slice(0, 3)
@@ -109,6 +93,11 @@ export default {
             .then(x => x.json()).then(jdata => {
                 this.breaking = jdata.songs.slice(0, 3)
             })
+    },
+    computed: {
+        playlists() {
+            return this.data.playlists
+        }
     },
     methods: {
         playDiscover(song) {

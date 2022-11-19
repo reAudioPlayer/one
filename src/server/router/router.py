@@ -133,5 +133,5 @@ class Router:
 
         app.router.add_get('/ws', websocket.wsHandler)
 
-        if not Runtime.args.apiOnly:
+        if not Runtime.args.apiOnly and not Runtime.args.withDocker:
             app.router.add_static('/', '../ui/dist')
