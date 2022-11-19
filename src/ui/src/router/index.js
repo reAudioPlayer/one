@@ -1,6 +1,6 @@
 import {
     createRouter,
-    createWebHashHistory
+    createWebHistory
 } from 'vue-router'
 
 const routes = [{
@@ -93,6 +93,13 @@ const routes = [{
         }
     },
     {
+        path: '/preferences/my-data',
+        component: () => import( /* webpackChunkName: "preferences" */ "@/views/preferences/LocalData.vue"),
+        meta: {
+            title: "Preferences - reAudioPlayer One"
+        }
+    },
+    {
         path: '/import',
         component: () => import("@/views/Import.vue"),
         meta: {
@@ -158,7 +165,7 @@ const routes = [{
 ]
 
 const router = createRouter({
-    history: createWebHashHistory(),
+    history: createWebHistory(),
     routes
 })
 
