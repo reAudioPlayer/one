@@ -62,7 +62,7 @@ class SpotifyAuth:
     @staticmethod
     def isDisabled() -> bool:
         """Returns True if Spotify is disabled"""
-        return "restricted" in SpotifyAuth._getSpotifyAuthData()
+        return Runtime.args.noSpotify or "restricted" in SpotifyAuth._getSpotifyAuthData()
 
     @staticmethod
     async def _getClientData() -> Optional[bytes]:
