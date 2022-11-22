@@ -116,13 +116,13 @@ class DbManager:
                 self._db.execute("SELECT * FROM Songs WHERE favourite=1"))
 
     def getSongsByCustomFilter(self, filter_: str) -> List[Song]:
-        """get songs by custom filter"""
+        """get songs by custom sql filter"""
         with self._db:
             return DbManager._castToSongList(
                 self._db.execute(f"SELECT * FROM Songs WHERE {filter_}"))
 
     def getSongsByQuery(self, query: str) -> List[Song]:
-        """get songs by query"""
+        """get songs by (non-sql) query (for the search function)"""
 
         filters = query.split(";")
         filter_ = ""
@@ -171,6 +171,12 @@ class DbManager:
             for row in rows:
                 return Playlist.fromSql(row)
             return None
+
+    def getPlaylistsByCustomFilter(self, filter_: str) -> List[Playlist]:
+        """get playlist by custom sql filter"""
+        with self._db:
+            return [ Playlist.fromSql(playlist)
+                     for playlist in self._db.execute(f"SELECT id, name, description, songs, cover FROM Playlists WHERE {filter_}") ] # pylint: disable=line-too-long
 
     def updatePlaylist(self, newPlaylist: Playlist) -> None:
         """update playlist"""

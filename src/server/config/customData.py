@@ -34,6 +34,11 @@ class LocalFile(ABC):
     def dir(self) -> str:
         """directory"""
 
+    def delete(self) -> None:
+        """delete file"""
+        logging.getLogger("localFile").info("deleting %s", self.absPath)
+        Path(self.absPath).unlink(missing_ok=True)
+
     def createDir(self) -> None:
         """create directory"""
         Path(self.dir).mkdir(parents = True, exist_ok = True)
@@ -68,6 +73,11 @@ class LocalTrack(LocalFile):
         """create new"""
         return LocalTrack(TRACKS + name)
 
+    @staticmethod
+    def getAll() -> list[LocalTrack]:
+        """get all"""
+        return [LocalTrack(str(path)) for path in Path(TRACKS).glob("**/*")]
+
 
 class LocalCover(LocalFile):
     """local cover"""
@@ -90,3 +100,8 @@ class LocalCover(LocalFile):
     def createNew(name: str) -> LocalCover:
         """create new"""
         return LocalCover(COVERS + name)
+
+    @staticmethod
+    def getAll() -> list[LocalCover]:
+        """get all"""
+        return [LocalCover(str(path)) for path in Path(COVERS).glob("**/*")]

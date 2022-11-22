@@ -2,6 +2,7 @@
 import Marquee from "@/components/Marquee.vue";
 import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue';
 import AddSongToPlaylist from '../../../Popups/AddSongToPlaylist.vue';
+import {parseCover} from "@/common";
 </script>
 
 <template>
@@ -9,7 +10,7 @@ import AddSongToPlaylist from '../../../Popups/AddSongToPlaylist.vue';
     <add-album-to-playlist v-if="href" :id="href.replace('https://open.spotify.com/album/', '')" :cover="cover" :title="title" :artist="artist" :href="href" ref="addRelease" />
     <add-song-to-playlist v-if="href" :href="href" :cover="cover" :title="title" :artist="artist" :preview="preview" ref="addSong" />
     <div class="home-track-compact" @click="openModal">
-        <div @click="play" class="cover" :style="{ backgroundImage: `url(${cover})` }">
+        <div @click="play" class="cover" :style="{ backgroundImage: `url(${parseCover(cover)})` }">
             <div class="play">
                 <span class="material-symbols-rounded">play_arrow</span>
             </div>

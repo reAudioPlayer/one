@@ -178,7 +178,7 @@ export default {
 
         console.log("player: setInterval");
 
-        setInterval(() => {
+        setInterval(() => { // TODO(dxstiny) just sync to player
             console.log("player: setInterval:triggered");
 
             if (!player.playing) {

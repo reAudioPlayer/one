@@ -1,6 +1,6 @@
 <template>
-    <router-link to="href" class="no-underline">
-        <div @click="redirect" class="home-playlist drop-shadow-md">
+    <router-link :to="href" class="no-underline">
+        <div class="home-playlist drop-shadow-md">
             <img :src="parsePlaylistCover(cover)" />
             <h2>{{name}}</h2>
         </div>

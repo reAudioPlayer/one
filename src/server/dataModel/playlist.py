@@ -62,3 +62,12 @@ songs={self._songs} description=[{self._description}]"
     def cover(self) -> str:
         """return cover"""
         return self._cover
+
+    def toDict(self) -> dict:
+        """return dict"""
+        return {
+            "id": self._id,
+            "name": self._name,
+            "description": self._description,
+            "cover": self._cover
+        }
