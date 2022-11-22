@@ -3,7 +3,7 @@
 from __future__ import annotations
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict, Any
 import json
 
 
@@ -63,7 +63,7 @@ songs={self._songs} description=[{self._description}]"
         """return cover"""
         return self._cover
 
-    def toDict(self) -> dict:
+    def toDict(self) -> Dict[str, Any]:
         """return dict"""
         return {
             "id": self._id,

@@ -107,6 +107,8 @@ class SpotifyResult(Generic[T]):
 def _connectionRequired(func: Callable[P, U]) -> Callable[P, U]:
     @wraps(func)
     def wrapper(self: Spotify, *args: Any, **kwargs: Any) -> Any:
+        if self._auth.isDisabled(): # pylint: disable=protected-access
+            return SpotifyResult.errorResult(SpotifyState.Disabled)
         if not self.connect():
             return SpotifyResult.errorResult(SpotifyState.Unauthorised)
         return func(self, *args, **kwargs) # type: ignore
