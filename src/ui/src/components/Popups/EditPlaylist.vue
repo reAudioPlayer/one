@@ -46,6 +46,7 @@
         },
         mounted() {
             this.$refs.upCover.addEventListener("change", () => {
+                console.log("Cover changed");
                 const data = new FormData()
                 var file = this.$refs.upCover.files[0];
 
@@ -59,6 +60,7 @@
                     method: 'POST',
                     body: data
                 }).then(x => x.text()).then(url => this.cover = url)
+                console.log("Cover uploaded");
             });
         },
         data() {

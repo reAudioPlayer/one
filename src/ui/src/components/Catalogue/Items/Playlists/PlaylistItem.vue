@@ -2,7 +2,7 @@
     <div class="wrapper drop-shadow-md">
         <add-playlist-to-playlist :cover="cover" :href="href" :title="title" :description="description" :id="id" ref="import" v-if="spotify" />
         <div class="item" @click="redirect">
-            <img :src="cover" />
+            <img :src="parseCover(cover)" />
             <h4>{{title}}</h4>
             <p class="hideIfMobile" v-html="description" />
         </div>
@@ -10,11 +10,13 @@
 </template>
 
 <script>
+    import {parseCover} from "@/common";
     import AddPlaylistToPlaylist from '../../../Popups/AddPlaylistToPlaylist.vue'
     export default {
         components: { AddPlaylistToPlaylist },
         name: 'PlaylistItem',
         methods: {
+            parseCover,
             redirect() {
                 if (!this.spotify)
                 {

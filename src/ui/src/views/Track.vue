@@ -60,7 +60,7 @@
     import draggable from 'vuedraggable'
     import SpotifyPlaylistEntry from '../components/SpotifyPlaylist/SpotifyPlaylistEntry.vue'
     import AddSongToPlaylist from "@/components/Popups/AddSongToPlaylist";
-    import {hashTrack, parseCover} from "@/common";
+    import {unhashTrack, parseCover} from "@/common";
 
     export default {
         components: {
@@ -87,7 +87,7 @@
         },
         methods: {
             getId() {
-                return hashTrack(this.$route.params.id);
+                return unhashTrack(this.$route.params.id);
             },
             onPlaylistRearrange(type) {
                 const moved = type.moved

@@ -125,7 +125,12 @@ class Router:
         app.router.add_get('/api/config', configHandler.ready)
 
         app.router.add_post('/api/config/images', metaHandler.upload)
+        app.router.add_get('/api/config/images', configHandler.getLocalImages)
+        app.router.add_delete('/api/config/images', configHandler.deleteLocalImage)
         app.router.add_post('/api/config/tracks', metaHandler.uploadSong)
+        app.router.add_get('/api/config/tracks', configHandler.getLocalTracks)
+        app.router.add_delete('/api/config/tracks', configHandler.deleteLocalTrack)
+
         app.router.add_post('/api/config/spotify', configHandler.spotifyConfig)
 
         # /api/system
