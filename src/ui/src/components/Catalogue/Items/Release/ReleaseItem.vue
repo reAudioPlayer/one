@@ -1,6 +1,20 @@
 <template>
     <div class="wrapper drop-shadow-md">
-        <add-album-to-playlist :id="this.href?.replace('https://open.spotify.com/album/', '')" :cover="cover" :title="title" :artist="artist" :href="href" ref="addAlbum" />
+        <add-album-to-playlist
+            :id="this.href?.replace('https://open.spotify.com/album/', '')"
+            :cover="cover"
+            :title="title"
+            :artist="artist"
+            :href="href"
+            ref="addAlbum"
+            :album="{
+                id: this.href?.replace('https://open.spotify.com/album/', ''),
+                title: this.title,
+                artist: this.artist,
+                cover: this.cover,
+                href: this.href
+            }"
+        />
         <div class="item" @click="redirect">
             <img :src="cover" />
             <h4>{{title}}</h4>
@@ -11,13 +25,13 @@
 </template>
 
 <script>
-import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue'
+import AddAlbumToPlaylist from '../../../popups-next/ImportSpotifyAlbum.vue';
     export default {
         name: 'ReleaseItem',
         components: { AddAlbumToPlaylist },
         methods: {
             redirect() {
-                this.$refs.addAlbum.showModal = true
+                this.$refs.addAlbum.show()
             }
         },
         props: {

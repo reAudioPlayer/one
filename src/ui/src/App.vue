@@ -131,7 +131,7 @@ export default {
     width: 40%;
     max-height: 70vh;
     padding: 16px;
-    overflow: auto;
+    /*overflow: auto;*/
     background: var(--font-contrast);
     border-radius: 10px;
     color: var(--font-colour);

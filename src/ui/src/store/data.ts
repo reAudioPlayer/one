@@ -1,14 +1,12 @@
 import { defineStore } from 'pinia'
 
-import { hashPlaylist } from "../common";
-import {usePlayerStore} from "./player";
-import {useSettingsStore} from "./settings";
+import { hashPlaylist, IPlaylist } from "../common";
 
 // Create a new store instance.
 export const useDataStore = defineStore({
     id: 'data',
     state: () => ({
-        playlists: [ ]
+        playlists: [ ] as IPlaylist[],
     }),
     actions: {
         setPlaylists(playlists) {
@@ -20,7 +18,7 @@ export const useDataStore = defineStore({
         async fetchPlaylists() {
             const res = await fetch("/api/playlists");
             const availablePlaylists = await res.json();
-            const playlists = [ ];
+            const playlists: IPlaylist[] = [ ];
 
             for (let i = 0; i < availablePlaylists.length; i++) {
                 const resp = await fetch(`/api/playlists/${i}`)
