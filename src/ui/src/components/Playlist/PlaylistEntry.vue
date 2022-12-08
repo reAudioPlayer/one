@@ -15,12 +15,14 @@
         <EditSong
             @close="updatePlaylist"
             ref="editSongPopup"
-            :cover="cover"
-            :id="id"
-            :title="title"
-            :album="album"
-            :artist="artist"
-            :source="source"
+            :song="{
+                title,
+                artist,
+                album,
+                cover,
+                src: source,
+                id
+            }"
         />
         <div
             @dblclick="() => { playAt(); onselect() }"
@@ -85,7 +87,7 @@
 <script>
     import SongCtx from '../ContextMenus/SongCtx.vue'
     import Marquee from '../Marquee.vue'
-    import EditSong from '../Popups/EditSong.vue'
+    import EditSong from '../popups-next/EditSong.vue'
     import {unhashPlaylist, hashTrack, parseCover} from "@/common";
 
     export default {
@@ -175,7 +177,7 @@
                 })
             },
             update() {
-                this.$refs.editSongPopup.showModal = true
+                this.$refs.editSongPopup.show();
             },
             hideCtxMenu() {
                 if (!this.$refs.songCtx) return;

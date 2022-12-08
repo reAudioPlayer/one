@@ -13,14 +13,15 @@ a<template>
         ref="ctxMenu"
     >
         <EditSong
-            @close="updatePlaylist"
             ref="editSongPopup"
-            :cover="cover"
-            :id="id"
-            :title="title"
-            :album="album"
-            :artist="artist"
-            :source="source"
+            :song="{
+                title,
+                artist,
+                album,
+                cover,
+                src: source,
+                id
+            }"
         />
         <div :id="'bplayer-entry-' + id" @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="lightPlaylistEntry"
             :class="{ 'selected': highlighted }">
@@ -48,7 +49,7 @@ a<template>
 <script>
     import SongCtx from '../ContextMenus/SongCtx.vue'
     import Marquee from '../Marquee.vue'
-    import EditSong from '../Popups/EditSong.vue'
+    import EditSong from '../popups-next/EditSong.vue'
     import {hashTrack, parseCover} from "@/common";
 
 
@@ -127,7 +128,7 @@ a<template>
                 })
             },
             update() {
-                this.$refs.editSongPopup.showModal = true
+                this.$refs.editSongPopup.show()
             },
             remove() {
                 return;
