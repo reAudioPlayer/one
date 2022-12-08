@@ -32,6 +32,10 @@ class Metadata:
             self._src = url
             self._track = SoundcloudTrack.fromUrl(url)
 
+    def __bool__(self) -> bool:
+        """return bool"""
+        return bool(self._track)
+
     def toDict(self) -> Dict[str, Any]: # extend with spotify
         """serialise"""
         assert self._track

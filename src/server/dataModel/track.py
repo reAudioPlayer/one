@@ -61,10 +61,10 @@ class SpotifyTrack(ITrack):
     def __init__(self, track: Dict[str, Any]) -> None:
         dex = JDict(track).chain()
         self._title = dex.ensure("name", str)
-        album = dex.ensureCast("album", JDict).chain()
+        album = dex.optionalCast("album", JDict)
         if album:
             self._album = album.ensure("name", str)
-            self._cover = album.ensure("images.[0].url", str)
+            self._cover = album.chain().ensure("images.[0].url", str)
         elif "images" in track: # probably album
             self._cover = dex.ensure("images.[0].url", str)
             self._releaseDate = dex.ensure("release_date", str)
