@@ -118,9 +118,13 @@ def _connectionRequired(func: Callable[P, U]) -> Callable[P, U]:
 def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
     @wraps(func)
     def wrapper(self: Spotify, *args: Any, **kwargs: Any) -> Any:
+        return func(self, *args, **kwargs) # type: ignore
+
         try:
             return func(self, *args, **kwargs) # type: ignore
         except SpotifyException as exc:
+            print(exc)
+
             if exc.http_status == 401:
                 self.auth.invalidate()
                 return SpotifyResult.errorResult(SpotifyState.Unauthorised)

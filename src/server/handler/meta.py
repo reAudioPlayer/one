@@ -29,6 +29,8 @@ class MetaHandler:
         """post(/api/browse/track)"""
         jdata = await request.json()
         metadata = await asyncRunInThreadWithReturn(Metadata, self._spotify, jdata["url"])
+        if not metadata:
+            return web.HTTPNotFound(text = "no metadata found")
         return web.json_response(data = metadata.toDict())
 
     async def getTrack(self, request: web.Request) -> web.Response:
@@ -112,12 +114,12 @@ class MetaHandler:
     @useCache(900) # type: ignore
     async def spotifyArtists(self, _: web.Request) -> web.Response:
         """get(/api/spotify/artists)"""
-        def _implement() -> SpotifyResult[List[SpotifyArtist]]:
+        def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             result = self._spotify.allUserArtists()
             if not result:
                 return result.transform([ ])
 
-            return result
+            return result.transform([ artist.toDict() for artist in result.unwrap() ])
         data = await asyncRunInThreadWithReturn(_implement)
 
         if not data:
