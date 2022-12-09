@@ -1,6 +1,15 @@
 <template>
     <div class="wrapper drop-shadow-md">
-        <add-song-to-playlist :href="href" :cover="cover" :title="title" :artist="artist" :preview="preview" ref="addAlbum" />
+        <add-song-to-playlist
+            :song="{
+                cover,
+                artist,
+                title,
+                preview,
+                href
+            }"
+            ref="addAlbum"
+        />
         <div class="item" @click="redirect">
             <img :src="cover" />
             <h4>{{title}}</h4>
@@ -11,13 +20,13 @@
 </template>
 
 <script>
-    import AddSongToPlaylist from '../../../Popups/AddSongToPlaylist.vue'
+    import AddSongToPlaylist from '../../../popups-next/ImportSpotifySong.vue'
     export default {
         components: { AddSongToPlaylist },
         name: 'SearchItem',
         methods: {
             redirect() {
-                this.$refs.addAlbum.showModal = true
+                this.$refs.addAlbum.show()
             }
         },
         props: {

@@ -1,6 +1,14 @@
 <template>
     <div class="wrapper drop-shadow-md">
-        <add-artist-to-playlist :cover="cover" :name="name" :description="description" :id="id" :href="`https://open.spotify.com/artist/${id}`" ref="import" />
+        <add-artist-to-playlist
+            :artist="{
+                id,
+                name,
+                href: `https://open.spotify.com/artist/${id}`,
+                image: cover
+            }"
+            ref="import"
+        />
         <div class="item" @click="redirect">
             <img :src="cover" />
             <h4>{{name}}</h4>
@@ -11,13 +19,13 @@
 </template>
 
 <script>
-    import AddArtistToPlaylist from '../../../Popups/AddArtistToPlaylist.vue'
+    import AddArtistToPlaylist from '../../../popups-next/ImportSpotifyArtist.vue'
     export default {
         components: { AddArtistToPlaylist },
         name: 'ArtistItem',
         methods: {
             redirect() {
-                this.$refs.import.showModal = true
+                this.$refs.import.show()
             },
             follow(e)
             {

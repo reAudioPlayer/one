@@ -1,9 +1,25 @@
 <template>
-    <div @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="hovering = true" @mouseleave="hovering = false" class="albumEntry"
-        :class="{ 'selected': highlighted }">
-        <mini-player class="miniPlayer" :class="{'hidden': !hovering }" :title="title" :artist="artist" :src="source" />
+    <div
+        @dblclick="() => { playAt(); onselect() }"
+        @click="onselect"
+        @mouseover="hovering = true"
+        @mouseleave="hovering = false"
+        class="albumEntry"
+        :class="{ 'selected': highlighted }"
+    >
+        <mini-player
+            class="miniPlayer"
+            :class="{'hidden': !hovering }"
+            :title="title"
+            :artist="artist"
+            :src="source"
+        />
         <span v-if="!hovering" @click="edit" class="id">{{index + 1}}</span>
         <div class="track">
+            <img
+                v-if="cover"
+                :src="cover"
+            >
             <div class="trackwrapper">
                 <span class="title" :class="{ 'playing': playing }">{{title}}</span>
                 <span class="artist" :class="{ 'playing': playing }">{{artist}}</span>
@@ -31,7 +47,8 @@
                 default: "N/A"
             },
             added: Boolean,
-            preview: String
+            preview: String,
+            cover: String
         },
         data() {
             return {
@@ -72,11 +89,9 @@
 
 <style scoped lang="scss">
     div.albumEntry {
-        padding-top: 7px;
-        padding-bottom: 7px;
         height: var(--playlistEntry-height);
-        display: flex;
-        flex-direction: row;
+        display: grid;
+        grid-template-columns: 50px 1fr 70px;
         color: var(--font-darker);
         font-size: 0.91em;
         border-radius: 5px;
@@ -99,6 +114,13 @@
 
     .edit {
         margin-right: 10px;    
+    }
+
+    img {
+        height: 40px;
+        margin-right: 10px;
+        display: inline;
+        border-radius: 5px;
     }
 
     .favourite {

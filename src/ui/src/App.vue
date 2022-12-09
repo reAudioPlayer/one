@@ -129,12 +129,15 @@ export default {
 .modal-content {
     position: absolute;
     width: 40%;
-    max-height: 70vh;
+    max-height: 80vh;
     padding: 16px;
-    /*overflow: auto;*/
+    /*overflow: hidden;*/
     background: var(--font-contrast);
     border-radius: 10px;
     color: var(--font-colour);
+
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-close {

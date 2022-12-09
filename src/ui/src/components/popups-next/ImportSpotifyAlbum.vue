@@ -51,6 +51,7 @@ const preview = () => {
 }
 
 const addSong = async (index: number) => {
+    if (songs.value[index].added) return;
     await addSongToPlaylist(form.value.toObject().playlist, songs.value[index]);
     songs.value[index].added = true;
 }
@@ -93,6 +94,7 @@ defineExpose({
         <Playlist
             :songs="songs"
             @add="addSong"
+            noCover
         />
     </Template>
 </template>

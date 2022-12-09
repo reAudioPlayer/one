@@ -55,6 +55,13 @@ export interface IPlaylist {
     href: string;
 }
 
+export interface ISpotifySong extends ISong {
+    added?: boolean;
+    artists: string[];
+    source: string;
+    href?: string;
+}
+
 export interface ISpotifyAlbum {
     id: string;
     cover: string;
@@ -62,6 +69,13 @@ export interface ISpotifyAlbum {
     artist: string;
     href: string;
     releaseDate: string;
+}
+
+export interface ISpotifyArtist {
+    id: string;
+    name: string;
+    href: string;
+    image: string;
 }
 
 export interface IDropdownOption {

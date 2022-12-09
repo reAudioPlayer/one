@@ -35,6 +35,5 @@ defineProps({
     padding: 20px;
     max-width: 80vw;
     max-height: 80vh;
-    overflow: auto;
 }
 </style>
