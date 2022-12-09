@@ -5,7 +5,8 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from abc import ABC, abstractmethod
 import re
-from typing import Any, Dict, List, Optional
+from functools import wraps
+from typing import Any, Dict, List, Optional, Callable, TypeVar, ParamSpec
 import requests
 
 from pyaddict import JDict, JList
@@ -195,19 +196,31 @@ class SpotifyAlbum:
         return f"https://open.spotify.com/album/{self._id}"
 
 
-ytmusic: Optional[YTMusic] = None
+P = ParamSpec('P')
+U = TypeVar("U")
 
-try:
-    ytmusic = YTMusic()
-except requests.exceptions.SSLError:
-    print("""ssl verification error.
-Make sure you are connected to the internet and no firewall is blocking or limiting access to sites like youtube.com""") # pylint: disable=line-too-long
-    import time, sys # pylint: disable=ungrouped-imports, multiple-imports
-    time.sleep(5)
-    sys.exit()
-except Exception as e:
-    print(e)
 
+def _youtubeRequired(func: Callable[P, U]) -> Callable[P, U]:
+    def _connect() -> None:
+        if YoutubeTrack.YtMusic is None:
+            try:
+                YoutubeTrack.YtMusic = YTMusic()
+            except requests.exceptions.SSLError:
+                print("""ssl verification error.
+            Make sure you are connected to the internet and no firewall is blocking or limiting access to sites like youtube.com""") # pylint: disable=line-too-long
+                import time, sys # pylint: disable=ungrouped-imports, multiple-imports
+                time.sleep(5)
+                sys.exit()
+            except Exception as e: # pylint: disable=broad-except
+                print(e)
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        _connect()
+        if not YoutubeTrack.YtMusic:
+            return None
+        return func(*args, **kwargs) # type: ignore
+    return wrapper # type: ignore
 
 class YoutubeTrack(ITrack):
     """youtube track model"""
@@ -223,6 +236,8 @@ class YoutubeTrack(ITrack):
                          .replace("w60-h60", "w500-h500")
         self._preview = None
         self._markets: Optional[List[str]] = [ ]
+
+    YtMusic: Optional[YTMusic] = None
 
     @property
     def artists(self) -> List[str]:
@@ -253,15 +268,14 @@ class YoutubeTrack(ITrack):
         return f"https://music.youtube.com/watch?v={self._id}"
 
     @staticmethod
+    @_youtubeRequired
     def fromUrl(url: str) -> Optional[YoutubeTrack]:
         """return track from url"""
-        if not ytmusic:
-            return None
         x = re.search(r"(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([a-zA-Z0-9_]+)", url, re.IGNORECASE) # pylint: disable=line-too-long
         assert x
-        video = ytmusic.get_song(x.group(1))
+        video = YoutubeTrack.YtMusic.get_song(x.group(1))
         details = video.get("videoDetails")
-        results = ytmusic.search(
+        results = YoutubeTrack.YtMusic.search(
             f"{details.get('author')} {details.get('title')}", filter = "songs")
         if len(results) > 0:
             return YoutubeTrack(results[0])
@@ -271,19 +285,18 @@ class YoutubeTrack(ITrack):
         })
 
     @staticmethod
-    def fromQuery(query: str) -> List[YoutubeTrack]:
+    @_youtubeRequired
+    def fromQuery(query: str) -> Optional[List[YoutubeTrack]]:
         """return list of tracks from query"""
-        if not ytmusic:
-            return []
-        tracks = ytmusic.search(query, filter = "songs")
+        tracks = YoutubeTrack.YtMusic.search(query, filter = "songs")
         return [ YoutubeTrack(track) for track in tracks ]
 
     @staticmethod
+    @_youtubeRequired
     def fromSpotifyTrack(track: SpotifyTrack) -> Optional[YoutubeTrack]:
         """return track from spotify track"""
-        if not ytmusic:
-            return None
-        results = ytmusic.search(f"{' '.join(track.artists)} {track.title}", filter = "songs")
+        results = YoutubeTrack.YtMusic.search(
+            f"{' '.join(track.artists)} {track.title}", filter = "songs")
         if len(results) > 0:
             return YoutubeTrack(results[0])
         return None

@@ -21,7 +21,7 @@ class Search:
         self._spotifyArtists = [ ]
         self._youtubeTracks = [ ]
 
-        self._youtubeTracks = YoutubeTrack.fromQuery(query)
+        self._youtubeTracks = YoutubeTrack.fromQuery(query) or []
 
         self._spotifyTracks = spotify.searchTrack(query).unwrapOr([])
         self._spotifyArtists = spotify.searchArtist(query).unwrapOr([])
