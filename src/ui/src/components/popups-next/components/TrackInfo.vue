@@ -46,7 +46,7 @@ const props = defineProps({
 </template>
 
 <style lang="scss" scoped>
-<!-- TODO: refactor -->
+/** TODO: refactor **/
 
 $mobileWidth: 950px;
 

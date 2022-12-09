@@ -67,6 +67,8 @@ defineExpose({
 <style scoped lang="scss">
 .wrapper {
     cursor: default;
+    position: relative;
+    /*overflow: hidden;*/
 }
 
 .confirm {

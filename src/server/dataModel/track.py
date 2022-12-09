@@ -195,6 +195,8 @@ class SpotifyAlbum:
         return f"https://open.spotify.com/album/{self._id}"
 
 
+ytmusic: Optional[YTMusic] = None
+
 try:
     ytmusic = YTMusic()
 except requests.exceptions.SSLError:
@@ -251,8 +253,10 @@ class YoutubeTrack(ITrack):
         return f"https://music.youtube.com/watch?v={self._id}"
 
     @staticmethod
-    def fromUrl(url: str) -> YoutubeTrack:
+    def fromUrl(url: str) -> Optional[YoutubeTrack]:
         """return track from url"""
+        if not ytmusic:
+            return None
         x = re.search(r"(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([a-zA-Z0-9_]+)", url, re.IGNORECASE) # pylint: disable=line-too-long
         assert x
         video = ytmusic.get_song(x.group(1))
@@ -269,12 +273,16 @@ class YoutubeTrack(ITrack):
     @staticmethod
     def fromQuery(query: str) -> List[YoutubeTrack]:
         """return list of tracks from query"""
+        if not ytmusic:
+            return []
         tracks = ytmusic.search(query, filter = "songs")
         return [ YoutubeTrack(track) for track in tracks ]
 
     @staticmethod
     def fromSpotifyTrack(track: SpotifyTrack) -> Optional[YoutubeTrack]:
         """return track from spotify track"""
+        if not ytmusic:
+            return None
         results = ytmusic.search(f"{' '.join(track.artists)} {track.title}", filter = "songs")
         if len(results) > 0:
             return YoutubeTrack(results[0])

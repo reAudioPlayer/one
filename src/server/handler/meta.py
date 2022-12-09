@@ -14,7 +14,7 @@ from meta.metadata import Metadata
 from meta.releases import Releases
 from meta.search import Search
 from meta.spotify import Spotify, SpotifyResult
-from dataModel.track import SpotifyArtist, SpotifyPlaylist
+from dataModel.track import SpotifyPlaylist
 from config.runtime import Runtime
 from config.customData import LocalTrack, LocalCover
 
@@ -187,7 +187,7 @@ class MetaHandler:
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             dex = JDict(jdata)
             query = dex.optionalGet("query", str)
-            if query:
+            if query: # find track first
                 result = self._spotify.searchTrack(query)
 
                 if result:
@@ -203,7 +203,7 @@ class MetaHandler:
                 return result.transform([ ])
 
             metadatas = [ Metadata(self._spotify, track.url)
-                          for track in tracks ]
+                          for track in result.unwrap() ]
             return result.transform([ metadata.toDict() for metadata in metadatas ])
         data = await asyncRunInThreadWithReturn(_implement)
 
