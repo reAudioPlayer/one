@@ -78,6 +78,10 @@ export interface ISpotifyArtist {
     image: string;
 }
 
+export interface ISpotifyPlaylist extends IPlaylist {
+    href: string;
+}
+
 export interface IDropdownOption {
     value: string;
     label: string;
