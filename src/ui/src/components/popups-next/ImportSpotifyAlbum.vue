@@ -41,7 +41,6 @@ const show = async () => {
 }
 
 const preview = () => {
-    console.log(songs.value)
     const event = new CustomEvent('player.play', { detail: {
         artist: props.album.artist,
         title: props.album.title,

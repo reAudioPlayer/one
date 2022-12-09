@@ -1,6 +1,16 @@
 <template>
     <div class="wrapper drop-shadow-md">
-        <add-playlist-to-playlist :cover="cover" :href="href" :title="title" :description="description" :id="id" ref="import" v-if="spotify" />
+        <add-playlist-to-playlist
+            :playlist="{
+                cover,
+                name: title,
+                description,
+                id,
+                href
+            }"
+            ref="import"
+            v-if="spotify"
+        />
         <div class="item" @click="redirect">
             <img :src="parseCover(cover)" />
             <h4>{{title}}</h4>
@@ -11,7 +21,7 @@
 
 <script>
     import {parseCover} from "@/common";
-    import AddPlaylistToPlaylist from '../../../Popups/AddPlaylistToPlaylist.vue'
+    import AddPlaylistToPlaylist from '../../../popups-next/ImportSpotifyPlaylist.vue'
     export default {
         components: { AddPlaylistToPlaylist },
         name: 'PlaylistItem',
@@ -24,7 +34,7 @@
                 }
                 else
                 {
-                    this.$refs.import.showModal = true
+                    this.$refs.import.show()
                 }
             }
         },

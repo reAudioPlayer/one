@@ -127,7 +127,7 @@
                 
                 if (url.includes("spotify"))
                 {
-                    var myregexp = /spotify(?:.*\/(album|track)\/)([A-Za-z0-9_\-]{22})/;
+                    var myregexp = /spotify(?:.*\/(album|track|playlist)\/)([A-Za-z0-9_\-]{22})/;
                     const matches = url.match(myregexp)
                     
                     if (matches?.[1]) {
