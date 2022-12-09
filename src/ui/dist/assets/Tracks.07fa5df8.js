@@ -1,1 +1,0 @@
-import{I as r}from"./index.b2be0aeb.js";import{o,f as e,u as t}from"./index.aa38e9d2.js";import"./FixedPlaylistHeader.a4c0d10c.js";import"./PlaylistEntry.d88bd703.js";import"./EditSong.vue_vue_type_script_setup_true_lang.f2d67a49.js";import"./song.91ac9cb9.js";const u={__name:"Tracks",setup(a){return(p,m)=>(o(),e(t(r),{src:"/api/me/liked"}))}};export{u as default};
