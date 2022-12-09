@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Any, Callable, Dict, Generic, List, Optional, ParamSpec, Type, TypeVar
 
 from aiohttp import web
-from pyaddict import JDict
+from pyaddict import JDict, JList
 import spotipy # type: ignore
 from spotipy.exceptions import SpotifyException # type: ignore
 
@@ -200,8 +200,11 @@ class Spotify:
     def playlistTracks(self, playlistId: str) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns the tracks from a playlist"""
         assert self._spotify is not None
-        tracks = self._spotify.playlist_items(playlistId)
-        tracks = JDict(tracks).ensure("items", list)
+        items = self._spotify.playlist_items(playlistId)
+        tracks = [
+            track.ensure("track", dict)
+            for track in
+            JDict(items).ensureCast("items", JList).iterator().ensureCast(JDict) ]
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
 
     @_connectionRequired
