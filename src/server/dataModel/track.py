@@ -201,26 +201,26 @@ U = TypeVar("U")
 
 
 def _youtubeRequired(func: Callable[P, U]) -> Callable[P, U]:
-    def _connect() -> None:
-        if YoutubeTrack.YtMusic is None:
-            try:
-                YoutubeTrack.YtMusic = YTMusic()
-            except requests.exceptions.SSLError:
-                print("""ssl verification error.
-            Make sure you are connected to the internet and no firewall is blocking or limiting access to sites like youtube.com""") # pylint: disable=line-too-long
-                import time, sys # pylint: disable=ungrouped-imports, multiple-imports
-                time.sleep(5)
-                sys.exit()
-            except Exception as e: # pylint: disable=broad-except
-                print(e)
+    def _connect() -> bool:
+        if YoutubeTrack.YtMusic:
+            return True
+
+        try:
+            YoutubeTrack.YtMusic = YTMusic()
+            return True
+        except requests.exceptions.SSLError:
+            print("""ssl verification error.
+        Make sure you are connected to the internet and no firewall is blocking or limiting access to sites like youtube.com""") # pylint: disable=line-too-long
+        except Exception as exception: # pylint: disable=broad-except
+            print(exception)
+        return False
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        _connect()
-        if not YoutubeTrack.YtMusic:
+        if not _connect():
             return None
-        return func(*args, **kwargs) # type: ignore
-    return wrapper # type: ignore
+        return func(*args, **kwargs)
+    return wrapper
 
 class YoutubeTrack(ITrack):
     """youtube track model"""
@@ -271,6 +271,7 @@ class YoutubeTrack(ITrack):
     @_youtubeRequired
     def fromUrl(url: str) -> Optional[YoutubeTrack]:
         """return track from url"""
+        assert YoutubeTrack.YtMusic
         x = re.search(r"(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([a-zA-Z0-9_]+)", url, re.IGNORECASE) # pylint: disable=line-too-long
         assert x
         video = YoutubeTrack.YtMusic.get_song(x.group(1))
@@ -288,6 +289,7 @@ class YoutubeTrack(ITrack):
     @_youtubeRequired
     def fromQuery(query: str) -> Optional[List[YoutubeTrack]]:
         """return list of tracks from query"""
+        assert YoutubeTrack.YtMusic
         tracks = YoutubeTrack.YtMusic.search(query, filter = "songs")
         return [ YoutubeTrack(track) for track in tracks ]
 
@@ -295,6 +297,7 @@ class YoutubeTrack(ITrack):
     @_youtubeRequired
     def fromSpotifyTrack(track: SpotifyTrack) -> Optional[YoutubeTrack]:
         """return track from spotify track"""
+        assert YoutubeTrack.YtMusic
         results = YoutubeTrack.YtMusic.search(
             f"{' '.join(track.artists)} {track.title}", filter = "songs")
         if len(results) > 0:
