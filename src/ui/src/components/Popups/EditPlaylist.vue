@@ -3,7 +3,7 @@
         <vue-final-modal v-model="showModal" classes="modal-container" content-class="modal-content">
             <div class="wrapper">
                 <div class="header">
-                    <h3>Edit details</h3>
+                    <h3>Edit details - LEGACY</h3>
                     <button class="modal-close" @click="showModal = false">
                         <span class="material-symbols-rounded">close</span>
                     </button>

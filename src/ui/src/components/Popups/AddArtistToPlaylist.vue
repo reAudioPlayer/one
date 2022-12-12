@@ -4,7 +4,7 @@
             content-class="addAlbumToPlaylistPopup">
             <div class="wrapper">
                 <div class="header">
-                    <h3>Import artist</h3>
+                    <h3>Import artist - LEGACY</h3>
                     <button class="modal-close" @click="close">
                         <span class="material-icons-round">
                             close

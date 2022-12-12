@@ -55,6 +55,10 @@ export interface IPlaylist {
     href: string;
 }
 
+export interface IFullPlaylist extends IPlaylist {
+    songs: ISong[];
+}
+
 export interface ISpotifySong extends ISong {
     added?: boolean;
     artists: string[];
