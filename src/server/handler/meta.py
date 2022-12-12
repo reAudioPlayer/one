@@ -187,17 +187,21 @@ class MetaHandler:
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             dex = JDict(jdata)
             query = dex.optionalGet("query", str)
+
+            artists = dex.ensure("artists", list)
+            tracks = dex.ensure("tracks", list)
+            genres = dex.ensure("genres", list)
+
             if query: # find track first
                 result = self._spotify.searchTrack(query)
+                print(result)
 
                 if result:
-                    tracks = result.unwrap()
-                    if len(tracks) > 0:
-                        dex["tracks"] = [ tracks[0].id ]
+                    queryTracks = result.unwrap()
+                    if len(queryTracks) > 0:
+                        tracks.append(queryTracks[0].id)
 
-            result = self._spotify.recommendations(dex.ensure("artists", list),
-                                                   dex.ensure("tracks", list),
-                                                   dex.ensure("genres", list))
+            result = self._spotify.recommendations(artists, tracks, genres)
 
             if not result:
                 return result.transform([ ])
