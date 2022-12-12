@@ -8,6 +8,11 @@ export const useDataStore = defineStore({
     state: () => ({
         playlists: [ ] as IPlaylist[],
     }),
+    getters: {
+        notEmpty() {
+            return this.playlists.length > 0;
+        }
+    },
     actions: {
         setPlaylists(playlists) {
             this.playlists = playlists;

@@ -45,6 +45,7 @@ defineProps({
 
     img {
         border-radius: 12px;
+        width: 100%;
     }
 
 

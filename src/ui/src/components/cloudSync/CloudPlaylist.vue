@@ -1,7 +1,7 @@
 <template>
     <div class="cloudPlaylist">
         <span @click="() => $emit('remove')" class="close material-symbols-rounded">close</span>
-        <img :src="cover">
+        <img :src="parseCover(cover)">
         <div class="data">
             <h2>{{playlist.name}}</h2>
             <div class="lead">
@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import {parseCover} from "@/common";
+
 export default {
     name: "cloudPlaylist",
     props: {
@@ -29,6 +31,7 @@ export default {
         }
     },
     methods: {
+        parseCover,
         import() {
             if (this.statusIcon == "cloud_done")
             {
