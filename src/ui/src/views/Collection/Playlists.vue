@@ -12,12 +12,33 @@ const playlists = computed(() => dataStore.playlists);
         <CollectionHeader />
         <div class="playlists">
             <full-shelf heading="Playlists">
-                <playlist-item-big v-if="likedTracks?.songs?.length" title="Liked Songs" icon="favorite" :description="`${likedTracks?.songs?.length} liked songs`" href="/collection/tracks" />
-                <playlist-item-big title="Breaking Songs" :description="`your 25 newest songs`" icon="trending_up" href="/collection/tracks/breaking" />
-                <playlist-item v-for="(element, index) in playlists" :key="index" :href="element.href" :cover="element.cover"
-                    :description="element.description" :title="element.name" :spotify="false" />
+                <playlist-item-big
+                    v-if="likedTracks?.songs?.length"
+                    title="Liked Songs"
+                    icon="favorite"
+                    :description="`${likedTracks?.songs?.length} liked songs`"
+                    href="/collection/tracks"
+                />
+                <playlist-item-big
+                    title="Breaking Songs"
+                    :description="`your 25 newest songs`"
+                    icon="trending_up"
+                    href="/collection/tracks/breaking"
+                />
+                <playlist-item
+                    v-for="(element, index) in playlists"
+                    :key="index"
+                    :href="element.href"
+                    :cover="element.cover"
+                    :description="element.description"
+                    :title="element.name"
+                    :spotify="false"
+                />
             </full-shelf>
-            <full-shelf heading="Import From Spotify">
+            <full-shelf
+                heading="Import From Spotify"
+                v-if="spotifyPlaylists.length"
+            >
                 <playlist-item
                     v-for="(element, index) in spotifyPlaylists"
                     :key="index"

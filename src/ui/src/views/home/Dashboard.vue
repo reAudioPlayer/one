@@ -2,7 +2,7 @@
 import FlexShelf from "/src/components/Catalogue/FlexShelf.vue";
 import Playlist from "/src/components/Catalogue/Items/home/Playlist.vue";
 import TrackCompact from "/src/components/Catalogue/Items/home/TrackCompact.vue";
-import SpotifyPlaylistHeader from '../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
+import SpotifyPlaylistHeader from '../../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
 import LightPlaylistEntry from '@/components/Playlist/LightPlaylistEntry.vue'
 
 import {parseCover} from "@/common";
@@ -16,8 +16,13 @@ import {parseCover} from "@/common";
                     <router-link to="/collection/playlists" class="linkOnHover">Playlists</router-link>
                 </h2>
                 <FlexShelf>
-                    <Playlist v-for="(playlist, index) in playlists" :key="index" :name="playlist.name"
-                              :cover="playlist.cover" :href="playlist?.href"/>
+                    <Playlist
+                        v-for="(playlist, index) in playlists"
+                        :key="index"
+                        :name="playlist.name"
+                        :cover="playlist.cover"
+                        :href="playlist?.href"
+                    />
                 </FlexShelf>
             </div>
             <div class="liked" v-if="liked.length">
