@@ -1,7 +1,7 @@
 <script setup>
 import Marquee from "@/components/Marquee.vue";
-import AddAlbumToPlaylist from '../../../popups-next/ImportSpotifyAlbum.vue';
-import AddSongToPlaylist from '../../../popups-next/ImportSpotifySong.vue';
+import AddAlbumToPlaylist from '../../../popups/ImportSpotifyAlbum.vue';
+import AddSongToPlaylist from '../../../popups/ImportSpotifySong.vue';
 import {parseCover} from "@/common";
 </script>
 

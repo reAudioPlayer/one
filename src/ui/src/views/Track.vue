@@ -56,7 +56,7 @@
 <script>
     import FixedPlaylistHeader from '../components/Playlist/FixedPlaylistHeader.vue'
     import GridHeader from '../components/Playlist/GridHeader.vue'
-    import EditSong from "@/components/popups-next/EditSong";
+    import EditSong from "@/components/popups/EditSong";
     import draggable from 'vuedraggable'
     import SpotifyPlaylistEntry from '../components/SpotifyPlaylist/SpotifyPlaylistEntry.vue'
     import {unhashTrack, parseCover} from "@/common";

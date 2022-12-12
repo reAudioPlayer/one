@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import AddAlbumToPlaylist from '../../../popups-next/ImportSpotifyAlbum.vue'
+import AddAlbumToPlaylist from '../../../popups/ImportSpotifyAlbum.vue'
 
 export default {
     components: {AddAlbumToPlaylist},
