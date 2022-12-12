@@ -87,7 +87,7 @@
 <script>
     import SongCtx from '../ContextMenus/SongCtx.vue'
     import Marquee from '../Marquee.vue'
-    import EditSong from '../popups-next/EditSong.vue'
+    import EditSong from '../popups/EditSong.vue'
     import {unhashPlaylist, hashTrack, parseCover} from "@/common";
 
     export default {

@@ -20,7 +20,7 @@
 </template>
 
 <script>
-    import AddSongToPlaylist from '../../../popups-next/ImportSpotifySong.vue'
+    import AddSongToPlaylist from '../../../popups/ImportSpotifySong.vue'
     export default {
         components: { AddSongToPlaylist },
         name: 'SearchItem',

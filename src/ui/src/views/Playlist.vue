@@ -65,8 +65,8 @@
 import FixedPlaylistHeader from '../components/Playlist/FixedPlaylistHeader.vue'
 import GridHeader from '../components/Playlist/GridHeader.vue'
 import PlaylistEntry from '../components/Playlist/PlaylistEntry.vue'
-import AddSong from "../components/popups-next/AddNewSong.vue"
-import EditPlaylist from '../components/popups-next/EditPlaylist.vue'
+import AddSong from "../components/popups/AddNewSong.vue"
+import EditPlaylist from '../components/popups/EditPlaylist.vue'
 import draggable from 'vuedraggable'
 import {hashPlaylist, parseCover, parsePlaylistCover, unhashPlaylist} from "@/common";
 import {usePlayerStore} from "@/store/player";

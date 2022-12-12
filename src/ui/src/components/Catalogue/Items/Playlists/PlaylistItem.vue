@@ -21,7 +21,7 @@
 
 <script>
     import {parseCover} from "@/common";
-    import AddPlaylistToPlaylist from '../../../popups-next/ImportSpotifyPlaylist.vue'
+    import AddPlaylistToPlaylist from '../../../popups/ImportSpotifyPlaylist.vue'
     export default {
         components: { AddPlaylistToPlaylist },
         name: 'PlaylistItem',

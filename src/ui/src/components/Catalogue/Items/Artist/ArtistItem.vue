@@ -19,7 +19,7 @@
 </template>
 
 <script>
-    import AddArtistToPlaylist from '../../../popups-next/ImportSpotifyArtist.vue'
+    import AddArtistToPlaylist from '../../../popups/ImportSpotifyArtist.vue'
     export default {
         components: { AddArtistToPlaylist },
         name: 'ArtistItem',
