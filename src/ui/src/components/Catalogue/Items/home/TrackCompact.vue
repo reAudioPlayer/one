@@ -1,14 +1,34 @@
 <script setup>
 import Marquee from "@/components/Marquee.vue";
-import AddAlbumToPlaylist from '../../../Popups/AddAlbumToPlaylist.vue';
-import AddSongToPlaylist from '../../../Popups/AddSongToPlaylist.vue';
+import AddAlbumToPlaylist from '../../../popups-next/ImportSpotifyAlbum.vue';
+import AddSongToPlaylist from '../../../popups-next/ImportSpotifySong.vue';
 import {parseCover} from "@/common";
 </script>
 
 <template>
 <div class="home-track-compact-wrapper drop-shadow-md">
-    <add-album-to-playlist v-if="href" :id="href.replace('https://open.spotify.com/album/', '')" :cover="cover" :title="title" :artist="artist" :href="href" ref="addRelease" />
-    <add-song-to-playlist v-if="href" :href="href" :cover="cover" :title="title" :artist="artist" :preview="preview" ref="addSong" />
+    <add-album-to-playlist
+        v-if="href"
+        :album="{
+            cover,
+            name: title,
+            artist,
+            id: href.replace('https://open.spotify.com/album/', ''),
+            href
+        }"
+        ref="addRelease"
+    />
+    <add-song-to-playlist
+        v-if="href"
+        :song="{
+            cover,
+            title,
+            artist,
+            id: href.replace('https://open.spotify.com/track/', ''),
+            href
+        }"
+        ref="addSong"
+    />
     <div class="home-track-compact" @click="openModal">
         <div @click="play" class="cover" :style="{ backgroundImage: `url(${parseCover(cover)})` }">
             <div class="play">
@@ -57,11 +77,11 @@ export default {
 
             if (this.href?.includes("spotify"))
             {
-                this.$refs.addRelease.showModal = true;
+                this.$refs.addRelease.show()
             }
             else
             {
-                this.$refs.addSong.showModal = true;
+                this.$refs.addSong.show()
             }
         }
     },

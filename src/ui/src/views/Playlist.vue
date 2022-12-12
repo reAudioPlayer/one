@@ -70,6 +70,7 @@ import EditPlaylist from '../components/popups-next/EditPlaylist.vue'
 import draggable from 'vuedraggable'
 import {hashPlaylist, parseCover, parsePlaylistCover, unhashPlaylist} from "@/common";
 import {usePlayerStore} from "@/store/player";
+import {getPlaylist} from "@/api/playlist";
 
 
 export default {
@@ -85,17 +86,12 @@ export default {
     data() {
         this.updatePlaylist()
 
-        fetch("/api/playlists").then(x => x.json()).then(jdata => {
-            this.playlists = jdata
-        })
-
         return {
             fixedHeaderHidden: true,
             playlist: [],
             playlistName: "N/A",
             playlistDescription: "",
             playlistCover: null,
-            playlists: [],
             store: usePlayerStore()
         }
     },
@@ -151,13 +147,12 @@ export default {
                 })
                 return
             }
-            fetch(`/api/playlists/${this.id}`).then(async x => {
-                if (x.status == 404) {
+            getPlaylist(this.id).then(async jdata => {
+                if (!jdata) {
                     this.$router.push("/")
                     return
                 }
 
-                const jdata = await x.json()
                 this.playlist = jdata.songs
                 this.playlistName = jdata.name
                 this.playlistDescription = jdata.description

@@ -3,7 +3,7 @@
         <vue-final-modal @click="hideFindSourcesCtx" v-model="showModal" classes="modal-container" content-class="modal-content">
             <div class="wrapper">
                 <div class="header">
-                    <h3>Add song</h3>
+                    <h3>Add song - LEGACY</h3>
                     <button class="modal-close" @click="showModal = false">
                         <span class="material-icons-round">
                             close

@@ -12,41 +12,85 @@ import {parseCover} from "@/common";
     <div class="home">
         <div class="main">
             <div class="playlists" v-if="playlists.length">
-                <h2><router-link to="/collection/playlists" class="linkOnHover">Playlists</router-link></h2>
+                <h2>
+                    <router-link to="/collection/playlists" class="linkOnHover">Playlists</router-link>
+                </h2>
                 <FlexShelf>
-                    <Playlist v-for="(playlist, index) in playlists" :key="index" :name="playlist.name" :cover="playlist.cover" :href="playlist?.href" />
+                    <Playlist v-for="(playlist, index) in playlists" :key="index" :name="playlist.name"
+                              :cover="playlist.cover" :href="playlist?.href"/>
                 </FlexShelf>
             </div>
             <div class="liked" v-if="liked.length">
-                <h2><router-link to="/collection/tracks" class="linkOnHover">Liked Songs</router-link></h2>
-                <spotify-playlist-header />
-                <light-playlist-entry v-for="(element, index) in liked" :key="index" :index="index" :loadAt="{ type: 'collection' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                <h2>
+                    <router-link to="/collection/tracks" class="linkOnHover">Liked Songs</router-link>
+                </h2>
+                <spotify-playlist-header/>
+                <light-playlist-entry v-for="(element, index) in liked" :key="index" :index="index"
+                                      :loadAt="{ type: 'collection' }" :source="element.source" :id="element.id"
+                                      :title="element.title" :playing="element.playing" :album="element.album"
+                                      :artist="element.artist" :cover="element.cover" :favourite="element.favourite"
+                                      :duration="element.duration"/>
             </div>
             <div class="breaking" v-if="breaking.length">
-                <h2><router-link to="/collection/tracks/breaking" class="linkOnHover">Breaking Songs</router-link></h2>
-                <spotify-playlist-header />
-                <light-playlist-entry v-for="(element, index) in breaking" :key="index" :index="index" :loadAt="{ type: 'collection/breaking' }" :source="element.source" :id="element.id" :title="element.title" :playing="element.playing" :album="element.album" :artist="element.artist" :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                <h2>
+                    <router-link to="/collection/tracks/breaking" class="linkOnHover">Breaking Songs</router-link>
+                </h2>
+                <spotify-playlist-header/>
+                <light-playlist-entry v-for="(element, index) in breaking" :key="index" :index="index"
+                                      :loadAt="{ type: 'collection/breaking' }" :source="element.source"
+                                      :id="element.id" :title="element.title" :playing="element.playing"
+                                      :album="element.album" :artist="element.artist" :cover="element.cover"
+                                      :favourite="element.favourite" :duration="element.duration"/>
             </div>
         </div>
         <div class="side">
             <div class="releases" v-if="releases.length">
-                <h2><router-link to="/collection/releases" class="linkOnHover">Out now</router-link></h2>
+                <h2>
+                    <router-link to="/collection/releases" class="linkOnHover">Out now</router-link>
+                </h2>
                 <FlexShelf>
-                    <TrackCompact @play="() => playRecommendation(song)" v-for="(song, index) in releases" :key="index" :artist="song.artist" :title="song.title" :cover="song.cover" :href="song.url" />
+                    <TrackCompact
+                        @play="() => playRecommendation(song)"
+                        v-for="(song, index) in releases"
+                        :key="index"
+                        :artist="song.artist"
+                        :title="song.title"
+                        :cover="song.cover"
+                        :href="song.url"
+                    />
                 </FlexShelf>
             </div>
 
             <div class="disovery" v-if="picks.length">
-                <h2><router-link to="/discover" class="linkOnHover">Discover</router-link></h2>
+                <h2>
+                    <router-link to="/discover" class="linkOnHover">Discover</router-link>
+                </h2>
                 <FlexShelf>
-                    <TrackCompact @play="() => playDiscover(song)" v-for="(song, index) in picks" :key="index" :artist="song.artist" :title="song.title" :cover="parseCover(song.cover)" :id="song.id" />
+                    <TrackCompact
+                        @play="() => playDiscover(song)"
+                        v-for="(song, index) in picks"
+                        :key="index"
+                        :artist="song.artist"
+                        :title="song.title"
+                        :cover="parseCover(song.cover)"
+                        :id="song.id"
+                        :href="song.href"
+                    />
                 </FlexShelf>
             </div>
 
             <div class="recommendations" v-if="recommendations.length">
                 <h2>Recommendations</h2>
                 <FlexShelf>
-                    <TrackCompact @play="() => playRecommendation(song)" v-for="(song, index) in recommendations" :key="index" :artist="song.artist" :title="song.title" :cover="song.cover" :href="song.src" />
+                    <TrackCompact
+                        @play="() => playRecommendation(song)"
+                        v-for="(song, index) in recommendations"
+                        :key="index"
+                        :artist="song.artist"
+                        :title="song.title"
+                        :cover="song.cover"
+                        :href="song.src"
+                    />
                 </FlexShelf>
             </div>
         </div>
@@ -55,6 +99,7 @@ import {parseCover} from "@/common";
 
 <script>
 import {useDataStore} from "@/store/data";
+import {getPlaylist} from "@/api/playlist";
 
 export default {
     name: 'Home',
@@ -75,8 +120,7 @@ export default {
     mounted() {
         fetch("/api/config")
             .then(x => {
-                if (x.status == 400)
-                {
+                if (x.status == 400) {
                     this.$router.push("/welcome")
                 }
             })
@@ -87,12 +131,13 @@ export default {
             })
         fetch("/api/me/liked")
             .then(x => x.json()).then(jdata => {
-                this.liked = jdata.songs.slice(0, 3)
-            })
+            this.liked = jdata.songs.slice(0, 3)
+        })
         fetch("/api/me/new")
             .then(x => x.json()).then(jdata => {
-                this.breaking = jdata.songs.slice(0, 3)
-            })
+            this.breaking = jdata.songs.slice(0, 3)
+        })
+        this.pick();
     },
     computed: {
         playlists() {
@@ -110,18 +155,27 @@ export default {
             })
         },
         playRecommendation(song) {
-            const event = new CustomEvent('player.play', { detail: {
-                artist: song.artist,
-                title: song.title,
-                source: song.src || song.url
-            } });
+            const event = new CustomEvent('player.play', {
+                detail: {
+                    artist: song.artist,
+                    title: song.title,
+                    source: song.src || song.url
+                }
+            });
             window.dispatchEvent(event);
         },
-        pick() {
-            this.songs = this.playlists.map(playlist => playlist.songs).flat();
+        async pick() {
+            if (!this.data.playlists.length) {
+                setTimeout(() => this.pick(), 2000);
+                return;
+            }
 
-            for (let i = 0; i < 3; i++)
-            {
+            this.songs = (await Promise.all(
+                this.playlists.map(
+                    async playlist => (await getPlaylist(playlist.id)).songs)
+            )).flat()
+
+            for (let i = 0; i < 3; i++) {
                 this.picks.push(this.songs[Math.floor(Math.random() * this.songs.length)])
             }
 
@@ -139,20 +193,20 @@ export default {
 </script>
 
 <style scoped lang="scss">
-    .home {
-        padding: 20px;
-        display: flex;
-        flex-direction: row;
+.home {
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
 
-        .main {
-            flex: 2;
-            flex-shrink: 0;
-        }
-
-        .side {
-            flex: 1;
-            flex-shrink: 0;
-            margin-left: 20px;
-        }
+    .main {
+        flex: 2;
+        flex-shrink: 0;
     }
+
+    .side {
+        flex: 1;
+        flex-shrink: 0;
+        margin-left: 20px;
+    }
+}
 </style>

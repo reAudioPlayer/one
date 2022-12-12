@@ -1,22 +1,16 @@
 <template>
     <div class="playlist">
-        <AddSongToPlaylist
-            :cover="cover"
-            :title="title"
-            :artist="artist"
-            ref="addSongPopup"
-            :href="src"
-            exists
-        />
         <EditSong
             @close="updatePlaylist"
             ref="editSongPopup"
-            :cover="cover"
-            :id="id"
-            :title="title"
-            :album="album"
-            :artist="artist"
-            :source="src"
+            :song="{
+                cover,
+                album,
+                title,
+                artist,
+                source: src,
+                id,
+            }"
         />
         <fixed-playlist-header @loadPlaylist="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }"
             :title="`${artist} - ${title}`" />
@@ -31,7 +25,13 @@
         <hr>
         <div class="padding-20">
             <span id="loadPlaylist" @click="loadPlaylist" class="material-icons-outlined">play_circle_filled</span>
-            <span id="addToPlaylist" @click="addToPlaylist" class="material-icons-outlined">add_circle</span>
+            <!-- implement after context menu refactoring -->
+            <span
+                v-show="false"
+                id="addToPlaylist"
+                @click="addToPlaylist"
+                class="material-icons-outlined"
+            >add_circle</span>
             <div class="grid">
                 <h2>{{"Recommendations based on " + title}}</h2>
                 <grid-header />
@@ -56,15 +56,13 @@
 <script>
     import FixedPlaylistHeader from '../components/Playlist/FixedPlaylistHeader.vue'
     import GridHeader from '../components/Playlist/GridHeader.vue'
-    import EditSong from "@/components/Popups/EditSong";
+    import EditSong from "@/components/popups-next/EditSong";
     import draggable from 'vuedraggable'
     import SpotifyPlaylistEntry from '../components/SpotifyPlaylist/SpotifyPlaylistEntry.vue'
-    import AddSongToPlaylist from "@/components/Popups/AddSongToPlaylist";
     import {unhashTrack, parseCover} from "@/common";
 
     export default {
         components: {
-            AddSongToPlaylist,
             FixedPlaylistHeader,
             GridHeader,
             draggable,
@@ -100,10 +98,11 @@
                 this.fixedHeaderHidden = a
             },
             editSong() {
-                this.$refs.editSongPopup.showModal = true;
+                this.$refs.editSongPopup.show()
             },
             addToPlaylist() {
-                this.$refs.addSongPopup.showModal = true
+                return;
+                this.$refs.addSongPopup.show()
             },
             updatePlaylist() {
                 if (!this.getId()) {
