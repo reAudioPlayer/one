@@ -15,12 +15,22 @@ if /i "%command%" == "start" goto run
 if /i "%command%" == "build" goto build
 if /i "%command%" == "deploy" goto deploy
 if /i "%command%" == "push" goto push
-if /i "%command%" == "" goto run
+if /i "%command%" == "remove" goto remove
+if /i "%command%" == "status" goto status
+if /i "%command%" == "" goto deploy
 
 echo unrecognised command '%command%'
 echo.
-echo pass "install" or "i" to install required dependencies
-echo pass no argument to run the program
+echo commands:
+echo lint - lint the code
+echo i - install dependencies
+echo run - run the server
+echo deploy - deploy the docker image
+echo.
+echo dev commands:
+echo build - build the docker image
+echo push - push the docker image to github
+echo remove - remove the docker image
 goto end
 
 :push
@@ -55,6 +65,15 @@ if /i "%arg%" == "dev-ui" (
 echo run
 cd src/server
 python3 ./main.py
+exit
+
+:remove
+docker compose down
+docker rmi ghcr.io/reaudioplayer/reap-one:%VERSION%
+exit
+
+:status
+docker ps
 exit
 
 :end
