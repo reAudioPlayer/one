@@ -122,7 +122,7 @@ class Router:
         app.router.add_delete('/api/playlists/{id}/tracks', playlistHandler.removeSong)
 
         # /api/config
-        app.router.add_get('/api/config', configHandler.ready)
+        app.router.add_get('/api/config/first-time', configHandler.firstTime)
 
         app.router.add_post('/api/config/images', metaHandler.upload)
         app.router.add_get('/api/config/images', configHandler.getLocalImages)
