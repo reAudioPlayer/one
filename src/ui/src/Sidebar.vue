@@ -36,15 +36,14 @@ const settings = useSettingsStore();
                        name="Create Playlist"/>
             <nav-entry :minimised="minimised" href="/collection/tracks" icon="favorite" name="Liked Songs"/>
         </div>
+        <hr class="hideIfMobile" v-if="playlists.length">
         <template v-if="!minimised">
-            <hr class="hideIfMobile">
             <div class="playlistList expanded hideIfMobile">
                 <router-link v-for="(element, index) in playlists" :key="index" :to="element.href">{{ element.name }}
                 </router-link>
             </div>
         </template>
         <template v-else>
-            <hr class="hideIfMobile">
             <div class="playlistList hideIfMobile">
                 <nav-entry v-for="(element, index) in playlists" :key="index" :minimised="minimised"
                            :href="element.href" :img="parsePlaylistCover(element.cover)" :name="element.name"/>

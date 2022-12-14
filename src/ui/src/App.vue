@@ -44,6 +44,7 @@ import themes from "./assets/themes.json";
 import {connect} from "@/ws";
 import {initialiseStores} from "@/store";
 import {useSettingsStore} from "@/store/settings";
+import {authoriseSpotify, isFirstRun} from "@/api/config";
 
 
 const LOCAL_STORAGE_KEY = "theme" // change it to whatever you like
@@ -98,10 +99,11 @@ export default {
         initialiseStores();
         connect();
 
-        const res = await fetch("/api/spotify/authorise");
-        if (res.status == 200) {
-            window.location.href = await res.text();
+        if (await isFirstRun()) {
+            this.$router.push("/welcome")
         }
+
+        await authoriseSpotify();
     },
     data() {
         return {
