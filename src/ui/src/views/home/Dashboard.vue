@@ -123,12 +123,6 @@ export default {
         }
     },
     mounted() {
-        fetch("/api/config")
-            .then(x => {
-                if (x.status == 400) {
-                    this.$router.push("/welcome")
-                }
-            })
         fetch("/api/releases")
             .then(x => x.json())
             .then(jdata => {

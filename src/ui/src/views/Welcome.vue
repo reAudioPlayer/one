@@ -55,6 +55,7 @@
 
 <script>
     import ThemeSmall from '@/components/Preferences/ThemeSmall.vue'
+    import {authoriseSpotify, isFirstRun, setSpotifyConfig} from "@/api/config";
     export default {
         components: {
             ThemeSmall
@@ -89,29 +90,20 @@
                     }
                 })
             },
-            finalRedirect() {
+            async finalRedirect() {
                 if (!this.spotifyClientId || !this.spotifyClientSecret)
                 {
                     return;
                 }
 
-                fetch("/api/config/spotify", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        "id": this.spotifyClientId,
-                        "secret": this.spotifyClientSecret
-                    })
-                }).then(x => {
-                    if (x.status == 200)
-                    {
-                        setTimeout(() => fetch("/api/releases"), 1000);
-                        setTimeout(() => fetch("/api/news/articles"), 1000);
-                        this.mode++;
-                        setTimeout(() => {
-                            this.$router.push("/")
-                        }, 6 * 1000);
-                    }
-                })
+                await setSpotifyConfig(this.spotifyClientId, this.spotifyClientSecret);
+                setTimeout(() => fetch("/api/releases"), 1000);
+                setTimeout(() => fetch("/api/news/articles"), 1000);
+                this.mode++;
+                setTimeout(async () => {
+                    await authoriseSpotify();
+                    this.$router.push("/")
+                }, 6 * 1000);
             }
         },
         data() {
@@ -136,14 +128,10 @@
                 spotifyClientSecret: ""
             }
         },
-        mounted() {
-            fetch("/api/config")
-                .then(x => {
-                    if (x.status == 200)
-                    {
-                        this.$router.push("/")
-                    }
-                })
+        async mounted() {
+            if (!await isFirstRun()) {
+                this.$router.push("/")
+            }
         }
     }
 </script>
