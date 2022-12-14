@@ -4,9 +4,10 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 from functools import wraps
 import asyncio
-from typing import Any, Awaitable, Callable, Union, Dict
-from aiohttp import Payload, web
+from typing import Any, Awaitable, Callable, Dict
 from datetime import datetime, timedelta
+
+from aiohttp import web
 
 
 Function = Callable[[Any], Awaitable[web.Response]]
