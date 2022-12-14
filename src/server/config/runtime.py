@@ -12,6 +12,7 @@ from typing import Optional
 from pyaddict import JDict
 
 from helper.singleton import Singleton
+from helper.cacheDecorator import clearCache
 from config.config import SPOTIFY
 
 
@@ -124,5 +125,6 @@ class Runtime:
     @staticmethod
     def setSpotifyConfig(value: JDict) -> None:
         """Sets the spotify configuration."""
+        clearCache()
         with open(SPOTIFY, "w", encoding = "utf-8") as file:
             json.dump(value, file, indent = 4)

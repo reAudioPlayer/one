@@ -17,6 +17,7 @@ from pyaddict import JDict
 from spotipy.oauth2 import  SpotifyOAuth # type: ignore
 
 from config.runtime import Runtime
+from helper.cacheDecorator import clearCache
 
 
 SCOPE = "user-library-read user-follow-read user-follow-modify"
@@ -62,7 +63,8 @@ class SpotifyAuth:
     @staticmethod
     def isDisabled() -> bool:
         """Returns True if Spotify is disabled"""
-        return Runtime.args.noSpotify or "restricted" in SpotifyAuth._getSpotifyAuthData()
+        authData = SpotifyAuth._getSpotifyAuthData()
+        return Runtime.args.noSpotify or bool("restricted" in authData) or bool("" in authData)
 
     @staticmethod
     async def _getClientData() -> Optional[bytes]:
@@ -135,7 +137,6 @@ class SpotifyAuth:
                 "Authorization": "Basic " + base64.b64encode(f"{clientId}:{secret}".encode("utf-8"))
                                                   .decode("utf-8")
             }) as resp:
-                print("getSpotifyData", resp.status)
                 if resp.status == 200:
                     data = await resp.json()
 
@@ -144,6 +145,7 @@ class SpotifyAuth:
                     with open(".cache", "w", encoding = "utf8") as file:
                         file.write(json.dumps(data))
 
+                    clearCache()
                     return JDict(data).ensure("access_token", str)
 
                 return None

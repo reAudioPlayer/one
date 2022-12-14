@@ -103,6 +103,9 @@ class SpotifyResult(Generic[T]):
             return SpotifyResult(self._state)
         return SpotifyResult.successResult(value)
 
+    def __repr__(self) -> str:
+        return f"SpotifyResult(state={self._state}, data={self._data})"
+
 
 def _connectionRequired(func: Callable[P, U]) -> Callable[P, U]:
     @wraps(func)
