@@ -17,13 +17,14 @@ class ConfigHandler:
     def __init__(self, dbManager: DbManager) -> None:
         self._dbManager = dbManager
 
-    async def ready(self, _: web.Request) -> web.Response:
-        """get(/api/config)"""
+    async def firstTime(self, _: web.Request) -> web.Response:
+        """get(/api/config/first-time)"""
+        # first-time use
         spotifyConfig = Runtime.spotifyConfig()
         if spotifyConfig is None:
-            return web.Response(status = 400)
-        valid = None not in (spotifyConfig.get("id"), spotifyConfig.get("secret"))
-        return web.Response(status = 200 if valid else 400)
+            return web.json_response(True)
+        valid = None in (spotifyConfig.get("id"), spotifyConfig.get("secret"))
+        return web.json_response(valid)
 
     async def spotifyConfig(self, request: web.Request) -> web.Response:
         """post(/api/config/spotify)"""
