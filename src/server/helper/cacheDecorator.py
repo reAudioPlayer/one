@@ -43,6 +43,7 @@ class CacheEntry:
 
 
 _CACHE: Dict[Function, CacheEntry] = { }
+_INVALIDATION_TASKS: Dict[Function, asyncio.Task[None]] = { }
 
 
 def useCache(expire: int) -> Callable[[Callable[[Any],
@@ -52,7 +53,16 @@ def useCache(expire: int) -> Callable[[Callable[[Any],
 
         @wraps(function)
         async def _wrapper(*args: Any, **kwargs: Any) -> web.Response:
-            if function in _CACHE:
+            # args can be (self, request) or (request)
+            request: web.Request = args[1] if len(args) > 1 else args[0]
+
+            noCache = request.headers.get("X-Cache-Control") == "no-cache"
+            if noCache:
+                print("cache bypassed")
+                if function in _INVALIDATION_TASKS:
+                    _INVALIDATION_TASKS[function].cancel()
+                    del _INVALIDATION_TASKS[function]
+            elif function in _CACHE:
                 print("cache hit")
                 return _CACHE[function].clone()
 
@@ -63,13 +73,15 @@ def useCache(expire: int) -> Callable[[Callable[[Any],
                 await asyncio.sleep(expire)
                 del _CACHE[function]
 
-            asyncio.create_task(invalidateCache())
+            _INVALIDATION_TASKS[function] = asyncio.create_task(invalidateCache())
             return _CACHE[function].initialResponse
         return _wrapper
     return _implement
 
 def clearCache() -> None:
     """clears the cache"""
-    global _CACHE # pylint: disable=global-statement
     print("clearing cache")
-    _CACHE = { }
+    _CACHE.clear()
+    for task in _INVALIDATION_TASKS.values():
+        task.cancel()
+    _INVALIDATION_TASKS.clear()
