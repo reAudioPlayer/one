@@ -17,6 +17,7 @@ if /i "%command%" == "deploy" goto deploy
 if /i "%command%" == "push" goto push
 if /i "%command%" == "remove" goto remove
 if /i "%command%" == "status" goto status
+if /i "%command%" == "rebuild" goto rebuild
 if /i "%command%" == "" goto deploy
 
 echo unrecognised command '%command%'
@@ -24,13 +25,16 @@ echo.
 echo commands:
 echo lint - lint the code
 echo i - install dependencies
-echo run - run the server
+echo run - run the server locally
 echo deploy - deploy the docker image
+echo stop - stop the docker image
 echo.
 echo dev commands:
 echo build - build the docker image
 echo push - push the docker image to github
 echo remove - remove the docker image
+echo status - show the status of the docker containers
+echo rebuild - rebuild the docker image
 goto end
 
 :push
@@ -40,6 +44,10 @@ exit
 
 :deploy
 docker compose up -d
+exit
+
+:stop
+docker compose down
 exit
 
 :lint
@@ -57,12 +65,6 @@ pip3 install -r requirements.txt
 exit
 
 :run
-if /i "%arg%" == "dev-ui" (
-    start "" http://localhost:5173
-) else (
-   start "" http://localhost:1234
-)
-echo run
 cd src/server
 python3 ./main.py
 exit
@@ -70,6 +72,13 @@ exit
 :remove
 docker compose down
 docker rmi ghcr.io/reaudioplayer/reap-one:%VERSION%
+exit
+
+:rebuild
+docker compose down
+docker rmi ghcr.io/reaudioplayer/reap-one:%VERSION%
+docker build -t ghcr.io/reaudioplayer/reap-one:%VERSION% .
+docker compose up -d
 exit
 
 :status
