@@ -25,7 +25,7 @@ export default {
     },
     computed: {
         percentage() {
-            return Math.ceil(this.value / this.max) * 100;
+            return Math.min(1, this.value / this.max) * 100;
         }
     },
     methods: {

@@ -47,11 +47,14 @@ export interface ISong {
     duration?: number;
 }
 
-export interface IPlaylist {
+export interface IPlaylistMeta {
     id: number;
     name: string;
     cover: string;
     description: string;
+}
+
+export interface IPlaylist extends IPlaylistMeta {
     href: string;
 }
 

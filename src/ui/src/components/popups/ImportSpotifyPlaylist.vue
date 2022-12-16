@@ -8,6 +8,7 @@ import {PropType, Ref, ref} from "vue";
 import {ISpotifyPlaylist, ISpotifySong, openInNewTab} from "../../common";
 import {useDataStore} from "../../store/data";
 import {addSong as addSongToPlaylist} from "../../api/song";
+import {createPlaylistWithMetadata} from "../../api/playlist";
 
 const data = useDataStore();
 
@@ -18,13 +19,13 @@ const props = defineProps({
     }
 })
 
-const options = [{
+const options = ref([{
     name: "playlist",
     type: "dropdown",
     required: true,
     value: null,
-    options: data.playlists.map(x => ({label: x.name, value: x.id}))
-}];
+    options: data.playlistsAsDropdown
+}]);
 
 
 const modal = ref(null);
@@ -41,7 +42,6 @@ const show = async () => {
 }
 
 const preview = () => {
-    console.log(props.playlist);
     const event = new CustomEvent('player.play', { detail: {
         artist: "Spotify Playlist",
         title: props.playlist.name,
@@ -50,15 +50,36 @@ const preview = () => {
     window.dispatchEvent(event);
 }
 
-const addSong = async (index: number) => {
+const createPlaylist = async (playlistId: string | number): Promise<number> => {
+    if (playlistId === "new") {
+        const newPlaylist = await createPlaylistWithMetadata(props.playlist.name, props.playlist.description, props.playlist.cover);
+        options.value[0].options = data.playlistsAsDropdown;
+        options.value[0].value = newPlaylist;
+        return newPlaylist;
+    }
+    return Number(playlistId);
+}
+
+const addSong = async (index: number, playlistId: number = null) => {
     if (songs.value[index].added) return;
-    await addSongToPlaylist(form.value.toObject().playlist, songs.value[index]);
+
+    playlistId ??= form.value.toObject().playlist;
+
+    playlistId = await createPlaylist(playlistId);
+
+    await addSongToPlaylist(
+        playlistId ?? form.value.toObject().playlist,
+         songs.value[index]);
     songs.value[index].added = true;
 }
 
-const addAll = () => {
+const addAll = async () => {
+    let playlistId = form.value.toObject().playlist;
+
+    playlistId = await createPlaylist(playlistId);
+
     songs.value.forEach((_, index) => {
-        addSong(index);
+        addSong(index, playlistId);
     })
 }
 

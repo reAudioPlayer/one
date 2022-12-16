@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import { hashPlaylist, IPlaylist } from "../common";
+import {hashPlaylist, IDropdownOption, IPlaylist} from "../common";
 
 // Create a new store instance.
 export const useDataStore = defineStore({
@@ -11,6 +11,19 @@ export const useDataStore = defineStore({
     getters: {
         notEmpty() {
             return this.playlists.length > 0;
+        },
+        playlistsAsDropdown(allowCreateNew = true): IDropdownOption[] {
+            const options = this.playlists.map((playlist) => ({
+                value: playlist.id.toString(),
+                label: playlist.name,
+            }));
+            if (allowCreateNew) {
+                options.push({
+                    value: "new",
+                    label: "(new playlist)",
+                });
+            }
+            return options;
         }
     },
     actions: {
@@ -32,7 +45,7 @@ export const useDataStore = defineStore({
                 playlists.push({
                     name: playlist.name,
                     description: playlist.description,
-                    cover: playlist.cover || playlist.songs[0].cover,
+                    cover: playlist.cover || playlist.songs[0]?.cover,
                     href: `/playlist/${hashPlaylist( String(i) )}`,
                     id: i
                 })

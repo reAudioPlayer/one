@@ -3,7 +3,8 @@ import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
 import {PropType, ref, watch} from "vue";
 import {IPlaylist} from "../../common";
-import {updatePlaylistMetadata} from "../../api/playlist";
+import {deletePlaylist, updatePlaylistMetadata} from "../../api/playlist";
+import {useRouter} from "vue-router";
 
 const props = defineProps({
     playlist: {
@@ -61,6 +62,8 @@ const options = ref([{
 const modal = ref(null);
 const form = ref(null);
 
+const router = useRouter();
+
 const show = () => {
     modal.value.show();
 }
@@ -70,6 +73,11 @@ const onSubmit = async () => {
         ...props.playlist,
         ...form.value.toObject()
     });
+}
+
+const onDelete = async () => {
+    await deletePlaylist(props.playlist.id);
+    await router.push("/collection/playlists");
 }
 
 defineExpose({
@@ -83,6 +91,9 @@ defineExpose({
         submitName="Save"
         @submit="onSubmit"
         @close="$emit('close')"
+        secondaryName="Delete"
+        secondaryType="danger"
+        @secondary="onDelete"
     >
         <Form
             ref="form"

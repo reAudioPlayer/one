@@ -11,7 +11,10 @@ const playlists = computed(() => dataStore.playlists);
     <div class="padding-20">
         <CollectionHeader />
         <div class="playlists">
-            <full-shelf heading="Playlists">
+            <full-shelf
+                v-if="playlists.length"
+                heading="Playlists"
+            >
                 <playlist-item-big
                     v-if="likedTracks?.songs?.length"
                     title="Liked Songs"
@@ -20,6 +23,7 @@ const playlists = computed(() => dataStore.playlists);
                     href="/collection/tracks"
                 />
                 <playlist-item-big
+                    v-if="breakingTracks?.songs?.length"
                     title="Breaking Songs"
                     :description="`your 25 newest songs`"
                     icon="trending_up"
@@ -73,6 +77,11 @@ const playlists = computed(() => dataStore.playlists);
                 .then(jdata => {
                     this.likedTracks = jdata
                 })
+            fetch("/api/me/new")
+                .then(x => x.json())
+                .then(jdata => {
+                    this.breakingTracks = jdata
+                })
             fetch("/api/spotify/playlists")
                 .then(x => x.json())
                 .then(jdata => {
@@ -81,6 +90,7 @@ const playlists = computed(() => dataStore.playlists);
 
             return {
                 likedTracks: null,
+                breakingTracks: null,
                 spotifyPlaylists: []
             }
         }

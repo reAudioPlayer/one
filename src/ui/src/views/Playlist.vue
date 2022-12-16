@@ -70,7 +70,10 @@ import EditPlaylist from '../components/popups/EditPlaylist.vue'
 import draggable from 'vuedraggable'
 import {hashPlaylist, parseCover, parsePlaylistCover, unhashPlaylist} from "@/common";
 import {usePlayerStore} from "@/store/player";
-import {getPlaylist} from "@/api/playlist";
+import {createPlaylist, getPlaylist} from "@/api/playlist";
+import {useDataStore} from "@/store/data";
+
+const data = useDataStore();
 
 
 export default {
@@ -140,10 +143,9 @@ export default {
             }
 
             if (this.$route.params.id == "create") {
-                fetch("/api/playlists/new")
-                    .then(x => x.text()).then(y => {
-                        const link = hashPlaylist(y);
-                        this.$router.push(link)
+                createPlaylist().then(id => {
+                    const link = hashPlaylist(id);
+                    this.$router.push(link);
                 })
                 return
             }
