@@ -10,7 +10,17 @@ const props = defineProps({
     submitName: {
         type: String,
         required: true
-    }
+    },
+    secondaryName: {
+        type: String,
+        required: false,
+        default: null
+    },
+    secondaryType: {
+        type: String,
+        required: false,
+        default: null
+    },
 })
 
 const loading = ref(false);
@@ -27,7 +37,7 @@ const load = () => {
     showModal.value = true;
 }
 
-const emit = defineEmits(["submit", "close"]);
+const emit = defineEmits(["submit", "close", "secondary"]);
 
 const close = () => {
     hide();
@@ -36,6 +46,11 @@ const close = () => {
 
 const submit = () => {
     emit("submit");
+    close();
+}
+
+const secondary = () => {
+    emit("secondary");
     close();
 }
 
@@ -57,8 +72,22 @@ defineExpose({
             <Loader v-if="loading" />
             <template v-else>
                 <slot />
-                <div v-if="submitName" class="confirm">
-                    <button @click="submit" class="negative">{{submitName}}</button>
+                <div v-if="submitName || secondaryName" class="confirm">
+                    <button
+                        v-if="secondaryName"
+                        class="secondary"
+                        :class="secondaryType"
+                        @click="secondary"
+                    >
+                        {{secondaryName}}
+                    </button>
+                    <button
+                        v-if="submitName"
+                        @click="submit"
+                        class="negative"
+                    >
+                        {{submitName}}
+                    </button>
                 </div>
             </template>
         </div>
@@ -87,17 +116,38 @@ defineExpose({
     margin-bottom: 20px;
 }
 
-button.negative {
-    color: var(--font-contrast);
-    background-color: var(--font-colour);
-    border: none;
-    border-radius: 20px;
-    padding: 10px 25px 10px 25px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: bold;
-    font-family: var(--font-family);
-    margin-left: auto;
-    cursor: pointer;
+button {
+    &.negative {
+        color: var(--font-contrast);
+        background-color: var(--font-colour);
+        border: none;
+        border-radius: 20px;
+        padding: 10px 25px 10px 25px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: bold;
+        font-family: var(--font-family);
+        margin-left: 1em;
+        cursor: pointer;
+    }
+
+    &.secondary {
+        color: var(--font-contrast);
+        background-color: var(--font-darker);
+        border: none;
+        border-radius: 20px;
+        padding: 10px 25px 10px 25px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: bold;
+        font-family: var(--font-family);
+        margin-left: auto;
+        cursor: pointer;
+    }
+
+    &.danger {
+        color: var(--font-colour);
+        background-color: #c73c3c;
+    }
 }
 </style>

@@ -12,7 +12,8 @@
                 title: this.title,
                 artist: this.artist,
                 cover: this.cover,
-                href: this.href
+                href: this.href,
+                releaseDate: this.releaseDate
             }"
         />
         <div class="item" @click="redirect">

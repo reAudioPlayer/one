@@ -14,7 +14,8 @@ import {parseCover} from "@/common";
             name: title,
             artist,
             id: href.replace('https://open.spotify.com/album/', ''),
-            href
+            href: href,
+            releaseDate: this.releaseDate
         }"
         ref="addRelease"
     />
@@ -25,7 +26,8 @@ import {parseCover} from "@/common";
             title,
             artist,
             id: href.replace('https://open.spotify.com/track/', ''),
-            href
+            href: href,
+            releaseDate: this.releaseDate
         }"
         ref="addSong"
     />

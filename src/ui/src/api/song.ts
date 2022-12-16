@@ -1,4 +1,5 @@
 import {ISong} from "../common";
+import {createPlaylist} from "./playlist";
 
 /**
  * updates a song based on its id
@@ -28,8 +29,20 @@ export const fetchMetadata = async (src: string): Promise<ISong> => {
     return await res.json();
 }
 
-export const addSong = async (playlistId: number, song: ISong) => {
-    console.log("addSong", song);
+/**
+ * adds a song to a playlist
+ * @param playlistId the id of the playlist to add the song to
+ * @param song the song to add
+ */
+export const addSong = async (playlistId: number | string, song: ISong) => {
+    if (playlistId === "new") {
+        playlistId = await createPlaylist();
+    }
+
+    if (typeof playlistId === "string") {
+        console.error("playlistId cannot be a string", playlistId);
+    }
+
     await fetch(`/api/playlists/${playlistId}/tracks`, {
         method: "POST",
         body: JSON.stringify({
@@ -42,7 +55,12 @@ export const addSong = async (playlistId: number, song: ISong) => {
     })
 }
 
-export const addSongToPlayist = async (playlistId: number, songId: number) => {
+/**
+ * adds an existing song to a playlist
+ * @param playlistId the id of the playlist to add the song to
+ * @param songId the id of the song to add
+ */
+export const addExistingSong = async (playlistId: number, songId: number) => {
     await fetch(`/api/playlists/${playlistId}/tracks/${songId}`, {
         method: "POST"
     })

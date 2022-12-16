@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {IDropdownOption} from "../common";
-import {computed, PropType, ref} from "vue";
+import {computed, PropType, ref, watch} from "vue";
 
 const props = defineProps({
     modelValue: {
@@ -16,6 +16,11 @@ const props = defineProps({
 const selectedValue = ref(props.modelValue);
 const expanded = ref(false);
 const emit = defineEmits(["update:modelValue"]);
+
+
+watch(props, (value) => {
+    selectedValue.value = value.modelValue;
+}, {deep: true})
 
 const select = (value: string) => {
     selectedValue.value = value;
