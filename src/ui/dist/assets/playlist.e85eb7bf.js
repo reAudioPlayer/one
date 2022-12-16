@@ -1,1 +1,0 @@
-import{m as n}from"./index.789939b0.js";const i=async t=>{await fetch(`/api/playlists/${t.id}`,{method:"POST",body:JSON.stringify({name:t.name,description:t.description,cover:t.cover})})},r=async t=>{const a=await fetch(`/api/playlists/${t}`);if(a.status===404)return null;const s=await a.json();for(const o of s.songs)o.href=`/track/${n(o.id)}`;return s};export{r as g,i as u};
