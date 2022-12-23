@@ -1,11 +1,50 @@
 <script setup>
-// http://{host}:{port}/api/spotify/callback
+import FullShelf from "../components/Catalogue/FullShelf.vue"
+import Theme from "../components/Preferences/Theme.vue"
+
+import { Buffer } from 'buffer';
+window.Buffer = Buffer;
+import Hashids from 'hashids'
 import {useSettingsStore} from "@/store/settings";
+import {ref} from "vue";
 
 const host = window.location.host
 const spotifyRedirect = `http://${host}/api/spotify/callback`
 
 const settings = useSettingsStore();
+const themeSelected = ref(window.getCurrentTheme());
+const spotifyClient = ref({
+    secret: "",
+    id: ""
+})
+const themes = [ "jade", "light", "dark" ];
+
+const updateThemes = () => {
+    themeSelected.value = window.getCurrentTheme()
+}
+
+const saveRestrictedMode = () => {
+    spotifyClient.value.id = spotifyClient.value.secret = "";
+
+    fetch("/api/config/spotify", {
+        method: "POST",
+        body: JSON.stringify({
+            "id": "restricted",
+            "secret": "restricted"
+        })
+    }).then(x => console.log(x))
+}
+
+const saveSpotify = () => {
+    if (Object.values(spotifyClient.value).some(x => x === "")) {
+        return;
+    }
+
+    fetch("/api/config/spotify", {
+        method: "POST",
+        body: JSON.stringify(spotifyClient.value)
+    }).then(x => console.log(x))
+}
 </script>
 <template>
     <div class="preferences">
@@ -63,10 +102,10 @@ const settings = useSettingsStore();
                 <p>5) Copy and enter the client id and secret into the corresponding input field</p>
                 </details>
                 <div class="wrapTogether">
-                    <p>Client ID: </p><input type="text" v-model="spotifyClientId" />
+                    <p>Client ID: </p><input type="text" v-model="spotifyClient.id" />
                 </div>
                 <div class="wrapTogether">
-                    <p>Client Secret: </p><input type="text" v-model="spotifyClientSecret" />
+                    <p>Client Secret: </p><input type="text" v-model="spotifyClient.secret" />
                 </div>
                 <div class="wrapTogether spaceBetween">
                     <button @click="saveSpotify">save</button>
@@ -83,86 +122,6 @@ const settings = useSettingsStore();
         </div>
     </div>
 </template>
-
-<script>
-    import FullShelf from "../components/Catalogue/FullShelf.vue"
-    import Theme from "../components/Preferences/Theme.vue"
-
-    import { Buffer } from 'buffer';
-    window.Buffer = Buffer;
-    import Hashids from 'hashids'
-    import {useSettingsStore} from "@/store/settings";
-    const hashids = new Hashids("reapApollo")
-
-    export default {
-    components: { Theme, FullShelf },
-        name: "Preferences",
-        setup() {
-            const settings = useSettingsStore();
-            return { settings }
-        },
-        methods: {
-            updateThemes() {
-                this.themeSelected = window.getCurrentTheme()
-            },
-            changeShowSportsTab() {
-                //this.settings.toggleSidebarSports();
-            },
-            changeShowNewsTab() {
-                //this.settings.toggleSidebarNews();
-            },
-            changePlayInBrowser() {
-                //this.settings.togglePlayerInBrowser();
-            },
-            saveRestrictedMode() {
-                if (this.spotifyClientId || this.spotifyClientSecret)
-                {
-                    return;
-                }
-
-                fetch("/api/config/spotify", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        "id": "restricted",
-                        "secret": "restricted"
-                    })
-                }).then(x => console.log(x))
-            },
-            saveSpotify() {
-                if (!this.spotifyClientId || !this.spotifyClientSecret)
-                {
-                    return;
-                }
-
-                fetch("/api/config/spotify", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        "id": this.spotifyClientId,
-                        "secret": this.spotifyClientSecret
-                    })
-                }).then(x => console.log(x))
-            },
-        },
-        data() {
-            const themes = [
-                "jade",
-                "dark",
-                "light"
-            ]
-            const themeSelected = window.getCurrentTheme()
-
-            let spotifyClientId = "";
-            let spotifyClientSecret = "";
-
-            return {
-                themes,
-                themeSelected,
-                spotifyClientId,
-                spotifyClientSecret
-            }
-        }
-    }
-</script>
 
 <style scoped lang="scss">
     .preferences, .padding-20 {
