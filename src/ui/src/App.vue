@@ -221,6 +221,7 @@ h3 {
 <style lang="scss">
 @import "./assets/css/scrollbars.css";
 @import "./assets/css/main.css";
+@import "./assets/css/material-symbols.css";
 
 #app {
     font-family: var(--font-family) !important;

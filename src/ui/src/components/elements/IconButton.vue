@@ -13,7 +13,6 @@ defineProps({
 
 <template>
     <button
-        @click="$emit('click')"
         class="flex items-center justify-center h-12 p-4 mt-4 bg-fg text-bg rounded-full"
     >
         <span

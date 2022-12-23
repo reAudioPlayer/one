@@ -171,8 +171,12 @@ export default {
 
             this.songs = (await Promise.all(
                 this.playlists.map(
-                    async playlist => (await getPlaylist(playlist.id)).songs)
+                    async playlist => (await getPlaylist(playlist.id))?.songs || [])
             )).flat()
+
+            if (this.songs.length < 3) {
+                return;
+            }
 
             for (let i = 0; i < 3; i++) {
                 this.picks.push(this.songs[Math.floor(Math.random() * this.songs.length)])
