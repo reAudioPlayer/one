@@ -2,7 +2,44 @@
 import Marquee from "@/components/Marquee.vue";
 import AddAlbumToPlaylist from '../../../popups/ImportSpotifyAlbum.vue';
 import AddSongToPlaylist from '../../../popups/ImportSpotifySong.vue';
-import {parseCover} from "@/common";
+import {hashTrack, parseCover} from "@/common";
+import {ref} from "vue";
+
+const props = defineProps({
+    title: String,
+    artist: String,
+    cover: String,
+    id: Number,
+    href: String
+})
+
+const emit = defineEmits(['play']);
+
+const trackId = hashTrack(String(props.id));
+const trackHref = `/track/${trackId}`;
+const addSong = ref(null);
+const addRelease = ref(null);
+
+const play = e => {
+    e.stopPropagation();
+    emit('play');
+};
+
+const openModal = () => {
+    if (!props.href)
+    {
+        this.$router.push(trackHref);
+    }
+
+    if (props.href?.includes("spotify"))
+    {
+        addRelease.show();
+    }
+    else
+    {
+        addSong.show();
+    }
+}
 </script>
 
 <template>
@@ -15,7 +52,7 @@ import {parseCover} from "@/common";
             artist,
             id: href.replace('https://open.spotify.com/album/', ''),
             href: href,
-            releaseDate: this.releaseDate
+            releaseDate: null
         }"
         ref="addRelease"
     />
@@ -27,7 +64,7 @@ import {parseCover} from "@/common";
             artist,
             id: href.replace('https://open.spotify.com/track/', ''),
             href: href,
-            releaseDate: this.releaseDate
+            releaseDate: null
         }"
         ref="addSong"
     />
@@ -53,50 +90,6 @@ import {parseCover} from "@/common";
     </div>
 </div>
 </template>
-<script>
-import {hashTrack} from "@/common";
-
-export default {
-    name: 'FlexShelf',
-    props: {
-        title: String,
-        artist: String,
-        cover: String,
-        id: Number,
-        href: String
-    },
-    methods: {
-        play(e) {
-            e.stopPropagation();
-            this.$emit('play')
-        },
-        openModal() {
-            console.log(this.href)
-            if (!this.href)
-            {
-                this.$router.push(this.trackHref);
-            }
-
-            if (this.href?.includes("spotify"))
-            {
-                this.$refs.addRelease.show()
-            }
-            else
-            {
-                this.$refs.addSong.show()
-            }
-        }
-    },
-    computed: {
-        trackId() {
-            return hashTrack(this.id);
-        },
-        trackHref() {
-            return `/track/${this.trackId}`
-        }
-    },
-}
-</script>
 
 <style scoped lang="scss">
 
