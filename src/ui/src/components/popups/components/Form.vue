@@ -86,7 +86,7 @@ defineExpose({
                     <input
                         v-model="option.value"
                         :type="option.type"
-                        @change="option?.onChange(option.value)"
+                        @change="option.onChange ? option?.onChange(option.value) : null"
                     >
                 </template>
             </div>
