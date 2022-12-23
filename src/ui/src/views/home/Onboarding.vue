@@ -21,7 +21,7 @@
                     />
                 </div>
             </Card>
-            <Card>
+            <Card v-if="spotifyPlaylists.length">
                 <div class="flex flex-row items-center">
                     <SpotifyLogo
                         class="spotify mr-4"
