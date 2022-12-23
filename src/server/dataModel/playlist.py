@@ -23,8 +23,8 @@ class Playlist:
 
     def sql(self) -> Tuple[str, str, str, str]:
         """return sql values"""
-        return ( self._name,
-                 self._description,
+        return ( self._name.replace("'", "''"),
+                 self._description.replace("'", "''"),
                  json.dumps(self._songs),
                  self._cover )
 
