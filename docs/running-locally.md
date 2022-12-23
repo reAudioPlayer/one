@@ -22,7 +22,7 @@ Run `setup.bat`
 
 Run the equivalent in any terminal
 ```sh
-pip3 install -r ./requirements.txt
+pip3 install -r ./src/server/requirements.txt
 ```
 
 ## Launch
@@ -35,5 +35,6 @@ Run `one.bat`
 
 Run the equivalent in any terminal
 ```sh
+cd ./src/server
 python3 ./main.py
 ```
