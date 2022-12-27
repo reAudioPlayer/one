@@ -6,10 +6,12 @@ from typing import Any, Dict, List
 
 from aiohttp import web
 from pyaddict import JDict
+from pyaddict.schema import Object, String
 
 from db.dbManager import DbManager
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.cacheDecorator import useCache
+from helper.payloadParser import PayloadParser
 from meta.metadata import Metadata
 from meta.releases import Releases
 from meta.search import Search
@@ -129,7 +131,14 @@ class MetaHandler:
 
     async def spotifyArtist(self, request: web.Request) -> web.Response:
         """post(/api/spotify/artists/{id})"""
-        id_ = request.match_info['id']
+        payload = PayloadParser.fromPath(request, Object({
+            "id": String().min(22).max(22)
+        }))
+        if not payload:
+            return web.HTTPBadRequest(text = str(payload.error))
+
+        id_: str = payload.unwrap()["id"]
+
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             result = self._spotify.artistTracks(id_)
             if not result:
