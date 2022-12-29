@@ -6,12 +6,12 @@ from typing import Any, Dict, List
 
 from aiohttp import web
 from pyaddict import JDict
-from pyaddict.schema import Object, String
+from pyaddict.schema import Object, String, Integer, Array
 
 from db.dbManager import DbManager
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.cacheDecorator import useCache
-from helper.payloadParser import PayloadParser
+from helper.payloadParser import withObjectPayload
 from meta.metadata import Metadata
 from meta.releases import Releases
 from meta.search import Search
@@ -27,36 +27,47 @@ class MetaHandler:
         self._spotify = spotify
         self._dbManager = dbManager
 
-    async def getMetadata(self, request: web.Request) -> web.Response:
+    @withObjectPayload(Object({
+        "url": String().url()
+    }), inBody = True)
+    async def getMetadata(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/browse/track)"""
-        jdata = await request.json()
-        metadata = await asyncRunInThreadWithReturn(Metadata, self._spotify, jdata["url"])
+        metadata = await asyncRunInThreadWithReturn(Metadata, self._spotify, payload["url"])
         if not metadata:
             return web.HTTPNotFound(text = "no metadata found")
         return web.json_response(data = metadata.toDict())
 
-    async def getTrack(self, request: web.Request) -> web.Response:
+    @withObjectPayload(Object({
+        "id": Integer()
+    }), inPath = True)
+    async def getTrack(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/tracks/{id})"""
-        id_ = int(request.match_info['id'])
+        id_: int = payload["id"]
         try:
             song = self._dbManager.getSongById(id_)
             return web.json_response(song.toDict())
         except IndexError:
             return web.Response(status = 404)
 
-    async def search(self, request: web.Request) -> web.Response:
+    @withObjectPayload(Object({
+        "query": String().min(1)
+    }), inBody = True)
+    async def search(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/search)"""
-        jdata = await request.json()
+        query: str = payload["query"]
         search = await asyncRunInThreadWithReturn(Search,
                                                   Search.searchTracks(self._dbManager,
-                                                                      jdata["query"]),
-                                                                      self._spotify,
-                                                                      jdata["query"])
+                                                                      query),
+                                                  self._spotify,
+                                                  query)
         return web.json_response(data = search.toDict())
 
-    async def spotifyAlbum(self, request: web.Request) -> web.Response:
+    @withObjectPayload(Object({
+        "id": String().min(22).max(22)
+    }), inPath = True)
+    async def spotifyAlbum(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/albums/{id})"""
-        id_ = request.match_info['id']
+        id_: str = payload["id"]
         def _implement() -> SpotifyResult[List[ Dict[str, Any] ]]:
             result = self._spotify.albumTracks(id_)
             if not result:
@@ -89,9 +100,12 @@ class MetaHandler:
 
         return web.json_response(data = [ pl.toDict() for pl in data.unwrap() ])
 
-    async def spotifyPlaylist(self, request: web.Request) -> web.Response:
+    @withObjectPayload(Object({
+        "id": String().min(22).max(22)
+    }), inPath = True)
+    async def spotifyPlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/playlists/{id})"""
-        id_ = request.match_info['id']
+        id_: str = payload["id"]
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             result = self._spotify.playlistTracks(id_)
             if not result:
@@ -129,15 +143,12 @@ class MetaHandler:
 
         return web.json_response(data = data.unwrap())
 
-    async def spotifyArtist(self, request: web.Request) -> web.Response:
+    @withObjectPayload(Object({
+        "id": String().min(22).max(22)
+    }), inPath = True)
+    async def spotifyArtist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/artists/{id})"""
-        payload = PayloadParser.fromPath(request, Object({
-            "id": String().min(22).max(22)
-        }))
-        if not payload:
-            return web.HTTPBadRequest(text = str(payload.error))
-
-        id_: str = payload.unwrap()["id"]
+        id_: str = payload["id"]
 
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             result = self._spotify.artistTracks(id_)
@@ -190,11 +201,16 @@ class MetaHandler:
                 return web.Response(text = file.displayPath)
         return web.Response(status = 400)
 
-    async def spotifyRecommend(self, request: web.Request) -> web.Response:
+    @withObjectPayload(Object({
+        "query": String().min(1).optional(),
+        "artists": Array(String().min(22).max(22)).optional(),
+        "tracks": Array(String().min(22).max(22)).optional(),
+        "genres": Array(String().min(1)).optional()
+    }), inBody = True)
+    async def spotifyRecommend(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/recommendations)"""
-        jdata = await request.json()
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
-            dex = JDict(jdata)
+            dex = JDict(payload)
             query = dex.optionalGet("query", str)
 
             artists = dex.ensure("artists", list)

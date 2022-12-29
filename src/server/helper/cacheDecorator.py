@@ -46,8 +46,16 @@ _CACHE: Dict[Function, CacheEntry] = { }
 _INVALIDATION_TASKS: Dict[Function, asyncio.Task[None]] = { }
 
 
-def useCache(expire: int) -> Callable[[Callable[[Any],
-        Awaitable[web.Response]]], Callable[[Any, Any], Awaitable[web.Response]]]:
+def useCache(expire: int) -> Callable[[
+                                    Callable[
+                                        [Any],
+                                        Awaitable[web.Response]
+                                    ]
+                                ],
+                                Callable[
+                                    [Any, Any],
+                                    Awaitable[web.Response]
+                                ]]:
     """caches the response for a specified time"""
     def _implement(function: Function) -> Callable[[Any, Any], Awaitable[web.Response]]:
 
