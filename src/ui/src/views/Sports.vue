@@ -6,6 +6,7 @@
         <hr>
         <div class="padding-20">
             <p class="small">Supported urls: {{supportedSources.join("*, ")}} </p>
+            <p class="small">CEV matches are currently not supported, because Heroku removed its free plan.</p>
             <div class="addWrapper">
                 <input @keyup="enterText" v-model="sourceToAdd" type="text">
                 <span id="addToPlaylist" @click="tryAddSource" class="material-icons-outlined">add_circle</span>
@@ -16,7 +17,7 @@
                     :team1="element.team1" :team2="element.team2" :result="element.result" :date="element.date"
                     :href="element.href" :oref="element.oref" :progress="element.progress" />
             </full-shelf>
-            <full-shelf v-if="volleyMatches.length" heading="Volleyball" icon="sports_volleyball">
+            <full-shelf v-if="false && volleyMatches.length" heading="Volleyball" icon="sports_volleyball">
                 <div v-for="(match, index) in volleyMatches" :key="index" class="wrapIframe">
                     <iframe :src="`https://cev-nex.tk/#/embed?match=${match.src}`" />
                     <span @click="() => removeSourceD(match.ref)"  class="deleteIcon small material-symbols-rounded">clear</span>
@@ -44,11 +45,11 @@
                     "https://onefootball.com/en/team/",
                     "https://onefootball.com/en/match/",
                     "https://onefootball.com/en/competition/",
-                    "https://www.cev.eu/match-centres/",
-                    "https://championsleague.cev.eu/en/match-centres/",
-                    "https://www.cev.eu/calendar/",
-                    "https://cev-nex.tk/#/match/",
-                    "https://cevnex.tk/#/match/"
+                    //"https://www.cev.eu/match-centres/",
+                    //"https://championsleague.cev.eu/en/match-centres/",
+                    //"https://www.cev.eu/calendar/",
+                    //"https://cev-nex.tk/#/match/",
+                    //"https://cevnex.tk/#/match/"
                 ]
             }
         },
