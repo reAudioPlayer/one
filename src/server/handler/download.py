@@ -3,16 +3,18 @@
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import os
-from typing import Union
+from typing import Union, Dict, Any
 
 from aiohttp import web
 import aiohttp
 from multidict import MultiDict
+from pyaddict.schema import Object, Integer
 import eyed3 # type: ignore
 from eyed3.id3.frames import ImageFrame # type: ignore
 
 from db.dbManager import DbManager
 from downloader.downloader import Downloader
+from helper.payloadParser import withObjectPayload
 from player.player import Player
 
 
@@ -52,15 +54,22 @@ class DownloadHandler:
 
         res = web.FileResponse(pathAndName,
             headers=MultiDict({"Content-Disposition": f"Attachment;filename={filename}.mp3"}))
+
+        # TODO return res?
+
         await res.prepare(request)
         await res.write_eof()
         os.remove(pathAndName)
         return web.Response()
 
-    async def streamFromCache(self, request: web.Request) -> Union[web.FileResponse, web.Response]:
+    @withObjectPayload(Object({
+        "id": Integer(),
+    }), inBody = True)
+    async def streamFromCache(self, payload: Dict[str, Any]) -> Union[web.FileResponse,
+                                                                      web.Response]:
         """get(/api/player/stream/{id})"""
-        index = int(request.match_info['id'])
-        pathAndName = f"./_cache/{index}.mp3"
+        id_: int = payload["id"]
+        pathAndName = f"./_cache/{id_}.mp3"
         if os.path.exists(pathAndName):
             return web.FileResponse(pathAndName)
         return web.Response(status = 404)
@@ -68,5 +77,5 @@ class DownloadHandler:
     async def stream(self, _: web.Request) -> web.Response:
         """get(/api/player/stream)"""
         if not self._player.currentSong:
-            return web.Response(status = 428)
+            return web.HTTPPreconditionRequired()
         return web.HTTPPermanentRedirect(f"/api/player/stream/{self._player.currentSong.id}")

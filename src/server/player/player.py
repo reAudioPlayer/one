@@ -196,16 +196,19 @@ class Player: # pylint: disable=too-many-instance-attributes
 
         await self.next()
 
-    async def at(self, index: int) -> None:
+    async def at(self, index: int) -> bool:
         """play at"""
         if not self._playerPlaylist:
-            return
+            return False
+        if index < 0 or index >= len(self._playerPlaylist):
+            return False
         if index == self._playerPlaylist.cursor:
             self.position = 0
-            return
+            return True
         await self.unload()
         await self._preloadSong(self._playerPlaylist.at(index))
         await self._loadSong()
+        return True
 
     async def _preloadSong(self, song: Optional[Song]) -> None:
         if not self._playerPlaylist or not song:
