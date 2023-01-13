@@ -38,7 +38,7 @@ class MetaHandler:
         return web.json_response(data = metadata.toDict())
 
     @withObjectPayload(Object({
-        "id": Integer()
+        "id": Integer().coerce()
     }), inPath = True)
     async def getTrack(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/tracks/{id})"""

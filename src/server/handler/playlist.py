@@ -2,7 +2,10 @@
 """reAudioPlayer ONE"""
 __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
+from typing import Any, Dict
 from aiohttp import web
+from pyaddict.schema import Object, Integer
+from helper.payloadParser import withObjectPayload
 from dataModel.song import Song
 from player.player import Player
 from player.playlistManager import PlaylistManager
@@ -39,9 +42,12 @@ class PlaylistHandler:
         self._playlistManager.removefromPlaylist(id_, jdata["songId"])
         return web.Response(status = 200, text = "success!")
 
-    async def getPlaylist(self, request: web.Request) -> web.Response:
+    @withObjectPayload(Object({
+        "id": Integer().min(0).coerce()
+    }), inPath = True)
+    async def getPlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/playlists/{id})"""
-        id_ = int(request.match_info['id'])
+        id_: int = payload["id"]
         if id_ >= self._playlistManager.playlistLength:
             return web.Response(status = 404)
         return web.json_response(self._playlistManager.ensure(id_).toDict())
@@ -54,9 +60,12 @@ class PlaylistHandler:
         """get(/api/playlists/new)"""
         return web.Response(status = 200, text = str(self._playlistManager.addPlaylist()))
 
-    async def deletePlaylist(self, request: web.Request) -> web.Response:
+    @withObjectPayload(Object({
+        "id": Integer().min(0).coerce(),
+    }), inPath = True)
+    async def deletePlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """delete(/api/playlists/id/{id})"""
-        index = int(request.match_info['id'])
+        index: int = payload["id"]
         self._playlistManager.removePlaylist(index)
         return web.Response(status = 200)
 
