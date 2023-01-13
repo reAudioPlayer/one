@@ -4,7 +4,6 @@ import Theme from "../components/Preferences/Theme.vue"
 
 import { Buffer } from 'buffer';
 window.Buffer = Buffer;
-import Hashids from 'hashids'
 import {useSettingsStore} from "@/store/settings";
 import {ref} from "vue";
 
@@ -17,7 +16,7 @@ const spotifyClient = ref({
     secret: "",
     id: ""
 })
-const themes = [ "jade", "light", "dark" ];
+const themes = [ "dynamic", "light", "dark" ];
 
 const updateThemes = () => {
     themeSelected.value = window.getCurrentTheme()
@@ -49,42 +48,7 @@ const saveSpotify = () => {
 <template>
     <div class="preferences">
         <div class="padding-10">
-            <div class="sidebar">
-                <h2>Sidebar</h2>
-                <div class="checkbox">
-                    <input @change="changeShowNewsTab" v-model="settings.sidebar.news" type="checkbox" id="checkbox" name="" value="">
-                    <label for="checkbox"><span>Show "News" tab</span></label>
-                </div>
-
-                <div class="checkbox">
-                    <input @change="changeShowSportsTab" v-model="settings.sidebar.sports" type="checkbox" id="checkbox2" name="" value="">
-                    <label for="checkbox2"><span>Show "Sports" tab</span></label>
-                </div>
-            </div>
-            <div class="sidebar">
-                <h2>Player</h2>
-                <div
-                    class="checkbox"
-                    :class="{ disabled: !settings.player.supportsLocalPlayback }"
-                >
-                    <input
-                        @change="changePlayInBrowser"
-                        :disabled="!settings.player.supportsLocalPlayback"
-                        v-model="settings.player.inBrowser"
-                        type="checkbox"
-                        id="checkbox3"
-                        name=""
-                        value=""
-                    >
-                    <template v-if="settings.player.supportsLocalPlayback">
-                        <label for="checkbox3"><span>Play in browser</span></label>
-                    </template>
-                    <template v-else>
-                        <label for="checkbox3"><span>Play in browser (local playback not supported on this device)</span></label>
-                    </template>
-                </div>
-            </div>
-            <div class="sidebar">
+            <div class="sidebar" v-if="false">
                 <h2>Data Backup</h2>
                 <div class="wrapTogether spaceBetween">
                     <button @click="$router.push('/export')">Save</button>
@@ -94,7 +58,7 @@ const saveSpotify = () => {
             <div class="spotify">
                 <h2>Spotify</h2>
                 <details>
-                    <summary>How to</summary>
+                    <summary class="cursor-pointer">How to</summary>
                 <p>1) Head over to the <a href="https://developer.spotify.com/dashboard/applications" target="_blank">spotify developer dashboard</a></p>
                 <p>2) Create An App</p>
                 <p>3) Enter any name and any description</p>
@@ -119,6 +83,18 @@ const saveSpotify = () => {
                 <theme @selected="updateThemes" v-for="(theme, index) in themes" :key="index"
                     :name="theme" />
             </full-shelf>
+        </div>
+        <div class="sidebar">
+            <h2>Sidebar</h2>
+            <div class="checkbox">
+                <input v-model="settings.sidebar.news" type="checkbox" id="checkbox" name="" value="">
+                <label for="checkbox"><span>Show "News" tab</span></label>
+            </div>
+
+            <div class="checkbox">
+                <input v-model="settings.sidebar.sports" type="checkbox" id="checkbox2" name="" value="">
+                <label for="checkbox2"><span>Show "Sports" tab</span></label>
+            </div>
         </div>
     </div>
 </template>

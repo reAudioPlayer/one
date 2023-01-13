@@ -1,37 +1,37 @@
 {
     "accent-dark": {
         "dark": "#217e41",
-        "jade": "#00c48b",
+        "dynamic": "#00c48b",
         "light": "#80dda0"
     },
     "accent": {
         "dark": "#1ed760",
-        "jade": "#00c48b",
+        "dynamic": "#00c48b",
         "light": "#18a74b"
     },
     "font-accent-contrast": {
         "dark": "white",
-        "jade": "whitesmoke"
+        "dynamic": "whitesmoke"
     },
     "font-contrast": {
         "dark": "#121212",
-        "jade": "#1e1e1e",
+        "dynamic": "#1e1e1e",
         "light": "white"
     },
     "font-colour": {
         "dark": "white",
-        "jade": "whitesmoke",
+        "dynamic": "whitesmoke",
         "light": "#181c2f"
     },
     "font-darker": {
         "dark": "#a7a7a7",
-        "jade": "#c2bebe",
+        "dynamic": "#c2bebe",
         "light": "#8b8c91"
     },
     "font-darkest": {
         "dark": "#999",
         "light": "#8b8c91",
-        "jade": "#999"
+        "dynamic": "#999"
     },
     "hover-4": {
         "dark": "#242424"
@@ -42,12 +42,12 @@
     },
     "hover-2": {
         "dark": "hsla(0,0%,100%,0.3)",
-        "jade": "#00c48b82",
+        "dynamic": "#00c48b82",
         "light": "#7c828f5e"
     },
     "hover-1": {
         "dark": "hsla(0,0%,100%,0.1)",
-        "jade": "#00c48b42",
+        "dynamic": "#00c48b42",
         "light": "#E3E7EB"
     },
     "border": {
@@ -64,26 +64,26 @@
     },
     "background-light": {
         "dark": "#181818",
-        "jade": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
+        "dynamic": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
         "light": "#f3f7fb"
     },
     "sidebar-background": {
         "dark": "black",
-        "jade": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
+        "dynamic": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
         "light": "#f3f7fb"
     },
     "player-background": {
         "dark": "#181818",
-        "jade": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
+        "dynamic": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
         "light": "#f3f7fb"
     },    
     "fixedplaylistheader-background": {
         "dark": "var(--player-background)",
-        "jade": "#374148"
+        "dynamic": "#374148"
     },
     "fixedplaylistheader-border": {
         "dark": "#303030",
-        "jade": "none",
+        "dynamic": "none",
         "light": "#D0D0D0"
     },
     "input-background": {
@@ -112,6 +112,6 @@
     },
     "coverAsBackground": {
         "dark": false,
-        "jade": true
+        "dynamic": true
     }
 }
