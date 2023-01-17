@@ -50,9 +50,9 @@ class PayloadParser:
                        schema: ISchemaType[Any],
                        _: Type[T]) -> ValidationResult[T]:
         """get a schema from a request body"""
-        if request.content_type != "application/json":
-            return ValidationResult.err(
-                ValidationError("request content type must be application/json", [], "json"))
+        #if request.content_type != "application/json":
+        #    return ValidationResult.err(
+        #        ValidationError("request content type must be application/json", [], "json"))
 
         try:
             jdata = await request.json()

@@ -51,6 +51,9 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         self._updateCover(cover)
         self._load(playlistIndex, songs)
 
+    def __len__(self) -> int:
+        return len(self._playlist)
+
     @staticmethod
     def liked(dbManager: DbManager) -> PlayerPlaylist:
         """liked songs"""

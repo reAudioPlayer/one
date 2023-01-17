@@ -37,6 +37,7 @@ export const parsePlaylistCover = (cover: string) => {
 }
 
 export interface ISong {
+    source?: string; // TODO(dxstiny) src or source??
     id?: number;
     title: string;
     artist: string;

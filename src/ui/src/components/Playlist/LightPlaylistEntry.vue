@@ -1,4 +1,4 @@
-a<template>
+<template>
     <SongCtx
         :artist="artist"
         :src="source"
@@ -25,8 +25,13 @@ a<template>
         />
         <div
             :id="'bplayer-entry-' + id"
-            @dblclick="() => { playAt(); onselect() }" @click="onselect" @mouseover="displayPlay" @mouseleave="displayId" class="lightPlaylistEntry"
-            :class="{ 'selected': highlighted }">
+            @dblclick="() => { playAt(); onselect() }"
+            @click="onselect"
+            @mouseover="displayPlay"
+            @mouseleave="displayId"
+            class="lightPlaylistEntry"
+            :class="{ 'selected': highlighted }"
+        >
             <div class="h-full flex flex-col justify-center">
                 <span @click.stop="playAt" ref="idOrPlay" :class="{ 'playing': playing }" class="id">{{index + 1}}</span>
             </div>

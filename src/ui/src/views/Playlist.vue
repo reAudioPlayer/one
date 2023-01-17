@@ -33,25 +33,22 @@
             <span id="loadPlaylist" @click="loadPlaylist" class="material-symbols-rounded">play_circle</span>
             <span id="addToPlaylist" @click="addToPlaylist" class="material-symbols-rounded">add_circle</span>
             <div class="grid">
-                <grid-header class="hideIfMobile"/>
+                <PlaylistHeader class="hideIfMobile"/>
                 <hr>
                 <div class="playlistEntries">
                     <draggable v-model="playlist" @change="onPlaylistRearrange">
                         <template #item="{element}">
-                            <playlist-entry
-                                :playlists="playlists"
+                            <PlaylistEntry
                                 @download="download"
                                 @requestUpdate="updatePlaylist"
                                 :index="playlist.findIndex(x => x.source == element.source)"
-                                :source="element.source"
-                                :playing="element.playing"
-                                :id="element.id"
-                                :title="element.title"
-                                :album="element.album"
-                                :artist="element.artist"
-                                :cover="element.cover"
-                                :favourite="element.favourite"
-                                :duration="element.duration"
+                                :song="element"
+                                with-cover
+                                with-album
+                                :playlist-id="Number(id)"
+                                @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
+                                @update="updatePlaylist"
+                                :selected="selectedSongId == element.id"
                             />
                         </template>
                     </draggable>
@@ -63,8 +60,8 @@
 
 <script>
 import FixedPlaylistHeader from '../components/Playlist/FixedPlaylistHeader.vue'
-import GridHeader from '../components/Playlist/GridHeader.vue'
-import PlaylistEntry from '../components/Playlist/PlaylistEntry.vue'
+import PlaylistEntry from '../components/songContainers/PlaylistEntry.vue'
+import PlaylistHeader from '../components/songContainers/PlaylistHeader.vue'
 import AddSong from "../components/popups/AddNewSong.vue"
 import EditPlaylist from '../components/popups/EditPlaylist.vue'
 import draggable from 'vuedraggable'
@@ -80,7 +77,7 @@ export default {
     components: {
         PlaylistEntry,
         FixedPlaylistHeader,
-        GridHeader,
+        PlaylistHeader,
         AddSong,
         EditPlaylist,
         draggable
@@ -95,7 +92,8 @@ export default {
             playlistName: "N/A",
             playlistDescription: "",
             playlistCover: null,
-            store: usePlayerStore()
+            store: usePlayerStore(),
+            selectedSongId: -1,
         }
     },
     methods: {

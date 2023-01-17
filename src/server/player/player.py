@@ -8,7 +8,7 @@ import os
 import asyncio
 from asyncio.tasks import Task
 
-from typing import Any, Awaitable, Callable, Optional
+from typing import Any, Awaitable, Callable, Optional, List
 
 import pygame
 
@@ -242,7 +242,7 @@ class Player: # pylint: disable=too-many-instance-attributes
     def loopSong(self, value: bool) -> None:
         self._loopSong = value
 
-    def updateSongMetadata(self, id_: int, song: Song) -> None: # TODO why here?
+    def updateSongMetadata(self, id_: int, song: Song) -> None:
         """updates the metadata"""
         self._dbManager.updateSongMetadata(id_, song.sqlUpdate())
         self._playlistManager.updateSong(id_, lambda _: song)

@@ -9,6 +9,7 @@ import {ISpotifyPlaylist, ISpotifySong, openInNewTab} from "../../common";
 import {useDataStore} from "../../store/data";
 import {addSong as addSongToPlaylist} from "../../api/song";
 import {createPlaylistWithMetadata} from "../../api/playlist";
+import {playInPicture} from "../../api/playerInPicture";
 
 const data = useDataStore();
 
@@ -42,12 +43,7 @@ const show = async () => {
 }
 
 const preview = () => {
-    const event = new CustomEvent('player.play', { detail: {
-        artist: "Spotify Playlist",
-        title: props.playlist.name,
-        source: props.playlist.href
-    } });
-    window.dispatchEvent(event);
+    playInPicture("Spotify Playlist", props.playlist.name, props.playlist.href);
 }
 
 const createPlaylist = async (playlistId: string | number): Promise<number> => {

@@ -46,7 +46,7 @@ export const addSong = async (playlistId: number | string, song: ISong) => {
     await fetch(`/api/playlists/${playlistId}/tracks`, {
         method: "POST",
         body: JSON.stringify({
-            source: song.src,
+            source: song.src || song.source,
             title: song.title,
             artist: song.artist,
             album: song.album,
@@ -64,4 +64,31 @@ export const addExistingSong = async (playlistId: number, songId: number) => {
     await fetch(`/api/playlists/${playlistId}/tracks/${songId}`, {
         method: "POST"
     })
+}
+
+export const favouriteSong = async (songId: number, favourite: boolean = true) => {
+    await fetch(`/api/tracks/${songId}`, {
+        method: "PUT",
+        body: JSON.stringify({
+            favourite
+        })
+    })
+}
+
+/**
+ * sets the duration of a song
+ * @param songId the id of the song to set the duration of
+ * @param duration the duration in seconds
+ */
+export const saveDuration = async(songId: number, duration: number) => {
+    await fetch(`/api/tracks/${songId}`, {
+        method: "PUT",
+        body: JSON.stringify({
+            duration
+        })
+    })
+}
+
+export const downloadSong = async (songId: number) => {
+    window.open(`/api/tracks/${songId}/download`)
 }

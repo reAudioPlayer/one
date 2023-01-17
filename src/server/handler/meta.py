@@ -219,8 +219,6 @@ class MetaHandler:
 
             if query: # find track first
                 result = self._spotify.searchTrack(query)
-                print(result)
-
                 if result:
                     queryTracks = result.unwrap()
                     if len(queryTracks) > 0:
