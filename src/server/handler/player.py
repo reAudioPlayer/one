@@ -8,7 +8,6 @@ from typing import Dict, Any, Optional
 from aiohttp import web
 from pyaddict.schema import Object, String, Integer, Boolean, Float
 
-from dataModel.song import Song
 from db.dbManager import DbManager
 from helper.payloadParser import withObjectPayload
 from player.player import Player
@@ -81,7 +80,6 @@ class PlayerHandler:
             return web.Response()
 
         if type_ == "track":
-            print(f"id={id_}")
             asyncio.create_task(self._player
                 .loadPlaylist(PlayerPlaylist(self._dbManager,
                                              songs = self._dbManager\
@@ -150,8 +148,9 @@ class PlayerHandler:
     async def updateSong(self, request: web.Request) -> web.Response:
         """post(/api/tracks/{id})"""
         id_ = int(request.match_info['id'])
-        jdata = await request.json()
-        self._player.updateSongMetadata(id_, Song.fromDict(jdata))
+        jdata: Dict[str, Any] = await request.json()
+        self._player.updateSongMetadata(id_,
+                                        self._dbManager.getSongById(id_).updateFromDict(jdata))
         return web.Response(status = 200)
 
     @withObjectPayload(Object({
@@ -171,7 +170,7 @@ class PlayerHandler:
     }), inBody = True)
     async def postRepeat(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/player/repeat)"""
-        self._player.loopSong = x["value"]
+        self._player.loopSong = payload["value"]
         return web.Response(status = 200, text = "success!")
 
     async def getRepeat(self, _: web.Request) -> web.Response:

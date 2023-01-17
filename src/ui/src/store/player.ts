@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import {parseCover, zeroPad} from "../common";
 import {useDataStore} from "./data";
+import {saveDuration} from "../api/song";
 
 export const usePlayerStore = defineStore({
     id: 'player',
@@ -23,6 +24,7 @@ export const usePlayerStore = defineStore({
             description: null,
             index: -1, // of song in playlist
             name: null,
+            id: -1,
             songs: [],
         },
         volume: 50,
@@ -48,6 +50,15 @@ export const usePlayerStore = defineStore({
         },
         setDuration(duration) {
             this.song.duration = `${Math.floor(duration / 60)}:${zeroPad(Math.round(duration % 60), 2)}`;
+
+            fetch(`/api/tracks/${this.song.id}`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    duration
+                })
+            })
+
+            //saveDuration(this.song.id, duration);
         },
         setPlaying(playing) {
             this.playing = playing;
@@ -79,6 +90,22 @@ export const usePlayerStore = defineStore({
                     type: "playlist"
                 })
             })
+        },
+        loadSong(playlist: number | string, index: number) {
+            const body = {
+                index
+            }
+
+            if (typeof playlist === "number") {
+                body["playlistIndex"] = playlist;
+            } else {
+                body["type"] = playlist;
+            }
+
+            fetch("/api/player/at", {
+                method: "POST",
+                body: JSON.stringify(body)
+            });
         }
     },
     getters: {

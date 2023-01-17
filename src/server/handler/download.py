@@ -63,8 +63,8 @@ class DownloadHandler:
         return web.Response()
 
     @withObjectPayload(Object({
-        "id": Integer(),
-    }), inBody = True)
+        "id": Integer().coerce(),
+    }), inPath = True)
     async def streamFromCache(self, payload: Dict[str, Any]) -> Union[web.FileResponse,
                                                                       web.Response]:
         """get(/api/player/stream/{id})"""

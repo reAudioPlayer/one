@@ -36,7 +36,7 @@ const options = [{
     onUpload: (file: File) => {
         upload('/api/config/tracks', file).then(url => props.song.src = url);
     },
-    value: props.song.src
+    value: props.song.src || props.song.source
 }, {
     name: "title",
     type: "text",

@@ -139,8 +139,6 @@ class DbManager:
                 ands.append(f"{tagAndQuery[0]} LIKE '%{tagAndQuery[1]}%'")
         filter_ = " AND ".join(ands)
 
-        print(filter_)
-
         try:
             with self._db:
                 return DbManager._castToSongList(

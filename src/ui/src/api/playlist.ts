@@ -1,4 +1,4 @@
-import {hashPlaylist, hashTrack, IFullPlaylist, IPlaylist, IPlaylistMeta} from "../common";
+import {hashTrack, IFullPlaylist, IPlaylistMeta} from "../common";
 import {useDataStore} from "../store/data";
 
 const dataStore = useDataStore();
@@ -77,4 +77,14 @@ export const createPlaylistWithMetadata = async (name: string,
         cover
     });
     return id;
+}
+
+export const removeSongFromPlaylist = async (playlistId: number, songId: number) => {
+    await fetch(`/api/playlists/${playlistId}/tracks`, {
+        method: "DELETE",
+        body: JSON.stringify({
+            songId: songId
+        })
+    });
+    await dataStore.fetchPlaylists();
 }
