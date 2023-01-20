@@ -1,5 +1,6 @@
 // @ts-ignore
 import Hashids from 'hashids';
+import {computed, ref} from "vue";
 
 const playlistHash = new Hashids("reapOne.playlist", 22);
 const hashidsTrack = new Hashids("reapOne.track", 22);
@@ -34,6 +35,12 @@ export const parsePlaylistCover = (cover: string) => {
     if (!cover) return "/assets/img/placeholders/playlist.svg";
     if (cover.startsWith("local:")) return cover.replace("local:", "/src/covers/");
     return cover;
+}
+
+export const parseAnyCover = (cover: string, type: "track" | "playlist" = "track") => {
+    const isPlaylist = type == "playlist";
+    const parse = isPlaylist ? parsePlaylistCover : parseCover;
+    return parse(cover);
 }
 
 export interface ISong {

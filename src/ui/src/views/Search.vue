@@ -6,10 +6,25 @@
         </div>
         <template v-else>
             <Shelf v-if="tracks.length" heading="Songs">
-                <TrackItem v-for="element in tracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+                <TrackItem
+                    v-for="element in tracks"
+                    :key="element.url"
+                    :cover="element.cover"
+                    :href="element.url"
+                    :artist="element.artists.join(', ')"
+                    :title="element.title"
+                />
             </Shelf>
             <Shelf v-if="spotifyTracks.length" heading="Songs (Spotify)">
-                <search-item v-for="element in spotifyTracks" :key="element.url" :preview="element.preview" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />
+                <search-item
+                    v-for="element in spotifyTracks"
+                    :key="element.url"
+                    :preview="element.preview"
+                    :cover="element.cover"
+                    :href="element.url"
+                    :artist="element.artists.join(', ')"
+                    :title="element.title"
+                />
             </Shelf>
             <Shelf v-if="youtubeTracks.length" heading="Songs (Youtube)">
                 <search-item v-for="element in youtubeTracks" :key="element.url" :cover="element.cover" :href="element.url" :artist="element.artists.join(', ')" :title="element.title" />

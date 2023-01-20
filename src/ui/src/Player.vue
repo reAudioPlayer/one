@@ -1,6 +1,7 @@
 <script setup>
 import {computed} from 'vue'
 import {usePlayerStore} from "@/store/player";
+import Cover from "@/components/image/Cover.vue";
 
 const playerStore = usePlayerStore();
 
@@ -22,7 +23,12 @@ const settings = useSettingsStore();
     <div v-if="!expandedMobile" class="player">
         <audio ref="audio" @ended="get('player/next')" src="/api/player/stream" style="display: none"/>
         <div class="left hideIfMobile">
-            <img v-if="!settings.player.expandedCover" @click="settings.player.expandedCover = true" :src="cover"/>
+            <Cover
+                v-if="!settings.player.expandedCover"
+                @click="settings.player.expandedCover = true"
+                :src="cover"
+                type="track"
+            />
             <div class="titleartist">
                 <template v-if="title || artist">
                     <span class="title">
@@ -122,7 +128,7 @@ const settings = useSettingsStore();
             <span class="material-symbols-rounded">more_horiz</span>
         </div>
         <div class="cover">
-            <img :src="cover"/>
+            <Cover :src="cover" type="track" />
         </div>
         <div class="data">
             <div class="titleartist">

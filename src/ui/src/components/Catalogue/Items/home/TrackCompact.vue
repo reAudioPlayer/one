@@ -2,8 +2,8 @@
 import Marquee from "@/components/Marquee.vue";
 import AddAlbumToPlaylist from '../../../popups/ImportSpotifyAlbum.vue';
 import AddSongToPlaylist from '../../../popups/ImportSpotifySong.vue';
-import {hashTrack, parseCover} from "@/common";
-import {ref} from "vue";
+import {hashTrack, parseAnyCover, parseCover} from "@/common";
+import {computed, ref, watch} from "vue";
 
 const props = defineProps({
     title: String,
@@ -40,6 +40,12 @@ const openModal = () => {
         addSong.show();
     }
 }
+
+const src = ref(props.cover);
+watch(() => props.cover, () => {
+    src.value = props.cover;
+});
+const cover = computed(() => parseAnyCover(src.value));
 </script>
 
 <template>
@@ -69,7 +75,12 @@ const openModal = () => {
         ref="addSong"
     />
     <div class="home-track-compact" @click="openModal">
-        <div @click="play" class="cover" :style="{ backgroundImage: `url(${parseCover(cover)})` }">
+        <div @click="play" class="cover" :style="{ backgroundImage: `url(${parseAnyCover(src)})` }">
+            <img
+                :src="parseAnyCover(src)"
+                @error="src = null"
+                class="hidden"
+            />
             <div class="play">
                 <span class="material-symbols-rounded">play_arrow</span>
             </div>

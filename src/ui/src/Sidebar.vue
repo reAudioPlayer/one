@@ -46,7 +46,7 @@ const settings = useSettingsStore();
         <template v-else>
             <div class="playlistList hideIfMobile">
                 <nav-entry v-for="(element, index) in playlists" :key="index" :minimised="minimised"
-                           :href="element.href" :img="parsePlaylistCover(element.cover)" :name="element.name"/>
+                           :href="element.href" :img="element.cover" :name="element.name"/>
             </div>
         </template>
         <img

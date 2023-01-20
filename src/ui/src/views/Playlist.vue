@@ -17,7 +17,7 @@
             :title="playlistName"
         />
         <div class="padding-20 playlisteditor" @click="editPlaylist" v-observe-visibility="headerVisibilityChanged">
-            <img v-if="playlistCover" class="cover" :src="parsePlaylistCover(playlistCover)"/>
+            <Cover :src="playlistCover" type="playlist" />
             <div class="details">
                 <h7 class="hideIfMobile">Playlist</h7>
                 <h1>{{ playlistName }}</h1>
@@ -67,6 +67,8 @@ import PlaylistHeader from '../components/songContainers/PlaylistHeader.vue'
 import AddSong from "../components/popups/AddNewSong.vue"
 import EditPlaylist from '../components/popups/EditPlaylist.vue'
 import draggable from 'vuedraggable'
+import Cover from '@/components/image/Cover.vue'
+
 import {hashPlaylist, parseCover, parsePlaylistCover, unhashPlaylist} from "@/common";
 import {usePlayerStore} from "@/store/player";
 import {createPlaylist, getPlaylist} from "@/api/playlist";
@@ -82,7 +84,8 @@ export default {
         PlaylistHeader,
         AddSong,
         EditPlaylist,
-        draggable
+        draggable,
+        Cover
     },
     name: 'Playlist',
     data() {
@@ -263,11 +266,6 @@ $mobileWidth: 950px;
 
 .playlisteditor:hover {
     cursor: pointer;
-}
-
-.playlistEntries {
-    display: flex;
-    flex-direction: column;
 }
 
 #loadPlaylist,

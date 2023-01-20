@@ -21,7 +21,7 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(["update"]);
+const emit = defineEmits(["update", "edit"]);
 
 const isAutoPlaylist = computed(() => props.playlistId == -1);
 const preview = () => {
@@ -77,12 +77,41 @@ const show = () => {
 defineExpose({
     show, toggle, hide
 });
+
+const sources = {
+    "Soundcloud": `https://soundcloud.com/search?q=${props.song.artist} ${props.song.title}`,
+    "Audius": `https://audius.co/search/${props.song.artist} ${props.song.title}`,
+    "Youtube Music": `https://music.youtube.com/search?q=${props.song.artist} ${props.song.title}`,
+    "Spotify": `https://open.spotify.com/search/${props.song.artist} ${props.song.title}`
+}
+
+const editSong = () => {
+    emit('edit');
+}
+
+const openSource = (source: string) => {
+    window.open(sources[source]);
+    editSong();
+}
 </script>
 <template>
     <div ref="box" v-contextmenu:contextmenu>
         <slot />
         <v-contextmenu ref="contextmenu">
-            <v-contextmenu-item @click="preview">Preview</v-contextmenu-item>
+            <v-contextmenu-item
+                @click="preview"
+            >
+                Preview
+            </v-contextmenu-item>
+            <v-contextmenu-submenu title="Find source">
+                <v-contextmenu-item
+                    v-for="name in Object.keys(sources)"
+                    :key="name"
+                    @click="openSource(name)"
+                >
+                    {{name}}
+                </v-contextmenu-item>
+            </v-contextmenu-submenu>
             <v-contextmenu-divider />
             <v-contextmenu-item @click="$emit('like')">{{(song.favourite ? 'Remove from' : 'Save to') + ' your Liked Songs'}}</v-contextmenu-item>
             <v-contextmenu-item
@@ -103,7 +132,11 @@ defineExpose({
                 </v-contextmenu-item>
             </v-contextmenu-submenu>
             <v-contextmenu-divider />
-            <v-contextmenu-item @click="$emit('edit')">Update Metadata</v-contextmenu-item>
+            <v-contextmenu-item
+                @click="editSong"
+            >
+                Update Metadata
+            </v-contextmenu-item>
             <v-contextmenu-divider />
             <v-contextmenu-item @click="downloadSong(song.id)">Download</v-contextmenu-item>
         </v-contextmenu>
