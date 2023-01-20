@@ -3,14 +3,14 @@ import {usePlayerStore} from "@/store/player";
 import {useDataStore} from "@/store/data";
 import {computed, onMounted, ref, watch} from "vue";
 
-import LightPlaylistEntry from '../components/Playlist/LightPlaylistEntry.vue'
-import SpotifyPlaylistHeader from '../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
+import PlaylistEntry from '../components/songContainers/PlaylistEntry.vue'
+import PlaylistHeader from '../components/songContainers/PlaylistHeader.vue'
+
 import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem";
 
 const player = usePlayerStore();
 const data = useDataStore();
 
-const currentSongName = computed(() => player.song.title);
 const playing = computed(() => player.playing);
 const cover = computed(() => player.song.cover);
 const songId = computed(() => player.song.id);
@@ -48,6 +48,8 @@ const toggleMaximise = () => {
 };
 const noPlaylist = ref(false); // hide playlist
 const animate = ref(false); // animations
+
+const selectedSongId = ref(-1);
 </script>
 
 <template>
@@ -63,14 +65,18 @@ const animate = ref(false); // animations
             </div>
             <div v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl">
                 <div class="playlist" ref="playlistScroll">
-                    <spotify-playlist-header/>
-                    <light-playlist-entry v-for="element in playlist.songs" :key="element.source" @download="download"
-                                          @requestUpdate="updatePlaylist"
-                                          :index="playlist.songs.findIndex(x => x.source == element.source)"
-                                          :source="element.source" :playing="element.title == currentSongName"
-                                          :id="element.id" :title="element.title" :album="element.album"
-                                          :artist="element.artist" :cover="element.cover" :favourite="element.favourite"
-                                          :duration="element.duration"/>
+                    <PlaylistHeader />
+                    <PlaylistEntry
+                        v-for="(element, index) in playlist.songs"
+                        :key="element.source"
+                        @requestUpdate="updatePlaylist"
+                        :song="element"
+                        :index="index"
+                        @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
+                        @update="updatePlaylist"
+                        :selected="selectedSongId == element.id"
+                        with-cover
+                    />
                 </div>
             </div>
 

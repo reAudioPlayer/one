@@ -5,25 +5,25 @@ defineProps({
         type: Number,
         required: true
     },
-    withCover: {
-        type: Boolean,
-        required: false,
-        default: false
-    },
     withAlbum: {
         type: Boolean,
         required: false,
         default: false
-    }
+    },
+    withMore: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
 })
 </script>
 <template>
-    <div class="playlist-header">
+    <div class="playlist-header" :class="{ withAlbum, withMore }">
         <div class="index text-right">#</div>
         <div class="artist-title">
             title
         </div>
-        <div class="album">
+        <div v-if="withAlbum" class="album">
             album
         </div>
         <div class="duration">
@@ -48,6 +48,10 @@ defineProps({
     .duration {
         text-align: center;
         grid-column-start: 6;
+    }
+
+    &:not(.withMore) .duration {
+        grid-column-start: 7;
     }
 
     div {

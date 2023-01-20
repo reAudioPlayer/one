@@ -33,18 +33,20 @@
             <span id="loadPlaylist" @click="loadPlaylist" class="material-symbols-rounded">play_circle</span>
             <span id="addToPlaylist" @click="addToPlaylist" class="material-symbols-rounded">add_circle</span>
             <div class="grid">
-                <PlaylistHeader class="hideIfMobile"/>
+                <PlaylistHeader
+                    class="hideIfMobile"
+                    with-more
+                />
                 <hr>
                 <div class="playlistEntries">
                     <draggable v-model="playlist" @change="onPlaylistRearrange">
                         <template #item="{element}">
                             <PlaylistEntry
-                                @download="download"
-                                @requestUpdate="updatePlaylist"
                                 :index="playlist.findIndex(x => x.source == element.source)"
                                 :song="element"
                                 with-cover
                                 with-album
+                                with-more
                                 :playlist-id="Number(id)"
                                 @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
                                 @update="updatePlaylist"

@@ -4,5 +4,6 @@ import Index from "@/views/Collection/SmartPlaylist/index";
 <template>
     <index
         src="/api/me/new"
+        :id="-2"
     />
 </template>

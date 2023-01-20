@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, PropType} from "vue";
+import {computed, PropType, ref} from "vue";
 import {ISong} from "../../common";
 import {playInPicture} from "../../api/playerInPicture";
 import {useDataStore} from "../../store/data";
@@ -43,6 +43,40 @@ const remove = async () => {
     await removeSongFromPlaylist(props.playlistId, props.song.id);
     emit("update");
 }
+
+const box = ref(null);
+const contextmenu = ref(null);
+
+const toggle = () => {
+    if (contextmenu.value.visible) {
+        hide();
+    } else {
+        show();
+    }
+}
+
+const hide = () => {
+    contextmenu.value.hide();
+}
+
+const show = () => {
+    const targetDimensions = box.value.getBoundingClientRect();
+
+    const position = {
+        top: targetDimensions.height +
+            targetDimensions.top +
+            window.scrollY,
+        left: targetDimensions.width +
+            targetDimensions.left +
+            window.scrollX,
+    };
+
+    contextmenu.value.show(position);
+}
+
+defineExpose({
+    show, toggle, hide
+});
 </script>
 <template>
     <div ref="box" v-contextmenu:contextmenu>

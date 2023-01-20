@@ -27,6 +27,11 @@ const props = defineProps({
         required: false,
         default: false
     },
+    withMore: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
     selected: {
         type: Boolean,
         required: false,
@@ -35,7 +40,7 @@ const props = defineProps({
     playlistId: {
         type: Number,
         required: false,
-        default: -1
+        default: null
     }
 });
 const emit = defineEmits(["update"]);
@@ -49,7 +54,7 @@ const toggleFavourite = () => {
     favouriteSong(props.song.id, props.song.favourite);
 }
 
-const playlistId = computed(() => props.playlistId == -1 ? playerStore.playlist.id : props.playlistId);
+const playlistId = computed(() => props.playlistId == null ? playerStore.playlist.id : props.playlistId);
 const playSong = () => {
     playerStore.loadSong(playlistId.value, props.index);
 }
@@ -80,7 +85,14 @@ const update = () => {
         />
         <div
             class="playlist-entry"
-            :class="{ playing, selected, hovering }"
+            :class="{
+                playing,
+                selected,
+                hovering,
+                withCover,
+                withAlbum,
+                withMore
+            }"
             @mouseenter="hovering = true"
             @mouseleave="hovering = false"
             @dblclick="playSong"
@@ -92,7 +104,10 @@ const update = () => {
             >
                 {{hovering ? "play_arrow" : index + 1}}
             </div>
-            <div class="cover">
+            <div
+                class="cover"
+                v-if="withCover"
+            >
                 <img :src="song.cover" />
             </div>
             <div class="artist-title">
@@ -107,12 +122,15 @@ const update = () => {
                     </router-link>
                 </span>
             </div>
-            <div class="album">
+            <div
+                v-if="withAlbum"
+                class="album"
+            >
                 <Marquee :text="song.album" />
             </div>
             <div
                 v-if="selected || hovering || song.favourite"
-                class="icon text-right material-symbols-rounded"
+                class="favourite-icon icon text-right material-symbols-rounded"
                 :class="{ favourite: song.favourite }"
                 @click="toggleFavourite"
             >
@@ -121,7 +139,13 @@ const update = () => {
             <div class="duration text-center">
                 {{song.duration == "-1:59" ? "N/A" : song.duration }}
             </div>
-            <div v-if="selected || hovering" class="icon text-left material-symbols-rounded">more_horiz</div>
+            <div
+                v-if="withMore && (selected || hovering)"
+                @click.stop="$refs.ctxMenu.toggle"
+                class="icon text-left material-symbols-rounded"
+            >
+                more_horiz
+            </div>
         </div>
     </SongContext>
 </template>
@@ -132,6 +156,10 @@ const update = () => {
     gap: 10px;
     padding: 10px 0;
     border-radius: 20px;
+
+    &:not(.withAlbum) .artist-title {
+        grid-column: 3 / 5;
+    }
 
     .index, .album, .duration, .icon {
         margin: auto 0;
@@ -166,8 +194,22 @@ const update = () => {
         background-color: var(--hover-2);
     }
 
-    .duration {
+    .favourite-icon {
         grid-column: 6;
+    }
+
+    .duration {
+        grid-column: 7;
+    }
+
+    &.withMore {
+        .favourite-icon {
+            grid-column: 5;
+        }
+
+        .duration {
+            grid-column: 6;
+        }
     }
 
     .cover {

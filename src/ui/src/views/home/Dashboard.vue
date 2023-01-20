@@ -2,8 +2,8 @@
 import FlexShelf from "/src/components/Catalogue/FlexShelf.vue";
 import Playlist from "/src/components/Catalogue/Items/home/Playlist.vue";
 import TrackCompact from "/src/components/Catalogue/Items/home/TrackCompact.vue";
-import SpotifyPlaylistHeader from '../../components/SpotifyPlaylist/SpotifyPlaylistHeader.vue'
-import LightPlaylistEntry from '@/components/Playlist/LightPlaylistEntry.vue'
+import PlaylistHeader from '@/components/songContainers/PlaylistHeader.vue';
+import PlaylistEntry from '@/components/songContainers/PlaylistEntry.vue';
 
 import {parseCover} from "@/common";
 </script>
@@ -29,23 +29,29 @@ import {parseCover} from "@/common";
                 <h2>
                     <router-link to="/collection/tracks" class="linkOnHover">Liked Songs</router-link>
                 </h2>
-                <spotify-playlist-header/>
-                <light-playlist-entry v-for="(element, index) in liked" :key="index" :index="index"
-                                      :loadAt="{ type: 'collection' }" :source="element.source" :id="element.id"
-                                      :title="element.title" :playing="element.playing" :album="element.album"
-                                      :artist="element.artist" :cover="element.cover" :favourite="element.favourite"
-                                      :duration="element.duration"/>
+                <PlaylistHeader />
+                <PlaylistEntry
+                    v-for="(element, index) in liked"
+                    :key="index"
+                    :index="index"
+                    :song="element"
+                    :playlist-id="-1"
+                    with-cover
+                />
             </div>
             <div class="breaking" v-if="breaking.length">
                 <h2>
                     <router-link to="/collection/tracks/breaking" class="linkOnHover">Breaking Songs</router-link>
                 </h2>
-                <spotify-playlist-header/>
-                <light-playlist-entry v-for="(element, index) in breaking" :key="index" :index="index"
-                                      :loadAt="{ type: 'collection/breaking' }" :source="element.source"
-                                      :id="element.id" :title="element.title" :playing="element.playing"
-                                      :album="element.album" :artist="element.artist" :cover="element.cover"
-                                      :favourite="element.favourite" :duration="element.duration"/>
+                <PlaylistHeader />
+                <PlaylistEntry
+                    v-for="(element, index) in breaking"
+                    :key="index"
+                    :index="index"
+                    :song="element"
+                    :playlist-id="-2"
+                    with-cover
+                />
             </div>
         </div>
         <div class="side">
