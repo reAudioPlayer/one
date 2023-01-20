@@ -11,24 +11,24 @@
         <div class="padding-20">
             <span id="loadPlaylist" @click="loadPlaylist" class="material-icons-outlined">play_circle_filled</span>
             <div class="grid">
-                <grid-header class="hideIfMobile"/>
+                <PlaylistHeader
+                    class="hideIfMobile"
+                    with-more
+                />
                 <hr>
                 <div class="playlistEntries">
-                    <playlist-entry
+                    <PlaylistEntry
                         v-for="(element, index) in playlist"
-                        :key="index"
+                        :key="element.source"
                         :index="index"
-                        :source="element.source"
-                        :id="element.id"
-                        :title="element.title"
-                        :playing="element.playing"
-                        :album="element.album"
-                        :artist="element.artist"
-                        :cover="parseCover(element.cover)"
-                        :favourite="element.favourite"
-                        :duration="element.duration"
-                        @download="download"
-                        @requestUpdate="updateTracks"
+                        :song="element"
+                        with-cover
+                        with-album
+                        with-more
+                        :playlist-id="id"
+                        @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
+                        @update="updateTracks"
+                        :selected="selectedSongId == element.id"
                     />
                 </div>
             </div>
@@ -38,8 +38,8 @@
 
 <script>
 import FixedPlaylistHeader from '@/components/Playlist/FixedPlaylistHeader.vue'
-import GridHeader from '@/components/Playlist/GridHeader.vue'
-import PlaylistEntry from '@/components/Playlist/PlaylistEntry.vue'
+import PlaylistEntry from '@/components/songContainers/PlaylistEntry.vue'
+import PlaylistHeader from '@/components/songContainers/PlaylistHeader.vue'
 import {usePlayerStore} from "@/store/player";
 import {parseCover} from "@/common";
 
@@ -47,11 +47,15 @@ export default {
     components: {
         PlaylistEntry,
         FixedPlaylistHeader,
-        GridHeader
+        PlaylistHeader
     },
     props: {
         src: {
             type: String,
+            required: true
+        },
+        id: {
+            type: Number,
             required: true
         }
     },
@@ -61,7 +65,8 @@ export default {
             fixedHeaderHidden: true,
             playlist: [],
             playlistName: "",
-            store: usePlayerStore()
+            store: usePlayerStore(),
+            selectedSongId: -1
         }
     },
     watch: {

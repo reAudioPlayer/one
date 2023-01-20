@@ -16,6 +16,13 @@ from player.playlistManager import PlaylistManager
 from config.runtime import Runtime
 
 
+MIN_PLAYLIST_ID = -2
+SPECIAL_PLAYLISTS = {
+    -1: "collection",
+    -2: "collection/breaking"
+}
+
+
 class PlayerHandler:
     """player handler"""
     def __init__(self,
@@ -57,12 +64,15 @@ class PlayerHandler:
 
     @withObjectPayload(Object({
         "type": String().enum("playlist", "collection", "collection/breaking", "track"),
-        "id": Integer().min(0).optional()
+        "id": Integer().min(MIN_PLAYLIST_ID).optional()
     }), inBody = True)
     async def loadPlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/player/load)"""
         type_: str = payload["type"]
-        id_: int = payload.get("id", -1)
+        id_: Optional[int] = payload.get("id")
+
+        if id_ in SPECIAL_PLAYLISTS:
+            type_ = SPECIAL_PLAYLISTS[id_]
 
         if type_ in ("playlist", "track") and id_ == -1:
             return web.HTTPBadRequest(text = "id is required for types playlist and track")
@@ -108,7 +118,7 @@ class PlayerHandler:
 
     @withObjectPayload(Object({
         "index": Integer().min(0), # index of song in playlist
-        "playlistIndex": Integer().min(0).optional(), # playlist id
+        "playlistIndex": Integer().min(MIN_PLAYLIST_ID).optional(), # playlist id
         "type": String().enum("collection", "collection/breaking").optional()
     }), inBody = True)
     async def loadSongAt(self, payload: Dict[str, Any]) -> web.Response:
@@ -116,6 +126,10 @@ class PlayerHandler:
         songId: int = payload.get("index", -1)
         type_: Optional[str] = payload.get("type", None)
         found = False
+
+        if payload.get("playlistIndex") in SPECIAL_PLAYLISTS:
+            type_ = SPECIAL_PLAYLISTS[payload.get("playlistIndex")]
+            del payload["playlistIndex"]
 
         if "playlistIndex" in payload: # other playlist
             if await self._player.loadPlaylist(
