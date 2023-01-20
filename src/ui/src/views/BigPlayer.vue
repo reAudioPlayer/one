@@ -7,6 +7,7 @@ import PlaylistEntry from '../components/songContainers/PlaylistEntry.vue'
 import PlaylistHeader from '../components/songContainers/PlaylistHeader.vue'
 
 import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem";
+import Cover from "@/components/image/Cover.vue";
 
 const player = usePlayerStore();
 const data = useDataStore();
@@ -56,7 +57,12 @@ const selectedSongId = ref(-1);
     <div class="bigPlayer">
         <template v-if="player.loaded">
             <div class="upNow">
-                <img :src="cover" :class="{ playing, animate }" class="drop-shadow-2xl"/>
+                <Cover
+                    :src="cover"
+                    :class="{ playing, animate }"
+                    class="drop-shadow-2xl"
+                    type="track"
+                />
                 <div class="blocks" :class="{ playing, animate }">
                     <div class="block" :style="{'animation-delay': '0s'}"></div>
                     <div class="block" :style="{'animation-delay': '.25s'}"></div>

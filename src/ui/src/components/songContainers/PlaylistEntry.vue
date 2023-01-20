@@ -7,6 +7,7 @@ import SongContext from "../contextMenus-next/SongContext.vue";
 import {usePlayerStore} from "../../store/player";
 import {favouriteSong} from "../../api/song";
 import {useDataStore} from "../../store/data";
+import Cover from "../image/Cover.vue";
 
 const props = defineProps({
     song: {
@@ -108,7 +109,7 @@ const update = () => {
                 class="cover"
                 v-if="withCover"
             >
-                <img :src="song.cover" />
+                <Cover :src="song.cover" type="track" />
             </div>
             <div class="artist-title">
                 <span class="title">
@@ -159,6 +160,10 @@ const update = () => {
 
     &:not(.withAlbum) .artist-title {
         grid-column: 3 / 5;
+    }
+
+    div {
+        overflow: hidden;
     }
 
     .index, .album, .duration, .icon {
@@ -213,7 +218,6 @@ const update = () => {
     }
 
     .cover {
-        height: 100%;
         display: flex;
         justify-content: center;
     }
@@ -234,6 +238,7 @@ const update = () => {
 
         span {
             max-width: min-content;
+            overflow: hidden;
         }
     }
 

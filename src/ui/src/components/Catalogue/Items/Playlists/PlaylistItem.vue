@@ -12,7 +12,7 @@
             v-if="spotify"
         />
         <div class="item" @click="redirect">
-            <img :src="parseCover(cover)" />
+            <Cover :src="parseCover(cover)" type="playlist" />
             <h4>{{title}}</h4>
             <p class="hideIfMobile" v-html="description" />
         </div>
@@ -22,8 +22,9 @@
 <script>
     import {parseCover} from "@/common";
     import AddPlaylistToPlaylist from '../../../popups/ImportSpotifyPlaylist.vue'
+    import Cover from "@/components/image/Cover.vue";
     export default {
-        components: { AddPlaylistToPlaylist },
+        components: {Cover, AddPlaylistToPlaylist },
         name: 'PlaylistItem',
         methods: {
             parseCover,

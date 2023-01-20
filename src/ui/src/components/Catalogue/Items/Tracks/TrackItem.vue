@@ -1,7 +1,7 @@
 <template>
     <div class="wrapper drop-shadow-md">
         <div class="item" @click="redirect">
-            <img :src="cover" />
+            <Cover :src="cover" />
             <h4>{{title}}</h4>
             <p>{{artist}}</p>
         </div>
@@ -9,8 +9,11 @@
 </template>
 
 <script>
+    import Cover from "@/components/image/Cover.vue";
+
     export default {
         name: 'TrackItem',
+        components: {Cover},
         methods: {
             redirect() {
                 console.log("redirect")

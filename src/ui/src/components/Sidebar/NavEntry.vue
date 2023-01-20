@@ -2,15 +2,20 @@
     <router-link class="link" :to="href">
         <div class="navEntry" :class="{ active, img }">
             <span v-if="icon" class="material-icons-round icon">{{icon}}</span>
-            <img v-if="img" class="icon" :src="img">
+            <Cover v-if="img" class="icon" :src="img" type="playlist" />
             <span v-if="!minimised" class="name hideIfMobile">{{name}}</span>
         </div>
     </router-link>
 </template>
 
 <script>
+import Cover from "@/components/image/Cover.vue";
+
     export default {
         name: 'NavEntry',
+        components: {
+            Cover
+        },
         props: {
             icon: String,
             img: String,

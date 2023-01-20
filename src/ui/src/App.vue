@@ -6,16 +6,31 @@ import PlayerInPicture from "./PlayerInPicture.vue";
 import Header from './Header.vue';
 
 import {usePlayerStore} from "@/store/player";
-import {computed} from "vue";
+import {computed, ref, watch} from "vue";
 import Startup from "@/views/Startup.vue";
+import {parseAnyCover} from "@/common";
 
 const playerStore = usePlayerStore();
-const cover = computed(() => playerStore.song.cover);
+
+const src = ref(playerStore.song.cover);
+watch(() => playerStore.song.cover, () => {
+    src.value = playerStore.song.cover;
+});
+const cover = computed(() => parseAnyCover(src.value));
 </script>
 
 <template>
     <div class="bgImageWrapper" :class="{ hidden: !coverAsBackground }">
-        <div class="bgImage" :style="{ backgroundImage: `url(${cover})` }"/>
+        <div
+            class="bgImage"
+            :style="{ backgroundImage: `url(${cover})` }"
+        >
+            <img
+                :src="cover"
+                class="hidden"
+                @error="src = null"
+            />
+        </div>
     </div>
     <div class="appRoot" id="appRoot">
         <template v-if="playerStore.ready">

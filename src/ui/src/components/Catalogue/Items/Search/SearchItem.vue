@@ -11,7 +11,7 @@
             ref="addAlbum"
         />
         <div class="item" @click="redirect">
-            <img :src="cover" />
+            <Cover :src="cover" />
             <h4>{{title}}</h4>
             <p>{{artist}}</p>
             <p class="note" v-if="releaseDate">Released on {{releaseDate}}</p>
@@ -21,8 +21,9 @@
 
 <script>
     import AddSongToPlaylist from '../../../popups/ImportSpotifySong.vue'
+    import Cover from "@/components/image/Cover.vue";
     export default {
-        components: { AddSongToPlaylist },
+        components: {Cover, AddSongToPlaylist },
         name: 'SearchItem',
         methods: {
             redirect() {

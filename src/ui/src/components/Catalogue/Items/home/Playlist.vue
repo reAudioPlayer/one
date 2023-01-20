@@ -1,13 +1,13 @@
 <template>
     <router-link :to="href" class="no-underline">
         <div class="home-playlist drop-shadow-md">
-            <img :src="parsePlaylistCover(cover)" />
+            <Cover :src="cover" type="playlist" />
             <h2>{{name}}</h2>
         </div>
     </router-link>
 </template>
 <script setup>
-import {parsePlaylistCover} from "@/common";
+import Cover from "@/components/image/Cover.vue";
 
 defineProps({
     name: {
