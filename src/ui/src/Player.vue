@@ -17,6 +17,8 @@ const progresslbl = computed(() => playerStore.getProgress);
 const progress = computed(() => playerStore.progressPercent);
 
 const settings = useSettingsStore();
+
+const launchPip = () => window.launchPip();
 </script>
 
 <template>
@@ -53,6 +55,12 @@ const settings = useSettingsStore();
                 @click="setFavourite"
                 class="favourite material-icons-round hideIfMobile">
                 {{ favourite ? "favorite" : "favorite_border" }}
+            </span>
+            <span
+                class="favourite material-icons-round"
+                @click="launchPip"
+            >
+                picture_in_picture_alt
             </span>
         </div>
         <div class="left showIfMobile" @click="expandedMobile = true">
