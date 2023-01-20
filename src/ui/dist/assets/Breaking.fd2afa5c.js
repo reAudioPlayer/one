@@ -1,1 +1,0 @@
-import{I as r}from"./index.ddd29624.js";import{o as e,f as o,u as t}from"./index.53c4dab8.js";import"./FixedPlaylistHeader.c47091e1.js";import"./SongCtx.522ecc72.js";import"./EditSong.vue_vue_type_script_setup_true_lang.3c2b067b.js";import"./song.914b8395.js";const u={__name:"Breaking",setup(a){return(p,m)=>(e(),o(t(r),{src:"/api/me/new"}))}};export{u as default};
