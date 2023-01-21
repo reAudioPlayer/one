@@ -9,9 +9,9 @@ import {usePlayerStore} from "@/store/player";
 import {computed, ref, watch} from "vue";
 import Startup from "@/views/Startup.vue";
 import {parseAnyCover} from "@/common";
-import {init} from "@/pictureInPicture";
+import {initPictureInPicture} from "@/pictureInPicture";
 
-init();
+initPictureInPicture();
 
 const playerStore = usePlayerStore();
 

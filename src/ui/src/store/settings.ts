@@ -14,6 +14,7 @@ export interface ISettings {
         inBrowser: boolean;
         expandedCover: boolean;
         supportsLocalPlayback: boolean;
+        pictureInPicture: boolean;
     },
     theme: string;
 }
@@ -35,7 +36,8 @@ const defaultSettings: ISettings = {
     player: {
         inBrowser: true,
         expandedCover: false,
-        supportsLocalPlayback: false
+        supportsLocalPlayback: false,
+        pictureInPicture: false
     },
     theme: "jade"
 }
