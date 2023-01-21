@@ -55,6 +55,18 @@ const saveSpotify = () => {
                     <button @click="$router.push('/import')">Restore</button>
                 </div>
             </div>
+            <div class="sidebar">
+                <h2>Player</h2>
+                <div class="checkbox">
+                    <input v-model="settings.player.pictureInPicture" type="checkbox" id="checkbox" name="" value="">
+                    <label for="checkbox">
+                        <span>
+                            Support Picture in Picture
+                            <p class="italic text-sm muted">slightly reduced performance</p>
+                        </span>
+                    </label>
+                </div>
+            </div>
             <div class="spotify">
                 <h2>Spotify</h2>
                 <details>
@@ -120,6 +132,10 @@ const saveSpotify = () => {
 
     p {
         margin: 0;
+    }
+
+    .muted {
+        color: var(--font-darker);
     }
 
     button {

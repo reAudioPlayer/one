@@ -2,6 +2,8 @@
 import {computed} from 'vue'
 import {usePlayerStore} from "@/store/player";
 import Cover from "@/components/image/Cover.vue";
+import {pictureInPictureStatus, requestPictureInPicture} from "@/pictureInPicture";
+import Spinner from "@/components/loaders/Spinner.vue";
 
 const playerStore = usePlayerStore();
 
@@ -17,8 +19,6 @@ const progresslbl = computed(() => playerStore.getProgress);
 const progress = computed(() => playerStore.progressPercent);
 
 const settings = useSettingsStore();
-
-const launchPip = () => window.launchPip();
 </script>
 
 <template>
@@ -56,12 +56,18 @@ const launchPip = () => window.launchPip();
                 class="favourite material-icons-round hideIfMobile">
                 {{ favourite ? "favorite" : "favorite_border" }}
             </span>
-            <span
-                class="favourite material-icons-round"
-                @click="launchPip"
-            >
-                picture_in_picture_alt
-            </span>
+            <template v-if="settings.player.pictureInPicture">
+                <Spinner
+                    v-if="pictureInPictureStatus == 'loading'"
+                />
+                <span
+                    v-else
+                    class="favourite material-icons-round"
+                    @click="requestPictureInPicture"
+                >
+                    {{ pictureInPictureStatus == "ready" ? "picture_in_picture_alt" : "error" }}
+                </span>
+            </template>
         </div>
         <div class="left showIfMobile" @click="expandedMobile = true">
             <img
@@ -515,7 +521,6 @@ div.player {
 
 .favourite {
     line-height: calc(var(--player-height) - 40px);
-    margin-left: 20px;
     font-size: 1.2em;
     color: var(--font-darker);
 
@@ -530,8 +535,9 @@ div.player {
 
 .left {
     max-height: var(--player-height);
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: calc(var(--player-height) - 40px) fit-content(100%) 20px 20px;
+    gap: 10px;
     padding: 10px;
     width: 25vw;
 
