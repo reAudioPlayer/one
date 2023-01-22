@@ -37,7 +37,7 @@ export default {
 
     .wrapper {
         grid-column: span 2;
-        padding: 20px;
+        /*padding: 20px;*/
     }
 
     .wrapper:hover {

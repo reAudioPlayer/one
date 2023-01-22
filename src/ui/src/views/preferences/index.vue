@@ -86,9 +86,16 @@ const saveSpotify = async () => {
 
 const settings = useSettingsStore();
 
-// @ts-ignore
-//const themeSelected = ref(window.getCurrentTheme());
 const themes = [ "dynamic", "light", "dark" ];
+
+const clearBrowser = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.reload();
+};
+
+const host = window.location.host
+const spotifyRedirect = `http://${host}/api/spotify/callback`
 </script>
 <template>
     <div class="p-[10px] preferences">
@@ -136,14 +143,30 @@ const themes = [ "dynamic", "light", "dark" ];
             />
         </Card>
         <Card class="p-4 pt-0">
-            <h2 class="mt-[10px]">Sidebar</h2>
-            <Checkbox
-                v-model="settings.sidebar.news"
-                label="Show 'News' Tab"
+            <h2 class="mt-[10px]">My Data</h2>
+            <IconButton
+                icon="backup"
+                label="Back up database"
+                class="mx-auto mt-4"
+                @click="$router.push('/export')"
             />
-            <Checkbox
-                v-model="settings.sidebar.sports"
-                label="Show 'Sports' Tab"
+            <IconButton
+                icon="cloud_download"
+                label="Import database"
+                class="mx-auto mt-4"
+                @click="$router.push('/import')"
+            />
+            <IconButton
+                icon="delete"
+                label="Clean browser settings"
+                class="mx-auto mt-4"
+                @click="clearBrowser"
+            />
+            <IconButton
+                icon="folder"
+                label="Manage files"
+                class="mx-auto mt-4"
+                @click="$router.push('/preferences/my-data')"
             />
         </Card>
         <Card class="p-4 pt-0">
@@ -155,6 +178,17 @@ const themes = [ "dynamic", "light", "dark" ];
                     :name="theme"
                 />
             </div>
+        </Card>
+        <Card class="p-4 pt-0">
+            <h2 class="mt-[10px]">Sidebar</h2>
+            <Checkbox
+                v-model="settings.sidebar.news"
+                label="Show 'News' Tab"
+            />
+            <Checkbox
+                v-model="settings.sidebar.sports"
+                label="Show 'Sports' Tab"
+            />
         </Card>
     </div>
 </template>
@@ -170,6 +204,7 @@ const themes = [ "dynamic", "light", "dark" ];
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
+        gap: 1em;
 
         .wrapper {
             max-width: 200px;

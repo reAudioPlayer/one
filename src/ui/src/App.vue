@@ -112,7 +112,7 @@ export default {
             }
         }
 
-        window.setTheme(settings.theme || "jade") // optional, loads the default theme
+        window.setTheme(settings.theme || "dynamic") // optional, loads the default theme
 
         initialiseStores();
         connect();

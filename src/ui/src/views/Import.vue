@@ -23,11 +23,9 @@
 </template>
 
 <script>
-import { Buffer } from 'buffer';
-window.Buffer = Buffer;
-import Hashids from 'hashids'
 import CloudPlaylist from '../components/cloudSync/CloudPlaylist.vue';
-const hashids = new Hashids("reapApollo")
+import {useDataStore} from "@/store/data";
+
 
 export default {
     name: "import",
@@ -55,6 +53,8 @@ export default {
         })
     },
     data() {
+        const dataStore = useDataStore();
+
         if (this.$route.params.data) {
             const accessToken = this.$route.params.data;
 
@@ -64,14 +64,15 @@ export default {
             })
         }
 
-        for (let id = 0; id < this.$store.state.playlists.length; id++) {
+        for (let id = 0; id < dataStore.playlists.length; id++) {
             fetch(`/api/playlists/${id}`).then(x => x.json()).then(playlist => this.localPlaylists.push(playlist));
         }
 
         return {
             localPlaylists: [ ],
             cloudPlaylists: [ ],
-            userData: { }
+            userData: { },
+            dataStore
         };
     },
     components: { CloudPlaylist }

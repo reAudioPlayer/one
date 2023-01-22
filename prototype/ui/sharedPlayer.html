@@ -1,0 +1,50 @@
+<html>
+    <button onclick="makePlayer()">Make Player</button>
+    <br>
+    <span>Player: </span><input type="text" id="player" />
+    <button onclick="makeClient()">Make Client</button>
+    <br>
+    <span>Data: </span><input type="text" id="data" />
+    <button onclick="command()">Send</button>
+    <div class="log">
+    </div>
+</html>
+<script>
+var logger = document.querySelector('.log');
+
+const log = text => {
+    const log = document.createElement('div');
+    log.innerText = text;
+    logger.appendChild(log);
+}
+
+const ws = new WebSocket('ws://192.168.1.79:8080/ws');
+ws.onopen = () => {
+    log('Connected');
+}
+ws.onmessage = (e) => {
+    log(e.data);
+}
+ws.onclose = () => {
+    log('Disconnected');
+}
+ws.onerror = (e) => {
+    log('Error: ' + e);
+}
+
+const send = (type, data) => {
+    ws.send(JSON.stringify({ type, data }));
+}
+
+const makePlayer = () => {
+    send("type", "Player")
+}
+
+const makeClient = () => {
+    send("set player", document.querySelector('#player').value)
+}
+
+const command = () => {
+    send("command", document.querySelector('#data').value)
+}
+</script>

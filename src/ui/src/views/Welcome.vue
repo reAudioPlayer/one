@@ -115,7 +115,7 @@
                 }
             }, 7 * 1000)
             const themes = [
-                "jade",
+                "dynamic",
                 "dark",
                 "light"
             ]
