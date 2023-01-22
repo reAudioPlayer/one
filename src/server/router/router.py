@@ -132,6 +132,7 @@ class Router:
         app.router.add_delete('/api/config/tracks', configHandler.deleteLocalTrack)
 
         app.router.add_post('/api/config/spotify', configHandler.spotifyConfig)
+        app.router.add_get('/api/config/spotify', spotify.getSpotifyConfig)
 
         # /api/system
         app.router.add_get('/api/system/kill', Router._exitHandler)
