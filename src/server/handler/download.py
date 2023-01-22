@@ -62,7 +62,7 @@ class DownloadHandler:
         os.remove(pathAndName)
         return web.Response()
 
-    @withObjectPayload(Object({
+    @withObjectPayload(Object({ # type: ignore
         "id": Integer().coerce(),
     }), inPath = True)
     async def streamFromCache(self, payload: Dict[str, Any]) -> Union[web.FileResponse,

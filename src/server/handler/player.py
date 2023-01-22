@@ -72,7 +72,7 @@ class PlayerHandler:
         id_: Optional[int] = payload.get("id")
 
         if id_ in SPECIAL_PLAYLISTS:
-            type_ = SPECIAL_PLAYLISTS[id_]
+            type_ = SPECIAL_PLAYLISTS.get(id_, type_)
 
         if type_ in ("playlist", "track") and id_ == -1:
             return web.HTTPBadRequest(text = "id is required for types playlist and track")
@@ -94,7 +94,7 @@ class PlayerHandler:
                 .loadPlaylist(PlayerPlaylist(self._dbManager,
                                              songs = self._dbManager\
                                                 .getSongsByCustomFilter(f"id={id_}"),
-                                             name = id_)))
+                                             name = str(id_))))
 
         return web.HTTPBadRequest()
 
@@ -127,8 +127,8 @@ class PlayerHandler:
         type_: Optional[str] = payload.get("type", None)
         found = False
 
-        if payload.get("playlistIndex") in SPECIAL_PLAYLISTS:
-            type_ = SPECIAL_PLAYLISTS[payload.get("playlistIndex")]
+        if payload.get("playlistIndex", 0) in SPECIAL_PLAYLISTS:
+            type_ = SPECIAL_PLAYLISTS[payload.get("playlistIndex", 0)]
             del payload["playlistIndex"]
 
         if "playlistIndex" in payload: # other playlist
