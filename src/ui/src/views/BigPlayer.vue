@@ -82,6 +82,7 @@ const selectedSongId = ref(-1);
                         @update="updatePlaylist"
                         :selected="selectedSongId == element.id"
                         with-cover
+                        :id="'bplayer-entry-' + element.id"
                     />
                 </div>
             </div>
