@@ -2,18 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-    h1 {
-        @apply text-3xl font-bold my-2;
+@layer components {
+    .h1 {
+        @apply text-3xl font-black my-2;
     }
-    h2 {
+
+    .h2 {
         @apply text-2xl font-bold my-5;
     }
+}
+
+@layer base {
+    h1 {
+        @apply h1;
+    }
+
+    h2 {
+        @apply h2;
+    }
+
     h3 {
         @apply text-lg;
     }
     h4 {
         @apply font-bold my-4;
+    }
+    h5 {
+        @apply uppercase;
     }
     a {
         @apply text-blue-600 underline;
@@ -22,4 +37,8 @@
 
 * {
     --tw-invert: 0;
+}
+
+h5 {
+    color: var(--font-darker);
 }

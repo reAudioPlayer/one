@@ -20,7 +20,7 @@ import Logo from '/src/assets/images/logo/logo.svg'
 import NavEntry from '@/components/Sidebar/NavEntry.vue'
 import router from "@/router";
 import {onMounted, ref} from "vue";
-import TextInputWithIcon from "@/components/TextInputWithIcon";
+import TextInputWithIcon from "@/components/inputs/TextInputWithIcon.vue";
 
 let query = ref('');
 

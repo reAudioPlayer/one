@@ -321,7 +321,7 @@ body {
     }
 }
 
-input[type="text"] {
+input[type="text"], input[type="password"] {
     background: var(--hover-2);
     border: 1px solid var(--hover-3);
     border-radius: 5px;
@@ -330,14 +330,14 @@ input[type="text"] {
     width: auto;
     flex-grow: 1;
     font-family: var(--font-family);
-}
 
-input[type="text"]:focus {
-    outline: none;
-}
+    &:focus {
+        outline: none;
+    }
 
-input[type="text"]:hover {
-    background: var(--hover-1);
-    border: 1px solid var(--font-colour);
+    &:hover {
+        background: var(--hover-1);
+        border: 1px solid var(--font-colour);
+    }
 }
 </style>

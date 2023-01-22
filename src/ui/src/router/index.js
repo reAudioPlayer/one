@@ -87,7 +87,7 @@ const routes = [{
     },
     {
         path: '/preferences',
-        component: () => import( /* webpackChunkName: "preferences" */ "@/views/Preferences.vue"),
+        component: () => import( /* webpackChunkName: "preferences" */ "@/views/preferences/index.vue"),
         meta: {
             title: "Preferences - reAudioPlayer One"
         }

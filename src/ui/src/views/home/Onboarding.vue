@@ -53,7 +53,7 @@ import Card from "../../components/Card.vue";
 import SpotifyLogo from "../../assets/images/src/spotify.svg";
 import Form from "../../components/popups/components/Form.vue";
 import PlaylistItem from '@/components/Catalogue/Items/Playlists/PlaylistItem.vue'
-import IconButton from "../../components/elements/IconButton.vue";
+import IconButton from "../../components/inputs/IconButton.vue";
 import {createPlaylistWithMetadata} from "../../api/playlist";
 
 const spotifyPlaylists = ref([]);

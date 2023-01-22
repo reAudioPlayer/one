@@ -8,12 +8,18 @@ defineProps({
         type: String,
         required: false
     },
+    disabled: {
+        type: Boolean,
+        required: false,
+        default: false
+    }
 })
 </script>
 
 <template>
     <button
         class="flex items-center justify-center h-12 p-4 mt-4 bg-fg text-bg rounded-full"
+        :class="{ disabled }"
     >
         <span
             v-if="icon"
@@ -29,6 +35,12 @@ defineProps({
 
 button span.material-symbols-rounded {
     font-variation-settings: 'wght' 400;
+}
+
+button.disabled {
+    background-color: var(--font-darker);
+    color: var(--hover-4);
+    cursor: not-allowed;
 }
 </style>
 
