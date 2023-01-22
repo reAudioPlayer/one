@@ -8,7 +8,7 @@ import os
 import asyncio
 from asyncio.tasks import Task
 
-from typing import Any, Awaitable, Callable, Optional, List
+from typing import Any, Awaitable, Callable, Optional
 
 import pygame
 
