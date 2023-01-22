@@ -88,6 +88,20 @@ class SpotifyAuth:
         id_, secret = SpotifyAuth._getSpotifyAuthData()
         return SpotifyOAuth(id_, secret, "localhost", scope = SCOPE)
 
+    async def getSpotifyConfig(self, _: web.Request) -> web.Response:
+        """get(/api/config/spotify)"""
+        if SpotifyAuth.isDisabled():
+            return web.HTTPNoContent()
+
+        if not self.isAuth():
+            return web.HTTPUnauthorized()
+
+        id_, secret = SpotifyAuth._getSpotifyAuthData()
+        return web.json_response({
+            "id": id_,
+            "secret": secret
+        })
+
     async def clientSideAuthHandler(self, _: web.Request) -> web.Response:
         """Returns the client side auth data"""
         if os.path.isfile(".cache"):
