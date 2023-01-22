@@ -8,16 +8,16 @@
                 class="items grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"
             >
                 <div
-                    class="cover"
+                    class="cover-wrapper"
                     v-for="(cover, index) in covers"
                     :key="index"
                 >
-                    <img
-                        :src="'/api/' + parseCover(cover.name)"
+                    <Cover
+                        :src="cover.name"
                         class="rounded-xl mb-4"
                     />
                     <div class="flex justify-between w-full mb-4">
-                        <p>{{ cover.name }}</p>
+                        <p class="overflow-hidden overflow-ellipsis">{{ cover.name }}</p>
                         <span class="material-symbols-rounded cursor-pointer" @click="deleteCover(cover.name)">delete</span>
                     </div>
                     <TrackCompact
@@ -40,7 +40,7 @@
                     :key="index"
                 >
                     <div class="flex justify-between w-full mb-4">
-                        <p>{{ track.name }}</p>
+                        <p class="overflow-hidden overflow-ellipsis">{{ track.name }}</p>
                         <span class="material-symbols-rounded cursor-pointer" @click="deleteTrack(track.name)">delete</span>
                     </div>
                     <div class="flex justify-center w-full mb-4">
@@ -67,6 +67,7 @@
 import {parseCover, hashTrack} from "@/common";
 import {ref} from "vue";
 import TrackCompact from "@/components/Catalogue/Items/home/TrackCompact";
+import Cover from "@/components/image/Cover.vue";
 
 const covers = ref([]);
 const tracks = ref([]);
@@ -104,7 +105,7 @@ update();
     margin-bottom: 10px;
 }
 
-.cover, .track {
+.cover-wrapper, .track {
     background: var(--background-light);
     border-radius: 20px;
     padding: 20px;

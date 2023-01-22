@@ -3,6 +3,7 @@ import {ref, watch} from "vue";
 import {usePlayerStore} from "./player";
 
 const KEY = "reapOne.settings";
+const DEFAULT_THEME = "dynamic";
 
 export interface ISettings {
     sidebar: {
@@ -39,11 +40,12 @@ const defaultSettings: ISettings = {
         supportsLocalPlayback: false,
         pictureInPicture: false
     },
-    theme: "jade"
+    theme: DEFAULT_THEME
 }
 
 const getSettings = (): ISettings => {
     const settings = JSON.parse(localStorage.getItem(KEY) || JSON.stringify(defaultSettings));
+    console.log("getSettings", settings);
     return settings;
 }
 
