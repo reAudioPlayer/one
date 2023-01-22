@@ -28,6 +28,7 @@ export const initPictureInPicture = () => {
 
     const load = async (cover: string) => {
         if (!enabled) return false;
+        if (playerStore.song.id < 0) return false;
 
         worker?.terminate();
         worker = new Worker('/assets/ffmpeg/ffmpeg-worker-mp4.js');

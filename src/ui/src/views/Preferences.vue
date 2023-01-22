@@ -12,11 +12,11 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
 
 const settings = useSettingsStore();
 const themeSelected = ref(window.getCurrentTheme());
+const themes = [ "dynamic", "light", "dark" ];
 const spotifyClient = ref({
     secret: "",
     id: ""
 })
-const themes = [ "dynamic", "light", "dark" ];
 
 const updateThemes = () => {
     themeSelected.value = window.getCurrentTheme()
