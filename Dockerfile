@@ -1,7 +1,7 @@
-FROM python:3.10.8
+FROM python:3.10-slim-buster
 
 RUN apt-get update && apt-get install -y \
-    ffmpeg nginx
+    ffmpeg nginx git
 
 RUN mkdir /opt/reAudioPlayer
 
