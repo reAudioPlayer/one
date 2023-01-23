@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia'
 import {parseCover, zeroPad} from "../common";
 import {useDataStore} from "./data";
-import {saveDuration} from "../api/song";
+
+
+type PlaylistType = "playlist" | "collection" | "collection/breaking" | "track";
+
 
 export const usePlayerStore = defineStore({
     id: 'player',
@@ -82,16 +85,22 @@ export const usePlayerStore = defineStore({
         initialise() {
             this.volume = localStorage.getItem("reap.volume") || 50;
         },
-        loadPlaylist(playlistId: number) {
+        loadPlaylist(playlistId: number | PlaylistType, id: number = null) {
+            const body = {
+                id: playlistId,
+            }
+
+            if (typeof playlistId === "string") {
+                body["type"] = playlistId;
+                body.id = id;
+            }
+
             fetch("/api/player/load", {
                 method: "POST",
-                body: JSON.stringify({
-                    id: playlistId,
-                    type: "playlist"
-                })
+                body: JSON.stringify(body)
             })
         },
-        loadSong(playlist: number | string, index: number) {
+        loadSong(playlist: number | PlaylistType, index: number) {
             const body = {
                 index
             }

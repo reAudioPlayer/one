@@ -17,8 +17,10 @@
                         class="rounded-xl mb-4"
                     />
                     <div class="flex justify-between w-full mb-4">
-                        <p class="overflow-hidden overflow-ellipsis">{{ cover.name }}</p>
-                        <span class="material-symbols-rounded cursor-pointer" @click="deleteCover(cover.name)">delete</span>
+                        <p class="overflow-hidden">
+                            <Marquee :text="cover.name" />
+                        </p>
+                        <span class="ml-2 material-symbols-rounded cursor-pointer" @click="deleteCover(cover.name)">delete</span>
                     </div>
                     <TrackCompact
                         v-for="(song, index) in cover.songs"
@@ -27,6 +29,7 @@
                         :title="song.title"
                         :cover="song.cover"
                         :id="song.id"
+                        @play="play(song.id)"
                     />
                 </div>
             </div>
@@ -40,7 +43,9 @@
                     :key="index"
                 >
                     <div class="flex justify-between w-full mb-4">
-                        <p class="overflow-hidden overflow-ellipsis">{{ track.name }}</p>
+                        <p class="overflow-hidden">
+                            <Marquee :text="track.name" />
+                        </p>
                         <span class="material-symbols-rounded cursor-pointer" @click="deleteTrack(track.name)">delete</span>
                     </div>
                     <div class="flex justify-center w-full mb-4">
@@ -56,6 +61,7 @@
                         :title="song.title"
                         :cover="song.cover"
                         :id="song.id"
+                        @play="play(song.id)"
                     />
                 </div>
             </div>
@@ -64,13 +70,15 @@
 </template>
 
 <script setup>
-import {parseCover, hashTrack} from "@/common";
 import {ref} from "vue";
 import TrackCompact from "@/components/Catalogue/Items/home/TrackCompact";
 import Cover from "@/components/image/Cover.vue";
+import Marquee from "@/components/Marquee.vue";
+import {usePlayerStore} from "@/store/player";
 
 const covers = ref([]);
 const tracks = ref([]);
+const player = usePlayerStore();
 
 const update = () => {
     fetch('/api/config/images').then(x => x.json()).then(x => covers.value = x);
@@ -91,6 +99,10 @@ const deleteTrack = async name => {
         body: JSON.stringify({name})
     });
     update();
+}
+
+const play = id => {
+    player.loadPlaylist("track", id);
 }
 update();
 </script>
