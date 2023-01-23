@@ -75,11 +75,9 @@ const selectedSongId = ref(-1);
                     <PlaylistEntry
                         v-for="(element, index) in playlist.songs"
                         :key="element.source"
-                        @requestUpdate="updatePlaylist"
                         :song="element"
                         :index="index"
                         @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
-                        @update="updatePlaylist"
                         :selected="selectedSongId == element.id"
                         with-cover
                         :id="'bplayer-entry-' + element.id"
