@@ -8,7 +8,7 @@ import json
 from time import time
 import webbrowser
 import base64
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Optional
 import asyncio
 
 import aiohttp
@@ -29,10 +29,36 @@ class SpotifyAuth:
     def __init__(self) -> None:
         self._attemptedClientAuth = False
 
-        if self.shouldAuth():
-            self._openSpotifyAuth()
+        async def _auth() -> None:
+            if await self.shouldAuth():
+                self._openSpotifyAuth()
+        asyncio.create_task(_auth())
 
-    def shouldAuth(self) -> bool:
+    async def _refresh(self, token: str) -> bool:
+        """attempts to use the refresh token to get a new access token"""
+        import logging
+        logger = logging.getLogger("aiohttp")
+        logger.info("Spotify Refreshing Token %s", token[:10] + "...")
+
+        # spotify api docs: https://developer.spotify.com/documentation/general/guides/authorization-guide/#refreshing-access-tokens # pylint: disable=line-too-long
+        async with aiohttp.ClientSession() as session:
+            async with session.post("https://accounts.spotify.com/api/token", data = {
+                "grant_type": "refresh_token",
+                "refresh_token": token
+            }, headers = {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": SpotifyAuth._getSpotifyAuthHeader()
+            }) as response:
+                logger.info("Spotify Refresh Response: %s", response.status)
+                if response.status != 200:
+                    return False
+
+                data = await response.json()
+                with open(".cache", "w", encoding = "utf8") as file:
+                    file.write(json.dumps(data))
+                return True
+
+    async def shouldAuth(self) -> bool:
         """Returns if the user should be authenticated"""
         if SpotifyAuth.isDisabled():
             print("Spotify is disabled")
@@ -45,7 +71,10 @@ class SpotifyAuth:
         with open(".cache", "r", encoding = "utf8") as file:
             data = json.loads(file.read())
 
-        return JDict(data).ensure("expires_at", int) < time()
+        if not JDict(data).ensure("expires_at", int) < time():
+            return False
+
+        return not await self._refresh(JDict(data).ensure("refresh_token", str))
 
     def isAuth(self) -> bool:
         """Returns if the user is authenticated"""
@@ -81,6 +110,17 @@ class SpotifyAuth:
         return spotifyConfig.ensure("id", str), spotifyConfig.ensure("secret", str)
 
     @staticmethod
+    def _getSpotifyAuthHeader() -> Optional[str]:
+        """Returns the Spotify Auth Header"""
+        if SpotifyAuth.isDisabled():
+            return None
+
+        clientId, secret = SpotifyAuth._getSpotifyAuthData()
+        return "Basic " + \
+            base64.b64encode(f"{clientId}:{secret}"\
+                .encode("utf-8")).decode("utf-8")
+
+    @staticmethod
     def getSpotifyAuth() -> Optional[SpotifyOAuth]: # pylint: disable=invalid-name
         """Returns the SpotifyOAuth object"""
         if SpotifyAuth.isDisabled():
@@ -106,7 +146,7 @@ class SpotifyAuth:
         """Returns the client side auth data"""
         if os.path.isfile(".cache"):
             return web.HTTPNoContent()
-        if not self.shouldAuth():
+        if not await self.shouldAuth():
             return web.HTTPExpectationFailed()
         if self._attemptedClientAuth:
             return web.HTTPUnauthorized()
@@ -139,8 +179,6 @@ class SpotifyAuth:
         if SpotifyAuth.isDisabled():
             return None
 
-        clientId, secret = SpotifyAuth._getSpotifyAuthData()
-
         async with aiohttp.ClientSession() as session:
             async with session.post("https://accounts.spotify.com/api/token", data = {
                 "grant_type": "authorization_code",
@@ -148,8 +186,7 @@ class SpotifyAuth:
                 "redirect_uri": REDIRECT
             }, headers = {
                 "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": "Basic " + base64.b64encode(f"{clientId}:{secret}".encode("utf-8"))
-                                                  .decode("utf-8")
+                "Authorization": SpotifyAuth._getSpotifyAuthHeader()
             }) as resp:
                 if resp.status == 200:
                     data = await resp.json()

@@ -41,8 +41,6 @@ try:
 
     import aiohttp_cors # type: ignore
 
-    import pygame
-
     import logging
     import time
     import atexit
@@ -134,9 +132,6 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
 
     return app
 
-MUSIC_END = pygame.USEREVENT + 1 # pylint: disable=no-member
-pygame.mixer.music.set_endevent(MUSIC_END)
-
 async def main() -> None:
     """MAIN"""
     app = await _init()
@@ -148,15 +143,7 @@ async def main() -> None:
     while True: # endless loop
         await asyncio.sleep(1)
 
-        if Runtime.args.noLocalPlayback:
-            continue
-
-        event = pygame.event.poll()
-        if event.type == MUSIC_END:
-            await player.onSongEnd()
-
 def _cleanCache() -> None:
-    pygame.mixer.music.unload()
     if os.path.exists("./_cache"):
         shutil.rmtree("./_cache")
 
