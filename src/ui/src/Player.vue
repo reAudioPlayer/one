@@ -193,35 +193,15 @@ export default {
     name: 'Player',
     data() {
         const player = usePlayerStore();
-        const settings = useSettingsStore();
-        const playInBrowser = settings.player.inBrowser;
 
-        console.log("player: setInterval");
-
-        setInterval(() => { // TODO(dxstiny) just sync to player
-            console.log("player: setInterval:triggered");
-
+        setInterval(() => {
             if (!player.playing) {
                 return;
             }
             player.incrementProgress();
         }, 1000)
 
-        if (playInBrowser) {
-            fetch("/api/player/volume", {
-                method: "POST",
-                body: JSON.stringify({
-                    value: 0
-                })
-            })
-        } else {
-            fetch("/api/player/volume")
-                .then(x => x.text())
-                .then(value => {
-                    this.volume = value
-                })
-        }
-
+        /*
         fetch("/api/player/repeat")
             .then(x => x.text())
             .then(value => {
@@ -233,13 +213,13 @@ export default {
             .then(value => {
                 this.shuffle = value == "True"
             })
+        */
 
         this.$nextTick(this.volumechange);
 
         return {
             songLoop: false,
             shuffle: false,
-            playInBrowser,
             expandedMobile: false,
             store: player,
             progress: 0
@@ -294,39 +274,37 @@ export default {
     },
     watch: {
         songLoop() {
-            fetch("/api/player/repeat", {
+            /*fetch("/api/player/repeat", {
                 method: "POST",
                 body: JSON.stringify({
                     value: this.songLoop
                 })
-            })
+            })*/
         },
         shuffle() {
-            fetch("/api/player/shuffle", {
+            /*fetch("/api/player/shuffle", {
                 method: "POST",
                 body: JSON.stringify({
                     value: this.shuffle
                 })
-            })
+            })*/
         },
         stream() {
-            if (this.playInBrowser) {
-                this.get('player/pause')
+            this.get('player/pause')
 
-                this.$refs.audio.src = null;
-                this.$refs.audio.src = this.stream;
+            this.$refs.audio.src = null;
+            this.$refs.audio.src = this.stream;
 
-                // get duration
-                this.$refs.audio.onloadedmetadata = () => {
-                    this.store.setDuration(this.$refs.audio.duration);
-                }
-
-                this.$refs.audio.load();
-                if (this.store.playing) {
-                    this.$refs.audio.play();
-                }
-                this.store.setPlaying(!this.$refs.audio.paused);
+            // get duration
+            this.$refs.audio.onloadedmetadata = () => {
+                this.store.setDuration(this.$refs.audio.duration);
             }
+
+            this.$refs.audio.load();
+            if (this.store.playing) {
+                this.$refs.audio.play();
+            }
+            this.store.setPlaying(!this.$refs.audio.paused);
         },
         storedVolume() {
             this.volume = this.storedVolume
@@ -344,38 +322,21 @@ export default {
                 body: JSON.stringify(track)
             });
         },
-        onExpandCover() {
-            this.$emit('expandCover', true)
-        },
         playPause() {
-            if (this.playInBrowser) {
-                if (this.$refs.audio.paused) {
-                    this.$refs.audio.play();
-                } else {
-                    this.$refs.audio.pause();
-                }
-                this.store.setPlaying(!this.$refs.audio.paused);
-                return;
+            if (this.$refs.audio.paused) {
+                this.$refs.audio.play();
+            } else {
+                this.$refs.audio.pause();
             }
-            this.get('player/playPause')
+            this.store.setPlaying(!this.$refs.audio.paused);
         },
         get(endpoint) {
             fetch(`/api/${endpoint}`)
         },
         volumechange() {
-            console.log(this.volume)
-            if (this.playInBrowser) {
-                this.$refs.audio.volume = this.store.volume / 100;
-                this.store.setVolume(this.store.volume);
-                return;
-            }
-
-            fetch("/api/player/volume", {
-                method: "POST",
-                body: JSON.stringify({
-                    value: this.volume
-                })
-            })
+            this.$refs.audio.volume = this.store.volume / 100;
+            this.store.setVolume(this.store.volume);
+            return;
         },
         progresschange(newVal) {
             let duration = this.store.durationSeconds;
@@ -383,35 +344,9 @@ export default {
 
             this.store.setProgress(value);
 
-            if (this.playInBrowser) {
-                this.$refs.audio.currentTime = value;
-                return;
-            }
-
-            fetch("/api/player/seek", {
-                method: "POST",
-                body: JSON.stringify({
-                    value
-                })
-            })
+            this.$refs.audio.currentTime = value;
+            return;
         },
-        updateData(jdata) {
-            if (jdata.path == "player.playState") {
-                if (this.playInBrowser) {
-                    return;
-                }
-
-                this.playing = jdata?.data || false
-                return
-            }
-            if (jdata.path == "player.posSync") {
-                if (this.playInBrowser) {
-                    return;
-                }
-                let value = jdata?.data || 0
-                this.progresslbl = `${Math.floor(value / 60)}:${zeroPad(Math.round(value % 60), 2)}`
-            }
-        }
     }
 }
 </script>

@@ -12,9 +12,7 @@ export interface ISettings {
         collapsed: boolean;
     },
     player: {
-        inBrowser: boolean;
         expandedCover: boolean;
-        supportsLocalPlayback: boolean;
         pictureInPicture: boolean;
     },
     theme: string;
@@ -35,9 +33,7 @@ const defaultSettings: ISettings = {
         collapsed: false
     },
     player: {
-        inBrowser: true,
         expandedCover: false,
-        supportsLocalPlayback: false,
         pictureInPicture: false
     },
     theme: DEFAULT_THEME
@@ -69,7 +65,6 @@ const migrateSettings = () => {
         localStorage.removeItem("sidebar.showNewsTab");
     }
     if (playInBrowser) {
-        settings.player.inBrowser = playInBrowser === "true";
         localStorage.removeItem("player.inBrowser");
     }
     if (collapsedSidebar) {
@@ -100,21 +95,6 @@ export const useSettingsStore = defineStore("settings", () => {
             theme: theme.value
         });
     }
-
-    const checkLocalPlayback = async () => {
-        const playerStore = usePlayerStore();
-        const res = await fetch("/api/player/supports/local-playback");
-
-        if (res.status != 200) {
-            setTimeout(checkLocalPlayback, 1000);
-            return;
-        }
-
-        playerState.value.supportsLocalPlayback = await res.json();
-        playerStore.setReady(true);
-        update();
-    };
-    checkLocalPlayback();
 
     watch(() => playerState, update, {deep: true});
     watch(() => sidebarState, update, {deep: true});

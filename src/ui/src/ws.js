@@ -19,7 +19,6 @@ export const connect = () => {
 
     ws.onmessage = msg => {
         const player = usePlayerStore();
-        const settings = useSettingsStore();
         const jdata = JSON.parse(msg.data);
 
         if (jdata.path == "player.song") {
@@ -28,16 +27,6 @@ export const connect = () => {
 
         if (jdata.path == "player.playlist") {
             player.setPlaylist(jdata.data);
-        }
-
-        if (settings.player.inBrowser) return;
-
-        if (jdata.path == "player.playState") {
-            player.setPlaying(jdata.data);
-        }
-
-        if (jdata.path == "player.posSync") {
-            player.setProgress(jdata.data);
         }
     }
 }
