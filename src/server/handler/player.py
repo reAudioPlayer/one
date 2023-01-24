@@ -6,14 +6,13 @@ import asyncio
 from typing import Dict, Any, Optional
 
 from aiohttp import web
-from pyaddict.schema import Object, String, Integer, Boolean, Float
+from pyaddict.schema import Object, String, Integer, Boolean
 
 from db.dbManager import DbManager
 from helper.payloadParser import withObjectPayload
 from player.player import Player
 from player.playerPlaylist import PlayerPlaylist
 from player.playlistManager import PlaylistManager
-from config.runtime import Runtime
 
 
 MIN_PLAYLIST_ID = -2
@@ -32,25 +31,6 @@ class PlayerHandler:
         self._player = player
         self._playlistManager = playlistManager
         self._dbManager = dbManager
-
-    async def supportsLocalPlayback(self, _: web.Request) -> web.Response:
-        """get(/api/player/supports-local-playback)"""
-        return web.json_response(Runtime.args.localPlayback)
-
-    async def getPlay(self, _: web.Request) -> web.Response:
-        """get(/api/player/play)"""
-        asyncio.create_task(self._player.play())
-        return web.Response(status = 200, text = "success!")
-
-    async def getPause(self, _: web.Request) -> web.Response:
-        """get(/api/player/pause)"""
-        asyncio.create_task(self._player.pause())
-        return web.Response(status = 200, text = "success!")
-
-    async def getPlayPause(self, _: web.Request) -> web.Response:
-        """get(/api/player/playPause)"""
-        asyncio.create_task(self._player.playPause())
-        return web.Response(status = 200, text = "success!")
 
     async def getNext(self, _: web.Request) -> web.Response:
         """get(/api/player/next)"""
@@ -98,30 +78,12 @@ class PlayerHandler:
 
         return web.HTTPBadRequest()
 
-    async def setVolume(self, request: web.Request) -> web.Response:
-        """
-        post(/api/player/volume)
-
-        deprecated
-        """
-        x = await request.json()
-        self._player.volume = int(x["value"])
-        return web.Response(status = 202, text = "success!")
-
-    async def getVolume(self, _: web.Request) -> web.Response:
-        """
-        get(/api/player/volume)
-
-        deprecated
-        """
-        return web.Response(status = 202, text = str(self._player.volume))
-
     @withObjectPayload(Object({
         "index": Integer().min(0), # index of song in playlist
         "playlistIndex": Integer().min(MIN_PLAYLIST_ID).optional(), # playlist id
         "type": String().enum("collection", "collection/breaking").optional()
     }), inBody = True)
-    async def loadSongAt(self, payload: Dict[str, Any]) -> web.Response:
+    async def loadSongAt(self, payload: web.Request) -> web.Response:
         """post(/api/player/at)"""
         songId: int = payload.get("index", -1)
         type_: Optional[str] = payload.get("type", None)
@@ -190,22 +152,6 @@ class PlayerHandler:
     async def getRepeat(self, _: web.Request) -> web.Response:
         """get(/api/player/repeat)"""
         return web.Response(status = 200, text = str(self._player.loopSong))
-
-    @withObjectPayload(Object({
-        "value": Float().min(0)
-    }), inBody = True)
-    async def postSeek(self, payload: Dict[str, Any]) -> web.Response:
-        """
-        post(/api/player/seek)
-
-        deprecated
-        """
-        self._player.position = payload["value"]
-        return web.Response(status = 200, text = "success!")
-
-    async def getSeek(self, _: web.Request) -> web.Response:
-        """get(/api/player/seek)"""
-        return web.Response(status = 200, text = str(self._player.position))
 
     async def getCurrentTrack(self, _: web.Request) -> web.Response:
         """get(/api/me/player/current-track)"""

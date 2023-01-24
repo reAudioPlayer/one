@@ -46,19 +46,9 @@ class Router:
         app.router.add_get('/api/player/previous', playerHandler.getPrevious)
         app.router.add_get('/api/player/next', playerHandler.getNext)
 
-        app.router.add_get('/api/player/playPause', playerHandler.getPlayPause)
-        app.router.add_get('/api/player/pause', playerHandler.getPause)
-        app.router.add_get('/api/player/play', playerHandler.getPlay)
-
         app.router.add_post('/api/player/at', playerHandler.loadSongAt)
 
-        app.router.add_post('/api/player/volume', playerHandler.setVolume)
-        app.router.add_get('/api/player/volume', playerHandler.getVolume)
-
         app.router.add_post('/api/player/load', playerHandler.loadPlaylist)
-
-        app.router.add_post('/api/player/seek', playerHandler.postSeek)
-        app.router.add_get('/api/player/seek', playerHandler.getSeek)
 
         app.router.add_post('/api/player/repeat', playerHandler.postRepeat)
         app.router.add_get('/api/player/repeat', playerHandler.getRepeat)
@@ -68,8 +58,6 @@ class Router:
 
         app.router.add_get('/api/player/stream', downloadHandler.stream)
         app.router.add_get('/api/player/stream/{id}', downloadHandler.streamFromCache)
-
-        app.router.add_get('/api/player/supports/local-playback', playerHandler.supportsLocalPlayback) # pylint: disable=line-too-long
 
         # UNGROUPED
         app.router.add_post('/api/browse/track', metaHandler.getMetadata)

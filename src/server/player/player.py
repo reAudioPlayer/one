@@ -6,13 +6,9 @@ import logging
 import os
 
 import asyncio
-from asyncio.tasks import Task
 
-from typing import Any, Awaitable, Callable, Optional
+from typing import Awaitable, Callable, Optional
 
-import pygame
-
-from config.runtime import Runtime
 from config.config import PersistentConfig
 
 from dataModel.song import Song
@@ -31,66 +27,18 @@ class Player: # pylint: disable=too-many-instance-attributes
                  downloader: Downloader,
                  playlistManager: PlaylistManager,
                  config: PersistentConfig) -> None:
-        pygame.init() # pylint: disable=no-member
         self._dbManager = dbManager
         self._config = config
         self._playlistManager = playlistManager
-        self._playing: bool = False
-        self._loopSong: bool = False
-        self._shuffle: bool = False
         self._downloader = downloader
         self._playerPlaylist: Optional[PlayerPlaylist] = None
         self._song: Optional[Song] = None
         self._preloaded: Optional[str] = None
-        self._offset: float = 0 # in s
         self._logger = logging.getLogger("player")
-
-        self._updatePositionTask: Optional[Task[Any]] = None
 
         self._playlistChangeCallback: Optional[Callable[[PlayerPlaylist], Awaitable[None]]] = None
         self._songChangeCallback: Optional[Callable[[Song], Awaitable[None]]] = None
         self._playStateChangeCallback: Optional[Callable[[bool], Awaitable[None]]] = None
-        self._positionSyncCallback: Optional[Callable[[float], Awaitable[None]]] = None
-
-        if not Runtime.args.noLocalPlayback:
-            pygame.mixer.init()
-            pygame.mixer.music.set_volume(config.volume)
-
-    async def _updatePosition(self) -> None:
-        while True:
-            await asyncio.sleep(5)
-            if self._positionSyncCallback:
-                await self._positionSyncCallback(self.position) # pylint: disable=not-callable
-
-    @property
-    def volume(self) -> int:
-        """volume (0 - 100)"""
-        if Runtime.args.noLocalPlayback:
-            return 0
-        return round(pygame.mixer.music.get_volume() * 100)
-
-    @volume.setter
-    def volume(self, value: int) -> None:
-        if Runtime.args.noLocalPlayback:
-            return
-        vol = value / 100
-        self._config.volume = vol
-        pygame.mixer.music.set_volume(vol)
-
-    @property
-    def position(self) -> float:
-        """gets the position"""
-        if Runtime.args.noLocalPlayback:
-            return 0.0
-        return pygame.mixer.music.get_pos() / 1000.0 + self._offset
-
-    @position.setter
-    def position(self, posInS: float) -> None:
-        """sets the position"""
-        if Runtime.args.noLocalPlayback:
-            return
-        self._offset = posInS - (pygame.mixer.music.get_pos() / 1000.0)
-        pygame.mixer.music.set_pos(posInS)
 
     async def _onPlaylistChange(self, playlist: PlayerPlaylist) -> None:
         if self._playlistChangeCallback:
@@ -99,10 +47,6 @@ class Player: # pylint: disable=too-many-instance-attributes
     async def _onSongChange(self, newSong: Song) -> None:
         if self._songChangeCallback:
             await self._songChangeCallback(newSong) # pylint: disable=not-callable
-
-    async def _onPlayStateChange(self) -> None:
-        if self._playStateChangeCallback:
-            await self._playStateChangeCallback(self._playing) # pylint: disable=not-callable
 
     async def loadPlaylist(self,
                            playlist: Optional[PlayerPlaylist],
@@ -121,42 +65,8 @@ class Player: # pylint: disable=too-many-instance-attributes
             await self.next()
         return True
 
-    async def playPause(self) -> None:
-        """toggle play state"""
-        if Runtime.args.noLocalPlayback:
-            return
-
-        if self._playing:
-            pygame.mixer.music.pause()
-        else:
-            pygame.mixer.music.unpause()
-        self._playing = not self._playing
-        await self._onPlayStateChange()
-
-    async def pause(self) -> None:
-        """pause"""
-        if Runtime.args.noLocalPlayback:
-            return
-
-        self._playing = False
-        await self._onPlayStateChange()
-        pygame.mixer.music.pause()
-
-    async def play(self) -> None:
-        """play"""
-        if Runtime.args.noLocalPlayback:
-            return
-
-        self._playing = True
-        await self._onPlayStateChange()
-        pygame.mixer.music.unpause()
-
     async def unload(self) -> None:
         """unload and unbind song file"""
-        if Runtime.args.localPlayback:
-            pygame.mixer.music.unload()
-        self._playing = False
-        await self._onPlayStateChange()
         if not self._playerPlaylist:
             return
         current = self._playerPlaylist.current()
@@ -179,11 +89,11 @@ class Player: # pylint: disable=too-many-instance-attributes
             return
         await self.unload()
 
-        if self._shuffle:
-            _, song = self._playerPlaylist.random()
-            await self._preloadSong(song)
-            await self._loadSong(song)
-            return
+        #if self._shuffle:
+        #    _, song = self._playerPlaylist.random()
+        #    await self._preloadSong(song)
+        #    await self._loadSong(song)
+        #    return
 
         await self._preloadSong(self._playerPlaylist.next())
         await self._loadSong()
@@ -203,7 +113,6 @@ class Player: # pylint: disable=too-many-instance-attributes
         if index < 0 or index >= len(self._playerPlaylist):
             return False
         if index == self._playerPlaylist.cursor:
-            self.position = 0
             return True
         await self.unload()
         await self._preloadSong(self._playerPlaylist.at(index))
@@ -256,27 +165,7 @@ class Player: # pylint: disable=too-many-instance-attributes
         self._logger.debug("load [%s]", song)
         if self._preloaded == song.source:
             self._song = song
-
-            if Runtime.args.localPlayback:
-                pygame.mixer.music.load(f"./_cache/{song.id}.mp3")
-                pygame.mixer.music.play()
-                sound = pygame.mixer.Sound(f"./_cache/{song.id}.mp3")
-                song.duration = int(sound.get_length())
-                self._dbManager.updateSongMetadata(song.id, f"duration='{int(song.duration)}'")
-
-            if not self._updatePositionTask:
-                self._updatePositionTask = asyncio.create_task(self._updatePosition())
-
-            self._playing = True
-            await self._onPlayStateChange()
             await self._onSongChange(self._song)
-
-            self._offset = 0
-
-    @property
-    def playing(self) -> bool:
-        """play state"""
-        return self._playing
 
     @property
     def currentSong(self) -> Song:
