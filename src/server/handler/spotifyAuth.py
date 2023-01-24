@@ -8,7 +8,7 @@ import json
 from time import time
 import webbrowser
 import base64
-from typing import Optional, Tuple, Optional
+from typing import Optional, Tuple
 import asyncio
 
 import aiohttp
@@ -36,10 +36,6 @@ class SpotifyAuth:
 
     async def _refresh(self, token: str) -> bool:
         """attempts to use the refresh token to get a new access token"""
-        import logging
-        logger = logging.getLogger("aiohttp")
-        logger.info("Spotify Refreshing Token %s", token[:10] + "...")
-
         # spotify api docs: https://developer.spotify.com/documentation/general/guides/authorization-guide/#refreshing-access-tokens # pylint: disable=line-too-long
         async with aiohttp.ClientSession() as session:
             async with session.post("https://accounts.spotify.com/api/token", data = {
@@ -49,7 +45,6 @@ class SpotifyAuth:
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Authorization": SpotifyAuth._getSpotifyAuthHeader()
             }) as response:
-                logger.info("Spotify Refresh Response: %s", response.status)
                 if response.status != 200:
                     return False
 
