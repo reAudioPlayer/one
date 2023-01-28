@@ -25,3 +25,15 @@
 .ms-wght-700 {
     font-variation-settings: "wght" 700;
 }
+
+.ms-wght-800 {
+    font-variation-settings: "wght" 800;
+}
+
+.ms-wght-900 {
+    font-variation-settings: "wght" 900;
+}
+
+.ms-fill {
+    font-variation-settings: "FILL" 1;
+}

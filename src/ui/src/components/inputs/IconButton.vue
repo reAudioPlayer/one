@@ -18,7 +18,7 @@ defineProps({
 
 <template>
     <button
-        class="flex items-center justify-center h-12 p-4 mt-4 bg-fg text-bg rounded-full"
+        class="flex items-center justify-center h-12 p-4 mt-4 rounded-full"
         :class="{ disabled }"
     >
         <span
@@ -37,9 +37,14 @@ button span.material-symbols-rounded {
     font-variation-settings: 'wght' 400;
 }
 
+button {
+    background-color: var(--bg-contrast );
+    color: var(--fg-contrast);
+}
+
 button.disabled {
-    background-color: var(--font-darker);
-    color: var(--hover-4);
+    background-color: var(--fg-base-dk);
+    color: var(--bg-hover-ltr);
     cursor: not-allowed;
 }
 </style>

@@ -59,25 +59,25 @@ const show = ref(false);
 
 <style lang="scss" scoped>
 .text-input-with-icon {
-    background: var(--input-background);
+    background: var(--bg-base-lt);
     border: 1px solid transparent;
 
-    color: var(--font-darker);
+    color: var(--fg-base-dk);
 
     &.disabled, &.disabled input {
         cursor: not-allowed !important;
     }
 
     input {
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
     }
 
     &focus, &:focus-within, &:hover {
-        border-color: var(--font-colour);
-        color: var(--font-colour);
+        border-color: var(--fg-base);
+        color: var(--fg-base);
 
         input {
-            color: var(--font-colour);
+            color: var(--fg-base);
         }
     }
 }

@@ -14,7 +14,7 @@
         <div class="item" @click="redirect">
             <Cover :src="parseCover(cover)" type="playlist" />
             <h4>{{title}}</h4>
-            <p class="hideIfMobile" v-html="description" />
+            <p class="text-muted text-xs hideIfMobile" v-html="description" />
         </div>
     </div>
 </template>
@@ -59,7 +59,7 @@
     }
 
     .wrapper {
-        background: var(--background-light);
+        background: var(--bg-base-lt);
         border-radius: 20px;
         min-height: 10vh;
         margin: 10px;
@@ -67,7 +67,7 @@
 
     .wrapper:hover {
         cursor: pointer;
-        background: var(--hover-1);
+        background: var(--bg-hover-dk);
     }
 
     .item {
@@ -100,8 +100,6 @@
 
     p {
         margin: 0;
-        color: var(--font-darker);
-        font-size: .8em;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;

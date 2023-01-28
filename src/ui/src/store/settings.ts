@@ -41,7 +41,6 @@ const defaultSettings: ISettings = {
 
 const getSettings = (): ISettings => {
     const settings = JSON.parse(localStorage.getItem(KEY) || JSON.stringify(defaultSettings));
-    console.log("getSettings", settings);
     return settings;
 }
 

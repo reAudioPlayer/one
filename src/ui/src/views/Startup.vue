@@ -34,7 +34,7 @@ import Logo from '/src/assets/images/logo/logo.svg'
         align-items: center;
 
         svg {
-            fill: var(--font-colour);
+            fill: var(--fg-base);
             padding: 10px;
             translate: 5px 5px;
             height: 100%;
@@ -43,7 +43,7 @@ import Logo from '/src/assets/images/logo/logo.svg'
 
         p {
             font-size: 1em;
-            color: var(--font-colour);
+            color: var(--fg-base);
             z-index: 1;
             margin-left: 50px;
         }

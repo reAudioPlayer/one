@@ -52,11 +52,11 @@
 
     .itemBig {
         grid-column: span 2;
-        background: var(--accent-gradient);
+        background: var(--bg-gradient);
         border-radius: 5px;
         min-height: 10vh;
         margin: 10px;
-        color: var(--font-accent-contrast);
+        color: var(--bg-contrast);
 
         @media screen and (max-width: $mobileWidth) {
             grid-column: span 1;

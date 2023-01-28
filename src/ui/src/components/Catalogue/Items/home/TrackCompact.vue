@@ -110,7 +110,7 @@ const cover = computed(() => parseAnyCover(src.value));
 }
 
 .home-track-compact {
-    background: var(--background-light);
+    background: var(--bg-base-lt);
     border-radius: 20px;
     display: flex;
     flex-direction: row;
@@ -121,7 +121,7 @@ const cover = computed(() => parseAnyCover(src.value));
 
     &:hover {
         cursor: pointer;
-        background: var(--hover-1);
+        background: var(--bg-hover-dk);
     }
 
     .cover {
@@ -175,7 +175,7 @@ const cover = computed(() => parseAnyCover(src.value));
             position: relative;
 
             &.artist {
-                color: var(--font-darker);
+                color: var(--fg-base-dk);
             }
         }
     }

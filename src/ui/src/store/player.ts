@@ -1,9 +1,19 @@
 import { defineStore } from 'pinia'
 import {parseCover, zeroPad} from "../common";
 import {useDataStore} from "./data";
+import {SharedPlayer} from "../api/sharedPlayer";
+import {nextSong, prevSong} from "../api/player";
 
 
 type PlaylistType = "playlist" | "collection" | "collection/breaking" | "track";
+export type RepeatType = "repeat" | "repeat_one_on" | "repeat_on";
+export interface Playable {
+    play: () => void;
+    pause: () => void;
+    seek: (time: number) => void;
+    setVolume?: (volume: number) => void;
+    setRepeat?: (repeat: RepeatType) => void;
+}
 
 
 export const usePlayerStore = defineStore({
@@ -31,8 +41,61 @@ export const usePlayerStore = defineStore({
             songs: [],
         },
         volume: 50,
+        repeat: "repeat" as RepeatType,
+        sharedPlayer: null as InstanceType<typeof SharedPlayer> | null,
+        player: null as Playable | null,
     }),
     actions: {
+        playPause() {
+            if (this.playing) {
+                this.pause();
+            } else {
+                this.play();
+            }
+        },
+        toggleRepeat() {
+            switch (this.repeat) {
+                case "repeat":
+                    this.repeat = "repeat_on";
+                    break;
+                case "repeat_on":
+                    this.repeat = "repeat_one_on";
+                    break;
+                case "repeat_one_on":
+                    this.repeat = "repeat";
+                    break;
+            }
+            this.player?.setRepeat(this.repeat);
+        },
+        setRepeat(repeat: RepeatType) {
+            this.repeat = repeat;
+        },
+        onSongEnded() {
+            if (this.repeat === "repeat_one_on") {
+                this.play();
+            } else {
+                this.setPlaying(true);
+                this.next();
+            }
+        },
+        play() {
+            this.player.play();
+        },
+        pause() {
+            this.player.pause();
+        },
+        next() {
+            nextSong();
+        },
+        previous() {
+            prevSong();
+        },
+        setPlayer(player: Playable) {
+            if (!player) return;
+            if (this.player === player) return;
+
+            this.player = player;
+        },
         setSong(song) {
             if (song.id == this.song.id) return;
             this.song = song;
@@ -66,14 +129,23 @@ export const usePlayerStore = defineStore({
         setPlaying(playing) {
             this.playing = playing;
         },
-        setProgress(progress) {
-            this.progress = progress;
+        seek(time) {
+            this.player.seek(time);
         },
-        incrementProgress() {
-            this.progress += 1;
+        seekPercent(percent) {
+            this.seek(this.durationSeconds * percent / 100);
+        },
+        setProgress(progress) {
+            this.progress = Math.round(progress);
         },
         setFavourite(favourite) {
             this.song.favourite = favourite;
+            fetch(`/api/tracks/${this.song.id}`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    favourite
+                })
+            })
         },
         setPlaylist(playlist) {
             this.playlist = playlist;
@@ -81,17 +153,27 @@ export const usePlayerStore = defineStore({
         setVolume(volume) {
             this.volume = volume;
             localStorage.setItem("reap.volume", volume);
+            if (this.player.setVolume) {
+                this.player?.setVolume(volume);
+            }
+        },
+        toggleFavourite() {
+            this.setFavourite(!this.song.favourite);
         },
         initialise() {
             this.volume = localStorage.getItem("reap.volume") || 50;
+            this.sharedPlayer = new SharedPlayer();
         },
+        // TODO
+        // loadPlaylist( ??? )
         loadPlaylist(playlistId: number | PlaylistType, id: number = null) {
             const body = {
+                type: "playlist",
                 id: playlistId,
             }
 
             if (typeof playlistId === "string") {
-                body["type"] = playlistId;
+                body.type = playlistId;
                 body.id = id;
             }
 
@@ -133,8 +215,9 @@ export const usePlayerStore = defineStore({
         progressPercent(state) {
             return state.progress / this.durationSeconds * 1000;
         },
-        getProgress(state) {
+        displayProgress(state) {
             const progress = state.progress;
+            if (isNaN(progress)) return "0:00";
             return `${Math.floor(progress / 60)}:${zeroPad(Math.floor(progress % 60), 2)}`
         },
         loaded(state) {

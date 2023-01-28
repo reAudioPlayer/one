@@ -54,7 +54,7 @@ import Cover from "@/components/image/Cover.vue";
         flex-direction: row;
         padding: 10px 0 10px 10px;
         border-radius: 5px;
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
 
         &.img {
             padding: 5px;
@@ -64,14 +64,14 @@ import Cover from "@/components/image/Cover.vue";
     div.navEntry:hover,
     .router-link-active div.navEntry,
     div.navEntry.active {
-        background-color: var(--hover-1);
+        background-color: var(--bg-hover-dk);
         cursor: pointer;
-        color: var(--font-colour);
+        color: var(--fg-base);
     }
 
     .router-link-active div.navEntry,
     div.navEntry.active {
-        background-color: var(--hover-2);
+        background-color: var(--bg-hover);
     }
 
     .name {

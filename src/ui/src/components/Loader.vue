@@ -33,7 +33,7 @@ export default {
     .spinner>div {
         width: 18px;
         height: 18px;
-        background-color: var(--font-darker);
+        background-color: var(--fg-base-dk);
         margin: 5px;
 
         border-radius: 100%;

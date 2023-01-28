@@ -16,12 +16,6 @@ const settings = useSettingsStore();
 <template>
     <div class="sidebar drop-shadow-xl">
         <div class="static">
-            <div class="collapseSidebar hideIfMobile" :class=" { 'minimised': minimised } ">
-                <span @click="settings.sidebar.collapsed = !minimised"
-                      class="hideIfMobile clickSymbol material-symbols-rounded">{{
-                        minimised ? "chevron_right" : "chevron_left"
-                    }}</span>
-            </div>
             <nav-entry :minimised="minimised" href="/collection/playlists" icon="library_music" name="Your Library"
                        :hasChildSites="true" parentHref="/collection"/>
             <nav-entry :minimised="minimised" href="/discover" icon="explore" name="Discover"/>
@@ -78,12 +72,7 @@ export default {
     },
     computed: {
         minimised() {
-            const settings = useSettingsStore();
-            console.log("me is problem")
-            console.log(settings)
-            console.log(settings.sidebar)
-            console.log("me is not problem")
-            return settings.sidebar.collapsed;
+            return true
         }
     },
     methods: {
@@ -91,18 +80,17 @@ export default {
             this.$emit("expandCover", false)
         },
         collapseSidebar() {
-            document.documentElement.style.setProperty("--sidebar-width", this.minimised ? "44px" : "200px");
+            document.documentElement.style.setProperty("--w-sidebar", this.minimised ? "44px" : "200px");
         }
     }
 }
 </script>
 
 <style scoped lang="scss">
-$horizontalWidth: 1200px;
-$mobileWidth: 950px;
+$mobileWidth: 750px;
 
 .logo {
-    fill: var(--font-colour);
+    fill: var(--fg-base);
     padding: 10px;
     width: 60%;
 
@@ -183,10 +171,10 @@ hr {
 }
 
 div.sidebar {
-    background: var(--sidebar-background);
-    width: calc(var(--sidebar-width) + 20px);
-    min-width: calc(var(--sidebar-width) + 20px);
-    max-width: calc(var(--sidebar-width) + 20px);
+    background: var(--bg-base-dk);
+    width: calc(var(--w-sidebar) + 20px);
+    min-width: calc(var(--w-sidebar) + 20px);
+    max-width: calc(var(--w-sidebar) + 20px);
     display: flex;
     flex-direction: column;
     padding: 10px;
@@ -199,9 +187,11 @@ div.sidebar {
 
     @media screen and (max-width: $mobileWidth) {
         flex-direction: row;
-        width: calc(100vw - 20px);
+        width: 100vw;
         position: absolute;
         bottom: 0;
+        margin: 0;
+        max-width: 100vw;
     }
 }
 

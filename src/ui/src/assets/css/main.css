@@ -1,14 +1,42 @@
+@import "variables.for.naming.css";
+@import "mobile.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer components {
+    .text-base {
+        color: var(--fg-base);
+    }
+    .text-muted {
+        color: var(--fg-base-dk);
+    }
+    .text-very-muted {
+        color: var(--fg-base-dkr);
+    }
+    .text-secondary {
+        color: var(--fg-secondary);
+    }
+    .text-secondary-dk {
+        color: var(--fg-secondary-dk);
+    }
+
+    p {
+        @apply my-2;
+    }
+
     .h1 {
         @apply text-3xl font-black my-2;
     }
-
     .h2 {
         @apply text-2xl font-bold my-5;
+    }
+    .h5 {
+        @apply text-muted uppercase;
+    }
+    .h6 {
+        @apply text-sm my-2 text-muted;
     }
 }
 
@@ -28,17 +56,19 @@
         @apply font-bold my-4;
     }
     h5 {
-        @apply uppercase;
+        @apply h5;
+    }
+    h6 {
+        @apply h6;
     }
     a {
-        @apply text-blue-600 underline;
+        @apply underline;
+    }
+    a:hover {
+        @apply text-secondary;
     }
 }
 
 * {
     --tw-invert: 0;
-}
-
-h5 {
-    color: var(--font-darker);
 }

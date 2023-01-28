@@ -3,7 +3,9 @@ import {useSettingsStore} from "@/store/settings";
 
 export const connect = () => {
     console.log("attempting reconnect")
-    let ws = new WebSocket('ws://localhost:1234/ws');
+    const host = window.location.hostname;
+    const port = window.location.port == 5173 ? 1234 : window.location.port
+    const ws = new WebSocket(`ws://${host}:${port}/ws`);
 
     ws.onclose = () => {
         console.log("ws closed")

@@ -14,11 +14,11 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: var(--hover-1);
+    background: var(--bg-hover);
     border-radius: 8px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--hover-2);
+    background: var(--bg-hover-lt);
 }

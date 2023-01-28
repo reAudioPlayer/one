@@ -1,6 +1,6 @@
 <template>
     <div @click="select" class="wrapper">
-        <p :class="{ 'selected': selected() }">{{name}}</p>
+        <p class="mb-4" :class="{ 'selected': selected() }">{{name}}</p>
         <img :src="`/assets/img/themes/${this.name}.svg`" :class="{ 'selected': selected() }">
     </div>
 </template>
@@ -26,18 +26,18 @@ export default {
 <style scoped>
 
     p {
-        margin: 0;
+        margin: 0 0 .5em 0;
         font-size: .8em;
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
+        text-transform: capitalize;
     }
 
     p.selected {
-        color: var(--accent);
+        color: var(--fg-secondary);
     }
 
     .wrapper {
         grid-column: span 2;
-        /*padding: 20px;*/
     }
 
     .wrapper:hover {
@@ -50,7 +50,7 @@ export default {
     }
 
     img.selected {
-        border: 2px solid var(--accent);
+        border: 2px solid var(--fg-secondary);
     }
 
 </style>

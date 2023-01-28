@@ -28,7 +28,7 @@ defineProps({
 <style scoped lang="scss">
 
 .home-playlist {
-    background: var(--background-light);
+    background: var(--bg-base-lt);
     border-radius: 20px;
     display: flex;
     flex-direction: column;
@@ -38,7 +38,7 @@ defineProps({
 
     &:hover {
         cursor: pointer;
-        background: var(--hover-1);
+        background: var(--bg-hover-dk);
     }
 
     margin: 10px;
@@ -52,7 +52,7 @@ defineProps({
     h2 {
         font-size: 1em;
         margin-bottom: 0;
-        color: var(--font-colour);
+        color: var(--fg-base);
     }
 }
 

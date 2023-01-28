@@ -13,8 +13,8 @@ export const unhashPlaylist = (id: string): string => {
     return playlistHash.decode(id);
 }
 
-export const hashTrack = (id: string): string => {
-    return hashidsTrack.encode(id);
+export const hashTrack = (id: string | number): string => {
+    return hashidsTrack.encode(String(id));
 }
 
 export const unhashTrack = (id: string): string => {
@@ -100,6 +100,7 @@ export interface ISpotifyPlaylist extends IPlaylist {
 export interface IDropdownOption {
     value: string;
     label: string;
+    icon?: string;
 }
 
 export const toTitleCase = (str: string) => {

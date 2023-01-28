@@ -61,11 +61,11 @@
 
 <style scoped>
     .followButton {
-        color: var(--font-colour);
+        color: var(--fg-base);
         background: none;
-        border: 1px solid var(--hover-2);
+        border: 1px solid var(--border-base);
         border-radius: 2px;
-        font-family: var(--font-family);
+        font-family: var(--ff-base);
         text-transform: uppercase;
         margin-top: 5px;
         padding: 5px 10px;
@@ -75,7 +75,7 @@
 
     .followButton:hover {
         cursor: pointer;
-        border-color: var(--font-colour);
+        border-color: var(--fg-base);
     }
 
     p.note {
@@ -83,7 +83,7 @@
     }
 
     .wrapper {
-        background: var(--background-light);
+        background: var(--bg-base-lt);
         border-radius: 20px;
         min-height: 10vh;
         margin: 10px;
@@ -93,7 +93,7 @@
 
     .wrapper:hover {
         cursor: pointer;
-        background: var(--hover-1);
+        background: var(--bg-hover-dk);
     }
 
     .item {
@@ -112,7 +112,7 @@
 
     p {
         margin: 0;
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
         font-size: .8em;
         display: -webkit-box;
         -webkit-line-clamp: 2;

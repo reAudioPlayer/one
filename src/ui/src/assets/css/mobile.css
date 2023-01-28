@@ -1,0 +1,17 @@
+.showIfMobile {
+    display: none !important;
+}
+
+.hideIfMobile {
+    display: inherit;
+}
+
+@media only screen and (max-width: 750px) {
+    .showIfMobile {
+        display: inherit !important;
+    }
+
+    .hideIfMobile {
+        display: none !important;
+    }
+}

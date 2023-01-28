@@ -3,4 +3,5 @@ import {useDataStore} from "./data";
 
 export const initialiseStores = () => {
     usePlayerStore().initialise();
+    useDataStore().fetchPlaylists();
 }
