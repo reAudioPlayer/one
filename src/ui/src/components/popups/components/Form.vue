@@ -2,7 +2,7 @@
 import {IDropdownOption} from "../../../common";
 import {PropType} from "vue";
 import {toTitleCase, openInNewTab, parseCover} from "@/common";
-import Dropdown from "../../Dropdown.vue";
+import Dropdown from "../../inputs/Dropdown.vue";
 
 interface IOption {
     value: string;

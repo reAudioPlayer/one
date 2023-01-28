@@ -6,7 +6,6 @@ import {createPlaylist} from "./playlist";
  * @param song
  */
 export const updateSong = async (song: ISong) => {
-    console.log("updateSong", song);
     await fetch(`/api/tracks/${song.id}`, {
         method: "PUT",
         body: JSON.stringify({

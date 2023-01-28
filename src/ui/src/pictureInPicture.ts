@@ -12,7 +12,6 @@ video.style.zIndex = "-1000";
 document.body.appendChild(video);
 
 export const pictureInPictureStatus = ref<"loading" | "ready" | "error">("error");
-
 export const requestPictureInPicture = async () => {
     if (pictureInPictureStatus.value == "error") return false;
     if (pictureInPictureStatus.value == "loading") return false;

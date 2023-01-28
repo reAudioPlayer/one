@@ -55,7 +55,7 @@ p.note {
 
 .itemBig {
     grid-column: span 2;
-    background: var(--background-light);
+    background: var(--bg-base-lt);
     border-radius: 20px;
     min-height: 10vh;
     margin: 10px;
@@ -77,7 +77,7 @@ p.note {
 
 .itemBig:hover {
     cursor: pointer;
-    background: var(--hover-1);
+    background: var(--bg-hover-dk);
 }
 
 img {
@@ -92,7 +92,7 @@ h4 {
 
 p {
     margin: 0;
-    color: var(--font-darker);
+    color: var(--fg-base-dk);
     font-size: .9em;
 }
 </style>

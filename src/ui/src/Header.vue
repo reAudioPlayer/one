@@ -40,8 +40,8 @@ let submit = () => {
 
 <style lang="scss" scoped>
     .header {
-        background: var(--sidebar-background);
-        height: var(--header-height);
+        background: var(--bg-base-dk);
+        height: var(--h-header);
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -51,7 +51,7 @@ let submit = () => {
     }
 
     .logo {
-        fill: var(--font-colour);
+        fill: var(--fg-base);
         padding: 10px;
         translate: 5px 5px;
         height: 100%;

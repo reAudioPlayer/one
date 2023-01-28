@@ -35,7 +35,7 @@
     }
 
     .wrapper {
-        background: var(--background-light);
+        background: var(--bg-base-lt);
         border-radius: 20px;
         padding: 20px;
         min-height: 10vh;
@@ -44,7 +44,7 @@
 
     .wrapper:hover {
         cursor: pointer;
-        background: var(--hover-1);
+        background: var(--bg-hover-dk);
     }
 
     .item {

@@ -47,7 +47,7 @@
     }
 
     .wrapper {
-        background: var(--background-light);
+        background: var(--bg-base-lt);
         min-height: 10vh;
         margin: 10px;
         border-radius: 20px;
@@ -56,7 +56,7 @@
 
     .wrapper:hover {
         cursor: pointer;
-        background: var(--hover-1);
+        background: var(--bg-hover-dk);
     }
 
     .item {
@@ -75,7 +75,7 @@
 
     p {
         margin: 0;
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
         font-size: .8em;
     }
 </style>

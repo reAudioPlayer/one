@@ -33,8 +33,11 @@ export default {
             const x = e.offsetX;
             const width = this.$el.offsetWidth;
             this.value = x / width * this.max;
-            this.$emit('update:modelValue', this.value);
             this.$emit('change', this.value);
+
+            try {
+                this.$emit('update:modelValue', this.value);
+            } catch (_) { }
         }
     },
     data() {
@@ -49,8 +52,6 @@ export default {
 <style lang="scss" scoped>
 
 .progressBar {
-    width: 100%;
-    margin: 0 10px;
 }
 
 .progressBar__track {
@@ -60,17 +61,17 @@ export default {
     margin-top: 7px;
     margin: 10px 0;
     border-radius: 1000vmax;
-    background-color: var(--font-darkest);
+    background-color: var(--fg-base-dkr);
 }
 
 .progressBar__progress {
     position: relative;
     height: 5px;
     border-radius: 1000vmax;
-    background-color: var(--font-colour);
+    background-color: var(--fg-base);
 
     &.hover {
-        background-color: var(--accent);
+        background-color: var(--fg-secondary);
 
         &:after {
             content: '';
@@ -84,7 +85,7 @@ export default {
         width: 15px;
         height: 15px;
         border-radius: 50%;
-        background-color: var(--font-colour);
+        background-color: var(--fg-base);
     }
 }
 </style>

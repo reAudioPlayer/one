@@ -56,7 +56,7 @@ defineProps({
 
     div {
         margin: auto 0;
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
         font-size: .9rem;
         text-transform: uppercase;
     }

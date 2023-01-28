@@ -25,10 +25,10 @@ export default {
 	font-size: 0.5em;
 }
  .error h1 p.muted {
-	color: var(--font-darker);
+	color: var(--fg-base-dk);
 }
  .error h1 p.accent {
-	color: var(--accent);
+	color: var(--fg-secondary);
 }
  
 </style>

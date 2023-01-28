@@ -29,8 +29,8 @@
         flex-grow: 1;
         overflow-y: auto;
         overflow-x: hidden;
-        max-width: calc(100vw - var(--sidebar-width));
-        max-height: calc(100vh - var(--player-height));
+        max-width: calc(100vw - var(--w-sidebar));
+        max-height: calc(100vh - var(--h-player));
 
         &.maximised {
             max-width: 100vw;

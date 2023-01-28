@@ -143,14 +143,14 @@
     }
 
     button {
-        color: var(--font-contrast);
-        background-color: var(--font-colour);
+        color: var(--fg-contrast);
+        background-color: var(--bg-contrast);
         border: none;
         border-radius: 20px;
         text-transform: uppercase;
         letter-spacing: 1px;
         padding: 10px 20px;
-        font-family: var(--font-family);
+        font-family: var(--ff-base);
         font-weight: bold;
     }
 
@@ -184,13 +184,13 @@
     }
 
     a {
-        color: var(--font);
+        color: var(--fg-base);
         text-decoration: underline;
     }
 
     a:hover {
         cursor: pointer;
-        color: var(--accent);
+        color: var(--fg-secondary);
     }
 
     .themes {
@@ -208,10 +208,10 @@
         position: fixed;
         top: 0;
         left: 0;
-        background: var(--background);
+        background: var(--bg-base);
         width: 100vw;
         height: 100vh;
-        color: var(--font-colour);
+        color: var(--fg-base);
         z-index: 50;
     }
 

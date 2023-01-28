@@ -1,5 +1,5 @@
 {
-    "accent-dark": {
+    "fg-secondary-dk": {
         "default": "#217e41",
         "ruby": "#601717",
         "royal": "#30305a",
@@ -18,7 +18,7 @@
         "light-ruby": "#974444",
         "light-royal": "#e58a8a"
     },
-    "accent": {
+    "fg-secondary": {
         "default": "#1ed760",
         "ruby": "#bd4c62",
         "royal": "#7169ff",
@@ -37,7 +37,7 @@
         "light-ruby": "#bd4c62",
         "light-royal": "#7169ff"
     },
-    "font-accent-contrast": {
+    "bg-contrast": {
         "default": "white",
         "apollo": "whitesmoke",
         "gradient": "whitesmoke",
@@ -51,7 +51,7 @@
         "night-cobalt": "whitesmoke",
         "night-fire": "whitesmoke"
     },
-    "font-contrast": {
+    "fg-contrast": {
         "default": "#121212",
         "dynamic": "#1e1e1e",
         "night-jade": "#1e1e1e",
@@ -62,7 +62,7 @@
         "light-ruby": "white",
         "light-royal": "white"
     },
-    "font-colour": {
+    "fg-base": {
         "default": "white",
         "apollo": "whitesmoke",
         "gradient": "whitesmoke",
@@ -79,7 +79,7 @@
         "light-ruby": "#181c2f",
         "light-royal": "#181c2f"
     },
-    "font-darker": {
+    "fg-base-dk": {
         "default": "#a7a7a7",
         "apollo": "#c2bebe",
         "gradient": "#c2bebe",
@@ -96,17 +96,17 @@
         "light-ruby": "#8b8c91",
         "light-royal": "#8b8c91"
     },
-    "hover-4": {
+    "bg-hover-ltr": {
         "default": "#242424"
     },
-    "hover-3": {
+    "bg-hover-lt": {
         "default": "hsla(0,0%,100%,0.04)",
         "apollo": "hsla(0,0%,100%,0.3)",
         "light": "#b3b3b31f",
         "light-ruby": "#b3b3b31f",
         "light-royal": "#b3b3b31f"
     },
-    "hover-2": {
+    "bg-hover": {
         "default": "hsla(0,0%,100%,0.3)",
         "apollo": "hsla(0,0%,100%,0.1)",
         "dynamic": "#00c48b82",
@@ -118,7 +118,7 @@
         "light-ruby": "#7c828f5e",
         "light-royal": "#7c828f5e"
     },
-    "hover-1": {
+    "bg-hover-dk": {
         "default": "hsla(0,0%,100%,0.1)",
         "apollo": "hsla(0,0%,100%,0.04)",
         "dynamic": "#00c48b42",
@@ -130,14 +130,14 @@
         "light-ruby": "#E3E7EB",
         "light-royal": "#E3E7EB"
     },
-    "border": {
+    "b-base": {
         "default": "hsla(0,0%,100%,0.1)",
         "apollo": "hsla(0,0%,100%,0.04)",
         "light": "#E3E7EB",
         "light-ruby": "#E3E7EB",
         "light-royal": "#E3E7EB"
     },
-    "accent-gradient": {
+    "bg-gradient": {
         "default": "linear-gradient(to left bottom, #1ed760, #217e41)",
         "ruby": "linear-gradient(to left bottom, #bd4c62, #601717)",
         "royal": "linear-gradient(to left bottom, #7169ff, #30305a)",
@@ -155,7 +155,7 @@
         "light-ruby": "linear-gradient(to left bottom, #bd4c62, #974444)",
         "light-royal": "linear-gradient(to left bottom, #7169ff, #e58a8a)"
     },
-    "background": {
+    "bg-base": {
         "default": "#121212",
         "apollo": "linear-gradient(to right top, #522783, hsl(214, 80%, 24%))",
         "gradient": "linear-gradient(to left bottom, #A5004D, #6105B0)",
@@ -171,7 +171,7 @@
         "light-ruby": "white",
         "light-royal": "white"
     },
-    "background-light": {
+    "bg-base-lt": {
         "default": "#181818",
         "apollo": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3))",
         "gradient": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
@@ -188,7 +188,7 @@
         "light-ruby": "#f3f7fb",
         "light-royal": "#f3f7fb"
     },
-    "sidebar-background": {
+    "bg-base-dk": {
         "default": "black",
         "apollo": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3))",
         "gradient": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
@@ -205,7 +205,7 @@
         "light-ruby": "#f3f7fb",
         "light-royal": "#f3f7fb"
     },
-    "player-background": {
+    "bg-base-lt": {
         "default": "#181818",
         "apollo": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3))",
         "gradient": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
@@ -244,7 +244,7 @@
         "light": "none"
     },
 
-    "font-family": {
+    "ff-base": {
         "default": "Poppins, sans-serif"
     },
 

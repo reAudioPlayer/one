@@ -3,9 +3,8 @@
         <fixed-playlist-header @click="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }"
                                :title="playlistName"/>
         <div class="padding-20" v-observe-visibility="headerVisibilityChanged">
-            <h7>Playlist</h7>
             <h1>{{ playlistName }}</h1>
-            <h5>Your {{ playlist.length }} favourite tracks, auto-generated just for you</h5>
+            <h6>Your {{ playlist.length }} favourite tracks, auto-generated just for you</h6>
         </div>
         <hr>
         <div class="padding-20">
@@ -120,8 +119,7 @@ export default {
     flex-direction: column;
 }
 
-#loadPlaylist,
-#addToPlaylist {
+#loadPlaylist {
     cursor: pointer;
     font-size: 60px;
     margin-bottom: 20px;

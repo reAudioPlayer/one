@@ -1,115 +1,108 @@
 {
-    "accent-dark": {
-        "dark": "#217e41",
-        "dynamic": "#00c48b",
-        "light": "#80dda0"
-    },
-    "accent": {
+    "fg-secondary": {
         "dark": "#1ed760",
         "dynamic": "#00c48b",
         "light": "#18a74b"
     },
-    "font-accent-contrast": {
+    "fg-secondary-dk": {
+        "dark": "#217e41",
+        "dynamic": "#00c48b",
+        "light": "#80dda0"
+    },
+    "bg-contrast": {
         "dark": "white",
         "dynamic": "whitesmoke"
     },
-    "font-contrast": {
+    "fg-contrast": {
         "dark": "#121212",
         "dynamic": "#1e1e1e",
         "light": "white"
     },
-    "font-colour": {
+    "fg-base": {
         "dark": "white",
         "dynamic": "whitesmoke",
         "light": "#181c2f"
     },
-    "font-darker": {
+    "fg-base-dk": {
         "dark": "#a7a7a7",
         "dynamic": "#c2bebe",
         "light": "#8b8c91"
     },
-    "font-darkest": {
+    "fg-base-dkr": {
         "dark": "#999",
         "light": "#8b8c91",
         "dynamic": "#999"
     },
-    "hover-4": {
+    "bg-hover-ltr": {
         "dark": "#242424"
     },
-    "hover-3": {
+    "bg-hover-lt": {
         "dark": "hsla(0,0%,100%,0.04)",
         "light": "#b3b3b31f"
     },
-    "hover-2": {
+    "bg-hover": {
         "dark": "hsla(0,0%,100%,0.3)",
         "dynamic": "#00c48b82",
         "light": "#7c828f5e"
     },
-    "hover-1": {
+    "bg-hover-dk": {
         "dark": "hsla(0,0%,100%,0.1)",
         "dynamic": "#00c48b42",
         "light": "#E3E7EB"
     },
-    "border": {
-        "dark": "hsla(0,0%,100%,0.1)",
-        "light": "#E3E7EB"
-    },
-    "accent-gradient": {
+    "bg-gradient": {
         "dark": "linear-gradient(to left bottom, #1ed760, #217e41)",
         "light": "linear-gradient(to left bottom, #18a74b, #80dda0)"
     },
-    "background": {
+    "bg-base": {
         "dark": "#121212",
         "light": "white"
     },
-    "background-light": {
+    "bg-base-lt": {
         "dark": "#181818",
         "dynamic": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
         "light": "#f3f7fb"
     },
-    "sidebar-background": {
+    "bg-base-dk": {
         "dark": "black",
         "dynamic": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
         "light": "#f3f7fb"
     },
-    "player-background": {
-        "dark": "#181818",
-        "dynamic": "linear-gradient(to right bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))",
-        "light": "#f3f7fb"
-    },    
-    "fixedplaylistheader-background": {
-        "dark": "var(--player-background)",
+    "bg-input": {
+        "dark": "var(--background-light)",
+        "light": "var(--background)"
+    },
+    "bg-fixedPlaylistHeader": {
+        "dark": "var(--bg-base-lt)",
         "dynamic": "#374148"
     },
-    "fixedplaylistheader-border": {
+    "border-fixedPlaylistHeader": {
         "dark": "#303030",
         "dynamic": "none",
         "light": "#D0D0D0"
     },
-    "input-background": {
-        "dark": "var(--background-light)",
-        "light": "var(--background)"
+    "border-base": {
+        "dark": "hsla(0,0%,100%,0.1)",
+        "light": "#E3E7EB"
     },
 
-    "font-family": {
+    "ff-base": {
         "dark": "Poppins, sans-serif"
     },
 
-    "playlistEntry-height": {
+    "h-playlistEntry": {
         "dark": "64px"
     },
-    "player-height": {
+    "h-player": {
         "dark": "88px"
     },
-    "player-height-mobile": {
+    "h-player-mobile": {
         "dark": "64px"
     },
-    "sidebar-height": {
+    "h-header": {
         "dark": "64px"
     },
-    "header-height": {
-        "dark": "64px"
-    },
+
     "coverAsBackground": {
         "dark": false,
         "dynamic": true

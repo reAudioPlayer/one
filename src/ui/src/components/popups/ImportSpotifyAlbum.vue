@@ -27,7 +27,6 @@ const options = ref([{
     options: data.playlistsAsDropdown
 }]);
 
-
 const modal = ref(null);
 const form = ref(null);
 const songs: Ref<ISpotifySong[]> = ref([]);

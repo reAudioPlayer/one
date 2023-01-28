@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {IDropdownOption} from "../common";
-import {computed, PropType, ref, watch} from "vue";
+import {IDropdownOption} from "../../common";
+import {computed, nextTick, PropType, ref, watch} from "vue";
 
 const props = defineProps({
     modelValue: {
@@ -33,6 +33,29 @@ const selectedLabel = computed(() => {
     return selected ? selected.label : "";
 });
 
+const trueDropdown = ref(null);
+watch(expanded, (value) => {
+    nextTick(() => {
+        if (value) {
+            const rect = trueDropdown.value.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.top;
+
+            // if there's enough space below, render below
+            // else, render above
+
+            const enoughSpaceBelow = spaceBelow > rect.height;
+
+            if (enoughSpaceBelow) {
+                trueDropdown.value.style.top = "100%";
+                trueDropdown.value.style.bottom = "auto";
+            } else {
+                trueDropdown.value.style.top = "auto";
+                trueDropdown.value.style.bottom = "100%";
+            }
+        }
+    })
+});
+
 window.onclick = () => expanded.value = false;
 </script>
 <template>
@@ -43,7 +66,7 @@ window.onclick = () => expanded.value = false;
                 {{expanded ? "expand_less" : "expand_more"}}
             </i>
         </div>
-        <div class="dropdown__options" v-if="expanded">
+        <div ref="trueDropdown" class="dropdown__options" v-if="expanded">
             <div
                 v-for="option in options"
                 :key="option.value"
@@ -64,34 +87,33 @@ window.onclick = () => expanded.value = false;
     height: 100%;
 
     &__selected {
-        background: var(--hover-2);
-        border: 1px solid var(--hover-3);
+        background: var(--bg-hover-lt);
+        border: 1px solid var(--bg-hover-ltr);
         border-radius: 5px;
         color: var(--font-colour);
         padding: 10px;
         width: auto;
         flex-grow: 1;
-        font-family: var(--font-family);
+        font-family: var(--ff-base);
         cursor: pointer;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
 
         &:hover {
-            background: var(--hover-1);
-            border: 1px solid var(--font-colour);
+            background: var(--bg-hover);
+            border: 1px solid var(--fg-base);
         }
     }
 
     &__options {
         position: absolute;
-        top: 100%;
         left: 0;
         z-index: 999;
         width: 100%;
         max-height: 20rem;
         overflow-y: auto;
-        background: var(--background);
+        background: var(--bg-base);
         border-radius: 5px;
 
         .dropdown__option {
@@ -100,7 +122,7 @@ window.onclick = () => expanded.value = false;
             transition: all 0.2s ease-in-out;
 
             &:hover {
-                background: var(--hover-1);
+                background: var(--bg-hover);
             }
         }
     }

@@ -169,7 +169,7 @@ const update = () => {
     .index, .album, .duration, .icon {
         margin: auto 0;
         font-size: .9rem;
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
 
         &.index {
             cursor: pointer;
@@ -187,7 +187,7 @@ const update = () => {
     }
 
     &.hovering {
-        background-color: var(--hover-1);
+        background-color: var(--bg-hover-dk);
 
         .index {
             font-size: 1.5rem;
@@ -196,7 +196,7 @@ const update = () => {
     }
 
     &.selected {
-        background-color: var(--hover-2);
+        background-color: var(--bg-hover);
     }
 
     .favourite-icon {
@@ -233,7 +233,7 @@ const update = () => {
 
         .artist {
             font-size: .8rem;
-            color: var(--font-darker);
+            color: var(--fg-base-dk);
         }
 
         span {
@@ -244,13 +244,13 @@ const update = () => {
 
     &.playing {
         .title, .index {
-            color: var(--accent);
+            color: var(--fg-secondary);
         }
     }
 
-    &.selected {
+    &.hovering, &.selected {
         .artist, .album {
-            color: var(--font-colour);
+            color: var(--fg-base);
         }
     }
 }

@@ -23,6 +23,7 @@ const playlistScroll = ref(null);
 
 const emit = defineEmits(["maximise"]);
 
+document.title = title.value;
 // watch title
 watch(title, (newTitle) => {
     document.title = newTitle;
@@ -142,8 +143,8 @@ const selectedSongId = ref(-1);
         background-clip: text;
         -webkit-background-clip: text;
         color: transparent;
-        background: var(--font-darker);
-        color: var(--accent);
+        background: var(--bg-hover-lt);
+        color: var(--fg-secondary);
     }
 }
 
@@ -248,7 +249,7 @@ const selectedSongId = ref(-1);
 
         .block {
             transform: scaleX(0);
-            background: var(--font-contrast);
+            background: var(--fg-contrast);
             width: 100%;
             flex: 1;
             transform-origin: 0% 50%;
@@ -282,7 +283,7 @@ const selectedSongId = ref(-1);
     flex: 2;
     height: calc(100% - 220px);
     margin: 100px 0;
-    background: var(--background-light);
+    background: var(--bg-base-lt);
     border-radius: 20px;
     overflow: hidden;
 }
@@ -290,7 +291,7 @@ const selectedSongId = ref(-1);
 .bigPlayer .playlistOverflow .playlist {
     overflow-y: auto;
     height: 100%;
-    padding: 10px;
+    padding: 10px 20px;
 }
 
 .no-playlist-selected {
@@ -303,7 +304,7 @@ const selectedSongId = ref(-1);
 
     .wrapper {
         width: 80%;
-        background: var(--background-light);
+        background: var(--bg-base-lt);
         border-radius: 20px;
         overflow: hidden;
         padding: 20px;

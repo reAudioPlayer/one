@@ -1,6 +1,6 @@
 <script setup>
 import Body from '@/Body.vue'
-import Player from '@/Player.vue'
+import Player from '@/Player/Player.vue'
 import Sidebar from '@/Sidebar.vue'
 import PlayerInPicture from "./PlayerInPicture.vue";
 import Header from './Header.vue';
@@ -42,7 +42,8 @@ const cover = computed(() => parseAnyCover(src.value));
                 <Sidebar v-if="!maximised"/>
                 <Body @maximise="val => maximised = val"/>
             </div>
-            <Player v-if="!maximised"/>
+
+            <Player />
             <PlayerInPicture v-if="!maximised"/>
         </template>
         <template v-else>
@@ -152,9 +153,9 @@ export default {
     max-height: 80vh;
     padding: 16px;
     /*overflow: hidden;*/
-    background: var(--font-contrast);
+    background: var(--fg-contrast);
     border-radius: 10px;
-    color: var(--font-colour);
+    color: var(--fg-base);
 
     display: flex;
     flex-direction: column;
@@ -197,7 +198,7 @@ h3 {
     &:hover {
         text-decoration: underline;
         cursor: pointer;
-        color: var(--font-colour);
+        color: var(--fg-base);
     }
 }
 
@@ -206,29 +207,29 @@ h3 {
 }
 
 .v-contextmenu {
-    background: var(--font-contrast) !important;
-    font-family: var(--font-family) !important;
-    border: 1px solid var(--hover-1);
+    background: var(--fg-contrast) !important;
+    font-family: var(--ff-base) !important;
+    border: 1px solid var(--bg-hover-dk);
     /*box-shadow: 2px 2px 8px 0 var(--hover-4) !important;
 --webkit-box-shadow: 2px 2px 8px 0 var(--hover-4) !important;*/
     box-shadow: none;
     --webkit-box-shadow: none;
-    color: var(--font-colour) !important;
+    color: var(--fg-base) !important;
 }
 
 .v-contextmenu-divider {
-    border-color: var(--border);
+    border-color: var(--border-base);
 }
 
 .v-contextmenu-item {
-    color: var(--font-colour) !important;
+    color: var(--fg-base) !important;
     margin: 5px;
     padding: 10px 22px 10px 15px;
     border-radius: 5px;
 }
 
 .v-contextmenu-item--hover {
-    background: var(--hover-1) !important;
+    background: var(--bg-hover-dk) !important;
 }
 </style>
 
@@ -242,30 +243,27 @@ h3 {
 @import "./assets/css/material-symbols.css";
 
 #app {
-    font-family: var(--font-family) !important;
+    font-family: var(--ff-base) !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    background: var(--background);
-    color: var(--font-colour) !important;
+    background: var(--bg-base);
+    color: var(--fg-base) !important;
 }
 
 hr {
-    border-color: var(--font-darker)
+    border-color: var(--border-base);
 }
-
-$horizontalWidth: 1200px;
-$mobileWidth: 950px;
 
 div.interface {
     display: flex;
     flex-direction: row;
     flex-grow: 1;
     z-index: 2;
-    max-height: calc(100vh - var(--player-height) - var(--header-height));
+    max-height: calc(100vh - var(--h-player) - var(--h-header));
 
-    @media screen and (max-width: $mobileWidth) {
-        flex-direction: column;
+    @media only screen and (max-width: 750px) {
+        max-height: calc(100vh - var(--h-player-mobile) - var(--h-header) - var(--h-sidebar));
     }
 }
 
@@ -307,18 +305,6 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: center;
-}
-
-.hideIfMobile {
-    @media screen and (max-width: $mobileWidth) {
-        display: none !important;
-    }
-}
-
-.showIfMobile {
-    @media screen and (min-width: $mobileWidth) {
-        display: none !important;
-    }
 }
 
 input[type="text"], input[type="password"] {

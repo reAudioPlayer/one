@@ -8,7 +8,6 @@ import router from "./router";
 import contextmenu from "v-contextmenu";
 import {createPinia} from "pinia";
 
-const pinia = createPinia()
 const app = createApp(App)
 
 app.directive("observe-visibility", {
@@ -24,6 +23,4 @@ app.use(VueFinalModal());
 app.use(contextmenu);
 
 app.use(router);
-app.use(pinia);
-
-app.mount('#app')
+app.use(createPinia()).mount("#app");

@@ -162,7 +162,7 @@ const settings = useSettingsStore();
                 type="range"
                 class="progress"
             />
-            <div class="details">
+            <div class="details text-muted">
                 <span class="positionLabel">{{ progresslbl }}</span>
                 <span class="positionLabel">{{ durationStr }}</span>
             </div>
@@ -202,12 +202,6 @@ export default {
         }, 1000)
 
         /*
-        fetch("/api/player/repeat")
-            .then(x => x.text())
-            .then(value => {
-                this.songLoop = value == "True"
-            })
-
         fetch("/api/player/shuffle")
             .then(x => x.text())
             .then(value => {
@@ -273,14 +267,6 @@ export default {
         }
     },
     watch: {
-        songLoop() {
-            /*fetch("/api/player/repeat", {
-                method: "POST",
-                body: JSON.stringify({
-                    value: this.songLoop
-                })
-            })*/
-        },
         shuffle() {
             /*fetch("/api/player/shuffle", {
                 method: "POST",
@@ -397,7 +383,6 @@ div.player.fullscreen {
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            color: var(--font-darker);
         }
     }
 
@@ -420,17 +405,17 @@ div.player.fullscreen {
 }
 
 div.player {
-    background: var(--player-background);
-    height: var(--player-height);
+    background: var(--bg-base-lt);
+    height: var(--h-player);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     padding: 10px;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--border-base);
     z-index: 1;
 
     @media screen and (max-width: $mobileWidth) {
-        height: calc(var(--player-height-mobile) - 20px);
+        height: calc(var(--h-player-mobile) - 20px);
         padding: 3px;
         position: absolute;
         bottom: var(--sidebar-height);
@@ -438,7 +423,7 @@ div.player {
         width: 100vw;
         z-index: 5;
         border-top: none;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid var(--border-base);
     }
 
     &.fullscreen {
@@ -455,12 +440,12 @@ div.player {
 }
 
 .favourite {
-    line-height: calc(var(--player-height) - 40px);
+    line-height: calc(var(--h-player) - 40px);
     font-size: 1.2em;
-    color: var(--font-darker);
+    color: var(--fg-base-dk);
 
     @media screen and (max-width: $mobileWidth) {
-        line-height: calc(var(--player-height-mobile) - 40px);
+        line-height: calc(var(--h-player-mobile) - 40px);
     }
 }
 
@@ -469,27 +454,27 @@ div.player {
 }
 
 .left {
-    max-height: var(--player-height);
+    max-height: var(--h-player);
     display: grid;
-    grid-template-columns: calc(var(--player-height) - 40px) fit-content(100%) 20px 20px;
+    grid-template-columns: calc(var(--h-player) - 40px) fit-content(100%) 20px 20px;
     gap: 10px;
     padding: 10px;
     width: 25vw;
 
     @media screen and (max-width: $mobileWidth) {
-        max-height: calc(var(--player-height-mobile) - 6px);
+        max-height: calc(var(--h-player-mobile) - 6px);
         padding: 3px;
         max-width: inherit;
         flex-grow: 1;
     }
 
     img {
-        height: calc(var(--player-height) - 40px);
+        height: calc(var(--h-player) - 40px);
         border-radius: 5px;
         margin-right: 10px;
 
         @media screen and (max-width: $mobileWidth) {
-            height: calc(var(--player-height-mobile) - 12px);
+            height: calc(var(--h-player-mobile) - 12px);
         }
     }
 }
@@ -509,27 +494,21 @@ div.player {
 
 .left > .titleartist > .title {
     font-size: 0.9em;
-    /*overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;*/
 }
 
 .left > .titleartist > .artist {
     font-size: 0.7em;
-    color: var(--font-darker);
-    /*overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;*/
+    color: var(--fg-base-dk);
 }
 
 .centre {
-    max-height: calc(var(--player-height) - 20px);
+    max-height: calc(var(--h-player) - 20px);
     display: flex;
     flex-direction: column;
     justify-content: space-around;
 
     @media screen and (max-width: $mobileWidth) {
-        max-height: calc(var(--player-height-mobile) - 6px);
+        max-height: calc(var(--h-player-mobile) - 6px);
         margin-right: 10px;
     }
 }
@@ -550,7 +529,7 @@ div.player {
 
 .positionLabel {
     font-size: 0.7em;
-    color: var(--font-darker);
+    color: var(--fg-base-dk);
 }
 
 input[type="range"].progress {
@@ -563,13 +542,13 @@ input[type="range"]:hover {
 
 .defaultbtn {
     font-size: 1.4em;
-    color: var(--font-darker);
+    color: var(--fg-base-dk);
     margin-left: 10px;
     margin-right: 10px;
 }
 
 .defaultbtn:hover {
-    color: var(--font-colour);
+    color: var(--fg-base);
     cursor: pointer;
 }
 
