@@ -36,7 +36,7 @@ export default {
 
         padding-top: 10px;
         padding-bottom: 10px;
-        border-bottom: 1px solid var(--fixedplaylistheader-border);
+        border-bottom: 1px solid var(--border-fixedPlaylistHeader);
     }
 
     .upperWrapper {
@@ -76,8 +76,8 @@ export default {
 
     .fixedPlaylistHeader {
         position: fixed;
-        top: var(--header-height);
-        left: calc(var(--sidebar-width) + 40px);
+        top: var(--h-header);
+        left: calc(var(--w-sidebar) + 40px);
         right: -3px;
         padding-right: 3px;
 
