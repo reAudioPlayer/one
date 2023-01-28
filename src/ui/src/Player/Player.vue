@@ -323,10 +323,9 @@ const mobileExpanded = ref(false);
 
 .desktop {
     display: grid;
-    height: var(--h-player);
+    height: calc(var(--h-player) - 1px);
     grid-template-columns: 1fr 2fr 1fr;
     grid-template-areas: "song-info controls aux";
-    height: 100%;
     gap: 10px;
 
     .song-info {
