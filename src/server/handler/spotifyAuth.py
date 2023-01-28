@@ -6,7 +6,6 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 import os
 import json
 from time import time
-import webbrowser
 import base64
 from typing import Optional, Tuple
 import asyncio
@@ -28,11 +27,6 @@ class SpotifyAuth:
     """Handles Spotify Authentication"""
     def __init__(self) -> None:
         self._attemptedClientAuth = False
-
-        async def _auth() -> None:
-            if await self.shouldAuth():
-                self._openSpotifyAuth()
-        asyncio.create_task(_auth())
 
     async def _refresh(self, token: str) -> bool:
         """attempts to use the refresh token to get a new access token"""
@@ -80,9 +74,6 @@ class SpotifyAuth:
         """Returns the Spotify Authorize Url"""
         clientId, _ = SpotifyAuth._getSpotifyAuthData()
         return f"https://accounts.spotify.com/authorize?client_id={clientId}&response_type=code&redirect_uri={REDIRECT}&scope={SCOPE}" # pylint: disable=line-too-long
-
-    def _openSpotifyAuth(self) -> None:
-        webbrowser.open(self.authorizeUrl)
 
     @staticmethod
     def isDisabled() -> bool:
