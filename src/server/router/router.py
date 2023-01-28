@@ -18,6 +18,7 @@ from handler.playlist import PlaylistHandler
 from handler.sports import SportsHandler
 from handler.websocket import Websocket
 from handler.spotifyAuth import SpotifyAuth
+from handler.sharedPlayer import Connection
 
 
 class Router:
@@ -125,6 +126,7 @@ class Router:
         # /api/system
         app.router.add_get('/api/system/kill', Router._exitHandler)
 
+        app.router.add_get("/player/ws", Connection.websocketEndpoint)
         app.router.add_get('/ws', websocket.wsHandler)
 
         if not Runtime.args.apiOnly and not Runtime.args.withDocker:
