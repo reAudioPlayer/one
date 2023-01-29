@@ -1,6 +1,6 @@
 {
   "name": "reAudioPlayer",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "scripts": {
     "dev": "vite",
     "preview": "vite preview --port 8080",
@@ -16,13 +16,17 @@
     "vue-final-modal": "3.4.3",
     "vue-observe-visibility": "1.0.0",
     "vue-router": "4.1.5",
-    "vuedraggable": "4.1.0"
+    "vuedraggable": "4.1.0",
+    "wavesurfer.js": "^6.4.0",
+    "wavesurfer.js-vue": "^1.0.0"
   },
   "devDependencies": {
+    "@types/wavesurfer.js": "^6.0.3",
     "@vitejs/plugin-vue": "3.1.0",
     "autoprefixer": "10.4.12",
     "buffer": "6.0.3",
     "postcss": "8.4.17",
+    "prettier": "2.8.3",
     "sass": "1.55.0",
     "tailwindcss": "3.1.8",
     "vite": "3.1.4",

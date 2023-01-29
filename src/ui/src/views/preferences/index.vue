@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import Checkbox from "../../components/inputs/Checkbox.vue";
 import {computed, ref} from "vue";
 import Card from "../../containers/Card.vue";
@@ -6,6 +6,7 @@ import PasswordInputWithIcon from "../../components/inputs/PasswordInputWithIcon
 import {useSettingsStore} from "../../store/settings";
 import Theme from "../../components/Preferences/Theme.vue";
 import IconButton from "../../components/inputs/IconButton.vue";
+import Dropdown from "../../components/inputs/Dropdown.vue";
 
 const spotifyEnabled = ref(false);
 const spotifyClient = ref({
@@ -102,8 +103,8 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
         <Card class="p-4 pt-0">
             <Checkbox
                 v-model="spotifyEnabled"
-                label="Spotify"
                 class="h2 mb-2"
+                label="Spotify"
             />
             <details>
                 <summary class="cursor-pointer">How to</summary>
@@ -127,10 +128,10 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
                 icon="lock"
             />
             <IconButton
+                :disabled="!spotifyChanged"
+                class="ml-auto mt-4"
                 icon="save"
                 label="Save"
-                class="ml-auto mt-4"
-                :disabled="!spotifyChanged"
                 @click="saveSpotify"
             />
         </Card>
@@ -141,31 +142,41 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
                 label="Support Picture in Picture"
                 sublabel="this will slightly reduce performance"
             />
+            <Dropdown
+                v-model="settings.player.type"
+                :options="[{
+                    value: 'web',
+                    label: 'Native Player'
+                }, {
+                    value: 'web/wave',
+                    label: 'Wave Player'
+                }]"
+            />
         </Card>
         <Card class="p-4 pt-0">
             <h2 class="mt-[10px]">My Data</h2>
             <IconButton
+                class="mx-auto mt-4"
                 icon="backup"
                 label="Back up database"
-                class="mx-auto mt-4"
                 @click="$router.push('/export')"
             />
             <IconButton
+                class="mx-auto mt-4"
                 icon="cloud_download"
                 label="Import database"
-                class="mx-auto mt-4"
                 @click="$router.push('/import')"
             />
             <IconButton
+                class="mx-auto mt-4"
                 icon="delete"
                 label="Clean browser settings"
-                class="mx-auto mt-4"
                 @click="clearBrowser"
             />
             <IconButton
+                class="mx-auto mt-4"
                 icon="folder"
                 label="Manage files"
-                class="mx-auto mt-4"
                 @click="$router.push('/preferences/my-data')"
             />
         </Card>

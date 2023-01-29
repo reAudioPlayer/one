@@ -1,6 +1,8 @@
 <template>
     <div class="wrapper drop-shadow-md">
         <add-playlist-to-playlist
+            v-if="spotify"
+            ref="import"
             :playlist="{
                 cover,
                 name: title,
@@ -8,8 +10,6 @@
                 id,
                 href
             }"
-            ref="import"
-            v-if="spotify"
         />
         <div class="item" @click="redirect">
             <Cover :src="parseCover(cover)" type="playlist" />
@@ -20,10 +20,11 @@
 </template>
 
 <script>
-    import {parseCover} from "@/common";
-    import AddPlaylistToPlaylist from '../../../popups/ImportSpotifyPlaylist.vue'
-    import Cover from "@/components/image/Cover.vue";
-    export default {
+import {parseCover} from "@/common";
+import AddPlaylistToPlaylist from '../../../popups/ImportSpotifyPlaylist.vue'
+import Cover from "@/components/image/Cover.vue";
+
+export default {
         components: {Cover, AddPlaylistToPlaylist },
         name: 'PlaylistItem',
         methods: {
@@ -50,7 +51,7 @@
     }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
     $horizontalWidth: 1200px;
     $mobileWidth: 950px;
 
@@ -78,6 +79,7 @@
             display: flex;
             flex-direction: row;
             align-items: center;
+            height: 100%;
         }
     }
 
@@ -95,6 +97,7 @@
 
         @media screen and (max-width: $mobileWidth) {
             margin-left: 20px;
+            margin-top: 0;
         }
     }
 

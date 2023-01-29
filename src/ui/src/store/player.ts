@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import {defineStore} from 'pinia'
 import {parseCover, zeroPad} from "../common";
 import {useDataStore} from "./data";
 import {SharedPlayer} from "../api/sharedPlayer";
@@ -11,8 +11,9 @@ export interface Playable {
     play: () => void;
     pause: () => void;
     seek: (time: number) => void;
-    setVolume?: (volume: number) => void;
-    setRepeat?: (repeat: RepeatType) => void;
+    setVolume: (volume: number) => void;
+    setRepeat?: (repeat: RepeatType) => void; // handled in store
+    setMute: (mute: boolean) => void;
 }
 
 
@@ -22,6 +23,7 @@ export const usePlayerStore = defineStore({
         playing: false,
         progress: 0,
         ready: false,
+        muted: false,
         song: {
             title: null,
             artist: null,
@@ -70,6 +72,13 @@ export const usePlayerStore = defineStore({
         setRepeat(repeat: RepeatType) {
             this.repeat = repeat;
         },
+        setMute(mute: boolean) {
+            this.muted = mute;
+            this.player?.setMute(mute);
+        },
+        toggleMute() {
+            this.setMute(!this.muted);
+        },
         onSongEnded() {
             if (this.repeat === "repeat_one_on") {
                 this.play();
@@ -79,6 +88,7 @@ export const usePlayerStore = defineStore({
             }
         },
         play() {
+            console.log(this.player);
             this.player.play();
         },
         pause() {
@@ -222,6 +232,18 @@ export const usePlayerStore = defineStore({
         },
         loaded(state) {
             return state.song.id != -1;
+        },
+        muteIcon(state) {
+            if (state.muted) {
+                return "volume_off";
+            }
+            if (state.volume > 50) {
+                return "volume_up";
+            }
+            if (state.volume > 0) {
+                return "volume_down";
+            }
+            return "volume_mute";
         }
     }
 });

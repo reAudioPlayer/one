@@ -60,6 +60,10 @@ export const SharedPlayer = class implements Playable {
                         break;
                     case "set repeat":
                         playerStore.setRepeat(data.repeat);
+                        break;
+                    case "set mute":
+                        playerStore.setMute(data.mute);
+                        break;
                 }
             }
         }
@@ -76,6 +80,9 @@ export const SharedPlayer = class implements Playable {
                     playerStore.progress = msg.data.progress;
                     playerStore.volume = msg.data.volume;
                     playerStore.repeat = msg.data.repeat;
+                    break;
+                case "new client":
+                    console.log("new client", msg.data);
                     break;
                 case "client disconnected":
                     break;
@@ -120,6 +127,15 @@ export const SharedPlayer = class implements Playable {
         this.send("command", data);
     }
 
+    setPlayer(player: IPlayer) {
+        this.send("set player", player.id);
+    }
+
+    makeMePlayer() {
+        this.send("type", "Player");
+    }
+
+    /** Playable interface **/
     play() {
         this.sendCommand("play");
     }
@@ -149,11 +165,10 @@ export const SharedPlayer = class implements Playable {
         });
     }
 
-    setPlayer(player: IPlayer) {
-        this.send("set player", player.id);
-    }
-
-    makeMePlayer() {
-        this.send("type", "Player");
+    setMute(mute: boolean): void {
+        this.sendCommand({
+            command: "set mute",
+            mute,
+        });
     }
 }

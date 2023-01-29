@@ -1,9 +1,10 @@
-import { defineStore } from 'pinia'
+import {defineStore} from 'pinia'
 import {ref, watch} from "vue";
-import {usePlayerStore} from "./player";
 
 const KEY = "reapOne.settings";
 const DEFAULT_THEME = "dynamic";
+
+export type IWebPlayer = "web" | "web/wave";
 
 export interface ISettings {
     sidebar: {
@@ -14,6 +15,7 @@ export interface ISettings {
     player: {
         expandedCover: boolean;
         pictureInPicture: boolean;
+        type: IWebPlayer;
     },
     theme: string;
 }
@@ -34,7 +36,8 @@ const defaultSettings: ISettings = {
     },
     player: {
         expandedCover: false,
-        pictureInPicture: false
+        pictureInPicture: false,
+        type: "web"
     },
     theme: DEFAULT_THEME
 }

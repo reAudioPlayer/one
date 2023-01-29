@@ -4,6 +4,7 @@
         "module": "esnext",
         "moduleResolution": "node",
         "noEmit": false,
-        "noImplicitThis": false
+        "noImplicitThis": false,
+        "allowSyntheticDefaultImports": true
     },
 }

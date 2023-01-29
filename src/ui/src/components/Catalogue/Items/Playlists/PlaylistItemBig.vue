@@ -29,9 +29,8 @@
     }
 </script>
 
-<style scoped lang="scss">
-    $horizontalWidth: 1200px;
-    $mobileWidth: 950px;
+<style lang="scss" scoped>
+    $mobileWidth: 750px;
 
     p.note {
         font-size: .8em;
@@ -68,6 +67,12 @@
         flex-direction: column;
         justify-content: flex-end;
         padding: 20px;
+
+        @media screen and (max-width: $mobileWidth) {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: .5em;
+        }
     }
 
     .wrapper {
@@ -85,12 +90,13 @@
         border-radius: 2px;
     }
 
-    h4 {
-        margin: 0;
-        font-size: 2em;
+    @media screen and (min-width: $mobileWidth) {
+        h4 {
+            font-size: 2em;
+        }
     }
 
-    p {
+    h4, p {
         margin: 0;
     }
 </style>

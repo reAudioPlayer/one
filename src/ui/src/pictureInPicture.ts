@@ -26,7 +26,7 @@ export const initPictureInPicture = () => {
     let enabled = true;
 
     const load = async (cover: string) => {
-        if (!enabled) return false;
+        if (!settingsStore.player.pictureInPicture) return false;
         if (playerStore.song.id < 0) return false;
 
         worker?.terminate();
