@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import {usePlayerStore} from "../store/player";
+import {Playable, usePlayerStore} from "../store/player";
 import {onMounted, ref, watch} from "vue";
-import ProgressBar from "../components/ProgressBar.vue";
 
 const player = usePlayerStore();
 const audio = ref<HTMLAudioElement>(null);
@@ -48,25 +47,38 @@ const seek = (time: number) => {
 }
 
 const setVolume = (volume: number) => {
-    audio.value.volume = volume / 100;
+    let asPercent = volume / 100;
+    asPercent = Math.min(Math.max(asPercent, 0), 1);
+    audio.value.volume = asPercent;
 }
 
-defineExpose({
+const setMute = (muted: boolean) => {
+    audio.value.muted = muted;
+}
+
+onMounted(() => {
+    setVolume(player.volume);
+})
+
+const playable: Playable = {
     play,
     pause,
     seek,
     setVolume,
-})
+    setMute
+}
+
+defineExpose(playable);
 </script>
 <template>
     <div class="html-audio">
         <audio
             ref="audio"
             :src="player.stream"
+            @ended="player.onSongEnded"
             @pause="player.setPlaying(false)"
             @play="player.setPlaying(true)"
             @timeupdate="player.setProgress(audio?.currentTime)"
-            @ended="player.onSongEnded"
         />
     </div>
 </template>

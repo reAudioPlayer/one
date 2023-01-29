@@ -10,26 +10,34 @@ import {useSettingsStore} from "../store/settings";
 import {pictureInPictureStatus, requestPictureInPicture} from "../pictureInPicture";
 import Spinner from "../components/loaders/Spinner.vue";
 import {hashTrack} from "../common";
+import WaveAudio from "./WaveAudio.vue";
 
 const player = usePlayerStore();
 const settings = useSettingsStore();
 
 const playable: Ref<Playable> = ref(null);
 
-const dropdownValue = ref("");
-const dropdownOptions = computed(() => {
+const selectedPlaybackDevice = ref("");
+const playbackDevices = computed(() => {
     return player.sharedPlayer.connections.map(c => ({
         value: c.id,
         label: c.friendlyName,
     }));
 });
-watch(dropdownValue, (value) => {
+watch(selectedPlaybackDevice, (value) => {
     if (value === player.sharedPlayer.me?.id) {
         player.sharedPlayer.makeMePlayer();
         player.setPlaying(false);
     }
     else
         setPlayerTo(value);
+});
+watch(() => player.sharedPlayer.connections, connections => {
+    console.log("connections changed", connections);
+
+    if (!selectedPlaybackDevice.value || !connections.find(c => c.id === selectedPlaybackDevice.value)) {
+        selectedPlaybackDevice.value = player.sharedPlayer.me?.id;
+    }
 });
 
 const setPlayerTo = (id: string) => {
@@ -42,7 +50,8 @@ const setPlayerTo = (id: string) => {
 }
 
 onMounted(() => {
-    dropdownValue.value = player.sharedPlayer.me?.id;
+    selectedPlaybackDevice.value = player.sharedPlayer.me?.id;
+    console.log("selectedPlaybackDevice", selectedPlaybackDevice.value);
 });
 
 watch(playable, () => {
@@ -55,79 +64,112 @@ onMounted(() => {
 });
 
 const mobileExpanded = ref(false);
+
+const isMobile = computed(() => {
+    return window.innerWidth < 750;
+});
+
+const onThisDevice = computed(() => {
+    return selectedPlaybackDevice.value === player.sharedPlayer.me?.id;
+});
+const showWebPlayer = computed(() => {
+    return settings.player.type === "web" && onThisDevice.value;
+});
+const showWebWavePlayer = computed(() => {
+    return settings.player.type === "web/wave" && onThisDevice.value;
+});
 </script>
 <template>
     <div class="player">
         <HtmlAudio
-            v-if="dropdownValue === player.sharedPlayer.me?.id"
+            v-if="showWebPlayer"
             ref="playable"
         />
 
-        <div class="hideIfMobile desktop mx-4">
+        <div v-if="!isMobile" class="desktop mx-4">
             <div class="song-info">
-                <router-link to="/player" class="linkOnHover">
+                <router-link class="linkOnHover" to="/player">
                     <Cover
-                        class="cover rounded-md"
                         :src="player.song.cover"
+                        class="cover rounded-md"
                     />
                 </router-link>
-                <div class="title-artist">
-                    <router-link :to="`/track/${hashTrack(player.song.id)}`" class="linkOnHover">
-                        <Marquee class="" :text="player.song.title" />
-                    </router-link>
-                    <router-link :to="`/search/${player.song.artist}`" class="linkOnHover">
-                        <Marquee class="text-muted text-xs" :text="player.song.artist" />
-                    </router-link>
-                </div>
-                <span
-                    class="favourite text-xl cursor-pointer material-symbols-rounded ms-wght-300"
-                    :class="{'ms-fill': player.song.favourite}"
-                    @click="player.toggleFavourite"
-                >
-                    favorite
-                </span>
-                <template v-if="settings.player.pictureInPicture">
-                    <Spinner
-                        v-if="pictureInPictureStatus == 'loading'"
-                    />
+                <template v-if="player.loaded">
+                    <div class="title-artist">
+                        <router-link :to="`/track/${hashTrack(player.song.id)}`" class="linkOnHover">
+                            <Marquee :text="player.song.title" class="" />
+                        </router-link>
+                        <router-link :to="`/search/${player.song.artist}`" class="linkOnHover">
+                            <Marquee :text="player.song.artist" class="text-muted text-xs" />
+                        </router-link>
+                    </div>
                     <span
-                        v-else
-                        class="favourite material-icons-round cursor-pointer text-xl"
-                        @click="requestPictureInPicture"
+                        :class="{'ms-fill': player.song.favourite}"
+                        class="favourite text-xl cursor-pointer material-symbols-rounded ms-wght-300"
+                        @click="player.toggleFavourite"
                     >
-                        {{ pictureInPictureStatus == "ready" ? "picture_in_picture_alt" : "error" }}
+                        favorite
                     </span>
+                        <template v-if="settings.player.pictureInPicture">
+                            <Spinner
+                                v-if="pictureInPictureStatus == 'loading'"
+                            />
+                            <span
+                                v-else
+                                class="favourite material-icons-round cursor-pointer text-xl"
+                                @click="requestPictureInPicture"
+                            >
+                            {{ pictureInPictureStatus == "ready" ? "picture_in_picture_alt" : "error" }}
+                        </span>
+                        </template>
+                </template>
+                <template v-else>
+                    <router-link :to="`/collection/playlists`">
+                        <Marquee class="text-xs text-muted" text="Nothing playing yet..." />
+                    </router-link>
                 </template>
             </div>
             <div class="controls">
                 <div class="top">
                     <span
-                        @click="player.toggleShuffle"
                         class="cursor-pointer material-symbols-rounded ms-wght-300"
+                        @click="player.toggleShuffle"
                     >
                         shuffle
                     </span>
                     <span
-                        @click="player.previous"
+                        :class="{
+                            'cursor-not-allowed': !player.loaded,
+                        }"
+                        :disabled="!player.loaded"
                         class="cursor-pointer material-symbols-rounded ms-fill"
+                        @click="player.previous"
                     >
                         skip_previous
                     </span>
                     <span
-                        @click="player.playPause"
+                        :class="{
+                            'cursor-not-allowed': !player.loaded,
+                        }"
+                        :disabled="!player.loaded"
                         class="cursor-pointer material-symbols-rounded ms-fill text-4xl"
+                        @click="player.playPause"
                     >
                         {{ player.playing ? "pause_circle" : "play_circle" }}
                     </span>
                     <span
-                        @click="player.next"
+                        :class="{
+                            'cursor-not-allowed': !player.loaded,
+                        }"
+                        :disabled="!player.loaded"
                         class="cursor-pointer material-symbols-rounded ms-fill"
+                        @click="player.next"
                     >
                         skip_next
                     </span>
                     <span
-                        @click="player.toggleRepeat"
                         class="cursor-pointer material-symbols-rounded ms-wght-300"
+                        @click="player.toggleRepeat"
                     >
                         {{ player.repeat }}
                     </span>
@@ -135,11 +177,17 @@ const mobileExpanded = ref(false);
                 <div class="bottom">
                     <div class="display">
                         <span
-                            class="text-xs text-muted text-right"
+                            class="text-xs text-muted text-right cursor-pointer"
+                            @click="settings.player.type = settings.player.type === 'web' ? 'web/wave' : 'web'"
                         >
                             {{ player.displayProgress }}
                         </span>
+                        <WaveAudio
+                            v-if="showWebWavePlayer"
+                            ref="playable"
+                        />
                         <ProgressBar
+                            v-else
                             v-model="player.progressPercent"
                             max="1000"
                             @change="e => player.seekPercent(e / 10)"
@@ -154,15 +202,15 @@ const mobileExpanded = ref(false);
             </div>
             <div class="aux">
                 <IconDropdown
+                    v-model="selectedPlaybackDevice"
+                    :options="playbackDevices"
                     icon="devices"
-                    :options="dropdownOptions"
-                    v-model="dropdownValue"
                 />
                 <span
-                    @click="player.volume = 0"
                     class="cursor-pointer material-symbols-rounded ms-fill"
+                    @click="player.toggleMute"
                 >
-                    {{ player.volume === 0 ? "volume_off" : "volume_down" }}
+                    {{ player.muteIcon }}
                 </span>
                 <ProgressBar
                     v-model="player.volume"
@@ -171,35 +219,35 @@ const mobileExpanded = ref(false);
                 />
             </div>
         </div>
-        <div class="showIfMobile mobile mx-4">
+        <div v-else class="mobile mx-4">
             <div
-                class="small"
                 v-if="!mobileExpanded"
+                class="small"
                 @click="mobileExpanded = true"
             >
                 <Cover
-                    class="cover rounded-md"
                     :src="player.song.cover"
+                    class="cover rounded-md"
                 />
                 <div class="artist-title overflow-hidden">
-                    <Marquee class="text-sm" :text="player.song.title" />
-                    <Marquee class="text-xs text-muted" :text="player.song.artist" />
+                    <Marquee :text="player.song.title" class="text-sm"/>
+                    <Marquee :text="player.song.artist" class="text-xs text-muted"/>
                 </div>
                 <IconDropdown
-                    @click.stop
+                    v-model="selectedPlaybackDevice"
+                    :options="playbackDevices"
                     class="material-symbols-rounded"
                     icon="devices"
-                    :options="dropdownOptions"
-                    v-model="dropdownValue"
+                    @click.stop
                 />
                 <span
-                    @click.stop="player.playPause"
                     class="cursor-pointer material-symbols-rounded ms-fill text-xl"
+                    @click.stop="player.playPause"
                 >
                     {{ player.playing ? "pause" : "play_arrow" }}
                 </span>
             </div>
-            <div class="full" v-else>
+            <div v-else class="full">
                 <div>
                     <span
                         class="material-symbols-rounded ms-wght-500"
@@ -208,10 +256,10 @@ const mobileExpanded = ref(false);
                         expand_more
                     </span>
                 </div>
-                <router-link to="/player" class="my-auto linkOnHover">
+                <router-link class="my-auto linkOnHover" to="/player">
                     <Cover
-                        class="cover rounded-md"
                         :src="player.song.cover"
+                        class="cover rounded-md"
                     />
                 </router-link>
                 <div class="rest">
@@ -219,48 +267,53 @@ const mobileExpanded = ref(false);
                         <div class="rest"></div>
                         <div class="title-artist mb-4">
                             <router-link :to="`/track/${hashTrack(player.song.id)}`" class="linkOnHover">
-                                <Marquee class="text-2xl font-bold" :text="player.song.title" />
+                                <Marquee :text="player.song.title" class="text-2xl font-bold" />
                             </router-link>
                             <router-link :to="`/search/${player.song.artist}`" class="linkOnHover">
-                                <Marquee class="text-muted text-xs" :text="player.song.artist" />
+                                <Marquee :text="player.song.artist" class="text-muted text-xs" />
                             </router-link>
                         </div>
                     </div>
                     <div class="controls mb-4">
                         <div class="top">
                             <span
-                                @click="player.toggleShuffle"
                                 class="cursor-pointer material-symbols-rounded ms-wght-300"
+                                @click="player.toggleShuffle"
                             >
                                 shuffle
                             </span>
                             <span
-                                @click="player.previous"
                                 class="cursor-pointer material-symbols-rounded ms-fill"
+                                @click="player.previous"
                             >
                                 skip_previous
                             </span>
                             <span
-                                @click="player.playPause"
                                 class="cursor-pointer material-symbols-rounded ms-fill text-4xl"
+                                @click="player.playPause"
                             >
                                 {{ player.playing ? "pause_circle" : "play_circle" }}
                             </span>
                             <span
-                                @click="player.next"
                                 class="cursor-pointer material-symbols-rounded ms-fill"
+                                @click="player.next"
                             >
                                 skip_next
                             </span>
                             <span
-                                @click="player.toggleRepeat"
                                 class="cursor-pointer material-symbols-rounded ms-wght-300"
+                                @click="player.toggleRepeat"
                             >
                                 {{ player.repeat }}
                             </span>
                         </div>
                         <div class="bottom">
+                            <WaveAudio
+                                v-if="showWebWavePlayer"
+                                ref="playable"
+                            />
                             <ProgressBar
+                                v-else
                                 v-model="player.progressPercent"
                                 max="1000"
                                 @change="e => player.seekPercent(e / 10)"
@@ -282,8 +335,8 @@ const mobileExpanded = ref(false);
                     <div class="aux flex flex-row justify-between">
                         <div class="flex flex-row">
                             <span
-                                    class="favourite text-xl cursor-pointer material-symbols-rounded ms-wght-300"
                                     :class="{'ms-fill': player.song.favourite}"
+                                    class="favourite text-xl cursor-pointer material-symbols-rounded ms-wght-300"
                                     @click="player.toggleFavourite"
                                 >
                                 favorite
@@ -303,9 +356,9 @@ const mobileExpanded = ref(false);
                         </div>
 
                         <IconDropdown
+                            v-model="selectedPlaybackDevice"
+                            :options="playbackDevices"
                             icon="devices"
-                            :options="dropdownOptions"
-                            v-model="dropdownValue"
                         />
                     </div>
                 </div>
@@ -316,7 +369,7 @@ const mobileExpanded = ref(false);
 </template>
 <style lang="scss" scoped>
 .player {
-    background: var(--bg-base-dk);
+    background: var(--bg-base-lt);
     border-top: 1px solid var(--border-base);
     z-index: 2;
 }

@@ -1,17 +1,17 @@
 <template>
-    <div class="header flex flex-row justify-between drop-shadow-md">
-        <Logo class="logo" @click="$router.push('/')" />
+    <div class="header grid grid-cols-3 justify-between drop-shadow-md">
+        <Logo class="hideIfMobile logo" @click="$router.push('/')" />
         <div class="search flex flex-row">
-            <nav-entry minimised href="/" icon="home" name="Home" class="mr-2" />
+            <nav-entry class="mr-2" href="/" icon="home" minimised name="Home" />
             <text-input-with-icon
-                class="w-96"
+                v-model="query"
+                class="md:w-96"
                 icon="search"
                 placeholder="Search..."
-                v-model="query"
                 @submit="submit"
             />
         </div>
-        <nav-entry minimised href="/preferences" icon="settings" name="Preferences" class="mr-2" />
+        <nav-entry class="mr-2" href="/preferences" icon="settings" minimised name="Preferences" />
     </div>
 </template>
 

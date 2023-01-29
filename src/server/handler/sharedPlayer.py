@@ -265,7 +265,7 @@ class Connection:
     @classmethod
     async def websocketEndpoint(cls, request: web.Request) -> web.WebSocketResponse:
         """The websocket endpoint"""
-        ws = web.WebSocketResponse()
+        ws = web.WebSocketResponse(heartbeat = 10)
         await ws.prepare(request)
 
         connection = cls(request, ws)

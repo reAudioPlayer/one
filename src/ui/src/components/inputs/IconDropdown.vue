@@ -34,11 +34,6 @@ const select = (value: string) => {
     expanded.value = false;
 };
 
-const selectedLabel = computed(() => {
-    const selected = options.value.find(x => x.value == selectedValue.value);
-    return selected ? selected.label : "";
-});
-
 const trueDropdown = ref(null);
 watch(expanded, (value) => {
     nextTick(() => {
@@ -51,8 +46,6 @@ watch(expanded, (value) => {
 
             const enoughSpaceBelow = spaceBelow > rect.height;
 
-            console.log(spaceBelow, rect.height, enoughSpaceBelow)
-
             if (enoughSpaceBelow) {
                 trueDropdown.value.style.top = "100%";
                 trueDropdown.value.style.bottom = "auto";
@@ -60,8 +53,6 @@ watch(expanded, (value) => {
                 trueDropdown.value.style.top = "auto";
                 trueDropdown.value.style.bottom = "100%";
             }
-
-            console.log(rect.left, rect.right, window.innerWidth)
 
             if (rect.left < 0) {
                 trueDropdown.value.style.left = "0";
@@ -74,7 +65,9 @@ watch(expanded, (value) => {
     })
 });
 
-window.onclick = () => expanded.value = false;
+document.addEventListener("click", () => {
+    expanded.value = false;
+});
 </script>
 <template>
     <div class="dropdown">
@@ -84,7 +77,7 @@ window.onclick = () => expanded.value = false;
         >
             {{icon}}
         </span>
-        <div ref="trueDropdown" class="dropdown__options" v-if="expanded">
+        <div ref="trueDropdown" :class="{expanded}" class="dropdown__options" v-if="expanded">
             <div
                 v-for="option in options"
                 :key="option.value"
