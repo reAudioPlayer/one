@@ -3,7 +3,6 @@ import {usePlayerStore} from "@/store/player";
 import {useDataStore} from "@/store/data";
 import {computed} from "vue";
 import {useSettingsStore} from "@/store/settings";
-import {parsePlaylistCover} from "@/common";
 
 const player = usePlayerStore();
 const data = useDataStore();
@@ -16,21 +15,21 @@ const settings = useSettingsStore();
 <template>
     <div class="sidebar drop-shadow-xl">
         <div class="static">
-            <nav-entry :minimised="minimised" href="/collection/playlists" icon="library_music" name="Your Library"
-                       :hasChildSites="true" parentHref="/collection"/>
+            <nav-entry :hasChildSites="true" :minimised="minimised" href="/collection/playlists" icon="library_music"
+                       name="Your Library" parentHref="/collection"/>
             <nav-entry :minimised="minimised" href="/discover" icon="explore" name="Discover"/>
             <br v-if="settings.sidebar.news || settings.sidebar.sports">
-            <nav-entry :minimised="minimised" v-if="settings.sidebar.news" href="/news" icon="newspaper" name="News"
-                       :hasChildSites="true"/>
-            <nav-entry :minimised="minimised" v-if="settings.sidebar.sports" href="/sports" icon="sports_soccer"
-                       name="Sports"
-                       :hasChildSites="true"/>
+            <nav-entry v-if="settings.sidebar.news" :hasChildSites="true" :minimised="minimised" href="/news" icon="newspaper"
+                       name="News"/>
+            <nav-entry v-if="settings.sidebar.sports" :hasChildSites="true" :minimised="minimised" href="/sports"
+                       icon="sports_soccer"
+                       name="Sports"/>
             <br class="hideIfMobile">
-            <nav-entry class="hideIfMobile" :minimised="minimised" href="/playlist/create" icon="add_circle"
+            <nav-entry :minimised="minimised" class="hideIfMobile" href="/playlist/create" icon="add_circle"
                        name="Create Playlist"/>
             <nav-entry :minimised="minimised" href="/collection/tracks" icon="favorite" name="Liked Songs"/>
         </div>
-        <hr class="hideIfMobile" v-if="playlists.length">
+        <hr v-if="playlists.length" class="hideIfMobile">
         <template v-if="!minimised">
             <div class="playlistList expanded hideIfMobile">
                 <router-link v-for="(element, index) in playlists" :key="index" :to="element.href">{{ element.name }}
@@ -39,15 +38,15 @@ const settings = useSettingsStore();
         </template>
         <template v-else>
             <div class="playlistList hideIfMobile">
-                <nav-entry v-for="(element, index) in playlists" :key="index" :minimised="minimised"
-                           :href="element.href" :img="element.cover" :name="element.name"/>
+                <nav-entry v-for="(element, index) in playlists" :key="index" :href="element.href"
+                           :img="element.cover" :minimised="minimised" :name="element.name"/>
             </div>
         </template>
         <img
             v-if="settings.player.expandedCover"
-            @click="settings.player.expandedCover = false"
             :src="cover"
             class="cover hideIfMobile"
+            @click="settings.player.expandedCover = false"
         />
     </div>
 </template>
@@ -86,7 +85,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 $mobileWidth: 750px;
 
 .logo {
@@ -192,6 +191,7 @@ div.sidebar {
         bottom: 0;
         margin: 0;
         max-width: 100vw;
+        border-radius: 0;
     }
 }
 

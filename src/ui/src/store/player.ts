@@ -2,7 +2,8 @@ import {defineStore} from 'pinia'
 import {parseCover, zeroPad} from "../common";
 import {useDataStore} from "./data";
 import {SharedPlayer} from "../api/sharedPlayer";
-import {nextSong, prevSong} from "../api/player";
+import {getShuffle, nextSong, prevSong, setShuffle} from "../api/player";
+import {computed} from "vue";
 
 
 type PlaylistType = "playlist" | "collection" | "collection/breaking" | "track";
@@ -24,6 +25,7 @@ export const usePlayerStore = defineStore({
         progress: 0,
         ready: false,
         muted: false,
+        shuffle: false,
         song: {
             title: null,
             artist: null,
@@ -37,7 +39,6 @@ export const usePlayerStore = defineStore({
         playlist: {
             cover: null,
             description: null,
-            index: -1, // of song in playlist
             name: null,
             id: -1,
             songs: [],
@@ -79,16 +80,25 @@ export const usePlayerStore = defineStore({
         toggleMute() {
             this.setMute(!this.muted);
         },
+        setShuffle(shuffle: boolean) {
+            this.shuffle = shuffle;
+            setShuffle(shuffle);
+        },
+        toggleShuffle() {
+            this.setShuffle(!this.shuffle);
+        },
         onSongEnded() {
             if (this.repeat === "repeat_one_on") {
                 this.play();
             } else {
-                this.setPlaying(true);
+                if (this.repeat === "repeat" && this.playlist.index.value === this.playlist.songs.length - 1) {
+                    return;
+                }
+
                 this.next();
             }
         },
         play() {
-            console.log(this.player);
             this.player.play();
         },
         pause() {
@@ -158,7 +168,10 @@ export const usePlayerStore = defineStore({
             })
         },
         setPlaylist(playlist) {
-            this.playlist = playlist;
+            this.playlist.songs = playlist.songs;
+            this.playlist.cover = parseCover(playlist.cover);
+            this.playlist.description = playlist.description;
+            this.playlist.name = playlist.name;
         },
         setVolume(volume) {
             this.volume = volume;
@@ -170,9 +183,11 @@ export const usePlayerStore = defineStore({
         toggleFavourite() {
             this.setFavourite(!this.song.favourite);
         },
-        initialise() {
+        async initialise() {
             this.volume = localStorage.getItem("reap.volume") || 50;
             this.sharedPlayer = new SharedPlayer();
+
+            this.setShuffle(await getShuffle());
         },
         // TODO
         // loadPlaylist( ??? )
@@ -233,6 +248,12 @@ export const usePlayerStore = defineStore({
         loaded(state) {
             return state.song.id != -1;
         },
+        shuffleIcon(state) {
+            if (state.shuffle) {
+                return "shuffle_on";
+            }
+            return "shuffle";
+        },
         muteIcon(state) {
             if (state.muted) {
                 return "volume_off";
@@ -244,6 +265,12 @@ export const usePlayerStore = defineStore({
                 return "volume_down";
             }
             return "volume_mute";
+        },
+        playlist(state) {
+            return {
+                ...state.playlist,
+                index: computed(() => state.playlist?.songs?.findIndex(song => song.id === state.song.id) ?? -1)
+            };
         }
     }
 });

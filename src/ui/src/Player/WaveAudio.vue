@@ -23,6 +23,7 @@ onMounted(() => {
         barWidth: 1,
         pixelRatio: 1,
         responsive: true,
+        barGap: 0,
     });
     audio.value.on("play", () => {
         player.setPlaying(true);
@@ -47,8 +48,6 @@ onMounted(() => {
     audio.value.load(player.stream);
 
     audio.value.on("ready", () => {
-        console.log("ready", audio.value.getDuration());
-
         if (!audio.value) return;
         player.setDuration(audio.value.getDuration());
 
@@ -69,8 +68,6 @@ watch(() => player.song.id, () => {
 });
 
 const play = () => {
-    console.log("play");
-
     try {
         audio.value.play();
     } catch (_) {}
@@ -81,7 +78,7 @@ const pause = () => {
 }
 
 const seek = (time: number) => {
-    audio.value.currentTime = time;
+    audio.value.seekTo(time / player.durationSeconds);
 }
 
 const setVolume = (volume: number) => {

@@ -9,7 +9,7 @@ import IconDropdown from "../components/inputs/IconDropdown.vue";
 import {useSettingsStore} from "../store/settings";
 import {pictureInPictureStatus, requestPictureInPicture} from "../pictureInPicture";
 import Spinner from "../components/loaders/Spinner.vue";
-import {hashTrack} from "../common";
+import {hashTrack, isMobile} from "../common";
 import WaveAudio from "./WaveAudio.vue";
 
 const player = usePlayerStore();
@@ -33,8 +33,6 @@ watch(selectedPlaybackDevice, (value) => {
         setPlayerTo(value);
 });
 watch(() => player.sharedPlayer.connections, connections => {
-    console.log("connections changed", connections);
-
     if (!selectedPlaybackDevice.value || !connections.find(c => c.id === selectedPlaybackDevice.value)) {
         selectedPlaybackDevice.value = player.sharedPlayer.me?.id;
     }
@@ -42,7 +40,6 @@ watch(() => player.sharedPlayer.connections, connections => {
 
 const setPlayerTo = (id: string) => {
     const connection = player.sharedPlayer.connections.find(c => c.id === id);
-    console.log("setPlayerTo", id, connection);
     if (connection) {
         player.sharedPlayer.setPlayer(connection);
         playable.value = player.sharedPlayer;
@@ -51,11 +48,9 @@ const setPlayerTo = (id: string) => {
 
 onMounted(() => {
     selectedPlaybackDevice.value = player.sharedPlayer.me?.id;
-    console.log("selectedPlaybackDevice", selectedPlaybackDevice.value);
 });
 
 watch(playable, () => {
-    console.log("playable changed");
     player.setPlayer(playable.value);
 });
 
@@ -64,10 +59,6 @@ onMounted(() => {
 });
 
 const mobileExpanded = ref(false);
-
-const isMobile = computed(() => {
-    return window.innerWidth < 750;
-});
 
 const onThisDevice = computed(() => {
     return selectedPlaybackDevice.value === player.sharedPlayer.me?.id;
@@ -135,7 +126,7 @@ const showWebWavePlayer = computed(() => {
                         class="cursor-pointer material-symbols-rounded ms-wght-300"
                         @click="player.toggleShuffle"
                     >
-                        shuffle
+                        {{player.shuffleIcon}}
                     </span>
                     <span
                         :class="{
@@ -203,6 +194,9 @@ const showWebWavePlayer = computed(() => {
             <div class="aux">
                 <IconDropdown
                     v-model="selectedPlaybackDevice"
+                    :class="{
+                        'on-this-device': onThisDevice
+                    }"
                     :options="playbackDevices"
                     icon="devices"
                 />
@@ -221,7 +215,7 @@ const showWebWavePlayer = computed(() => {
         </div>
         <div v-else class="mobile mx-4">
             <div
-                v-if="!mobileExpanded"
+                v-show="!mobileExpanded"
                 class="small"
                 @click="mobileExpanded = true"
             >
@@ -235,6 +229,9 @@ const showWebWavePlayer = computed(() => {
                 </div>
                 <IconDropdown
                     v-model="selectedPlaybackDevice"
+                    :class="{
+                        'on-this-device': onThisDevice
+                    }"
                     :options="playbackDevices"
                     class="material-symbols-rounded"
                     icon="devices"
@@ -247,7 +244,7 @@ const showWebWavePlayer = computed(() => {
                     {{ player.playing ? "pause" : "play_arrow" }}
                 </span>
             </div>
-            <div v-else class="full">
+            <div v-show="mobileExpanded" class="full">
                 <div>
                     <span
                         class="material-symbols-rounded ms-wght-500"
@@ -280,7 +277,7 @@ const showWebWavePlayer = computed(() => {
                                 class="cursor-pointer material-symbols-rounded ms-wght-300"
                                 @click="player.toggleShuffle"
                             >
-                                shuffle
+                                {{ player.shuffleIcon}}
                             </span>
                             <span
                                 class="cursor-pointer material-symbols-rounded ms-fill"
@@ -357,6 +354,9 @@ const showWebWavePlayer = computed(() => {
 
                         <IconDropdown
                             v-model="selectedPlaybackDevice"
+                            :class="{
+                                'on-this-device': onThisDevice
+                            }"
                             :options="playbackDevices"
                             icon="devices"
                         />
@@ -367,6 +367,11 @@ const showWebWavePlayer = computed(() => {
 
     </div>
 </template>
+<style lang="scss">
+.player .on-this-device > .material-symbols-rounded {
+    color: var(--fg-secondary)
+}
+</style>
 <style lang="scss" scoped>
 .player {
     background: var(--bg-base-lt);
@@ -377,7 +382,7 @@ const showWebWavePlayer = computed(() => {
 .desktop {
     display: grid;
     height: calc(var(--h-player) - 1px);
-    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
     grid-template-areas: "song-info controls aux";
     gap: 10px;
 
@@ -387,6 +392,11 @@ const showWebWavePlayer = computed(() => {
         align-items: center;
         grid-template-columns: calc(var(--h-player) - 40px) fit-content(100%) 20px 20px;
         gap: 10px;
+        overflow: hidden;
+
+        .title-artist {
+            overflow: hidden;
+        }
 
         div {
             margin: auto 0;
