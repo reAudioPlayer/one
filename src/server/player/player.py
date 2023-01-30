@@ -22,6 +22,20 @@ from downloader.downloader import Downloader
 
 class Player: # pylint: disable=too-many-instance-attributes
     """Player"""
+    __slots__ = (
+        "_dbManager",
+        "_config",
+        "_playlistManager",
+        "_downloader",
+        "_playerPlaylist",
+        "_song",
+        "_preloaded",
+        "_shuffle",
+        "_logger",
+        "_playlistChangeCallback",
+        "_songChangeCallback"
+    )
+
     def __init__(self,
                  dbManager: DbManager,
                  downloader: Downloader,
@@ -35,10 +49,10 @@ class Player: # pylint: disable=too-many-instance-attributes
         self._song: Optional[Song] = None
         self._preloaded: Optional[str] = None
         self._logger = logging.getLogger("player")
+        self._shuffle = False
 
         self._playlistChangeCallback: Optional[Callable[[PlayerPlaylist], Awaitable[None]]] = None
         self._songChangeCallback: Optional[Callable[[Song], Awaitable[None]]] = None
-        self._playStateChangeCallback: Optional[Callable[[bool], Awaitable[None]]] = None
 
     async def _onPlaylistChange(self, playlist: PlayerPlaylist) -> None:
         if self._playlistChangeCallback:
@@ -89,22 +103,14 @@ class Player: # pylint: disable=too-many-instance-attributes
             return
         await self.unload()
 
-        #if self._shuffle:
-        #    _, song = self._playerPlaylist.random()
-        #    await self._preloadSong(song)
-        #    await self._loadSong(song)
-        #    return
+        if self._shuffle:
+            _, song = self._playerPlaylist.random()
+            await self._preloadSong(song)
+            await self._loadSong(song)
+            return
 
         await self._preloadSong(self._playerPlaylist.next())
         await self._loadSong()
-
-    async def onSongEnd(self) -> None:
-        """on song end event"""
-        if self._loopSong:
-            await self._loadSong(self._song)
-            return
-
-        await self.next()
 
     async def at(self, index: int) -> bool:
         """play at"""
@@ -141,15 +147,6 @@ class Player: # pylint: disable=too-many-instance-attributes
     @shuffle.setter
     def shuffle(self, value: bool) -> None:
         self._shuffle = value
-
-    @property
-    def loopSong(self) -> bool:
-        """repeat song"""
-        return self._loopSong
-
-    @loopSong.setter
-    def loopSong(self, value: bool) -> None:
-        self._loopSong = value
 
     def updateSongMetadata(self, id_: int, song: Song) -> None:
         """updates the metadata"""

@@ -4,9 +4,10 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
 
 import asyncio
 from typing import Dict, Any, Optional
+import json
 
 from aiohttp import web
-from pyaddict.schema import Object, String, Integer, Boolean
+from pyaddict.schema import Object, String, Integer
 
 from db.dbManager import DbManager
 from helper.payloadParser import withObjectPayload
@@ -129,29 +130,18 @@ class PlayerHandler:
                                         self._dbManager.getSongById(id_).updateFromDict(jdata))
         return web.Response(status = 200)
 
-    @withObjectPayload(Object({
-        "value": Boolean()
-    }), inBody = True)
-    async def postShuffle(self, payload: Dict[str, Any]) -> web.Response:
+    async def postShuffle(self, request: web.Request) -> web.Response:
         """post(/api/player/shuffle)"""
-        self._player.shuffle = payload["value"]
-        return web.Response(status = 200)
+        shuffle = await request.json()
+        if not isinstance(shuffle, bool):
+            return web.HTTPBadRequest()
+
+        self._player.shuffle = shuffle
+        return web.Response()
 
     async def getShuffle(self, _: web.Request) -> web.Response:
         """get(/api/player/shuffle)"""
-        return web.Response(status = 200, text = str(self._player.shuffle))
-
-    @withObjectPayload(Object({
-        "value": Boolean()
-    }), inBody = True)
-    async def postRepeat(self, payload: Dict[str, Any]) -> web.Response:
-        """post(/api/player/repeat)"""
-        self._player.loopSong = payload["value"]
-        return web.Response(status = 200, text = "success!")
-
-    async def getRepeat(self, _: web.Request) -> web.Response:
-        """get(/api/player/repeat)"""
-        return web.Response(status = 200, text = str(self._player.loopSong))
+        return web.Response(status = 200, text = json.dumps(self._player.shuffle))
 
     async def getCurrentTrack(self, _: web.Request) -> web.Response:
         """get(/api/me/player/current-track)"""

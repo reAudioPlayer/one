@@ -51,9 +51,6 @@ class Router:
 
         app.router.add_post('/api/player/load', playerHandler.loadPlaylist)
 
-        app.router.add_post('/api/player/repeat', playerHandler.postRepeat)
-        app.router.add_get('/api/player/repeat', playerHandler.getRepeat)
-
         app.router.add_post('/api/player/shuffle', playerHandler.postShuffle)
         app.router.add_get('/api/player/shuffle', playerHandler.getShuffle)
 
