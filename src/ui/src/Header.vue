@@ -2,7 +2,7 @@
     <div class="header grid grid-cols-3 justify-between drop-shadow-md">
         <Logo class="hideIfMobile logo" @click="$router.push('/')" />
         <div class="search flex flex-row">
-            <nav-entry class="mr-2" href="/" icon="home" minimised name="Home" />
+            <nav-entry class="ml-2 sm:ml-0 mr-2" href="/" icon="home" minimised name="Home" />
             <text-input-with-icon
                 v-model="query"
                 class="md:w-96"

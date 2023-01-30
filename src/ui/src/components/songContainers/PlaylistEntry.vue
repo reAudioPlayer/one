@@ -1,12 +1,11 @@
 <script lang="ts" setup>
-import {ISong} from "../../common";
+import {isMobile, ISong} from "../../common";
 import {computed, PropType, ref} from "vue";
 import Marquee from "../Marquee.vue";
 import EditSong from '../popups/EditSong.vue'
 import SongContext from "../contextMenus-next/SongContext.vue";
 import {usePlayerStore} from "../../store/player";
 import {favouriteSong} from "../../api/song";
-import {useDataStore} from "../../store/data";
 import Cover from "../image/Cover.vue";
 
 const props = defineProps({
@@ -71,13 +70,13 @@ const update = () => {
 </script>
 <template>
     <SongContext
+        ref="ctxMenu"
+        :liked="song.favourite"
+        :playlistId="playlistId"
         :song="song"
         @edit="edit"
-        @update="update"
         @like="toggleFavourite"
-        :playlistId="playlistId"
-        :liked="song.favourite"
-        ref="ctxMenu"
+        @update="update"
     >
         <EditSong
             ref="updatePopup"
@@ -85,7 +84,6 @@ const update = () => {
             @update="$emit('update')"
         />
         <div
-            class="playlist-entry"
             :class="{
                 playing,
                 selected,
@@ -94,45 +92,46 @@ const update = () => {
                 withAlbum,
                 withMore
             }"
+            class="playlist-entry"
+            @dblclick="playSong"
             @mouseenter="hovering = true"
             @mouseleave="hovering = false"
-            @dblclick="playSong"
         >
             <div
-                class="index text-right"
                 :class="{'material-symbols-rounded': hovering}"
+                class="index text-right"
                 @click="playSong"
             >
                 {{hovering ? "play_arrow" : index + 1}}
             </div>
             <div
-                class="cover"
                 v-if="withCover"
+                class="cover"
             >
                 <Cover :src="song.cover" type="track" />
             </div>
             <div class="artist-title">
                 <span class="title">
-                    <router-link class="linkOnHover" :to="`/track/${song.id}`">
+                    <router-link :to="`/track/${song.id}`" class="linkOnHover">
                         <Marquee :text="song.title" />
                     </router-link>
                 </span>
                 <span class="artist">
-                    <router-link class="linkOnHover" :to="`/search/artist:${song.artist}`">
+                    <router-link :to="`/search/artist:${song.artist}`" class="linkOnHover">
                         <Marquee :text="song.artist" />
                     </router-link>
                 </span>
             </div>
             <div
-                v-if="withAlbum"
+                v-if="withAlbum && !isMobile"
                 class="album"
             >
                 <Marquee :text="song.album" />
             </div>
             <div
                 v-if="selected || hovering || song.favourite"
-                class="favourite-icon icon text-right material-symbols-rounded"
                 :class="{ favourite: song.favourite }"
+                class="favourite-icon icon text-right material-symbols-rounded"
                 @click="toggleFavourite"
             >
                 {{ song.favourite ? "favorite" : "heart_plus" }}
@@ -141,9 +140,9 @@ const update = () => {
                 {{song.duration == "-1:59" ? "N/A" : song.duration }}
             </div>
             <div
-                v-if="withMore && (selected || hovering)"
-                @click.stop="$refs.ctxMenu.toggle"
+                v-if="false && withMore && (selected || hovering)"
                 class="icon text-left material-symbols-rounded"
+                @click.stop="$refs.ctxMenu.toggle"
             >
                 more_horiz
             </div>
@@ -151,15 +150,26 @@ const update = () => {
     </SongContext>
 </template>
 <style lang="scss" scoped>
+@import "@/assets/scss/_variables.scss";
+
 .playlist-entry {
     display: grid;
-    grid-template-columns: 50px 40px 1fr 1fr 60px 70px 40px;
+    /* id cover artist/title album like duration more */
+    grid-template-columns: 50px 40px 1fr 1fr 40px 60px;
     gap: 10px;
     padding: 10px 0;
     border-radius: 20px;
 
+    .artist-title {
+        grid-column: 3 / 4;
+    }
+
+    &:not(.withCover) .artist-title {
+        grid-column-start: 2;
+    }
+
     &:not(.withAlbum) .artist-title {
-        grid-column: 3 / 5;
+        grid-column-end: 5;
     }
 
     div {
@@ -200,21 +210,11 @@ const update = () => {
     }
 
     .favourite-icon {
-        grid-column: 6;
+        grid-column: 5;
     }
 
     .duration {
-        grid-column: 7;
-    }
-
-    &.withMore {
-        .favourite-icon {
-            grid-column: 5;
-        }
-
-        .duration {
-            grid-column: 6;
-        }
+        grid-column: 6;
     }
 
     .cover {
@@ -251,6 +251,25 @@ const update = () => {
     &.hovering, &.selected {
         .artist, .album {
             color: var(--fg-base);
+        }
+    }
+
+    @media screen and (max-width: $w-mobile) {
+        padding: 5px 0;
+        border-radius: 10px;
+        grid-template-columns: 30px 40px 1fr 1fr 30px 40px;
+
+        .index, .duration {
+            font-size: .7rem;
+        }
+
+        .artist-title {
+            grid-column-end: 5;
+            font-size: .8rem;
+
+            .artist {
+                font-size: .65rem;
+            }
         }
     }
 }

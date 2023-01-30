@@ -59,40 +59,40 @@ const selectedSongId = ref(-1);
         <template v-if="player.loaded">
             <div class="upNow">
                 <Cover
-                    :src="cover"
                     :class="{ playing, animate }"
+                    :src="cover"
                     class="drop-shadow-2xl"
                     type="track"
                 />
-                <div class="blocks" :class="{ playing, animate }">
-                    <div class="block" :style="{'animation-delay': '0s'}"></div>
-                    <div class="block" :style="{'animation-delay': '.25s'}"></div>
-                    <div class="block" :style="{'animation-delay': '.5s'}"></div>
+                <div :class="{ playing, animate }" class="blocks">
+                    <div :style="{'animation-delay': '0s'}" class="block"></div>
+                    <div :style="{'animation-delay': '.25s'}" class="block"></div>
+                    <div :style="{'animation-delay': '.5s'}" class="block"></div>
                 </div>
             </div>
             <div v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl">
-                <div class="playlist" ref="playlistScroll">
+                <div ref="playlistScroll" class="playlist">
                     <PlaylistHeader />
                     <PlaylistEntry
                         v-for="(element, index) in playlist.songs"
-                        :key="element.source"
-                        :song="element"
-                        :index="index"
-                        @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
-                        :selected="selectedSongId == element.id"
-                        with-cover
                         :id="'bplayer-entry-' + element.id"
+                        :key="element.source"
+                        :index="index"
+                        :selected="selectedSongId == element.id"
+                        :song="element"
+                        with-cover
+                        @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
                     />
                 </div>
             </div>
 
             <div class="settings">
-            <span @click="toggleMaximise"
-                  class="iconButton material-symbols-rounded">{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span>
-                <span @click="() => noPlaylist = !noPlaylist" class="iconButton material-symbols-rounded"
-                      :style="{ transform: `rotate(${ noPlaylist ? 0 : 180 }deg)` }">menu_open</span>
-                <span @click="() => animate = !animate"
-                      class="iconButton material-symbols-rounded">{{
+            <span class="iconButton material-symbols-rounded"
+                  @click="toggleMaximise">{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span>
+                <span :style="{ transform: `rotate(${ noPlaylist ? 0 : 180 }deg)` }" class="iconButton material-symbols-rounded"
+                      @click="() => noPlaylist = !noPlaylist">menu_open</span>
+                <span class="iconButton material-symbols-rounded"
+                      @click="() => animate = !animate">{{
                         !animate ? "animation" : "motion_photos_off"
                     }}</span>
             </div>
@@ -106,8 +106,8 @@ const selectedSongId = ref(-1);
                             v-for="playlist in playlists"
                             :key="playlist.id"
                             :cover="playlist.cover"
-                            :title="playlist.name"
                             :description="playlist.description"
+                            :title="playlist.name"
                             @click.stop="() => player.loadPlaylist(playlist.id)"
                         />
                     </div>
@@ -117,7 +117,7 @@ const selectedSongId = ref(-1);
     </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .settings {
     position: absolute;
     bottom: 0;

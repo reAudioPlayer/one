@@ -1,6 +1,6 @@
 // @ts-ignore
 import Hashids from 'hashids';
-import {computed, ref} from "vue";
+import {computed} from "vue";
 
 const playlistHash = new Hashids("reapOne.playlist", 22);
 const hashidsTrack = new Hashids("reapOne.track", 22);
@@ -113,3 +113,7 @@ export const toTitleCase = (str: string) => {
 }
 
 export const openInNewTab = href => window.open(href, "_blank");
+
+export const isMobile = computed(() => {
+    return window.innerWidth < 768;
+});
