@@ -9,7 +9,7 @@ export const updateSong = async (song: ISong) => {
     await fetch(`/api/tracks/${song.id}`, {
         method: "PUT",
         body: JSON.stringify({
-            source: song.src,
+            source: song.source,
             title: song.title,
             artist: song.artist,
             album: song.album,
@@ -45,7 +45,7 @@ export const addSong = async (playlistId: number | string, song: ISong) => {
     await fetch(`/api/playlists/${playlistId}/tracks`, {
         method: "POST",
         body: JSON.stringify({
-            source: song.src || song.source,
+            source: song.source,
             title: song.title,
             artist: song.artist,
             album: song.album,

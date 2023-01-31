@@ -100,7 +100,7 @@ import {parseCover} from "@/common";
                         :artist="song.artist"
                         :title="song.title"
                         :cover="song.cover"
-                        :href="song.src"
+                        :href="song.source"
                     />
                 </FlexShelf>
             </div>
@@ -164,7 +164,7 @@ export default {
                 detail: {
                     artist: song.artist,
                     title: song.title,
-                    source: song.src || song.url
+                    source: song.source || song.url
                 }
             });
             window.dispatchEvent(event);

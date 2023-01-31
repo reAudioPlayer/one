@@ -2,11 +2,11 @@
     <div class="text-input-with-icon rounded-3xl flex items-center px-4">
         <span class="material-symbols-rounded">{{ icon }}</span>
         <input
-            type="text"
             v-model="value"
+            :placeholder="placeholder"
+            type="text"
             @input="onChange"
             @keyup="onInput"
-            :placeholder="placeholder"
         />
     </div>
 </template>
@@ -45,6 +45,7 @@ const onInput = e => {
     background: var(--bg-base-lt);
     border: 1px solid transparent;
     color: var(--fg-base-dk);
+    width: 100%;
 
     input {
         color: var(--fg-base-dk);

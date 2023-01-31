@@ -40,8 +40,8 @@
                     <draggable v-model="recommendations">
                         <template #item="{element}">
                             <spotify-playlist-entry @requestUpdate="updatePlaylist"
-                                :index="recommendations.findIndex(x => x.src == element.src)"
-                                :source="element.src" :id="element.id"
+                                :index="recommendations.findIndex(x => x.source == element.source)"
+                                :source="element.source" :id="element.id"
                                 :title="element.title" :album="element.album" :artist="element.artists.join(', ')"
                                 :preview="element.preview"
                                 :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />

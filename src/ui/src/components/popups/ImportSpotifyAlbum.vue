@@ -1,11 +1,11 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
 import Playlist from "./components/Playlist.vue";
 import TrackInfo from "./components/TrackInfo.vue";
 
 import {PropType, Ref, ref} from "vue";
-import {ISong, ISpotifyAlbum, ISpotifySong, openInNewTab} from "../../common";
+import {ISpotifyAlbum, ISpotifySong, openInNewTab} from "../../common";
 import {useDataStore} from "../../store/data";
 import {addSong as addSongToPlaylist} from "../../api/song";
 import {createPlaylistWithMetadata} from "../../api/playlist";
@@ -89,14 +89,15 @@ defineExpose({
 <template>
     <Template
         ref="modal"
+        :submit="{
+            label: 'Add All',
+            icon: 'add',
+        }"
         name="Import Album"
-        submitName="Add All"
-        @submit="addAll"
         @close="$emit('close')"
+        @submit="addAll"
     >
         <TrackInfo
-            :title = "album.title"
-            :subtitle = "album.artist"
             :cover = "album.cover"
             :icons="[{
                 name: 'share',
@@ -105,6 +106,8 @@ defineExpose({
                 name: 'play_arrow',
                 onClick: preview
             }]"
+            :subtitle = "album.artist"
+            :title = "album.title"
         />
         <Form
             ref="form"
@@ -113,8 +116,8 @@ defineExpose({
         <br>
         <Playlist
             :songs="songs"
-            @add="addSong"
             noCover
+            @add="addSong"
         />
     </Template>
 </template>

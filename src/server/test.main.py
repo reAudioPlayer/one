@@ -111,7 +111,7 @@ try:
         "title": metadata.ensure("title", str),
         "album": metadata.ensure("album", str),
         "cover": metadata.ensure("cover", str),
-        "source": metadata.ensure("src", str)
+        "source": metadata.ensure("source", str)
     }
 
     # add song

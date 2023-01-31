@@ -1,7 +1,4 @@
 <script setup>
-import Body from '@/Body.vue'
-import Player from '@/Player/Player.vue'
-import Sidebar from '@/Sidebar.vue'
 import PlayerInPicture from "./PlayerInPicture.vue";
 import Header from './Header.vue';
 
@@ -23,10 +20,10 @@ const cover = computed(() => parseAnyCover(src.value));
 </script>
 
 <template>
-    <div class="bgImageWrapper" :class="{ hidden: !coverAsBackground }">
+    <div :class="{ hidden: !coverAsBackground }" class="bgImageWrapper">
         <div
-            class="bgImage"
             :style="{ backgroundImage: `url(${cover})` }"
+            class="bgImage"
         >
             <img
                 :src="cover"
@@ -35,7 +32,7 @@ const cover = computed(() => parseAnyCover(src.value));
             />
         </div>
     </div>
-    <div class="appRoot" id="appRoot">
+    <div id="appRoot" class="appRoot">
         <template v-if="playerStore.ready">
             <Header/>
             <div class="interface">
@@ -64,6 +61,9 @@ import {connect} from "@/ws";
 import {initialiseStores} from "@/store";
 import {useSettingsStore} from "@/store/settings";
 import {authoriseSpotify, isFirstRun} from "@/api/config";
+import Sidebar from "@/Sidebar.vue";
+import Body from "@/Body.vue";
+import Player from "@/Player/Player.vue";
 
 
 const LOCAL_STORAGE_KEY = "theme" // change it to whatever you like
@@ -151,10 +151,9 @@ export default {
     position: absolute;
     width: 40%;
     max-height: 80vh;
-    padding: 16px;
     /*overflow: hidden;*/
     background: var(--fg-contrast);
-    border-radius: 10px;
+    border-radius: 1rem;
     color: var(--fg-base);
 
     display: flex;

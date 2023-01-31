@@ -19,7 +19,7 @@
                 artist,
                 album,
                 cover,
-                src: source,
+                source,
                 id
             }"
         />
@@ -54,6 +54,7 @@
 </template>
 
 <script>
+// TODO remove this component and the others in this folder
     import SongCtx from '../ContextMenus/SongCtx.vue'
     import Marquee from '../Marquee.vue'
     import EditSong from '../popups/EditSong.vue'

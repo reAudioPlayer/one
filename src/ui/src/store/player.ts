@@ -31,7 +31,7 @@ export const usePlayerStore = defineStore({
             artist: null,
             album: null,
             cover: parseCover(null),
-            src: null,
+            source: null,
             duration: null,
             favourite: false,
             id: -1,
@@ -174,6 +174,8 @@ export const usePlayerStore = defineStore({
             this.playlist.name = playlist.name;
         },
         setVolume(volume) {
+            if (volume == this.volume) return;
+
             this.volume = volume;
             localStorage.setItem("reap.volume", volume);
             if (this.player.setVolume) {

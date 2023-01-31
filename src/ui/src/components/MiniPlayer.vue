@@ -40,7 +40,7 @@ export default {
                 }
             }
 
-            const event = new CustomEvent('player.play', { detail: {
+            const event = new CustomEvent('player.play', { detail: { // move to common.ts
                     title: this.title,
                     artist: this.artist,
                     source: this.src

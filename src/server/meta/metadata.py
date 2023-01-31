@@ -14,11 +14,11 @@ class Metadata:
     """metadata finder"""
     def __init__(self, spotify: Spotify, url: str) -> None:
         self._track: Optional[ITrack] = None
-        self._src = None
+        self._source = None
         if not validators.url(url):
             return
         if "youtu" in url:
-            self._src = url
+            self._source = url
             self._track = YoutubeTrack.fromUrl(url)
         elif "spotify" in url:
             result = spotify.url(url)
@@ -27,9 +27,9 @@ class Metadata:
             self._track = result.unwrap()
             ytTrack = YoutubeTrack.fromSpotifyTrack(self._track)
             if ytTrack:
-                self._src = f"https://music.youtube.com/watch?v={ytTrack._id}"
+                self._source = f"https://music.youtube.com/watch?v={ytTrack._id}"
         elif "soundcloud" in url:
-            self._src = url
+            self._source = url
             self._track = SoundcloudTrack.fromUrl(url)
 
     def __bool__(self) -> bool:
@@ -45,7 +45,7 @@ class Metadata:
             "artists": self._track.artists,
             "artist": self._track.artist,
             "cover": self._track.cover,
-            "src": self._src,
+            "source": self._source,
             "preview": self._track.preview,
             "markets": self._track.markets
         }

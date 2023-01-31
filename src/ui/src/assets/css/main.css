@@ -22,6 +22,14 @@
         color: var(--fg-secondary-dk);
     }
 
+    .bg-secondary {
+        background-color: var(--fg-secondary);
+    }
+
+    .bg-secondary-dk {
+        background-color: var(--fg-secondary-dk);
+    }
+
     p {
         @apply my-2;
     }
