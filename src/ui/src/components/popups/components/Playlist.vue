@@ -29,7 +29,7 @@ const props = defineProps({
                 :cover="noCover ? null : track.cover"
                 :artist="track.artists.join(', ')"
                 :title="track.title"
-                :source="track.src"
+                :source="track.source /* TODO this was src, does this work that way? */"
                 :preview="track.source"
             />
         </div>

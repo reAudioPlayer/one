@@ -25,7 +25,7 @@ const emit = defineEmits(["update", "edit"]);
 
 const isAutoPlaylist = computed(() => props.playlistId == -1);
 const preview = () => {
-    playInPicture(props.song.artist, props.song.title, props.song.src || props.song.source);
+    playInPicture(props.song.artist, props.song.title, props.song.source);
 };
 
 const addTo = async (playlistId: number) => {

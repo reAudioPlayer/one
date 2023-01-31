@@ -1,13 +1,15 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {IDropdownOption} from "../../../common";
 import {PropType} from "vue";
-import {toTitleCase, openInNewTab, parseCover} from "@/common";
+import {openInNewTab, parseCover, toTitleCase} from "@/common";
 import Dropdown from "../../inputs/Dropdown.vue";
+import TextInputWithIcon from "../../inputs/TextInputWithIcon.vue";
 
 interface IOption {
     value: string;
     name: string;
-    type: "text" | "number" | "upload";
+    type: "text" | "number" | "upload" | "dropdown";
+    icon?: string;
     accept?: string;
     placeholder?: string;
     required?: boolean;
@@ -48,38 +50,49 @@ defineExpose({
             <div class="content">
                 <!-- INPUT TYPES -->
                 <template v-if="option.type == 'upload'">
-                    <button
+                    <span
+                        class="material-symbols-rounded icon-button"
                         @click="() => $refs['upload-' + option.name]?.[0]?.click()"
-                        class="icon-button"
                     >
-                        <span class="material-symbols-rounded">file_upload</span>
-                    </button>
+                        file_upload
+                    </span>
                     <input
-                        type="file"
                         :ref="'upload-' + option.name"
-                        style="display: none"
                         :accept="option.accept"
+                        style="display: none"
+                        type="file"
                         @change="option?.onUpload($event.target.files[0])"
                     />
 
-                    <input
-                        type="text"
-                        class="addSong cover"
-                        v-model="option.value"
+                    <TextInputWithIcon
                         ref="cover"
+                        v-model="option.value"
+                        :icon="option.icon"
+                        class="addSong cover"
+                        type="text"
                         @change="option?.onChange(option.value)"
-                    >
+                    />
                     <img
                         v-if="option.imagePreview"
-                        @click="openInNewTab(option.value)"
-                        class="imagePreview"
                         :src="parseCover(option.value)"
+                        class="imagePreview"
+                        @click="openInNewTab(option.value)"
                     >
                 </template>
                 <template v-else-if="option.type == 'dropdown'">
                     <Dropdown
                         v-model="option.value"
                         :options="option.options"
+                    />
+                </template>
+                <template v-else-if="option.type == 'text'">
+                    <TextInputWithIcon
+                        v-model="option.value"
+                        :icon="option.icon"
+                        :placeholder="option.placeholder"
+                        :required="option.required"
+                        :type="option.type"
+                        @change="option.onChange ? option?.onChange(option.value) : null"
                     />
                 </template>
                 <template v-else>
@@ -101,6 +114,11 @@ defineExpose({
 
     .icon-button {
         margin-right: 10px;
+        background: var(--bg-contrast);
+        color: var(--fg-contrast);
+        border-radius: 1000vmax;
+        padding: 11px;
+        cursor: pointer;
     }
 
     img.imagePreview {

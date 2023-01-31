@@ -214,6 +214,11 @@ const showWebWavePlayer = computed(() => {
             </div>
         </div>
         <div v-else class="mobile mx-4">
+            <audio
+                v-if="isMobile && !onThisDevice"
+                id="hijackVolume"
+                @volumechange="player.setVolume($event.target.volume * 100)"
+            />
             <div
                 v-show="!mobileExpanded"
                 class="small"

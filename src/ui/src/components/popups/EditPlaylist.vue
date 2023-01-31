@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
 import {PropType, ref, watch} from "vue";
@@ -40,16 +40,19 @@ watch(() => props.playlist, (newSong) => {
 const options = ref([{
     name: "name",
     type: "text",
+    icon: "title",
     required: true,
     value: props.playlist.name
 }, {
     name: "description",
     type: "text",
+    icon: "description",
     required: true,
     value: props.playlist.description
 }, {
     name: "cover",
     type: "upload",
+    icon: "image",
     accept: "image/*",
     imagePreview: true,
     value: props.playlist.cover,
@@ -87,13 +90,19 @@ defineExpose({
 <template>
     <Template
         ref="modal"
+        :secondary="{
+            label: 'Delete',
+            icon: 'delete',
+            type: 'danger'
+        }"
+        :submit="{
+            label: 'Save',
+            icon: 'save'
+        }"
         name="Edit Playlist"
-        submitName="Save"
-        @submit="onSubmit"
         @close="$emit('close')"
-        secondaryName="Delete"
-        secondaryType="danger"
         @secondary="onDelete"
+        @submit="onSubmit"
     >
         <Form
             ref="form"

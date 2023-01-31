@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
 import TrackInfo from "./components/TrackInfo.vue";
@@ -82,13 +82,15 @@ defineExpose({
 <template>
     <Template
         ref="modal"
+        :submit="{
+            label: 'Add All',
+            icon: 'add',
+        }"
         name="Import Song"
-        submitName="Add"
-        @submit="addSong"
         @close="$emit('close')"
+        @submit="addSong"
     >
         <TrackInfo
-            :title = "song.title"
             :cover = "song.cover"
             :icons="[{
                 name: 'share',
@@ -97,6 +99,7 @@ defineExpose({
                 name: 'play_arrow',
                 onClick: preview
             }]"
+            :title = "song.title"
         />
         <Form
             ref="form"

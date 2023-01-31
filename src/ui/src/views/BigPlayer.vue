@@ -43,7 +43,7 @@ onMounted(() => {
     }, 1000);
 })
 
-const maximised = ref(false);
+let maximised = ref(false);
 const toggleMaximise = () => {
     maximised.value = !maximised.value;
     emit("maximise", maximised.value);

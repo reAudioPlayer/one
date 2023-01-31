@@ -1,10 +1,10 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
 import {ref} from "vue";
-import {hashTrack, ISong, unhashPlaylist} from "../../common";
+import {hashTrack, isLink, ISong, unhashPlaylist} from "../../common";
 import {addSong, fetchMetadata} from "../../api/song";
-import {useRoute, useRouter} from "vue-router";
+import {useRoute} from "vue-router";
 
 const route = useRoute();
 
@@ -13,9 +13,8 @@ const song: ISong = {
     artist: "",
     album: "",
     cover: "",
-    src: ""
+    source: ""
 }
-
 
 const upload = async (endpoint: string, file: File) => {
     const id = hashTrack(String(new Date().getTime()));
@@ -36,12 +35,12 @@ const upload = async (endpoint: string, file: File) => {
 }
 
 const options = ref([{
-    name: "src",
+    name: "source",
     type: "upload",
     accept: "audio/mp3",
     required: true,
     onUpload: (file: File) => {
-        upload('/api/config/tracks', file).then(url => song.src = url);
+        upload('/api/config/tracks', file).then(url => options.value.find(x => x.name == "source").value = url);
     },
     onChange: async (src: string) => {
         const metadata = await fetchMetadata(src);
@@ -49,22 +48,25 @@ const options = ref([{
         options.value.find(x => x.name === "artist").value = metadata.artist;
         options.value.find(x => x.name === "album").value = metadata.album;
         options.value.find(x => x.name === "cover").value = metadata.cover;
-        options.value.find(x => x.name === "src").value = metadata.src;
+        options.value.find(x => x.name === "source").value = metadata.source;
     },
-    value: song.src
+    value: song.source
 }, {
     name: "title",
     type: "text",
+    icon: "title",
     required: true,
     value: song.title
 }, {
     name: "artist",
     type: "text",
+    icon: "person",
     required: true,
     value: song.artist
 }, {
     name: "album",
     type: "text",
+    icon: "album",
     value: song.album
 }, {
     name: "cover",
@@ -73,7 +75,7 @@ const options = ref([{
     imagePreview: true,
     value: song.cover,
     onUpload: (file: File) => {
-        upload('/api/config/images', file).then(url => song.cover = url);
+        upload('/api/config/images', file).then(url => options.value.find(x => x.name == "cover").value = url);
     }
 }]);
 
@@ -81,8 +83,18 @@ const options = ref([{
 const modal = ref(null);
 const form = ref(null);
 
-const show = () => {
+const show = async () => {
     modal.value.show();
+
+    // if clipboard has a link, add it to options
+    if (!navigator.clipboard) return;
+    const text = await navigator.clipboard.readText();
+    if (!isLink(text)) return;
+
+    const option = options.value.find(x => x.name === "source");
+    option.value = text;
+    // @ts-ignore
+    option.onChange(text);
 }
 
 const onSubmit = async _ => {
@@ -97,10 +109,13 @@ defineExpose({
 <template>
     <Template
         ref="modal"
+        :submit="{
+            label: 'Add',
+            icon: 'add'
+        }"
         name="Add Song"
-        submitName="Save"
-        @submit="onSubmit"
         @close="$emit('close')"
+        @submit="onSubmit"
     >
         <Form
             ref="form"

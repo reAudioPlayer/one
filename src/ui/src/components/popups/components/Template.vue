@@ -1,23 +1,19 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {PropType, ref} from "vue";
 import Loader from "../../Loader.vue";
+import IconButton, {IButton} from "../../inputs/IconButton.vue";
 
 const props = defineProps({
     name: {
         type: String,
         required: true
     },
-    submitName: {
-        type: String,
+    submit: {
+        type: Object as PropType<IButton>,
         required: true
     },
-    secondaryName: {
-        type: String,
-        required: false,
-        default: null
-    },
-    secondaryType: {
-        type: String,
+    secondary: {
+        type: Object as PropType<IButton>,
         required: false,
         default: null
     },
@@ -59,10 +55,10 @@ defineExpose({
 })
 </script>
 <template>
-    <vue-final-modal @contextmenu.stop v-model="showModal" classes="modal-container" content-class="modal-content">
+    <vue-final-modal v-model="showModal" classes="modal-container" content-class="modal-content" @click.stop @contextmenu.stop @drag.stop>
         <div class="wrapper">
-            <div class="header">
-                <h3>{{name}}</h3>
+            <div class="header bg-secondary rounded-t-2xl p-3">
+                <h3 class="font-black">{{name}}</h3>
                 <button class="modal-close" @click="close">
                     <span class="material-icons-round">
                         close
@@ -70,30 +66,32 @@ defineExpose({
                 </button>
             </div>
             <Loader v-if="loading" />
-            <template v-else>
+            <div
+                v-else
+                class="p-4 pt-0"
+            >
                 <slot />
-                <div v-if="submitName || secondaryName" class="confirm">
-                    <button
-                        v-if="secondaryName"
-                        class="secondary"
-                        :class="secondaryType"
+                <div v-if="props.submit || props.secondary" class="confirm">
+                    <IconButton
+                        v-if="props.secondary"
+                        :icon="props.secondary.icon"
+                        :label="props.secondary.label"
+                        :type="props.secondary.type"
                         @click="secondary"
-                    >
-                        {{secondaryName}}
-                    </button>
-                    <button
-                        v-if="submitName"
+                    />
+                    <IconButton
+                        v-if="props.submit"
+                        :icon="props.submit.icon"
+                        :label="props.submit.label"
+                        :type="props.submit.type"
                         @click="submit"
-                        class="negative"
-                    >
-                        {{submitName}}
-                    </button>
+                    />
                 </div>
-            </template>
+            </div>
         </div>
     </vue-final-modal>
 </template>
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .wrapper {
     cursor: default;
     position: relative;
@@ -101,11 +99,10 @@ defineExpose({
 }
 
 .confirm {
-    margin-top: 20px;
-    height: 40px;
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
+    gap: .5rem;
 }
 
 .header {
@@ -114,40 +111,5 @@ defineExpose({
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
-}
-
-button {
-    &.negative {
-        color: var(--font-contrast);
-        background-color: var(--font-colour);
-        border: none;
-        border-radius: 20px;
-        padding: 10px 25px 10px 25px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: bold;
-        font-family: var(--font-family);
-        margin-left: 1em;
-        cursor: pointer;
-    }
-
-    &.secondary {
-        color: var(--font-contrast);
-        background-color: var(--font-darker);
-        border: none;
-        border-radius: 20px;
-        padding: 10px 25px 10px 25px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: bold;
-        font-family: var(--font-family);
-        margin-left: auto;
-        cursor: pointer;
-    }
-
-    &.danger {
-        color: var(--font-colour);
-        background-color: #c73c3c;
-    }
 }
 </style>
