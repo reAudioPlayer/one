@@ -1,20 +1,29 @@
 <template>
-    <div ref="player" class="playerInPicture" v-if="!disabled">
-        <div class="header" :class="{ minimised }">
+    <div v-if="!disabled" ref="player" class="playerInPicture">
+        <div :class="{ minimised }" class="header">
             <div class="title">
                 <Marquee :text="name" />
             </div>
             <div class="buttons">
-                <span @click="minimised = !minimised" class="material-symbols-rounded">{{minimised ? "zoom_out_map" : "zoom_in_map"}}</span>
-                <span @click="disabled = !disabled" class="material-symbols-rounded">close</span>
+                <span class="material-symbols-rounded" @click="minimised = !minimised">{{minimised ? "zoom_out_map" : "zoom_in_map"}}</span>
+                <span class="material-symbols-rounded" @click="disabled = !disabled">close</span>
             </div>
         </div>
-        <div class="frame" :class="{ minimised }" v-html="el" />
+        <div :class="{ minimised }" class="frame" v-html="el" />
     </div>
 </template>
 
 <script>
-    import Marquee from '@/components/Marquee.vue'
+import Marquee from '@/components/Marquee.vue'
+
+export const playInPicture = (title, artist, source) => {
+    const event = new CustomEvent('player.play', { detail: {
+            title,
+            artist,
+            source
+        } });
+    window.dispatchEvent(event);
+}
 
     export default {
         components: {
@@ -152,7 +161,7 @@
                     })
                     this.minimised = false;
                     this.disabled = false;
-                    return;
+
                 }
             }, false);
 

@@ -5,7 +5,7 @@
             <nav-entry class="ml-2 sm:ml-0 mr-2" href="/" icon="home" minimised name="Home" />
             <text-input-with-icon
                 v-model="query"
-                class="md:w-96"
+                class="md:!w-96"
                 icon="search"
                 placeholder="Search..."
                 @submit="submit"

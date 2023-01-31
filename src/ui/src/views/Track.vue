@@ -1,7 +1,6 @@
 <template>
     <div class="playlist">
         <EditSong
-            @close="updatePlaylist"
             ref="editSongPopup"
             :song="{
                 cover,
@@ -11,11 +10,12 @@
                 source: src,
                 id,
             }"
+            @close="updatePlaylist"
         />
-        <fixed-playlist-header @loadPlaylist="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }"
-            :title="`${artist} - ${title}`" />
-        <div class="padding-20 songdetails" @click="editSong" v-observe-visibility="headerVisibilityChanged">
-            <img class="cover" :src="cover" />
+        <fixed-playlist-header ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }" :title="`${artist} - ${title}`"
+            @loadPlaylist="loadPlaylist" />
+        <div v-observe-visibility="headerVisibilityChanged" class="padding-20 songdetails" @click="editSong">
+            <img :src="cover" class="cover" />
             <div class="details">
                 <h7>Song</h7>
                 <h1>{{title}}</h1>
@@ -24,27 +24,27 @@
         </div>
         <hr>
         <div class="padding-20">
-            <span id="loadPlaylist" @click="loadPlaylist" class="material-icons-outlined">play_circle_filled</span>
+            <span id="loadPlaylist" class="material-icons-outlined" @click="loadPlaylist">play_circle_filled</span>
             <!-- implement after context menu refactoring -->
             <span
                 v-show="false"
                 id="addToPlaylist"
-                @click="addToPlaylist"
                 class="material-icons-outlined"
+                @click="addToPlaylist"
             >add_circle</span>
             <div class="grid">
                 <h2>{{"Recommendations based on " + title}}</h2>
-                <grid-header />
+                <PlaylistHeader />
                 <hr>
                 <div class="playlistEntries">
                     <draggable v-model="recommendations">
                         <template #item="{element}">
-                            <spotify-playlist-entry @requestUpdate="updatePlaylist"
-                                :index="recommendations.findIndex(x => x.source == element.source)"
-                                :source="element.source" :id="element.id"
-                                :title="element.title" :album="element.album" :artist="element.artists.join(', ')"
+                            <spotify-playlist-entry :id="element.id"
+                                :album="element.album"
+                                :artist="element.artists.join(', ')" :cover="element.cover"
+                                :duration="element.duration" :favourite="element.favourite" :index="recommendations.findIndex(x => x.source == element.source)"
                                 :preview="element.preview"
-                                :cover="element.cover" :favourite="element.favourite" :duration="element.duration" />
+                                :source="element.source" :title="element.title" @requestUpdate="updatePlaylist" />
                         </template>
                     </draggable>
                 </div>
@@ -54,17 +54,17 @@
 </template>
 
 <script>
-    import FixedPlaylistHeader from '../components/Playlist/FixedPlaylistHeader.vue'
-    import GridHeader from '../components/Playlist/GridHeader.vue'
-    import EditSong from "@/components/popups/EditSong";
-    import draggable from 'vuedraggable'
-    import SpotifyPlaylistEntry from '../components/SpotifyPlaylist/SpotifyPlaylistEntry.vue'
-    import {unhashTrack, parseCover} from "@/common";
+import FixedPlaylistHeader from '../components/Playlist/FixedPlaylistHeader.vue'
+import PlaylistHeader from "@/components/songContainers/PlaylistHeader.vue";
+import EditSong from "@/components/popups/EditSong";
+import draggable from 'vuedraggable'
+import SpotifyPlaylistEntry from '../components/SpotifyPlaylist/SpotifyPlaylistEntry.vue'
+import {parseCover, unhashTrack} from "@/common";
 
-    export default {
+export default {
         components: {
+            PlaylistHeader,
             FixedPlaylistHeader,
-            GridHeader,
             draggable,
             SpotifyPlaylistEntry,
             EditSong
@@ -91,7 +91,7 @@
                 const moved = type.moved
 
                 if (!moved) {
-                    return;
+
                 }
             },
             headerVisibilityChanged(a) {
@@ -210,7 +210,7 @@
     .songdetails>.details>h5 {
         font-size: .8em;
         font-weight: normal;
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
         margin: 0;
     }
 

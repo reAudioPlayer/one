@@ -1,20 +1,20 @@
 <template>
     <div class="fixedPlaylistHeader">
         <div class="upperWrapper">
-            <span id="loadPlaylist" @click="this.$emit('loadPlaylist')" class="material-symbols-rounded hideIfMobile">play_circle</span>
+            <span id="loadPlaylist" class="material-symbols-rounded hideIfMobile" @click="this.$emit('loadPlaylist')">play_circle</span>
             <h3 class="font-bold">{{title}}</h3>
         </div>
-        <grid-header class="padding-20 darkback hideIfMobile" />
+        <PlaylistHeader class="padding-20 darkback hideIfMobile" with-album with-more />
     </div>
 </template>
 
 <script>
-import GridHeader from './GridHeader.vue'
+import PlaylistHeader from "@/components/songContainers/PlaylistHeader.vue";
 
 export default {
     name: "FixedPlaylistHeader",
     components: {
-        GridHeader
+        PlaylistHeader
     },
     props: {
         title: String
@@ -22,7 +22,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
     $mobileWidth: 950px;
 
     .padding-20 {
