@@ -15,10 +15,15 @@ defineProps({
         required: false,
         default: false
     },
+    withoutDuration: {
+        type: Boolean,
+        required: false,
+        default: false
+    }
 })
 </script>
 <template>
-    <div class="playlist-header" :class="{ withAlbum, withMore }">
+    <div :class="{ withAlbum, withMore }" class="playlist-header">
         <div class="index text-right">#</div>
         <div class="artist-title">
             title
@@ -26,7 +31,7 @@ defineProps({
         <div v-if="withAlbum" class="album">
             album
         </div>
-        <div class="duration">
+        <div v-if="!withoutDuration" class="duration">
             <span class="material-symbols-rounded">schedule</span>
         </div>
     </div>
@@ -34,7 +39,7 @@ defineProps({
 <style lang="scss" scoped>
 .playlist-header {
     display: grid;
-    grid-template-columns: 50px 40px 1fr 1fr 60px 70px 40px;
+    grid-template-columns: 50px 30px 1fr 1fr 40px 60px;
     gap: 10px;
 
     .index {

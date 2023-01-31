@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {ISpotifySong} from "../../../common";
 import {PropType} from "vue";
-import AlbumHeader from "../../Album/AlbumHeader.vue";
-import AlbumEntry from "../../Album/AlbumEntry.vue";
+import PlaylistHeader from "../../songContainers/PlaylistHeader.vue";
+import ExternalEntry from "../../songContainers/ExternalEntry.vue";
 
 const props = defineProps({
     songs: {
@@ -17,26 +17,24 @@ const props = defineProps({
 </script>
 <template>
     <div class="playlist">
-        <AlbumHeader/>
+        <PlaylistHeader without-duration />
         <hr>
         <div class="entries">
-            <AlbumEntry
-                @add="$emit('add', index)"
+            <ExternalEntry
                 v-for="(track, index) in songs"
                 :key="track.source"
                 :added="track.added"
                 :index="index"
-                :cover="noCover ? null : track.cover"
-                :artist="track.artists.join(', ')"
+                :song="track"
                 :title="track.title"
-                :source="track.source /* TODO this was src, does this work that way? */"
-                :preview="track.source"
+                :with-cover="!noCover"
+                @add="$emit('add', index)"
             />
         </div>
     </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .playlist {
     position: relative;
     overflow: hidden;

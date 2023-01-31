@@ -68,6 +68,7 @@ export const usePlayerStore = defineStore({
                     this.repeat = "repeat";
                     break;
             }
+            localStorage.setItem("reap.repeat", this.repeat);
             this.player?.setRepeat(this.repeat);
         },
         setRepeat(repeat: RepeatType) {
@@ -187,6 +188,7 @@ export const usePlayerStore = defineStore({
         },
         async initialise() {
             this.volume = localStorage.getItem("reap.volume") || 50;
+            this.repeat = localStorage.getItem("reap.repeat") || "repeat_on";
             this.sharedPlayer = new SharedPlayer();
 
             this.setShuffle(await getShuffle());
