@@ -22,6 +22,7 @@ const props = defineProps({
 const options = ref([{
     name: "playlist",
     type: "dropdown",
+    icon: "playlist_add",
     required: true,
     value: null,
     options: data.playlistsAsDropdown

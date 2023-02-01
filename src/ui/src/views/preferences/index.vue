@@ -146,10 +146,10 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
                 v-model="settings.player.type"
                 :options="[{
                     value: 'web',
-                    label: 'Native Player'
+                    label: 'Native player'
                 }, {
                     value: 'web/wave',
-                    label: 'Wave Player'
+                    label: 'Wave player'
                 }]"
             />
         </Card>

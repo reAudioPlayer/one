@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import {Playable, usePlayerStore} from "../store/player";
+import {Playable, usePlayerStore} from "../../store/player";
 import {onMounted, ref, watch} from "vue";
 import WaveSurfer from "wavesurfer.js";
 
 // @ts-ignore
-import themes from "../assets/themes.json";
+import themes from "../../assets/themes.json";
 
 const audio = ref(null);
 

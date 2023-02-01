@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {IDropdownOption} from "../../common";
-import {computed, nextTick, PropType, ref, watch} from "vue";
+import {nextTick, PropType, ref, watch} from "vue";
 
 const props = defineProps({
     modelValue: {
@@ -77,7 +77,7 @@ document.addEventListener("click", () => {
         >
             {{icon}}
         </span>
-        <div ref="trueDropdown" :class="{expanded}" class="dropdown__options" v-if="expanded">
+        <div v-if="expanded" ref="trueDropdown" :class="{expanded}" class="dropdown__options">
             <div
                 v-for="option in options"
                 :key="option.value"
@@ -120,7 +120,7 @@ document.addEventListener("click", () => {
         overflow-y: auto;
         background: var(--bg-base);
         border-radius: 5px;
-        filter: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.2));
+        filter: var(--drop-shadow);
 
         .dropdown__option {
             padding: 0.5rem;

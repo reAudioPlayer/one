@@ -39,7 +39,7 @@ defineProps({
 <style lang="scss" scoped>
 .playlist-header {
     display: grid;
-    grid-template-columns: 50px 30px 1fr 1fr 40px 60px;
+    grid-template-columns: 50px 40px 1fr 1fr 40px 60px;
     gap: 10px;
 
     .index {

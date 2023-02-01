@@ -4,6 +4,7 @@
 
 <script lang="ts" setup>
 import {onMounted, ref} from "vue";
+
 const wrapper = ref(null);
 
 onMounted(() => {
@@ -26,7 +27,7 @@ onMounted(() => {
     height: 20px;
     margin: auto;
 
-    border: 3px solid var(--font-darker);
+    border: 3px solid var(--fg-base-dk);
     border-bottom-color: transparent;
     border-radius: 50%;
     display: inline-block;

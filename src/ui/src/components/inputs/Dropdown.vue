@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {IDropdownOption} from "../../common";
 import {computed, nextTick, PropType, ref, watch} from "vue";
 
@@ -10,6 +10,10 @@ const props = defineProps({
     options: {
         type: Array as PropType<IDropdownOption[]>,
         required: true
+    },
+    icon: {
+        type: String,
+        required: false
     }
 })
 
@@ -61,12 +65,20 @@ window.onclick = () => expanded.value = false;
 <template>
     <div class="dropdown">
         <div class="dropdown__selected" @click.stop="expanded = !expanded">
-            <span>{{selectedLabel}}</span>
+            <div class="flex flex-row gap-2">
+                <span
+                    v-if="icon"
+                    class="material-symbols-rounded ms-wght-200"
+                >
+                    {{icon}}
+                </span>
+                <span>{{selectedLabel}}</span>
+            </div>
             <i class="material-symbols-rounded">
                 {{expanded ? "expand_less" : "expand_more"}}
             </i>
         </div>
-        <div ref="trueDropdown" class="dropdown__options" v-if="expanded">
+        <div v-if="expanded" ref="trueDropdown" class="dropdown__options">
             <div
                 v-for="option in options"
                 :key="option.value"
@@ -87,9 +99,9 @@ window.onclick = () => expanded.value = false;
     height: 100%;
 
     &__selected {
-        background: var(--bg-hover-lt);
-        border: 1px solid var(--bg-hover-ltr);
-        border-radius: 5px;
+        background: var(--bg-base-lt);
+        border: 1px solid transparent;
+        border-radius: 1000vmax;
         color: var(--font-colour);
         padding: 10px;
         width: auto;
@@ -100,9 +112,9 @@ window.onclick = () => expanded.value = false;
         flex-direction: row;
         justify-content: space-between;
 
-        &:hover {
-            background: var(--bg-hover);
-            border: 1px solid var(--fg-base);
+        &:focus-within, &:hover {
+            border-color: var(--fg-base);
+            color: var(--fg-base);
         }
     }
 
@@ -114,7 +126,8 @@ window.onclick = () => expanded.value = false;
         max-height: 20rem;
         overflow-y: auto;
         background: var(--bg-base);
-        border-radius: 5px;
+        border-radius: 1em;
+        filter: var(--drop-shadow);
 
         .dropdown__option {
             padding: 0.5rem;

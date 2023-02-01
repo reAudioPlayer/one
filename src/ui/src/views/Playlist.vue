@@ -1,22 +1,22 @@
 <template>
     <div class="playlist">
-        <AddSong @close="updatePlaylist" ref="addSongPopup"/>
+        <AddSong ref="addSongPopup" @close="updatePlaylist"/>
         <EditPlaylist
-            @close="updatePlaylist"
+            ref="editPlaylistPopup"
             :playlist="{
                 name: playlistName,
                 description: playlistDescription,
                 cover: playlistCover,
                 id
             }"
-            ref="editPlaylistPopup"/>
+            @close="updatePlaylist"/>
         <fixed-playlist-header
-            @loadPlaylist="loadPlaylist"
             ref="fixedHeading"
             :class="{ 'hidden': fixedHeaderHidden }"
             :title="playlistName"
+            @loadPlaylist="loadPlaylist"
         />
-        <div class="padding-20 playlisteditor" @click="editPlaylist" v-observe-visibility="headerVisibilityChanged">
+        <div v-observe-visibility="headerVisibilityChanged" class="padding-20 playlisteditor" @click="editPlaylist">
             <Cover :src="playlistCover" type="playlist" />
             <div class="details">
                 <h1>{{ playlistName }}</h1>
@@ -25,15 +25,16 @@
             </div>
         </div>
         <div class="mobileMenu showIfMobile">
-            <span @click="() => $emit('toggleFullSidebar')" class="material-symbols-rounded">menu</span>
+            <span class="material-symbols-rounded" @click="() => $emit('toggleFullSidebar')">menu</span>
         </div>
         <hr>
         <div class="padding-20">
-            <span id="loadPlaylist" @click="loadPlaylist" class="material-symbols-rounded">play_circle</span>
-            <span id="addToPlaylist" @click="addToPlaylist" class="material-symbols-rounded">add_circle</span>
+            <span id="loadPlaylist" class="material-symbols-rounded" @click="loadPlaylist">play_circle</span>
+            <span id="addToPlaylist" class="material-symbols-rounded" @click="addToPlaylist">add_circle</span>
             <div class="grid">
                 <PlaylistHeader
                     class="hideIfMobile"
+                    with-album
                     with-more
                 />
                 <hr>
@@ -42,14 +43,14 @@
                         <template #item="{element}">
                             <PlaylistEntry
                                 :index="playlist.findIndex(x => x.source == element.source)"
-                                :song="element"
-                                with-cover
-                                with-album
-                                with-more
                                 :playlist-id="Number(id)"
+                                :selected="selectedSongId == element.id"
+                                :song="element"
+                                with-album
+                                with-cover
+                                with-more
                                 @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
                                 @update="updatePlaylist"
-                                :selected="selectedSongId == element.id"
                             />
                         </template>
                     </draggable>
@@ -231,7 +232,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 $mobileWidth: 950px;
 
 .playlisteditor img {

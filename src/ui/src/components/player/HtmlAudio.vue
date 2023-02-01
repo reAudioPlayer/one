@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {Playable, usePlayerStore} from "../store/player";
+import {Playable, usePlayerStore} from "../../store/player";
 import {onMounted, ref, watch} from "vue";
 
 const player = usePlayerStore();

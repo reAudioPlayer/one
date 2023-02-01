@@ -25,4 +25,7 @@
     --h-header: 64px;
     --w-sidebar: 44px;
     --h-sidebar: 64px;
+    --w-scrollbar: 8px;
+
+    --drop-shadow: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.2));
 }

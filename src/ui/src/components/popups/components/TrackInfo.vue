@@ -27,7 +27,7 @@ const props = defineProps({
 </script>
 <template>
 <div class="padding-20 playlisteditor">
-    <img class="cover" :src="cover" />
+    <img :src="cover" class="cover" />
     <div class="details">
         <div class="detailswrapper">
             <span
@@ -40,7 +40,7 @@ const props = defineProps({
             </span>
         </div>
         <h1>{{title}}</h1>
-        <h5>{{subtitle}}</h5>
+        <h6>{{subtitle}}</h6>
     </div>
 </div>
 </template>

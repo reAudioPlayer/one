@@ -1,6 +1,6 @@
 <template>
     <div class="text-input-with-icon rounded-3xl flex items-center px-4">
-        <span class="material-symbols-rounded">{{ icon }}</span>
+        <span class="material-symbols-rounded ms-wght-200">{{ icon }}</span>
         <input
             v-model="value"
             :placeholder="placeholder"
