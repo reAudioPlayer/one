@@ -58,9 +58,9 @@ defineExpose({
     <vue-final-modal v-model="showModal" classes="modal-container" content-class="modal-content" @click.stop @contextmenu.stop @drag.stop>
         <div class="wrapper">
             <div class="header bg-secondary rounded-t-2xl p-3">
-                <h3 class="font-black">{{name}}</h3>
+                <h3 class="title font-black">{{name}}</h3>
                 <button class="modal-close" @click="close">
-                    <span class="material-icons-round">
+                    <span class="title material-icons-round">
                         close
                     </span>
                 </button>
@@ -111,5 +111,9 @@ defineExpose({
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
+}
+
+.title {
+    color: white;
 }
 </style>

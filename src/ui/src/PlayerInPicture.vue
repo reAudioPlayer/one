@@ -5,8 +5,8 @@
                 <Marquee :text="name" />
             </div>
             <div class="buttons">
-                <span class="material-symbols-rounded" @click="minimised = !minimised">{{minimised ? "zoom_out_map" : "zoom_in_map"}}</span>
-                <span class="material-symbols-rounded" @click="disabled = !disabled">close</span>
+                <span class="material-symbols-rounded ms-wght-200" @click="minimised = !minimised">{{minimised ? "zoom_out_map" : "zoom_in_map"}}</span>
+                <span class="material-symbols-rounded ms-wght-500" @click="disabled = !disabled">close</span>
             </div>
         </div>
         <div :class="{ minimised }" class="frame" v-html="el" />
@@ -196,7 +196,7 @@ $mobileWidth: 950px;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    background: var(--player-background);
+    background: var(--bg-base-lt);
     overflow: hidden;
     box-shadow: 0 0 100px 3px rgba(0, 0, 0, .8);
 
@@ -209,7 +209,7 @@ $mobileWidth: 950px;
 
         .title {
             font-size: .8em;
-            color: var(--font-darker);
+            color: var(--fg-base-dk);
             display: flex;
             flex-direction: column;
             justify-content: center;

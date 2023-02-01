@@ -151,6 +151,7 @@ const update = () => {
 </template>
 <style lang="scss" scoped>
 @import "@/assets/scss/_variables.scss";
+/* TODO move to separate file and share w/ externalEntry */ 
 
 .playlist-entry {
     display: grid;

@@ -1,7 +1,7 @@
 /* width */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: var(--w-scrollbar);
+    height: var(--w-scrollbar);
     padding: 0;
     margin: 0;
     z-index: 101;
@@ -9,16 +9,16 @@
 
 /* Track */
 ::-webkit-scrollbar-track {
-    border-radius: 8px;
+    border-radius: var(--w-scrollbar);
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
     background: var(--bg-hover);
-    border-radius: 8px;
+    border-radius: var(--w-scrollbar);
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--bg-hover-lt);
+    background: var(--bg-hover-dk);
 }

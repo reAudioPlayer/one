@@ -4,7 +4,9 @@
             <span id="loadPlaylist" class="material-symbols-rounded hideIfMobile" @click="this.$emit('loadPlaylist')">play_circle</span>
             <h3 class="font-bold">{{title}}</h3>
         </div>
-        <PlaylistHeader class="padding-20 darkback hideIfMobile" with-album with-more />
+        <div class="padding-20 darkback">
+            <PlaylistHeader class="fixedHeader hideIfMobile" with-album with-more />
+        </div>
     </div>
 </template>
 
@@ -31,12 +33,15 @@ export default {
     }
 
     .darkback {
-        /*background: var(--fixedplaylistheader-background);*/
         backdrop-filter: blur(100px);
 
         padding-top: 10px;
         padding-bottom: 10px;
         border-bottom: 1px solid var(--border-fixedPlaylistHeader);
+    }
+
+    .fixedHeader {
+        margin-right: var(--w-scrollbar);
     }
 
     .upperWrapper {
@@ -82,9 +87,7 @@ export default {
         padding-right: 3px;
 
         z-index: 100;
-        /*height: 80px;*/
         overflow: clip;
-        padding-bottom: 10px;
         border-radius: 0 0 20px 20px;
 
         @media screen and (max-width: $mobileWidth) {

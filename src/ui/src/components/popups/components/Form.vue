@@ -4,6 +4,7 @@ import {PropType} from "vue";
 import {openInNewTab, parseCover, toTitleCase} from "@/common";
 import Dropdown from "../../inputs/Dropdown.vue";
 import TextInputWithIcon from "../../inputs/TextInputWithIcon.vue";
+import Cover from "../../image/Cover.vue";
 
 interface IOption {
     value: string;
@@ -72,16 +73,17 @@ defineExpose({
                         type="text"
                         @change="option?.onChange(option.value)"
                     />
-                    <img
+                    <Cover
                         v-if="option.imagePreview"
                         :src="parseCover(option.value)"
                         class="imagePreview"
                         @click="openInNewTab(option.value)"
-                    >
+                    />
                 </template>
                 <template v-else-if="option.type == 'dropdown'">
                     <Dropdown
                         v-model="option.value"
+                        :icon="option.icon"
                         :options="option.options"
                     />
                 </template>
@@ -119,6 +121,7 @@ defineExpose({
         border-radius: 1000vmax;
         padding: 11px;
         cursor: pointer;
+        font-variation-settings: "wght" 300;
     }
 
     img.imagePreview {

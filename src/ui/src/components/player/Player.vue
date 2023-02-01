@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import {Playable, usePlayerStore} from "../store/player";
+import {Playable, usePlayerStore} from "../../store/player";
 import HtmlAudio from "./HtmlAudio.vue";
 import {computed, onMounted, Ref, ref, watch} from "vue";
-import Cover from "../components/image/Cover.vue";
-import Marquee from "../components/Marquee.vue";
-import ProgressBar from "../components/ProgressBar.vue";
-import IconDropdown from "../components/inputs/IconDropdown.vue";
-import {useSettingsStore} from "../store/settings";
-import {pictureInPictureStatus, requestPictureInPicture} from "../pictureInPicture";
-import Spinner from "../components/loaders/Spinner.vue";
-import {hashTrack, isMobile} from "../common";
+import Cover from "../image/Cover.vue";
+import Marquee from "../Marquee.vue";
+import ProgressBar from "../ProgressBar.vue";
+import IconDropdown from "../inputs/IconDropdown.vue";
+import {useSettingsStore} from "../../store/settings";
+import {pictureInPictureStatus, requestPictureInPicture} from "../../pictureInPicture";
+import Spinner from "../loaders/Spinner.vue";
+import {hashTrack, isMobile} from "../../common";
 import WaveAudio from "./WaveAudio.vue";
 
 const player = usePlayerStore();
@@ -123,7 +123,7 @@ const showWebWavePlayer = computed(() => {
             <div class="controls">
                 <div class="top">
                     <span
-                        class="cursor-pointer material-symbols-rounded ms-wght-300"
+                        class="icon cursor-pointer material-symbols-rounded ms-wght-300"
                         @click="player.toggleShuffle"
                     >
                         {{player.shuffleIcon}}
@@ -133,7 +133,7 @@ const showWebWavePlayer = computed(() => {
                             'cursor-not-allowed': !player.loaded,
                         }"
                         :disabled="!player.loaded"
-                        class="cursor-pointer material-symbols-rounded ms-fill"
+                        class="icon cursor-pointer material-symbols-rounded ms-fill"
                         @click="player.previous"
                     >
                         skip_previous
@@ -153,13 +153,13 @@ const showWebWavePlayer = computed(() => {
                             'cursor-not-allowed': !player.loaded,
                         }"
                         :disabled="!player.loaded"
-                        class="cursor-pointer material-symbols-rounded ms-fill"
+                        class="icon cursor-pointer material-symbols-rounded ms-fill"
                         @click="player.next"
                     >
                         skip_next
                     </span>
                     <span
-                        class="cursor-pointer material-symbols-rounded ms-wght-300"
+                        class="icon cursor-pointer material-symbols-rounded ms-wght-300"
                         @click="player.toggleRepeat"
                     >
                         {{ player.repeat }}
@@ -201,7 +201,7 @@ const showWebWavePlayer = computed(() => {
                     icon="devices"
                 />
                 <span
-                    class="cursor-pointer material-symbols-rounded ms-fill"
+                    class="icon cursor-pointer material-symbols-rounded ms-fill"
                     @click="player.toggleMute"
                 >
                     {{ player.muteIcon }}
@@ -279,13 +279,13 @@ const showWebWavePlayer = computed(() => {
                     <div class="controls mb-4">
                         <div class="top">
                             <span
-                                class="cursor-pointer material-symbols-rounded ms-wght-300"
+                                class="icon cursor-pointer material-symbols-rounded ms-wght-300"
                                 @click="player.toggleShuffle"
                             >
                                 {{ player.shuffleIcon}}
                             </span>
                             <span
-                                class="cursor-pointer material-symbols-rounded ms-fill"
+                                class="icon cursor-pointer material-symbols-rounded ms-fill"
                                 @click="player.previous"
                             >
                                 skip_previous
@@ -297,13 +297,13 @@ const showWebWavePlayer = computed(() => {
                                 {{ player.playing ? "pause_circle" : "play_circle" }}
                             </span>
                             <span
-                                class="cursor-pointer material-symbols-rounded ms-fill"
+                                class="icon cursor-pointer material-symbols-rounded ms-fill"
                                 @click="player.next"
                             >
                                 skip_next
                             </span>
                             <span
-                                class="cursor-pointer material-symbols-rounded ms-wght-300"
+                                class="icon cursor-pointer material-symbols-rounded ms-wght-300"
                                 @click="player.toggleRepeat"
                             >
                                 {{ player.repeat }}
@@ -382,6 +382,14 @@ const showWebWavePlayer = computed(() => {
     background: var(--bg-base-lt);
     border-top: 1px solid var(--border-base);
     z-index: 2;
+}
+
+.icon {
+    color: var(--fg-base-dk);
+
+    &:hover {
+        color: var(--fg-base);
+    }
 }
 
 .desktop {

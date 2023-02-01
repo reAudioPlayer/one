@@ -11,7 +11,8 @@
     },
     "bg-contrast": {
         "dark": "white",
-        "dynamic": "whitesmoke"
+        "dynamic": "whitesmoke",
+        "light": "#181c2f"
     },
     "fg-contrast": {
         "dark": "#121212",

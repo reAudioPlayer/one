@@ -63,7 +63,7 @@ import {useSettingsStore} from "@/store/settings";
 import {authoriseSpotify, isFirstRun} from "@/api/config";
 import Sidebar from "@/Sidebar.vue";
 import Body from "@/Body.vue";
-import Player from "@/Player/Player.vue";
+import Player from "@/components/player/Player.vue";
 
 
 const LOCAL_STORAGE_KEY = "theme" // change it to whatever you like
