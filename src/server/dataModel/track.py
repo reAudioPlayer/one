@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
-__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+__copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from abc import ABC, abstractmethod
 import re
@@ -59,6 +59,8 @@ class ITrack(ABC):
 
 class SpotifyTrack(ITrack):
     """spotify track model"""
+    __slots__ = ("_title", "_album", "_artists", "_id", "_preview", "_cover", "_markets")
+
     def __init__(self, track: Dict[str, Any]) -> None:
         dex = JDict(track).chain()
         self._title = dex.ensure("name", str)

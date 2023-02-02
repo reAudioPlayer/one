@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
-__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+__copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from functools import wraps
 from enum import Enum
@@ -79,8 +79,7 @@ class SpotifyResult(Generic[T]):
 
     def unwrap(self) -> T:
         """Returns the data of the operation"""
-        if not self.success():
-            raise Exception("unwrap called on error result")
+        assert self.success(), "unwrap called on error result"
         assert self._data is not None
         return self._data
 

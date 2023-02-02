@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
-__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+__copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import os
 import sqlite3 as sl
@@ -14,6 +14,8 @@ from config.runtime import Runtime
 
 class DbManager:
     """(sqlite) db manager"""
+    __slots__ = ("_db", )
+
     def __init__(self) -> None:
         file = Runtime.args.db
         if not os.path.exists(os.path.dirname(file)):

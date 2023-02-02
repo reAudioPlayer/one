@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
-__copyright__ = ("Copyright (c) 2023 https://github.com/reAudioPlayer")
+__copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
 from typing import List, Optional, Dict, Any
 from enum import Enum
@@ -20,6 +20,8 @@ class ConnectionType(Enum):
 
 class Connection:
     """A websocket connection"""
+    __slots__ = ("_request", "_response", "_type", "_id", "_player")
+
     _deviceLookup = {
         "X11": "Linux",
         "Macintosh": "Mac",

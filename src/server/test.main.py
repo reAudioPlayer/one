@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
-__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+__copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import os
 import threading
