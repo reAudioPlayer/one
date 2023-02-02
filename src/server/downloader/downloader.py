@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
-__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+__copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import asyncio
 from os import path
@@ -20,6 +20,8 @@ DOWNLOADING = [ ]
 
 class Downloader:
     """downloader"""
+    __slots__ = ("_opts", "_ydl", "_logger")
+
     def __init__(self) -> None:
         self._opts = {
             'noplaylist': True,

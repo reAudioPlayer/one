@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
-__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+__copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import logging
 import os
@@ -132,8 +132,7 @@ class Player: # pylint: disable=too-many-instance-attributes
         while not await self._downloader.downloadSong(song.source, str(song.id)):
             self._logger.debug("invalid [%s], preload next", song)
             song = self._playerPlaylist.next()
-            if initial == self._playerPlaylist.cursor:
-                raise Exception("no valid song")
+            assert initial != self._playerPlaylist.cursor, "no valid song"
         self._preloaded = song.source
         nextSong = self._playerPlaylist.next(True)
         asyncio.create_task(self._downloader.downloadSong(nextSong.source,

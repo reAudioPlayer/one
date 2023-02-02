@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
-__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+__copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import Any, Callable, Optional
 from dataModel.playlist import Playlist
@@ -12,6 +12,8 @@ from player.playerPlaylist import OrderedUniqueList
 
 class PlaylistManager:
     """manages all playlists"""
+    __slots__ = ("_dbManager", "_playlists")
+
     def __init__(self, dbManager: DbManager) -> None:
         self._dbManager = dbManager
         self._playlists: OrderedUniqueList[PlayerPlaylist] = OrderedUniqueList()

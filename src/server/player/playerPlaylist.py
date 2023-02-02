@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
-__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+__copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from random import randint
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
@@ -34,6 +34,9 @@ class OrderedUniqueList(List[T]):
 
 class PlayerPlaylist: # pylint: disable=too-many-public-methods
     """player playlist (not to be confused with db (dataModel) playlist)"""
+    __slots__ = ("_dbManager", "_playlist", "_cursor", "_playlistIndex",
+                 "_name", "_description", "_cover")
+
     def __init__(self,
                  dbManager: DbManager,
                  playlistIndex: Optional[int] = None,

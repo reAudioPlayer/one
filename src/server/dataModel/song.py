@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
-__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+__copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import Any, Dict, List, Optional, Tuple
 import math
@@ -28,6 +28,9 @@ def _castDuration(value: Optional[Any]) -> int:
 
 class Song(ITrack):
     """song model"""
+    __slots__ = ("_id", "_name", "_artist", "_spotify", "_source", "_album", "_cover",
+                 "_duration", "_favourite", "_artists", "_title", "_preview" )
+
     def __init__(self,
                  name: str = "N/A",
                  artist: str = "N/A",

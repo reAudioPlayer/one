@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """cevlib"""
-__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
+__copyright__ = "Copyright (c) 2022 https://github.com/dxstiny"
 
 from typing import Any, Callable, TypeVar, cast
 from threading import Thread

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
-__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
+__copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 
 from abc import ABC, abstractmethod
