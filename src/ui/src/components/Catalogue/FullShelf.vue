@@ -53,6 +53,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
         grid-template-rows: 1fr;
+        gap: 1em;
         overflow-y: auto;
     }
 </style>

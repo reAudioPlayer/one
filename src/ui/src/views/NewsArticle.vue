@@ -2,23 +2,23 @@
     <Error v-if="error" :msg="error" />
     <Loader v-else-if="!article.headline" />
     <div v-else class="padding-20 newsArticle">
-        <span @click="fullWidth = !fullWidth" class="toggleWidth material-icons-round">{{fullWidth ? "close_fullscreen" : "open_in_full"}}</span>
-        <div class="wrapper" :class="{ slim: !fullWidth }">
-            <h5 class="accentLink topic" v-html="article.topic" />
-            <h1 class="headline">{{article.headline}}</h1>
+        <span class="toggleWidth material-icons-round" @click="fullWidth = !fullWidth">{{fullWidth ? "close_fullscreen" : "open_in_full"}}</span>
+        <div :class="{ slim: !fullWidth }" class="wrapper">
+            <h6 class="accentLink topic" v-html="article.topic" />
+            <h1 class="leading-tight headline">{{article.headline}}</h1>
             <h4 class="standfirst" v-html="article.standfirst" />
-            <h5 v-if="article.date" class="date">{{article.date}}, <a :href="article.href">{{article.href}}</a></h5>
-            <hr v-if="article.body">
-            <div class="body" v-html="article.body" />
+            <h6 v-if="article.date" class="date">{{article.date}}, <a :href="article.href">{{article.href}}</a></h6>
+            <hr v-if="article.body" class="my-4">
+            <div class="body leading-relaxed text-md" v-html="article.body" />
         </div>
     </div>
 </template>
 
 <script>
-    import Loader from "@/components/Loader.vue"
-    import Error from "@/components/Error.vue"
+import Loader from "@/components/Loader.vue"
+import Error from "@/components/Error.vue"
 
-    export default {
+export default {
         name: 'NewsArticle',
         components: { Loader, Error },
         data() {
@@ -54,6 +54,35 @@
                                 return
                             }
 
+                            let relativeLinks = this.article.body.split(" ").filter(x => x.includes("href=\"/"));
+                            relativeLinks = relativeLinks.map(x => x.split("href=\"")[1].split("\"")[0]);
+
+                            const source = this.article.href.split("/")[2];
+                            const absoluteLinks = relativeLinks.map(x => "https://" + source + x);
+
+                            for (const i in relativeLinks)
+                            {
+                                let absoluteLink = absoluteLinks[i];
+
+                                fetch("/api/news/articles", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        url: absoluteLinks[i]
+                                    })
+                                })
+                                    .then(async res => {
+                                        if (res.status == 200) {
+                                            absoluteLink = await res.text();
+                                        } else {
+                                            console.error(await res.text());
+                                        }
+                                        this.article.body = this.article.body.replaceAll(relativeLinks[i], absoluteLink);
+                                    })
+                            }
+
                             return;
                         }
                         this.error = res.statusText;
@@ -74,7 +103,7 @@
     .toggleWidth {
         position: absolute;
         right: 20px;
-        top: 20px;
+        top: calc(var(--h-header) + 20px);
     }
 
     .toggleWidth:hover {
@@ -100,18 +129,17 @@
     div.body {
         display: flex;
         flex-direction: column;
-        font-size: 1.2em;
     }
 
     .date {
         font-size: .7em;
         margin: 0;
         font-weight: normal;
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
     }
 
     .date * {
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
     }
 
     .headline {
@@ -140,11 +168,11 @@
     }
 
     div.newsArticle a {
-        color: var(--font-colour)
+        color: var(--fg-base)
     }
 
     div.newsArticle .accentLink, div.newsArticle .accentLink * {
-        color: var(--accent);
+        color: var(--fg-secondary);
         text-decoration: none;
     }
 
@@ -152,12 +180,12 @@
         /*align-self: center;*/
         max-width: 50%;
         margin: 0;
-        color: var(--font-darker) !important;
+        color: var(--fg-base-dk) !important;
         font-size: .8em;
     }
 
     figure svg {
-        fill: var(--font-darker) !important;
+        fill: var(--fg-base-dk) !important;
         margin-right: 5px;
     }
 
@@ -167,7 +195,7 @@
     }
 
     .related {
-        background: var(--background-light);
+        background: var(--bg-base-lt);
         padding: 20px;
         border-radius: 10px;
     }
@@ -195,5 +223,28 @@
 
     .related ul a span:not(:last-child) {
         margin-right: 20px;
+    }
+
+    p:not(:last-child) {
+        margin-bottom: 1em;
+    }
+
+    svg.logo-stamp {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+    }
+
+    div.newsletter-component {
+        display: none;
+    }
+
+    form {
+        display: none;
+    }
+
+    iframe {
+        position: inherit !important;
+
     }
 </style>

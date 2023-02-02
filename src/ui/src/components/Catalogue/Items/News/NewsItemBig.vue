@@ -1,22 +1,20 @@
 <template>
-    <div class="itemBig">
-        <div class="item" @click="redirect">
-            <img v-if="image" :src="image" />
-            <div class="wrapper">
-                <h4>{{title}}</h4>
-                <p v-html="summary" class="newsSummary" />
-                <p class="small">{{`${updatedTimestamp}, ${source}`}}</p>
-            </div>
-        </div>
-    </div>
+    <Card class="p-4 col-span-2 cursor-pointer" @click="redirect">
+        <img v-if="image" :src="image" />
+        <h4>{{title}}</h4>
+        <p class="newsSummary" v-html="summary" />
+        <p class="small">{{`${updatedTimestamp}, ${source}`}}</p>
+    </Card>
 </template>
 
 <script>
-    export default {
+import Card from "@/containers/Card.vue";
+
+export default {
         name: 'NewsItemBig',
+        components: {Card},
         methods: {
             redirect() {
-                //window.open(this.href)
                 this.$router.push(this.href)
             }
         },
@@ -46,31 +44,11 @@
         font-size: .8em;
     }
 
-    .itemBig {
-        grid-column: span 2;
-        background: var(--background-light);
-        border-radius: 20px;
-        min-height: 15vh;
-        margin: 10px;
-    }
-
-    .item {
-        display: flex;
-        flex-direction: column;
-        padding: 20px;
-        height: calc(100% - 40px);
-    }
-
     .wrapper {
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
         height: 100%;
-    }
-
-    .itemBig:hover {
-        cursor: pointer;
-        background: var(--hover-1);
     }
 
     img {
@@ -85,7 +63,7 @@
 
     p {
         margin: 0;
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
         font-size: .9em;
         
         display: -webkit-box;
@@ -105,10 +83,14 @@
 
 <style>
     p.newsSummary a {
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
     }
 
     p.newsSummary a:hover {
-        color: var(--font-colour);
+        color: var(--fg-base-dk);
+    }
+
+    font {
+        display: none;
     }
 </style>
