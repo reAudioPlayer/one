@@ -11,7 +11,7 @@ from pyaddict import JDict
 import feedparser # type: ignore
 
 
-HASH_LOOKUP = { }
+HASH_LOOKUP: Dict[str, str] = { }
 
 
 class Article:
@@ -64,9 +64,9 @@ class Article:
     @staticmethod
     def registerUrl(url: str) -> str:
         """registers the hash"""
-        hash_ = hashlib.md5(url.encode('utf-8')).hexdigest()
-        HASH_LOOKUP[hash_] = url
-        return hash_
+        urlHash = hashlib.md5(url.encode('utf-8')).hexdigest()
+        HASH_LOOKUP[urlHash] = url
+        return urlHash
 
 
 class Feed(Enum):
