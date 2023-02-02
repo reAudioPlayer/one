@@ -1,19 +1,19 @@
-FROM python:3.10-slim-buster
+FROM python:3.10-alpine
 
-RUN apt-get update && apt-get install -y \
-    ffmpeg nginx git
+RUN apk add --no-cache ffmpeg nginx git && \
+    mkdir /opt/reAudioPlayer && \
+    apk del --no-cache --purge && \
+    rm -rf /var/cache/apk/*
 
-RUN mkdir /opt/reAudioPlayer
-
-COPY build/nginx.conf /etc/nginx/sites-available/default
+COPY build/nginx.conf /etc/nginx/http.d/default.conf
 COPY src /opt/reAudioPlayer
 
 WORKDIR /opt/reAudioPlayer/server
 
-RUN pip3 install -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 EXPOSE 80
 
 VOLUME /opt/reAudioPlayer/usr/
 
-ENTRYPOINT [ "bash", "entry.sh" ]
+ENTRYPOINT [ "sh", "entry.sh" ]
