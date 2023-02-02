@@ -1,3 +1,3 @@
 #!/bin/bash
-/etc/init.d/nginx restart
+/usr/sbin/nginx
 python3 main.py --with-docker --no-local-playback
