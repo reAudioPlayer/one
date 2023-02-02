@@ -6,21 +6,24 @@
         <hr>
         <div class="padding-20">
             <p class="small">Supported urls: {{supportedSources.join("*, ")}} </p>
-            <p class="small">CEV matches are currently not supported, because Heroku removed its free plan.</p>
             <div class="addWrapper">
-                <input @keyup="enterText" v-model="sourceToAdd" type="text">
-                <span id="addToPlaylist" @click="tryAddSource" class="material-icons-outlined">add_circle</span>
+                <TextInputWithIcon
+                    v-model="sourceToAdd"
+                    icon="link"
+                    @keyup="enterText"
+                />
+                <span id="addToPlaylist" class="material-icons-outlined" @click="tryAddSource">add_circle</span>
             </div>
             <hr>
             <full-shelf v-for="(sport, sportIndex) in sports" :key="sport.sport" :heading="sport.sport" :icon="sport.icon">
-                <football-item v-for="(element, matchIndex) in sport.items" :key="element.href" @remove="() => removeSource(element.sref, sportIndex, matchIndex)" :competition="element.competition"
-                    :team1="element.team1" :team2="element.team2" :result="element.result" :date="element.date"
-                    :href="element.href" :oref="element.oref" :progress="element.progress" />
+                <football-item v-for="(element, matchIndex) in sport.items" :key="element.href" :competition="element.competition" :date="element.date"
+                    :href="element.href" :oref="element.oref" :progress="element.progress" :result="element.result"
+                    :team1="element.team1" :team2="element.team2" @remove="() => removeSource(element.sref, sportIndex, matchIndex)" />
             </full-shelf>
-            <full-shelf v-if="false && volleyMatches.length" heading="Volleyball" icon="sports_volleyball">
+            <full-shelf v-if="volleyMatches.length" heading="Volleyball" icon="sports_volleyball">
                 <div v-for="(match, index) in volleyMatches" :key="index" class="wrapIframe">
                     <iframe :src="`https://cev-nex.tk/#/embed?match=${match.src}`" />
-                    <span @click="() => removeSourceD(match.ref)"  class="deleteIcon small material-symbols-rounded">clear</span>
+                    <span class="deleteIcon small material-symbols-rounded"  @click="() => removeSourceD(match.ref)">clear</span>
                 </div>
             </full-shelf>
         </div>
@@ -28,10 +31,13 @@
 </template>
 
 <script>
-    import FullShelf from '../components/Catalogue/FullShelf.vue'
-    import FootballItem from '../components/Catalogue/Items/Sports/FootballItem.vue'
-    export default {
+import FullShelf from '../components/Catalogue/FullShelf.vue'
+import FootballItem from '../components/Catalogue/Items/Sports/FootballItem.vue'
+import TextInputWithIcon from "@/components/inputs/TextInputWithIcon.vue";
+
+export default {
         components: {
+            TextInputWithIcon,
             FullShelf,
             FootballItem
         },
@@ -45,11 +51,11 @@
                     "https://onefootball.com/en/team/",
                     "https://onefootball.com/en/match/",
                     "https://onefootball.com/en/competition/",
-                    //"https://www.cev.eu/match-centres/",
-                    //"https://championsleague.cev.eu/en/match-centres/",
-                    //"https://www.cev.eu/calendar/",
-                    //"https://cev-nex.tk/#/match/",
-                    //"https://cevnex.tk/#/match/"
+                    "https://www.cev.eu/match-centres/",
+                    "https://championsleague.cev.eu/en/match-centres/",
+                    "https://www.cev.eu/calendar/",
+                    "https://cev-nex.tk/#/match/",
+                    "https://cevnex.tk/#/match/"
                 ]
             }
         },
@@ -196,7 +202,7 @@
     }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
     .padding-20 {
         padding: 20px;
     }
@@ -208,7 +214,6 @@
     #addToPlaylist {
         cursor: pointer;
         font-size: 60px;
-        margin-bottom: 20px;
         width: 70px;
         line-height: 70px;
         text-align: center;
@@ -241,6 +246,7 @@
         display: flex;
         flex-direction: row;
         align-items: center;
+        margin-bottom: 1em;
     }
 
     p.small {

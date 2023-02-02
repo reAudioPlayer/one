@@ -3,16 +3,16 @@
         <div class="item" @click="redirect">
             <div class="wrapper topalign">
                 <p>{{competition}}</p>
-                <p class="right progress" :class="{'accent': progress?.includes(`'`)}">{{progress}}</p>
+                <p :class="{'accent': progress?.includes(`'`)}" class="right progress">{{progress}}</p>
             </div>
             <div class="wrapper">
-                <p v-html="team1" class="team" />
+                <p class="team" v-html="team1" />
                 <h4 class="result" v-html="result" />
-                <p v-html="team2" class="team" />
+                <p class="team" v-html="team2" />
             </div>
             <div class="wrapper bottomalign">
                 <p class="small">{{date}}, {{href}}</p>
-                <span @click="remove" class="deleteIcon small material-icons-round">clear</span>
+                <span class="deleteIcon small material-icons-round" @click="remove">clear</span>
             </div>
         </div>
     </div>
@@ -50,7 +50,7 @@
 
     .itemBig {
         grid-column: span 2;
-        background: var(--background-light);
+        background: var(--bg-base-lt);
         border-radius: 20px;
         min-height: 15vh;
         margin: 10px;
@@ -93,7 +93,7 @@
 
     .itemBig:hover {
         cursor: pointer;
-        background: var(--hover-1);
+        background: var(--bg-hover-lt);
     }
 
     img {
@@ -110,7 +110,7 @@
 
     p {
         margin: 0;
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
         font-size: .9em;
     }
 
@@ -177,11 +177,11 @@
     }
 
     p.accent {
-        color: var(--accent);
+        color: var(--fg-secondary);
     }
 
     p.muted {
-        color: var(--font-darker);
+        color: var(--fg-base-dk);
     }
 
     p.additional-result {
@@ -197,11 +197,7 @@
 </style>
 
 <style>
-    p.team a {
-        color: var(--font-darker);
-    }
-
-    p.team a:hover {
-        color: var(--font-colour);
+    p.team a, p.team a:hover {
+        color: var(--fg-base-dk);
     }
 </style>
