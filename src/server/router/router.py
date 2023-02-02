@@ -88,6 +88,7 @@ class Router:
 
         # /api/news/articles/
         app.router.add_get('/api/news/articles', newsHandler.getSomeNews)
+        app.router.add_post('/api/news/articles', newsHandler.registerArticle)
         app.router.add_get('/api/news/articles/{hash}', newsHandler.getArticle)
 
         # /api/tracks

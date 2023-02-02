@@ -16,6 +16,8 @@ from helper.cacheDecorator import useCache
 
 class NewsHandler:
     """news handler"""
+    __slots__ = ()
+
     @useCache(1800) # type: ignore
     async def getSomeNews(self, _: web.Request) -> web.Response:
         """get(/api/news/articles)"""
@@ -23,6 +25,14 @@ class NewsHandler:
             return Feed.takeFromAll(4)
         data = await asyncRunInThreadWithReturn(implement)
         return web.json_response(data = data)
+
+    async def registerArticle(self, request: web.Request) -> web.Response:
+        """post(/api/news/articles)"""
+        data = await request.json()
+        if "url" not in data:
+            return web.json_response(data = {"error": "missing url"})
+        url = data["url"]
+        return web.Response(text = "/news/" + Article.registerUrl(url))
 
     async def getArticle(self, request: web.Request) -> web.Response:
         """get(/api/news/articles/{hash})"""

@@ -2,8 +2,8 @@
     <div class="padding-20">
         <div class="news">
             <h1>News</h1>
-            <full-shelf v-for="source in news" :key="source.source" :heading="source.source">
-                <news-item-big v-for="element in source.items" :key="element.url" :title="element.title" :image="element.image" :summary="element.summary" :href="element.link" :updated="element.updated" :source="element.source" />
+            <full-shelf v-for="source in news" :key="source.source" :heading="source.source" class="mt-10">
+                <news-item-big v-for="element in source.items" :key="element.url" :href="element.link" :image="element.image" :source="element.source" :summary="element.summary" :title="element.title" :updated="element.updated" />
             </full-shelf>
         </div>
     </div>
@@ -12,7 +12,8 @@
 <script>
 import FullShelf from '../components/Catalogue/FullShelf.vue'
 import NewsItemBig from '../components/Catalogue/Items/News/NewsItemBig.vue'
-    export default {
+
+export default {
         components: { FullShelf, NewsItemBig },
         name: 'News',
         data() {
@@ -49,9 +50,5 @@ import NewsItemBig from '../components/Catalogue/Items/News/NewsItemBig.vue'
 <style scoped>
     .padding-20 {
         padding: 20px;
-    }
-
-    h1 {
-        margin-left: 10px;
     }
 </style>

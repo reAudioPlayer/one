@@ -16,14 +16,16 @@ HASH_LOOKUP = { }
 
 class Article:
     """Feedreader Article"""
+    __slots__ = ("_title", "_author", "_summary", "_link", "_href", "_updated",
+                 "_mediaContent", "_feedTitle", "_image")
+
     def __init__(self, entry: Dict[str, Any], feedTitle: str) -> None:
         dex = JDict(entry)
         self._title = dex.ensure("title", str)
         self._author = dex.ensure("author", str)
         self._summary = dex.ensure("summary", str)
         self._link = dex.ensure("link", str)
-        self._href = hashlib.md5(self._link.encode('utf-8')).hexdigest()
-        HASH_LOOKUP[self._href] = self._link
+        self._href = Article.registerUrl(self._link)
         self._updated = dex.ensure("updated", str)
         self._mediaContent = dex.ensure("media_content", list)
         self._feedTitle = feedTitle.replace('"when:24h allinurl:', '')\
@@ -58,6 +60,13 @@ class Article:
         if not bool(HASH_LOOKUP):
             Feed.takeFromAll(4)
         return HASH_LOOKUP.get(key)
+
+    @staticmethod
+    def registerUrl(url: str) -> str:
+        """registers the hash"""
+        hash_ = hashlib.md5(url.encode('utf-8')).hexdigest()
+        HASH_LOOKUP[hash_] = url
+        return hash_
 
 
 class Feed(Enum):
