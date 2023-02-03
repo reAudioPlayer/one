@@ -77,7 +77,9 @@ class Downloader:
 
         # download
         DOWNLOADING.append(filename)
-        self._ydl.outtmpl_dict["default"] = relName
+        self._ydl.params["outtmpl"] = {
+            "default": relName,
+        }
 
         try:
             err = await asyncRunInThreadWithReturn(self._ydl.download, [ link ])
