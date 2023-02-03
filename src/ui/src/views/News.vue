@@ -2,7 +2,9 @@
     <div class="padding-20">
         <div class="news">
             <h1>News</h1>
-            <Loading v-if="news.length == 0" />
+            <div v-if="!news.length" class="fillPage">
+                <Loader />
+            </div>
             <full-shelf v-for="source in news" :key="source.source" :heading="source.source" class="mt-10">
                 <news-item-big v-for="element in source.items" :key="element.url" :href="element.link" :image="element.image" :source="element.source" :summary="element.summary" :title="element.title" :updated="element.updated" />
             </full-shelf>
@@ -13,9 +15,10 @@
 <script>
 import FullShelf from '../components/Catalogue/FullShelf.vue'
 import NewsItemBig from '../components/Catalogue/Items/News/NewsItemBig.vue'
+import Loader from "@/components/Loader.vue";
 
 export default {
-        components: { FullShelf, NewsItemBig },
+        components: {Loader, FullShelf, NewsItemBig },
         name: 'News',
         data() {
             return {
@@ -51,5 +54,13 @@ export default {
 <style scoped>
     .padding-20 {
         padding: 20px;
+    }
+
+    .fillPage {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh - var(--h-header) - var(--h-player) - 200px);
     }
 </style>
