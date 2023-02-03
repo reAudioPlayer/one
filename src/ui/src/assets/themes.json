@@ -53,6 +53,7 @@
     },
     "bg-gradient": {
         "dark": "linear-gradient(to left bottom, #1ed760, #217e41)",
+        "dynamic": "linear-gradient(to left bottom, #00a53c, #00297f)",
         "light": "linear-gradient(to left bottom, #18a74b, #80dda0)"
     },
     "bg-base": {
