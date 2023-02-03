@@ -21,6 +21,7 @@ const props = defineProps({
 
 const loading = ref(false);
 const showModal = ref(false);
+const error = ref("");
 const hide = () => showModal.value = false;
 
 const show = () => {
@@ -31,6 +32,17 @@ const show = () => {
 const load = () => {
     loading.value = true;
     showModal.value = true;
+}
+
+const fetch = async (url: string, options: RequestInit) => {
+    load();
+    const res = await window.fetch(url, options);
+    show();
+    if (!res.ok) {
+        error.value = await res.text();
+        return null;
+    }
+    return res;
 }
 
 const emit = defineEmits(["submit", "close", "secondary"]);
@@ -51,7 +63,7 @@ const secondary = () => {
 }
 
 defineExpose({
-    show, hide, load
+    show, hide, load, fetch
 })
 </script>
 <template>
@@ -66,6 +78,9 @@ defineExpose({
                 </button>
             </div>
             <Loader v-if="loading" />
+            <div v-else-if="error">
+
+            </div>
             <div
                 v-else
                 class="p-4 pt-0"

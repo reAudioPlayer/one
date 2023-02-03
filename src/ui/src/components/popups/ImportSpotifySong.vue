@@ -32,16 +32,23 @@ const form = ref(null);
 const track: Ref<ISong> = ref(null);
 
 const show = async () => {
-    modal.value.load();
     if (!track.value) {
-        const res = await fetch("/api/browse/track", {
-            method: "POST",
-            body: JSON.stringify({
-                url: props.song.href
-            })
-        })
-        track.value = await res.json()
+        modal.value.show();
+        return;
     }
+
+    const res = await modal.value.fetch("/api/browse/track", {
+        method: "POST",
+        body: JSON.stringify({
+            url: props.song.href
+        })
+    });
+
+    if (!res) return;
+
+    modal.value.load();
+
+    track.value = await res.json();
     modal.value.show();
 }
 

@@ -54,6 +54,7 @@ $mobileWidth: 950px;
     display: flex;
     flex-direction: row;
     margin-bottom: 20px;
+    align-items: center;
 
     img {
         width: 20%;
@@ -77,6 +78,7 @@ $mobileWidth: 950px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    align-self: end;
 }
 
 .playlisteditor>.details>h1 {

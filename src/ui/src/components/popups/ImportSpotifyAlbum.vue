@@ -33,12 +33,16 @@ const form = ref(null);
 const songs: Ref<ISpotifySong[]> = ref([]);
 
 const show = async () => {
-    modal.value.load();
-    if (songs.value.length == 0) {
-        const res = await fetch(`/api/spotify/albums/${props.album.id}`)
-        songs.value = await res.json()
+    if (songs.value.length > 0) {
+        modal.value.show();
+        return;
     }
-    modal.value.show();
+
+    const res = await modal.value.fetch(`/api/spotify/albums/${props.album.id}`);
+
+    if (!res) return;
+
+    songs.value = await res.json()
 }
 
 const preview = () => {
