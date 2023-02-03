@@ -2,6 +2,7 @@
     <div class="padding-20">
         <div class="news">
             <h1>News</h1>
+            <Loading v-if="news.length == 0" />
             <full-shelf v-for="source in news" :key="source.source" :heading="source.source" class="mt-10">
                 <news-item-big v-for="element in source.items" :key="element.url" :href="element.link" :image="element.image" :source="element.source" :summary="element.summary" :title="element.title" :updated="element.updated" />
             </full-shelf>
