@@ -1,1 +1,0 @@
-import{_,o as c,c as s,r as t}from"./index.1d09503d.js";const o={},r={class:"card"};function d(e,n){return c(),s("div",r,[t(e.$slots,"default",{},void 0,!0)])}const f=_(o,[["render",d],["__scopeId","data-v-ff26f2dc"]]);export{f as C};
