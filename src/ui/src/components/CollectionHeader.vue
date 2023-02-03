@@ -48,13 +48,17 @@
         padding: 10px;
         border-radius: 5px;
         font-weight: bold;
-        color: var(--font-colour);
+        color: var(--fg-base);
         margin-right: 10px;
         font-size: .85em;
     }
 
+    .collection:hover {
+        background: var(--bg-hover-dk);
+    }
+
     .router-link-active div.collection {
-        background: var(--hover-1);
+        background: var(--bg-hover);
     }
 
 </style>
