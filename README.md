@@ -28,9 +28,9 @@ curl https://raw.githubusercontent.com/reAudioPlayer/one/master/docker-compose.y
 docker-compose up -d
 ```
 
+<!-- omit in toc -->
 ## Table of Contents
 - [Installation](#installation)
-- [Table of Contents](#table-of-contents)
 - [Supported Sources](#supported-sources)
 - [Legal](#legal)
   - [Web Scraping](#web-scraping)
