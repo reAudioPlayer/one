@@ -59,7 +59,9 @@ class DownloadHandler:
         res = web.FileResponse(pathAndName,
             headers=MultiDict({"Content-Disposition": f"Attachment;filename={filename}.mp3"}))
 
-        # TODO return res?
+        # NOTE, not:
+        # return res
+        # because we need to remove the file after it has been sent
 
         await res.prepare(request)
         await res.write_eof()
