@@ -1,6 +1,6 @@
 @echo off
 
-set VERSION=0.9.8
+set VERSION=0.10.0
 
 set command=%1
 set arg=%2
