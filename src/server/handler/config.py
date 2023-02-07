@@ -6,8 +6,10 @@ from typing import List, Dict, Any
 
 from aiohttp import web
 from pyaddict import JDict
+from pyaddict.schema import Object, String, Boolean
 
 from db.dbManager import DbManager
+from helper.payloadParser import withObjectPayload
 from config.runtime import Runtime
 from config.customData import LocalTrack, LocalCover
 
@@ -25,6 +27,23 @@ class ConfigHandler:
             return web.json_response(True)
         valid = None in (spotifyConfig.get("id"), spotifyConfig.get("secret"))
         return web.json_response(valid)
+
+    @withObjectPayload(Object({
+        "cache": Object({
+            "strategy": String().optional(),
+            "preserve": Boolean().optional(),
+            "preserveInSession": Boolean().optional(),
+        }).optional(),
+
+    }), inBody = True)
+    async def updateConfig(self, payload: Dict[str, Any]) -> web.Response:
+        """put(/api/config)"""
+        Runtime.updateConfig(payload)
+        return web.Response()
+
+    async def getConfig(self, _: web.Request) -> web.Response:
+        """get(/api/config)"""
+        return web.json_response(Runtime.config())
 
     async def spotifyConfig(self, request: web.Request) -> web.Response:
         """post(/api/config/spotify)"""

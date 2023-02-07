@@ -12,6 +12,7 @@ from typing import Any, Dict
 BASE = "../usr"
 FILE = os.path.join(BASE, "config.json")
 SPOTIFY = os.path.join(BASE, "spotify.json")
+CACHE = os.path.join(BASE, "cache.json")
 
 
 def _read() -> Dict[str, Any]:
@@ -48,6 +49,7 @@ class PersistentConfig(Dict[str, Any]):
         """set volume"""
         self._config["volume"] = value
         _write(self._config)
+
 
 class Migrator:
     """migrates old files to new location"""

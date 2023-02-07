@@ -10,6 +10,7 @@ import asyncio
 from typing import Awaitable, Callable, Optional
 
 from config.config import PersistentConfig
+from config.runtime import Runtime
 
 from dataModel.song import Song
 from db.dbManager import DbManager
@@ -86,7 +87,8 @@ class Player: # pylint: disable=too-many-instance-attributes
         current = self._playerPlaylist.current()
         cId = current.id if current else 0
         self._logger.debug("unload %d", cId)
-        if os.path.exists(f"./_cache/{cId}.mp3"):
+
+        if not Runtime.cache.preserveInSession and os.path.exists(f"./_cache/{cId}.mp3"):
             os.remove(f"./_cache/{cId}.mp3")
 
     async def last(self) -> None:

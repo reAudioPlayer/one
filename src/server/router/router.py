@@ -110,6 +110,8 @@ class Router:
 
         # /api/config
         app.router.add_get('/api/config/first-time', configHandler.firstTime)
+        app.router.add_put('/api/config', configHandler.updateConfig)
+        app.router.add_get('/api/config', configHandler.getConfig)
 
         app.router.add_post('/api/config/images', metaHandler.upload)
         app.router.add_get('/api/config/images', configHandler.getLocalImages)
