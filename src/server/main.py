@@ -34,6 +34,8 @@ try:
 
     from router.router import Router
 
+    from helper.nginx import Nginx
+
     from aiohttp import web
     from aiohttp.web import middleware
 
@@ -43,10 +45,9 @@ try:
 
     import logging
     import time
-    import atexit
+    import signal
 
     import mimetypes
-    import shutil
 
     import asyncio
 
@@ -89,6 +90,8 @@ async def _exceptionMiddleware(request: web.Request,
     return resp
 
 async def _init() -> web.Application: # pylint: disable=too-many-statements
+    Nginx.init()
+
     spotify = Spotify()
 
     playerHandler = PlayerHandler(player, playlistManager, dbManager)
@@ -144,9 +147,21 @@ async def main() -> None:
         await asyncio.sleep(1)
 
 def _cleanCache() -> None:
-    if os.path.exists("./_cache"):
-        shutil.rmtree("./_cache")
+    cachePath = os.path.abspath("./_cache")
+    if Runtime.cache.preserve:
+        return
 
-atexit.register(_cleanCache)
+    if not os.path.exists(cachePath):
+        return
+
+    Nginx.stop()
+    for file in os.listdir(cachePath):
+        os.remove(os.path.join(cachePath, file))
+
+def _exitHandler(sig: int, frame: Optional[object]) -> None: # pylint: disable=unused-argument
+    _cleanCache()
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, _exitHandler)
 
 asyncio.run(main())

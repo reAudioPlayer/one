@@ -15,5 +15,6 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 EXPOSE 80
 
 VOLUME /opt/reAudioPlayer/usr/
+VOLUME /opt/reAudioPlayer/server/_cache/
 
-ENTRYPOINT [ "sh", "entry.sh" ]
+ENTRYPOINT [ "python", "main.py", "--with-docker" ]
