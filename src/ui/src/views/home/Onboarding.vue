@@ -4,7 +4,7 @@
         <p>Let's get you set up</p>
 
         <div class="grid grid-cols-2 gap-4 mt-8">
-            <Card>
+            <Card class="p-4">
                 <div class="flex flex-row items-center">
                     <span class="material-symbols-rounded ms-wght-700 text-4xl mr-4">add</span>
                     <h2>Create your first playlist</h2>
@@ -21,7 +21,7 @@
                     />
                 </div>
             </Card>
-            <Card v-if="spotifyPlaylists.length">
+            <Card v-if="spotifyPlaylists.length" class="p-4">
                 <div class="flex flex-row items-center">
                     <SpotifyLogo
                         class="spotify mr-4"
@@ -49,7 +49,7 @@
 import {authoriseSpotify} from "../../api/config";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
-import Card from "../../components/Card.vue";
+import Card from "../../containers/Card.vue";
 import SpotifyLogo from "../../assets/images/src/spotify.svg";
 import Form from "../../components/popups/components/Form.vue";
 import PlaylistItem from '@/components/Catalogue/Items/Playlists/PlaylistItem.vue'
@@ -81,6 +81,7 @@ const createFormOptions = {
             name: 'name',
             label: 'Name',
             placeholder: 'Playlist name',
+            icon: 'title',
             type: 'text',
             required: true,
         },
@@ -88,6 +89,7 @@ const createFormOptions = {
             name: 'description',
             label: 'Description',
             placeholder: 'Playlist description',
+            icon: 'description',
             type: 'text',
             required: false,
         },
@@ -109,7 +111,7 @@ const createFormOptions = {
         height: 30px;
 
         path {
-            fill: var(--font-colour);
+            fill: var(--fg-base);
         }
     }
 }

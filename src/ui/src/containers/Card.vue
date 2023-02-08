@@ -1,5 +1,13 @@
+<script setup lang="ts">
+defineProps({
+    withHover: {
+        type: Boolean,
+        default: false
+    }
+})
+</script>
 <template>
-    <div class="card">
+    <div class="card" :class="{ withHover }">
         <slot />
     </div>
 </template>
@@ -9,7 +17,7 @@
         border-radius: 1em;
         box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 
-        &:hover {
+        &.withHover:hover {
             background: var(--bg-hover-dk);
         }
     }
