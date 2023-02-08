@@ -229,9 +229,7 @@ class MetaHandler:
             if not result:
                 return result.transform([ ])
 
-            metadatas = [ Metadata(self._spotify, track.url)
-                          for track in result.unwrap() ]
-            return result.transform([ metadata.toDict() for metadata in metadatas ])
+            return result.transform([ track.toDict() for track in result.unwrap() ])
         data = await asyncRunInThreadWithReturn(_implement)
 
         if not data:

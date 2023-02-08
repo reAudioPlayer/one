@@ -113,6 +113,19 @@ class SpotifyTrack(ITrack):
     def url(self) -> str:
         return f"https://open.spotify.com/track/{self._id}"
 
+    def toDict(self) -> Dict[str, Any]:
+        """return dict of track"""
+
+        return {
+            "title": self.title,
+            "artists": self.artists,
+            "artist": ", ".join(self.artists),
+            "cover": self.cover,
+            "href": self.url,
+            "preview": self.preview,
+            "markets": self.markets
+        }
+
 
 class SpotifyPlaylist:
     """spotify playlist model"""
