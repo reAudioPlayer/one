@@ -77,7 +77,7 @@ class PlayerHandler:
                                                 .getSongsByCustomFilter(f"id={id_}"),
                                              name = str(id_))))
 
-        return web.HTTPBadRequest()
+        return web.Response()
 
     @withObjectPayload(Object({
         "index": Integer().min(0), # index of song in playlist
