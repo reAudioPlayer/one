@@ -1,1 +1,0 @@
-import{m as o,o as s,c as t,r,C as _,_ as n}from"./index.8e8f5adc.js";const c=o({__name:"Card",props:{withHover:{type:Boolean,default:!1}},setup(e){return(a,d)=>(s(),t("div",{class:_(["card",{withHover:e.withHover}])},[r(a.$slots,"default",{},void 0,!0)],2))}});const p=n(c,[["__scopeId","data-v-21a069f7"]]);export{p as C};
