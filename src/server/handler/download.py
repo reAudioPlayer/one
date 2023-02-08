@@ -6,12 +6,8 @@ import os
 from typing import Union, Dict, Any
 
 from aiohttp import web
-import aiohttp
 from multidict import MultiDict
 from pyaddict.schema import Object, Integer
-import eyed3 # type: ignore
-from eyed3.id3.frames import ImageFrame # type: ignore
-from eyed3.id3 import Tag # type: ignore
 
 from db.dbManager import DbManager
 from downloader.downloader import Downloader
@@ -31,30 +27,12 @@ class DownloadHandler:
         id_ = int(request.match_info['id'])
         song = self._dbManager.getSongById(id_)
         pathAndName = f"./_cache/{song.id}.dl.mp3"
-        if os.path.exists(pathAndName):
-            os.remove(pathAndName)
-        await self._downloader.downloadSong(song.source, f"{song.id}.dl")
 
-        file = eyed3.load(pathAndName)
-        tag = file.tag or Tag()
+        if not await self._downloader.downloadSong(song, True, True):
+            return web.HTTPExpectationFailed(text = "not downloadable")
 
-        if song.artists:
-            tag.artist = ", ".join(song.artists)
-        tag.title = song.title
-        tag.album = song.album
-
-        filename = f"{tag.artist} - {tag.title}".replace(",", "%2C") # header
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(song.cover) as resp:
-                if resp.status == 200:
-                    tag.images.set(ImageFrame.FRONT_COVER,
-                                   await resp.read(),
-                                   'image/jpeg',
-                                   "Cover")
-
-        file.tag = tag
-        tag.save(version=eyed3.id3.ID3_V2_3)
+        artists = ", ".join(song.artists)
+        filename = f"{artists} - {song.title}".replace(",", "%2C") # header
 
         res = web.FileResponse(pathAndName,
             headers=MultiDict({"Content-Disposition": f"Attachment;filename={filename}.mp3"}))

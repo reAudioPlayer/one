@@ -9,10 +9,15 @@ from typing import Optional
 import logging
 import shutil
 
+import aiohttp
+import eyed3 # type: ignore
+from eyed3.id3.frames import ImageFrame # type: ignore
+from eyed3.id3 import Tag # type: ignore
 from yt_dlp import YoutubeDL # type: ignore
 
 from helper.asyncThread import asyncRunInThreadWithReturn
 from config.customData import LocalTrack
+from dataModel.song import Song
 
 
 DOWNLOADING = [ ]
@@ -34,8 +39,46 @@ class Downloader:
         self._ydl = YoutubeDL(self._opts)
         self._logger = logging.getLogger("downloader")
 
-    async def downloadSong(self, link: Optional[str], filename: str) -> bool:
+    async def _getCover(self, song: Song) -> bytes:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(song.cover) as resp:
+                if resp.status != 200:
+                    raise LookupError()
+                return await resp.read()
+
+    async def _applyMetadata(self, filename: str, song: Song) -> None:
+        fullPath = f"./_cache/{filename}.mp3"
+        file = eyed3.load(fullPath)
+        tag = file.tag or Tag()
+
+        if song.artists:
+            tag.artist = ", ".join(song.artists)
+        tag.title = song.title
+        tag.album = song.album
+
+        tag.images.set(ImageFrame.FRONT_COVER,
+                                   await self._getCover(song),
+                                   'image/jpeg',
+                                   "Cover")
+
+        file.tag = tag
+        tag.save(version=eyed3.id3.ID3_V2_3)
+
+    async def downloadSong(self,
+                           song: Song,
+                           forExport: bool = False,
+                           withMetadata: bool = False) -> bool:
         """downloads a song"""
+        filename = song.downloadPath(forExport)
+        result = await self.download(song.source, filename)
+        if not result:
+            return False
+        if withMetadata:
+            await self._applyMetadata(filename, song)
+        return True
+
+    async def download(self, link: Optional[str], filename: str) -> bool:
+        """downloads a song from a link (low level)"""
 
         self._logger.warning("downloading %s (%s)", link, filename)
 

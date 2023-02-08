@@ -5,6 +5,7 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import argparse
 from os.path import exists
+import os
 import json
 from typing import Optional, Dict, Any
 from enum import Enum
@@ -13,7 +14,7 @@ from pyaddict import JDict
 
 from helper.singleton import Singleton
 from helper.cacheDecorator import clearCache
-from config.config import SPOTIFY, CACHE
+from config.config import SPOTIFY, CACHE, BASE
 
 
 class Args(metaclass = Singleton):
@@ -75,7 +76,7 @@ class Args(metaclass = Singleton):
     @property
     def db(self) -> str:
         """The path to the database."""
-        return "../main.db"
+        return os.path.join(BASE, "./main.db")
 
     @property
     def withDocker(self) -> bool:
