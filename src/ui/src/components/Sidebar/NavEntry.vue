@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <template>
     <router-link class="link" :to="href">
         <div class="navEntry" :class="{ active, img }">

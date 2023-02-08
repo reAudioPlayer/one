@@ -1,11 +1,16 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <script lang="ts" setup>
-import {isMobile, ISong} from "../../common";
-import {computed, PropType, ref} from "vue";
+import { hashTrack, isMobile, ISong } from "../../common";
+import { computed, PropType, ref } from "vue";
 import Marquee from "../Marquee.vue";
-import EditSong from '../popups/EditSong.vue'
+import EditSong from "../popups/EditSong.vue";
 import SongContext from "../contextMenus-next/SongContext.vue";
-import {usePlayerStore} from "../../store/player";
-import {favouriteSong} from "../../api/song";
+import { usePlayerStore } from "../../store/player";
+import { favouriteSong } from "../../api/song";
 import Cover from "../image/Cover.vue";
 
 const props = defineProps({
@@ -112,7 +117,7 @@ const update = () => {
             </div>
             <div class="artist-title">
                 <span class="title">
-                    <router-link :to="`/track/${song.id}`" class="linkOnHover">
+                    <router-link :to="`/track/${hashTrack(song.id)}`" class="linkOnHover">
                         <Marquee :text="song.title" />
                     </router-link>
                 </span>

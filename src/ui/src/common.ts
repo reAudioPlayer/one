@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023, reAudioPlayer ONE.
+ * Licenced under the GNU General Public License v3.0
+ */
+
 // @ts-ignore
 import Hashids from 'hashids';
 import {computed} from "vue";

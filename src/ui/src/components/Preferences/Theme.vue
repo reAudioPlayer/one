@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <template>
     <div @click="select" class="wrapper">
         <p class="mb-4" :class="{ 'selected': selected() }">{{name}}</p>

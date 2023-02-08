@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <script lang="ts" setup>
 import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
@@ -21,6 +26,7 @@ const props = defineProps({
 const options = ref([{
     name: "playlist",
     type: "dropdown",
+    icon: "playlist_add",
     required: true,
     value: null,
     options: data.playlistsAsDropdown
@@ -32,7 +38,7 @@ const form = ref(null);
 const track: Ref<ISong> = ref(null);
 
 const show = async () => {
-    if (!track.value) {
+    if (track.value) {
         modal.value.show();
         return;
     }
@@ -90,7 +96,7 @@ defineExpose({
     <Template
         ref="modal"
         :submit="{
-            label: 'Add All',
+            label: 'Add',
             icon: 'add',
         }"
         name="Import Song"

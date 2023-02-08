@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023, reAudioPlayer ONE.
+ * Licenced under the GNU General Public License v3.0
+ */
+
 export const isFirstRun = async (): Promise<boolean> => {
     const res = await fetch("/api/config/first-time")
     return await res.json();

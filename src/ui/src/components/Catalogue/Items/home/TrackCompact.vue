@@ -1,9 +1,15 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <script setup>
 import Marquee from "@/components/Marquee.vue";
 import AddAlbumToPlaylist from '../../../popups/ImportSpotifyAlbum.vue';
-import AddSongToPlaylist from '../../../popups/ImportSpotifySong.vue';
-import {hashTrack, parseAnyCover, parseCover} from "@/common";
+import ImportSpotifySong from '../../../popups/ImportSpotifySong.vue';
+import {hashTrack, parseAnyCover} from "@/common";
 import {computed, ref, watch} from "vue";
+import {useRouter} from "vue-router";
 
 const props = defineProps({
     title: String,
@@ -14,6 +20,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['play']);
+const router = useRouter();
 
 const trackId = hashTrack(String(props.id));
 const trackHref = `/track/${trackId}`;
@@ -26,19 +33,19 @@ const play = e => {
 };
 
 const openModal = () => {
-    if (!props.href)
+    if (!props.href?.includes("spotify.com"))
     {
-        this.$router.push(trackHref);
+        router.push(trackHref);
+        return;
     }
 
-    if (props.href?.includes("spotify"))
+    if (props.href?.includes("spotify.com/album/"))
     {
-        addRelease.show();
+        addRelease.value.show();
+        return
     }
-    else
-    {
-        addSong.show();
-    }
+
+    addSong.value.show();
 }
 
 const src = ref(props.cover);
@@ -51,35 +58,35 @@ const cover = computed(() => parseAnyCover(src.value));
 <template>
 <div class="home-track-compact-wrapper drop-shadow-md">
     <add-album-to-playlist
-        v-if="href"
+        v-if="href.includes('spotify.com/album/')"
+        ref="addRelease"
         :album="{
             cover,
             name: title,
             artist,
             id: href.replace('https://open.spotify.com/album/', ''),
-            href: href,
+            href,
             releaseDate: null
         }"
-        ref="addRelease"
     />
-    <add-song-to-playlist
-        v-if="href"
+    <ImportSpotifySong
+        v-if="href.includes('spotify.com/track/')"
+        ref="addSong"
         :song="{
             cover,
             title,
             artist,
             id: href.replace('https://open.spotify.com/track/', ''),
-            href: href,
+            href,
             releaseDate: null
         }"
-        ref="addSong"
     />
     <div class="home-track-compact" @click="openModal">
-        <div @click="play" class="cover" :style="{ backgroundImage: `url(${parseAnyCover(src)})` }">
+        <div :style="{ backgroundImage: `url(${parseAnyCover(src)})` }" class="cover" @click="play">
             <img
                 :src="parseAnyCover(src)"
-                @error="src = null"
                 class="hidden"
+                @error="src = null"
             />
             <div class="play">
                 <span class="material-symbols-rounded">play_arrow</span>
@@ -87,14 +94,14 @@ const cover = computed(() => parseAnyCover(src.value));
         </div>
         <div class="info">
             <span class="title">
-                <router-link v-if="!href" class="linkOnHover" :to="trackHref">
+                <router-link v-if="!href" :to="trackHref" class="linkOnHover">
                     <marquee :text="title" />
                 </router-link>
-                <a :href="href" v-else class="linkOnHover">
+                <a v-else :href="href" class="linkOnHover">
                     <marquee :text="title" />
                 </a>
             </span>
-            <router-link class="linkOnHover" :to="`/search/artist:${artist}`">
+            <router-link :to="`/search/artist:${artist}`" class="linkOnHover">
                 <span class="artist">{{artist}}</span>
             </router-link>
         </div>
@@ -102,7 +109,7 @@ const cover = computed(() => parseAnyCover(src.value));
 </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 .home-track-compact-wrapper {
     flex: 1;

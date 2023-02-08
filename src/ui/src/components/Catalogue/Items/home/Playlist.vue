@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <template>
     <router-link :to="href" class="no-underline">
         <div class="home-playlist drop-shadow-md">

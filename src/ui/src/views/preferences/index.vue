@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <script lang="ts" setup>
 import Checkbox from "../../components/inputs/Checkbox.vue";
 import {computed, ref} from "vue";

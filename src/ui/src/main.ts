@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023, reAudioPlayer ONE.
+ * Licenced under the GNU General Public License v3.0
+ */
+
 import {createApp} from 'vue'
 import App from './App.vue'
 import {ObserveVisibility} from 'vue-observe-visibility';

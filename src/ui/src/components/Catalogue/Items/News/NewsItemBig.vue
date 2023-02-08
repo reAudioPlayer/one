@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <template>
     <Card class="p-4 col-span-2 cursor-pointer" @click="redirect">
         <img v-if="image" :src="image" />

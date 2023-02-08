@@ -1,14 +1,19 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <script lang="ts" setup>
 import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
 import Playlist from "./components/Playlist.vue";
 import TrackInfo from "./components/TrackInfo.vue";
 
-import {PropType, Ref, ref} from "vue";
-import {ISpotifyAlbum, ISpotifySong, openInNewTab} from "../../common";
-import {useDataStore} from "../../store/data";
-import {addSong as addSongToPlaylist} from "../../api/song";
-import {createPlaylistWithMetadata} from "../../api/playlist";
+import { PropType, Ref, ref } from "vue";
+import { ISpotifyAlbum, ISpotifySong, openInNewTab } from "../../common";
+import { useDataStore } from "../../store/data";
+import { addSong as addSongToPlaylist } from "../../api/song";
+import { createPlaylistWithMetadata } from "../../api/playlist";
 
 const data = useDataStore();
 

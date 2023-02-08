@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <template>
     <div class="itemBig drop-shadow-md">
         <PlaylistCtx :href="href" :id="id" :name="title">

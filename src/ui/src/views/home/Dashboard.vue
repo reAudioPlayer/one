@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <script setup>
 import FlexShelf from "/src/components/Catalogue/FlexShelf.vue";
 import Playlist from "/src/components/Catalogue/Items/home/Playlist.vue";
@@ -5,102 +10,101 @@ import TrackCompact from "/src/components/Catalogue/Items/home/TrackCompact.vue"
 import PlaylistHeader from '@/components/songContainers/PlaylistHeader.vue';
 import PlaylistEntry from '@/components/songContainers/PlaylistEntry.vue';
 
-import {parseCover} from "@/common";
-</script>
+import {parseCover} from "@/common";</script>
 
 <template>
     <div class="home">
         <div class="main">
-            <div class="playlists" v-if="playlists.length">
+            <div v-if="playlists.length" class="playlists">
                 <h2>
-                    <router-link to="/collection/playlists" class="linkOnHover">Playlists</router-link>
+                    <router-link class="linkOnHover" to="/collection/playlists">Playlists</router-link>
                 </h2>
                 <FlexShelf>
                     <Playlist
                         v-for="(playlist, index) in playlists"
                         :key="index"
-                        :name="playlist.name"
                         :cover="playlist.cover"
                         :href="playlist?.href"
+                        :name="playlist.name"
                     />
                 </FlexShelf>
             </div>
-            <div class="liked" v-if="liked.length">
+            <div v-if="liked.length" class="liked">
                 <h2>
-                    <router-link to="/collection/tracks" class="linkOnHover">Liked Songs</router-link>
+                    <router-link class="linkOnHover" to="/collection/tracks">Liked Songs</router-link>
                 </h2>
                 <PlaylistHeader />
                 <PlaylistEntry
                     v-for="(element, index) in liked"
                     :key="index"
                     :index="index"
-                    :song="element"
                     :playlist-id="-1"
+                    :song="element"
                     with-cover
                 />
             </div>
-            <div class="breaking" v-if="breaking.length">
+            <div v-if="breaking.length" class="breaking">
                 <h2>
-                    <router-link to="/collection/tracks/breaking" class="linkOnHover">Breaking Songs</router-link>
+                    <router-link class="linkOnHover" to="/collection/tracks/breaking">Breaking Songs</router-link>
                 </h2>
                 <PlaylistHeader />
                 <PlaylistEntry
                     v-for="(element, index) in breaking"
                     :key="index"
                     :index="index"
-                    :song="element"
                     :playlist-id="-2"
+                    :song="element"
                     with-cover
                 />
             </div>
         </div>
         <div class="side">
-            <div class="releases" v-if="releases.length">
+            <div v-if="releases.length" class="releases">
                 <h2>
-                    <router-link to="/collection/releases" class="linkOnHover">Out now</router-link>
+                    <router-link class="linkOnHover" to="/collection/releases">Out now</router-link>
                 </h2>
                 <FlexShelf>
                     <TrackCompact
-                        @play="() => playRecommendation(song)"
                         v-for="(song, index) in releases"
                         :key="index"
                         :artist="song.artist"
-                        :title="song.title"
                         :cover="song.cover"
                         :href="song.url"
+                        :title="song.title"
+                        @play="() => playRecommendation(song)"
                     />
                 </FlexShelf>
             </div>
 
-            <div class="disovery" v-if="picks.length">
+            <div v-if="picks.length" class="disovery">
                 <h2>
-                    <router-link to="/discover" class="linkOnHover">Discover</router-link>
+                    <router-link class="linkOnHover" to="/discover">Discover</router-link>
                 </h2>
                 <FlexShelf>
                     <TrackCompact
-                        @play="() => playDiscover(song)"
                         v-for="(song, index) in picks"
+                        :id="song.id"
                         :key="index"
                         :artist="song.artist"
-                        :title="song.title"
                         :cover="parseCover(song.cover)"
-                        :id="song.id"
                         :href="song.href"
+                        :title="song.title"
+                        @play="() => playDiscover(song)"
                     />
                 </FlexShelf>
             </div>
 
-            <div class="recommendations" v-if="recommendations.length">
+            <div v-if="recommendations.length" class="recommendations">
                 <h2>Recommendations</h2>
                 <FlexShelf>
                     <TrackCompact
-                        @play="() => playRecommendation(song)"
                         v-for="(song, index) in recommendations"
                         :key="index"
                         :artist="song.artist"
-                        :title="song.title"
                         :cover="song.cover"
-                        :href="song.source"
+                        :href="song.href"
+                        :title="song.title"
+                        @play="() => playRecommendation(song)"
                     />
                 </FlexShelf>
             </div>
@@ -164,7 +168,7 @@ export default {
                 detail: {
                     artist: song.artist,
                     title: song.title,
-                    source: song.source || song.url
+                    source: song.source || song.url || song.href,
                 }
             });
             window.dispatchEvent(event);
@@ -201,7 +205,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .home {
     padding: 20px;
     display: flex;
