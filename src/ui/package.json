@@ -1,6 +1,6 @@
 {
   "name": "reAudioPlayer",
-  "version": "0.10.14",
+  "version": "0.10.15",
   "scripts": {
     "dev": "vite",
     "preview": "vite preview --port 8080",
@@ -29,7 +29,7 @@
     "prettier": "2.8.3",
     "sass": "1.55.0",
     "tailwindcss": "3.1.8",
-    "vite": "3.1.4",
+    "vite": "4.1.1",
     "vite-plugin-compression": "0.5.1",
     "vite-svg-loader": "3.6.0"
   }
