@@ -164,6 +164,12 @@ spotify=[{self._spotify}] source=[{self._source}]"
         """return id"""
         return self._id
 
+    def downloadPath(self, forExport: bool = False) -> str:
+        """return download path"""
+        if forExport:
+            return f"{self.id}.dl"
+        return str(self.id)
+
     def toDict(self) -> Dict[str, Any]:
         """return as dict"""
         return {

@@ -131,14 +131,13 @@ class Player: # pylint: disable=too-many-instance-attributes
         if not self._playerPlaylist or not song:
             return
         initial = self._playerPlaylist.cursor
-        while not await self._downloader.downloadSong(song.source, str(song.id)):
+        while not await self._downloader.downloadSong(song):
             self._logger.debug("invalid [%s], preload next", song)
             song = self._playerPlaylist.next()
             assert initial != self._playerPlaylist.cursor, "no valid song"
         self._preloaded = song.source
         nextSong = self._playerPlaylist.next(True)
-        asyncio.create_task(self._downloader.downloadSong(nextSong.source,
-                                                          str(nextSong.id)))
+        asyncio.create_task(self._downloader.downloadSong(nextSong))
 
     @property
     def shuffle(self) -> bool:
