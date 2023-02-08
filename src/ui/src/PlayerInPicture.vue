@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <template>
     <div v-if="!disabled" ref="player" class="playerInPicture">
         <div :class="{ minimised }" class="header">
@@ -99,8 +104,6 @@ export const playInPicture = (title, artist, source) => {
                 const song = e.detail;
                 const url = song.source;
                 this.name = `${song.artist} - ${song.title}`
-
-                fetch("/api/player/pause");
 
                 if (url.includes("youtu"))
                 {

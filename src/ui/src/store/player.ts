@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023, reAudioPlayer ONE.
+ * Licenced under the GNU General Public License v3.0
+ */
+
 import {defineStore} from 'pinia'
 import {parseCover, zeroPad} from "../common";
 import {useDataStore} from "./data";

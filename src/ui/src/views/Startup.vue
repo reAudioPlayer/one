@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <script setup>
 import Loader from "@/components/Loader";
 import Logo from '/src/assets/images/logo/logo.svg'

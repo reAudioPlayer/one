@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023, reAudioPlayer ONE.
+ * Licenced under the GNU General Public License v3.0
+ */
+
 import {Playable, RepeatType, usePlayerStore} from "../store/player";
 import {Ref, ref} from "vue";
 

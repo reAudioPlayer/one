@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <script lang="ts" setup>
 import {IDropdownOption} from "../../common";
 import {computed, nextTick, PropType, ref, watch} from "vue";

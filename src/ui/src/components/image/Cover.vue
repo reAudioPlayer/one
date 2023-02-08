@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <script setup lang="ts">
 import {computed, PropType, ref, watch} from "vue";
 import {parseAnyCover, parseCover, parsePlaylistCover} from "../../common";

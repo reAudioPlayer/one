@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <template>
     <div class="header grid grid-cols-3 justify-between drop-shadow-md">
         <Logo class="hideIfMobile logo" @click="$router.push('/')" />

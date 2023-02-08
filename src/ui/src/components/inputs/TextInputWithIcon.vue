@@ -1,3 +1,8 @@
+<!--
+  - Copyright (c) 2023, reAudioPlayer ONE.
+  - Licenced under the GNU General Public License v3.0
+  -->
+
 <template>
     <div class="text-input-with-icon rounded-3xl flex items-center px-4">
         <span class="material-symbols-rounded ms-wght-200">{{ icon }}</span>
