@@ -4,9 +4,6 @@ from __future__ import annotations
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import logging
-import os
-
-import asyncio
 
 from typing import Awaitable, Callable, Optional
 
