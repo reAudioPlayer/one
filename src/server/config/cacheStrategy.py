@@ -79,14 +79,21 @@ class CacheAllStrategy(ICacheStrategy, metaclass = Singleton):
 
 class CachePlaylistStrategy(ICacheStrategy, metaclass = Singleton):
     """CachePlaylistStrategy"""
-    async def onPlaylistLoad(self, playlist: PlayerPlaylist) -> None:
-        await super().onPlaylistLoad(playlist)
+    async def _downloadTask(self) -> None:
         assert self._playlist is not None
         SongCache.prune(self._playlist)
-        async def _task() -> None:
-            for song in self._playlist:
-                await self._downloader.downloadSong(song)
-        asyncio.create_task(_task())
+        for song in self._playlist:
+            await self._downloader.downloadSong(song)
+
+    async def onStrategyLoad(self) -> None:
+        await super().onStrategyLoad()
+        if self._playlist is None:
+            return
+        asyncio.create_task(self._downloadTask())
+
+    async def onPlaylistLoad(self, playlist: PlayerPlaylist) -> None:
+        await super().onPlaylistLoad(playlist)
+        asyncio.create_task(self._downloadTask())
 
 
 class CacheCurrentStrategy(ICacheStrategy, metaclass = Singleton):
