@@ -16,6 +16,7 @@ from eyed3.id3 import Tag # type: ignore
 from yt_dlp import YoutubeDL # type: ignore
 
 from helper.asyncThread import asyncRunInThreadWithReturn
+from helper.singleton import Singleton
 from config.customData import LocalTrack
 from dataModel.song import Song
 
@@ -23,7 +24,7 @@ from dataModel.song import Song
 DOWNLOADING = [ ]
 
 
-class Downloader:
+class Downloader(metaclass = Singleton):
     """downloader"""
     __slots__ = ("_opts", "_ydl", "_logger")
 

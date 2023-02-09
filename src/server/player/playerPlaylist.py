@@ -35,7 +35,7 @@ class OrderedUniqueList(List[T]):
 class PlayerPlaylist: # pylint: disable=too-many-public-methods
     """player playlist (not to be confused with db (dataModel) playlist)"""
     __slots__ = ("_dbManager", "_playlist", "_cursor", "_playlistIndex",
-                 "_name", "_description", "_cover")
+                 "_name", "_description", "_cover", "_iterCursor")
 
     def __init__(self,
                  dbManager: DbManager,
@@ -53,6 +53,17 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         self._cover: str = ""
         self._updateCover(cover)
         self._load(playlistIndex, songs)
+        self._iterCursor = 0
+
+    def __iter__(self) -> PlayerPlaylist:
+        return self
+
+    def __next__(self) -> Song:
+        if self._iterCursor >= len(self._playlist):
+            self._iterCursor = 0
+            raise StopIteration
+        self._iterCursor += 1
+        return self._playlist[self._iterCursor - 1]
 
     def __len__(self) -> int:
         return len(self._playlist)
