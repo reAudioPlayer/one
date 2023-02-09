@@ -4,8 +4,8 @@
   -->
 
 <script lang="ts" setup>
-import {IDropdownOption} from "../../common";
-import {computed, nextTick, PropType, ref, watch} from "vue";
+import { IDropdownOption } from "../../common";
+import { computed, nextTick, PropType, ref, watch } from "vue";
 
 const props = defineProps({
     modelValue: {
@@ -90,7 +90,11 @@ window.onclick = () => expanded.value = false;
                 class="dropdown__option"
                 @click.stop="select(option.value)"
             >
-                {{option.label}}
+                <span class="material-symbols-rounded">{{option.icon}}</span>
+                <span>
+                    {{option.label}}
+                </span>
+                <span v-if="selectedValue == option.value" class="material-symbols-rounded">check</span>
             </div>
         </div>
     </div>
@@ -127,7 +131,7 @@ window.onclick = () => expanded.value = false;
         position: absolute;
         left: 0;
         z-index: 999;
-        width: 100%;
+        width: max(100%, 20rem);
         max-height: 20rem;
         overflow-y: auto;
         background: var(--bg-base);
@@ -138,6 +142,8 @@ window.onclick = () => expanded.value = false;
             padding: 0.5rem;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
+            display: grid;
+            grid-template-columns: 35px 1fr 20px;
 
             &:hover {
                 background: var(--bg-hover);

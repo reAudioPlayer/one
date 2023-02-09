@@ -26,3 +26,26 @@ export const authoriseSpotify = async (): Promise<boolean> => {
     }
     return res.status == 204;
 }
+
+
+export type CacheStrategy = "all" | "playlist" | "current" | "current-next";
+export interface ICacheConfig {
+    preserve: boolean;
+    preserveInSession: boolean;
+    strategy: CacheStrategy;
+}
+export interface IConfig {
+    cache: ICacheConfig;
+}
+
+export const getConfig = async (): Promise<IConfig> => {
+    const res = await fetch("/api/config");
+    return await res.json();
+}
+
+export const setConfig = async (config: IConfig): Promise<void> => {
+    await fetch("/api/config", {
+        method: "PUT",
+        body: JSON.stringify(config)
+    })
+}

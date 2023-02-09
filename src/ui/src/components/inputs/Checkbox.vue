@@ -28,10 +28,14 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 const update = (value: boolean) => emit("update:modelValue", value);
-const toggle = () => update(!props.modelValue);
+const toggle = () => {
+    if (props.disabled) return;
+    update(!props.modelValue);
+}
 </script>
 <template>
     <div
+        :class="{ 'opacity-50': disabled }"
         class="checkbox"
         @click="toggle"
     >

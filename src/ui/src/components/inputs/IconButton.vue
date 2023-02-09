@@ -4,7 +4,7 @@
   -->
 
 <script lang="ts" setup>
-import {PropType} from "vue";
+import { PropType } from "vue";
 
 export type IButtonType = "negative" | "positive" | "danger";
 
@@ -39,7 +39,7 @@ defineProps({
 
 <template>
     <button
-        :class="disabled ? 'disabled' : '' + ' ' + type"
+        :class="(disabled ? 'disabled ' : '') + type"
         class="flex items-center justify-center h-12 p-4 mt-4 rounded-full"
     >
         <span

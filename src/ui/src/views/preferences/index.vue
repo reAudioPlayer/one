@@ -5,13 +5,14 @@
 
 <script lang="ts" setup>
 import Checkbox from "../../components/inputs/Checkbox.vue";
-import {computed, ref} from "vue";
+import { computed, ref } from "vue";
 import Card from "../../containers/Card.vue";
 import PasswordInputWithIcon from "../../components/inputs/PasswordInputWithIcon.vue";
-import {useSettingsStore} from "../../store/settings";
+import { useSettingsStore } from "../../store/settings";
 import Theme from "../../components/Preferences/Theme.vue";
 import IconButton from "../../components/inputs/IconButton.vue";
 import Dropdown from "../../components/inputs/Dropdown.vue";
+import { getConfig, IConfig, setConfig } from "../../api/config";
 
 const spotifyEnabled = ref(false);
 const spotifyClient = ref({
@@ -90,6 +91,22 @@ const saveSpotify = async () => {
     }
 };
 
+const config = ref(null as IConfig | null);
+const cachedConfig = ref("");
+getConfig().then(x => {
+    config.value = x;
+    cachedConfig.value = JSON.stringify(x);
+});
+const configChanged = computed(() => {
+    if (!config.value) return false;
+    return JSON.stringify(config.value) !== cachedConfig.value;
+});
+const updateConfig = async () => {
+    if (!configChanged.value) return;
+    await setConfig(config.value);
+    cachedConfig.value = JSON.stringify(config.value);
+}
+
 const settings = useSettingsStore();
 
 const themes = [ "dynamic", "light", "dark" ];
@@ -105,7 +122,7 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
 </script>
 <template>
     <div class="p-[10px] preferences">
-        <Card class="p-4 pt-0">
+        <Card aria-description="spotify" class="p-4 pt-0">
             <Checkbox
                 v-model="spotifyEnabled"
                 class="h2 mb-2"
@@ -140,7 +157,7 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
                 @click="saveSpotify"
             />
         </Card>
-        <Card class="p-4 pt-0">
+        <Card aria-description="player" class="p-4 pt-0">
             <h2 class="mt-[10px]">Player</h2>
             <Checkbox
                 v-model="settings.player.pictureInPicture"
@@ -151,14 +168,77 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
                 v-model="settings.player.type"
                 :options="[{
                     value: 'web',
-                    label: 'Native player'
+                    label: 'Native player',
+                    icon: 'horizontal_rule'
                 }, {
                     value: 'web/wave',
-                    label: 'Wave player'
+                    label: 'Wave player',
+                    icon: 'graphic_eq'
                 }]"
+                icon="music_note"
             />
         </Card>
-        <Card class="p-4 pt-0">
+        <Card aria-description="theme" class="p-4 pt-0">
+            <h2 class="mt-[10px]">Theme</h2>
+            <div class="themes">
+                <Theme
+                    v-for="(theme, index) in themes"
+                    :key="index"
+                    :name="theme"
+                />
+            </div>
+        </Card>
+        <Card aria-description="sidebar" class="p-4 pt-0">
+            <h2 class="mt-[10px]">Sidebar</h2>
+            <Checkbox
+                v-model="settings.sidebar.news"
+                label="Show 'News' Tab"
+            />
+            <Checkbox
+                v-model="settings.sidebar.sports"
+                label="Show 'Sports' Tab"
+            />
+        </Card>
+        <Card aria-description="cache behaviour" class="p-4 pt-0">
+            <h2 class="mt-[10px]">Cache Behaviour</h2>
+            <Checkbox
+                v-if="config"
+                v-model="config.cache.preserve"
+                label="Preserve cache"
+            />
+            <Checkbox
+                v-if="config"
+                v-model="config.cache.preserveInSession"
+                :disabled="config.cache.preserve"
+                label="Preserve cache in session"
+            />
+            <Dropdown
+                v-if="config"
+                v-model="config.cache.strategy"
+                :options="[{
+                    value: 'all',
+                    label: 'All Songs'
+                }, {
+                    value: 'playlist',
+                    label: 'Current Playlist'
+                }, {
+                    value: 'currentNext',
+                    label: 'Current + Next Song '
+                }, {
+                    value: 'current',
+                    label: 'Current Song Only'
+                }]"
+                icon="cached"
+            />
+            <IconButton
+                :disabled="!config || !configChanged"
+                class="ml-auto mt-4"
+                icon="save"
+                label="Save"
+                @click="updateConfig"
+            />
+        </Card>
+        <Card aria-description="my data" class="p-4 pt-0">
             <h2 class="mt-[10px]">My Data</h2>
             <IconButton
                 class="mx-auto mt-4"
@@ -183,27 +263,6 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
                 icon="folder"
                 label="Manage files"
                 @click="$router.push('/preferences/my-data')"
-            />
-        </Card>
-        <Card class="p-4 pt-0">
-            <h2 class="mt-[10px]">Theme</h2>
-            <div class="themes">
-                <Theme
-                    v-for="(theme, index) in themes"
-                    :key="index"
-                    :name="theme"
-                />
-            </div>
-        </Card>
-        <Card class="p-4 pt-0">
-            <h2 class="mt-[10px]">Sidebar</h2>
-            <Checkbox
-                v-model="settings.sidebar.news"
-                label="Show 'News' Tab"
-            />
-            <Checkbox
-                v-model="settings.sidebar.sports"
-                label="Show 'Sports' Tab"
             />
         </Card>
     </div>
