@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
+from __future__ import annotations
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import logging
@@ -11,8 +12,12 @@ from typing import Awaitable, Callable, Optional
 
 from config.config import PersistentConfig
 from config.runtime import Runtime
+from config.cacheStrategy import ICacheStrategy
+
+from helper.singleton import Singleton
 
 from dataModel.song import Song
+
 from db.dbManager import DbManager
 
 from player.playerPlaylist import PlayerPlaylist
@@ -21,7 +26,7 @@ from player.playlistManager import PlaylistManager
 from downloader.downloader import Downloader
 
 
-class Player: # pylint: disable=too-many-instance-attributes
+class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attributes
     """Player"""
     __slots__ = (
         "_dbManager",
@@ -36,6 +41,7 @@ class Player: # pylint: disable=too-many-instance-attributes
         "_playlistChangeCallback",
         "_songChangeCallback"
     )
+    _INSTANCE: Optional[Player] = None
 
     def __init__(self,
                  dbManager: DbManager,
@@ -54,12 +60,24 @@ class Player: # pylint: disable=too-many-instance-attributes
 
         self._playlistChangeCallback: Optional[Callable[[PlayerPlaylist], Awaitable[None]]] = None
         self._songChangeCallback: Optional[Callable[[Song], Awaitable[None]]] = None
+        Player._INSTANCE = self # pylint: disable=protected-access
+
+    @classmethod
+    def getInstance(cls) -> Player:
+        """get instance"""
+        assert cls._INSTANCE is not None
+        return cls._INSTANCE
+
+    async def _strategy(self) -> ICacheStrategy:
+        return await ICacheStrategy.get(Runtime.cache.strategy, self)
 
     async def _onPlaylistChange(self, playlist: PlayerPlaylist) -> None:
+        await (await self._strategy()).onPlaylistLoad(playlist)
         if self._playlistChangeCallback:
             await self._playlistChangeCallback(playlist) # pylint: disable=not-callable
 
     async def _onSongChange(self, newSong: Song) -> None:
+        await (await self._strategy()).onSongLoad(newSong)
         if self._songChangeCallback:
             await self._songChangeCallback(newSong) # pylint: disable=not-callable
 
@@ -87,9 +105,6 @@ class Player: # pylint: disable=too-many-instance-attributes
         current = self._playerPlaylist.current()
         cId = current.id if current else 0
         self._logger.debug("unload %d", cId)
-
-        if not Runtime.cache.preserveInSession and os.path.exists(f"./_cache/{cId}.mp3"):
-            os.remove(f"./_cache/{cId}.mp3")
 
     async def last(self) -> None:
         """last"""
@@ -136,8 +151,11 @@ class Player: # pylint: disable=too-many-instance-attributes
             song = self._playerPlaylist.next()
             assert initial != self._playerPlaylist.cursor, "no valid song"
         self._preloaded = song.source
-        nextSong = self._playerPlaylist.next(True)
-        asyncio.create_task(self._downloader.downloadSong(nextSong))
+
+    @property
+    def playlistManager(self) -> PlaylistManager:
+        """playlist manager"""
+        return self._playlistManager
 
     @property
     def shuffle(self) -> bool:

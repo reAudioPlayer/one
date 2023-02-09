@@ -87,10 +87,11 @@ class Args(metaclass = Singleton):
 
 class CacheStrategy(Enum):
     """The cache strategy enum is used to store the cache strategy."""
-    All = "All"
-    Playlist = "Playlist"
-    Current = "Current"
-    CurrentNext = "CurrentNext"
+    All = "all"
+    Playlist = "playlist"
+    Current = "current"
+    CurrentNext = "currentNext"
+    None_ = "none" # pylint: disable=invalid-name
 
 
 class CacheConfig(metaclass = Singleton):
@@ -126,7 +127,7 @@ class CacheConfig(metaclass = Singleton):
         """Updates the cache configuration."""
         dex = JDict(data)
         self._preserve = dex.get("preserve", self.preserve)
-        self._strategy = CacheStrategy(dex.get("strategy", self.strategy.value))
+        self._strategy = CacheStrategy(dex.get("strategy", self._strategy.value))
         self._preserveInSession = dex.get("preserveInSession",
                                           self.preserveInSession)
         self._write()
@@ -167,7 +168,7 @@ class CacheConfig(metaclass = Singleton):
     def toDict(self) -> Dict[str, Any]:
         """Returns a dict representation of the cache configuration."""
         return {"preserve": self.preserve,
-                "strategy": self.strategy.value,
+                "strategy": self._strategy.value,
                 "preserveInSession": self.preserveInSession,
         }
 
