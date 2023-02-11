@@ -74,7 +74,9 @@ class Router:
         app.router.add_get('/api/spotify/playlists', metaHandler.spotifyPlaylists)
         app.router.add_post('/api/spotify/following', metaHandler.spotifyFollow)
         app.router.add_delete('/api/spotify/following', metaHandler.spotifyUnfollow)
+        app.router.add_post("/api/spotify/meta", metaHandler.fetchSongMeta)
         app.router.add_post('/api/spotify/recommendations', metaHandler.spotifyRecommend)
+        app.router.add_get('/api/spotify/recommendations/{id}', metaHandler.spotifyRecommendSong)
         app.router.add_get('/api/spotify/callback', spotify.callbackHandler)
         app.router.add_get('/api/spotify/authorise', spotify.clientSideAuthHandler)
 

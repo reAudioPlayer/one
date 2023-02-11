@@ -191,3 +191,21 @@ class SpotifyAuth:
         """Invalidates the cached Spotify Token"""
         if os.path.isfile(".cache"):
             os.remove(".cache")
+
+    def addExpiresAt(self) -> bool:
+        """Adds the expires_at key to the cache"""
+        if not os.path.isfile(".cache"):
+            return False
+
+        with open(".cache", "r", encoding = "utf8") as file:
+            data = json.loads(file.read())
+
+        if "expires_at" in data:
+            return False
+
+        data["expires_at"] = data["expires_in"] + int(time())
+
+        with open(".cache", "w", encoding = "utf8") as file:
+            file.write(json.dumps(data))
+
+        return True

@@ -9,6 +9,7 @@ from hashids import Hashids # type: ignore
 
 from pyaddict import JDict
 
+from dataModel.metadata import SongMetadata
 from dataModel.track import ITrack
 
 
@@ -29,7 +30,7 @@ def _castDuration(value: Optional[Any]) -> int:
 class Song(ITrack):
     """song model"""
     __slots__ = ("_id", "_name", "_artist", "_spotify", "_source", "_album", "_cover",
-                 "_duration", "_favourite", "_artists", "_title", "_preview" )
+                 "_duration", "_favourite", "_artists", "_title", "_preview", "_metadata" )
 
     def __init__(self,
                  name: str = "N/A",
@@ -50,6 +51,7 @@ class Song(ITrack):
         self._cover = cover
         self._duration = duration or -1
         self._favourite = favourite
+        self._metadata: Optional[SongMetadata] = None
 
         self._artists = artist.split(", ") if artist else None
         self._title = name
@@ -164,6 +166,16 @@ spotify=[{self._spotify}] source=[{self._source}]"
         """return id"""
         return self._id
 
+    @property
+    def metadata(self) -> Optional[SongMetadata]:
+        """return metadata"""
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, value: SongMetadata) -> None:
+        """set metadata"""
+        self._metadata = value
+
     def downloadPath(self, forExport: bool = False) -> str:
         """return download path"""
         if forExport:
@@ -180,7 +192,8 @@ spotify=[{self._spotify}] source=[{self._source}]"
             "favourite": self._favourite,
             "id": self._id,
             "source": self.source,
-            "title": self.title
+            "title": self.title,
+            "metadata": self.metadata.toDict() if self.metadata else { },
         }
 
     @staticmethod
