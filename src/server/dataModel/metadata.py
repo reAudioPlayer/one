@@ -1,14 +1,22 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
 from __future__ import annotations
-from typing import Optional, Tuple, List
-from meta.spotify import SpotifyAudioFeatures
-from dataModel.track import BasicSpotifyItem
+__copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
+
+
+from typing import Optional, Tuple, List, Dict, Any
+
 from pyaddict import JDict
 
+from meta.spotify import SpotifyAudioFeatures
+from dataModel.track import BasicSpotifyItem
 
-SQLRow = Tuple[int, Optional[str], Optional[str], Optional[str], int]
+
+SQLRow = Tuple[int, Optional[str], int]
 
 
 class SpotifyMetadata:
+    """Spotify Metadata"""
     __slots__ = ("_id", "_features", "_analysis", "_popularity",
                  "_album", "_artists", "_releaseDate", "_explicit")
 
@@ -38,6 +46,7 @@ class SpotifyMetadata:
                artists: Optional[List[BasicSpotifyItem]] = None,
                releaseDate: Optional[str] = None,
                explicit: Optional[bool] = None) -> None:
+        """Update the metadata"""
         if features is not None:
             self._features = features
         if analysis is not None:
@@ -53,13 +62,14 @@ class SpotifyMetadata:
         if explicit is not None:
             self._explicit = explicit
 
-    def toDict(self) -> dict:
+    def toDict(self) -> Dict[str, Any]:
+        """Convert to dict"""
         return {
             "id": self._id,
             "features": self._features.toDict() if self._features else None,
             "analysis": self._analysis,
             "popularity": self._popularity,
-            "album": self._album.toDict(),
+            "album": self._album.toDict() if self._album else None,
             "artists": [artist.toDict() for artist in self._artists] if self._artists else None,
             "releaseDate": self._releaseDate,
             "explicit": self._explicit
@@ -67,20 +77,24 @@ class SpotifyMetadata:
 
     @property
     def id(self) -> str:
+        """Get the id"""
         return self._id
 
     @property
     def artists(self) -> Optional[List[BasicSpotifyItem]]:
+        """Get the artists"""
         return self._artists
 
     @property
     def album(self) -> Optional[BasicSpotifyItem]:
+        """Get the album"""
         return self._album
 
     @staticmethod
     def fromDict(data: JDict) -> SpotifyMetadata:
+        """Create from dict"""
         return SpotifyMetadata(
-            data.optionalGet("id", str),
+            data.assertGet("id", str),
             SpotifyAudioFeatures(data.ensureCast("features", JDict)),
             data.optionalGet("analysis", str),
             data.ensure("popularity", int),
@@ -92,15 +106,18 @@ class SpotifyMetadata:
 
     @staticmethod
     def fromSql(row: Optional[str]) -> Optional[SpotifyMetadata]:
+        """Create from sql"""
         if row is None:
             return None
         return SpotifyMetadata.fromDict(JDict.fromString(row))
 
     def toStr(self) -> str:
+        """Convert to string"""
         return JDict(self.toDict()).toString()
 
 
 class SongMetadata:
+    """Song Metadata"""
     __slots__ = ("_id", "_spotify", "_spotifyFeatures", "_spotifyAnalysis", "_plays")
 
     def __init__(self,
@@ -120,10 +137,13 @@ class SongMetadata:
 
     def toSql(self) -> SQLRow:
         """return sql representation"""
-        return (self._id, self._spotify.toStr(), self._plays)
+        return (self._id,
+                self._spotify.toStr() if self._spotify else "{}",
+                self._plays)
 
     def __repr__(self) -> str:
-        return f"(DataModel.Metadata) id=[{self._id}] spotify=[{self._spotify}] plays=[{self._plays}]"
+        return f"(DataModel.Metadata) id=[{self._id}] \
+            spotify=[{self._spotify}] plays=[{self._plays}]"
 
     @property
     def id(self) -> int:
@@ -140,17 +160,17 @@ class SongMetadata:
         """return plays"""
         return self._plays
 
-    @spotify.setter
+    @spotify.setter # type: ignore
     def spotify(self, value: Optional[SpotifyMetadata]) -> None:
         """set spotify"""
         self._spotify = value
 
-    @plays.setter
+    @plays.setter # type: ignore
     def plays(self, value: int) -> None:
         """set plays"""
         self._plays = value
 
-    def toDict(self) -> dict:
+    def toDict(self) -> Dict[str, Any]:
         """return dict representation"""
         return {
             "id": self._id,

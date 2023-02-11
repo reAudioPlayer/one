@@ -58,6 +58,7 @@ class ITrack(ABC):
 
 
 class BasicSpotifyItem:
+    """basic spotify item model (artist, album, ...)"""
     __slots__ = ("_id", "_name")
 
     def __init__(self, id_: str, name: str) -> None:
@@ -66,17 +67,21 @@ class BasicSpotifyItem:
 
     @property
     def id(self) -> str:
+        """return id"""
         return self._id
 
     @property
     def name(self) -> str:
+        """return name"""
         return self._name
 
-    def toDict(self) -> dict:
+    def toDict(self) -> Dict[str, Any]:
+        """return dict"""
         return {"id": self._id, "name": self._name}
 
     @staticmethod
     def fromDict(data: JDict) -> BasicSpotifyItem:
+        """from dict"""
         return BasicSpotifyItem(data.ensure("id", str), data.ensure("name", str))
 
 
@@ -123,6 +128,7 @@ class SpotifyTrack(ITrack):
 
     @property
     def artist(self) -> str:
+        """return artist (formatted artists)"""
         return ", ".join(self.artists)
 
     @property
@@ -132,19 +138,23 @@ class SpotifyTrack(ITrack):
 
     @property
     def album(self) -> str:
+        """return album"""
         return self._album.name
 
     @property
     def albumItem(self) -> BasicSpotifyItem:
+        """return simple album"""
         return self._album
 
     @property
     def explicit(self) -> bool:
+        """return explicit"""
         return self._explicit
 
     @property
     def cover(self) -> str:
-        return self._cover
+        """return cover"""
+        return self._cover or ""
 
     @property
     def id(self) -> str:
@@ -153,14 +163,17 @@ class SpotifyTrack(ITrack):
 
     @property
     def popularity(self) -> int:
+        """return popularity"""
         return self._popularity
 
     @property
-    def releaseDate(self) -> str:
+    def releaseDate(self) -> Optional[str]:
+        """return release date"""
         return self._releaseDate
 
     @property
     def url(self) -> str:
+        """return url"""
         return f"https://open.spotify.com/track/{self._id}"
 
     def toDict(self) -> Dict[str, Any]:

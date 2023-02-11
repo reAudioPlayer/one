@@ -237,7 +237,7 @@ class MetaHandler:
             return web.HTTPNotFound(text = "metadata not found")
 
         metadata = SongMetadata(id_)
-        metadata.spotify = SpotifyMetadata(onSpotify)
+        metadata.spotify = SpotifyMetadata(onSpotify) # type: ignore
 
         spotifyFeatures = self._spotify.audioFeatures(onSpotify)
 
@@ -269,6 +269,7 @@ class MetaHandler:
         "id": Integer().min(1).coerce()
     }), inPath = True)
     async def spotifyRecommendSong(self, payload: Dict[str, Any]) -> web.Response:
+        """post(/api/spotify/recommendations/{id})"""
         id_: int = payload["id"]
         song = self._dbManager.getSongById(id_)
         if not song:
@@ -279,7 +280,7 @@ class MetaHandler:
             return web.HTTPNotFound(text = "spotify metadata not found")
         if not song.metadata.spotify.id:
             return web.HTTPNotFound(text = "spotify id not found")
-        
+
         result = self._spotify.recommendations(
             [ artist.id for artist in song.metadata.spotify.artists or [] ],
             [ song.metadata.spotify.id ],
