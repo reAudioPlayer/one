@@ -28,6 +28,7 @@ class SpotifyState(Enum):
     Authorised = web.Response
     QuoteExceeded = web.HTTPTooManyRequests
     InternalError = web.HTTPInternalServerError
+    NotFound = web.HTTPNotFound
 
     @staticmethod
     def isSuccess(state: SpotifyState) -> bool:
@@ -197,6 +198,7 @@ class SpotifyKey(Enum):
 
     @staticmethod
     def fromName(name: str) -> SpotifyKey:
+        """Returns the key from a name"""
         name = name.replace("#", "Sharp")
         for key in SpotifyKey:
             if key.name == name:
@@ -204,10 +206,11 @@ class SpotifyKey(Enum):
         raise ValueError(f"Invalid key name {name}")
 
 class SpotifyAudioFeatures:
+    """Audio features of a track"""
     __slots__ = ("_acousticness", "_danceability", "_energy",
                  "_instrumentalness", "_key", "_liveness", "_loudness",
-                 "_mode", "_speechiness", "_tempo", "_time_signature", "_valence")
-    
+                 "_mode", "_speechiness", "_tempo", "_timeSignature", "_valence")
+
     def __init__(self, data: JDict) -> None:
         self._acousticness = data.assertGet("acousticness", float)
         self._danceability = data.assertGet("danceability", float)
@@ -216,17 +219,19 @@ class SpotifyAudioFeatures:
         self._liveness = data.assertGet("liveness", float)
         self._loudness = data.assertGet("loudness", float)
 
-        self._key = SpotifyKey.fromInt(data.optionalGet("key", int)) # spotify
-        if self._key is None:
-            self._key = SpotifyKey.fromName(data.assertGet("key", str)) # cache
+        key = SpotifyKey.fromInt(data.optionalGet("key", int)) # spotify
+        if key is None:
+            key = SpotifyKey.fromName(data.assertGet("key", str)) # cache
+        self._key = key
 
-        self._mode = SpotifyMode.fromInt(data.optionalGet("mode", int)) # spotify
-        if self._mode is None:
-            self._mode = SpotifyMode.fromName(data.assertGet("mode", str)) # cache
+        mode = SpotifyMode.fromInt(data.optionalGet("mode", int)) # spotify
+        if mode is None:
+            mode = SpotifyMode.fromName(data.assertGet("mode", str)) # cache
+        self._mode = mode
 
         self._speechiness = data.assertGet("speechiness", float)
         self._tempo = data.assertGet("tempo", float)
-        self._time_signature = data.assertGet("time_signature", int)
+        self._timeSignature = data.assertGet("time_signature", int)
         self._valence = data.assertGet("valence", float)
 
     @staticmethod
@@ -249,7 +254,7 @@ class SpotifyAudioFeatures:
             "mode": self._mode.name,
             "speechiness": self._speechiness,
             "tempo": self._tempo,
-            "time_signature": self._time_signature,
+            "time_signature": self._timeSignature,
             "valence": self._valence
         }
 
@@ -437,5 +442,5 @@ class Spotify:
         assert self._spotify is not None
         features = self._spotify.audio_features([trackId])
         if not features:
-            return SpotifyResult.errorResult("No audio features found")
+            return SpotifyResult.errorResult(SpotifyState.NotFound)
         return SpotifyResult.successResult(SpotifyAudioFeatures(JDict(features[0])))

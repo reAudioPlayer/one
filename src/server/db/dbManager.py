@@ -13,7 +13,7 @@ from dataModel.metadata import SongMetadata
 from config.runtime import Runtime
 
 
-class DbManager:
+class DbManager: # pylint: disable=too-many-public-methods
     """(sqlite) db manager"""
     __slots__ = ("_db", )
 
