@@ -13,8 +13,10 @@ import Cover from "../components/image/Cover.vue";
 import Card from "../containers/Card.vue";
 import ProgressCircle from "../components/inputs/ProgressCircle.vue";
 import ExternalEntry from "../components/songContainers/ExternalEntry.vue";
+import { usePlayerStore } from "../store/player";
 
 const route = useRoute();
+const player = usePlayerStore();
 
 const hash = computed(() => route.params.hash as string);
 
@@ -35,6 +37,11 @@ const icons = {
 }
 
 const load = async () => {
+    // reset
+    song.value = null;
+    metadata.value = null;
+    recommendations.value = [];
+
     song.value = await getSongByHash(hash.value);
     metadata.value = await getSongMetadata(song.value.id);
     recommendations.value = await getRecommendations(song.value.id)
@@ -87,16 +94,21 @@ watch(route, load, { deep: true })
                 >
                     <div class="trac__info__details__normal">
                         <h3 class="text-secondary my-0 text-2xl font-bold">
-                            {{ song.artist }}
+                            {{ song.artist }} <span class="text-muted text-base ml-2 font-light">• {{ song.album }}</span>
                         </h3>
-                        <h1
-                            class="font-black text-5xl"
-                        >
-                            {{ song.title }}
-                        </h1>
-                        <h5 class="text-muted my-0">
-                            {{ song.album }}
-                        </h5>
+                        <div class="flex flew-row items-center">
+                            <span
+                                class="text-5xl cursor-pointer material-symbols-rounded ms-fill my-auto"
+                                @click="player.loadPlaylist('track', song.id)"
+                            >
+                                play_circle
+                            </span>
+                            <h1
+                                class="font-black text-5xl ml-4"
+                            >
+                                {{ song.title }}
+                            </h1>
+                        </div>
                     </div>
                     <template v-if="metadata && metadata.spotify.features">
                         <div
@@ -175,7 +187,7 @@ watch(route, load, { deep: true })
                 class="p-2"
             >
                 <ProgressCircle
-                    v-if="circle.key == 'loudness'"
+                    v-if="circle.key === 'loudness'"
                     v-model="circle.value"
                     :display-value="Math.round(-60 + circle.value) + 'dB'"
                     class="circle"
