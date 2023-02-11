@@ -3,14 +3,11 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import {
-    createRouter,
-    createWebHistory
-} from 'vue-router'
+import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [{
         path: '/',
-        component: () => import( /* webpackChunkName: "home" */ '@/views/home/index.vue'),
+        component: () => import('@/views/home/index.vue'),
     },
     {
         path: '/discover',
@@ -21,7 +18,7 @@ const routes = [{
     },
     {
         path: '/search',
-        component: () => import( /* webpackChunkName: "search" */ "@/views/Search.vue"),
+        component: () => import("@/views/Search.vue"),
         meta: {
             title: "Search - reAudioPlayer One"
         }
@@ -29,77 +26,77 @@ const routes = [{
     {
         name: "Search",
         path: '/search/:query',
-        component: () => import( /* webpackChunkName: "search" */ "@/views/Search.vue"),
+        component: () => import("@/views/Search.vue"),
         meta: {
             title: "Search - reAudioPlayer One"
         }
     },
     {
         path: '/collection/albums',
-        component: () => import( /* webpackChunkName: "albums" */ "@/views/Collection/Albums.vue"),
+        component: () => import("@/views/Collection/Albums.vue"),
         meta: {
             title: "Your Library - reAudioPlayer One"
         }
     },
     {
         path: '/collection/artists',
-        component: () => import( /* webpackChunkName: "artists" */ "@/views/Collection/Artists.vue"),
+        component: () => import("@/views/Collection/Artists.vue"),
         meta: {
             title: "Your Library - reAudioPlayer One"
         }
     },
     {
         path: '/collection/playlists',
-        component: () => import( /* webpackChunkName: "playlists" */ "@/views/Collection/Playlists.vue"),
+        component: () => import("@/views/Collection/Playlists.vue"),
         meta: {
             title: "Your Library - reAudioPlayer One"
         }
     },
     {
         path: '/collection/releases',
-        component: () => import( /* webpackChunkName: "releases" */ "@/views/Collection/Releases.vue"),
+        component: () => import("@/views/Collection/Releases.vue"),
         meta: {
             title: "Releases - reAudioPlayer One"
         }
     },
     {
         path: '/collection/tracks',
-        component: () => import( /* webpackChunkName: "tracks" */ "@/views/Collection/SmartPlaylist/Tracks.vue"),
+        component: () => import("@/views/Collection/SmartPlaylist/Tracks.vue"),
         meta: {
             title: "Liked Songs - reAudioPlayer One"
         }
     },
     {
         path: '/collection/tracks/breaking',
-        component: () => import( /* webpackChunkName: "tracks" */ "@/views/Collection/SmartPlaylist/Breaking.vue"),
+        component: () => import("@/views/Collection/SmartPlaylist/Breaking.vue"),
         meta: {
             title: "Breaking Songs - reAudioPlayer One"
         }
     },
     {
         path: '/playlist/:id',
-        component: () => import( /* webpackChunkName: "playlist" */ "@/views/Playlist.vue"),
+        component: () => import("@/views/Playlist.vue"),
         meta: {
             title: "Playlist - reAudioPlayer One"
         }
     },
     {
-        path: '/track/:id',
-        component: () => import( /* webpackChunkName: "track" */ "@/views/Track.vue"),
+        path: '/track/:hash',
+        component: () => import("@/views/Track-next.vue"),
         meta: {
             title: "Track - reAudioPlayer One"
         }
     },
     {
         path: '/preferences',
-        component: () => import( /* webpackChunkName: "preferences" */ "@/views/preferences/index.vue"),
+        component: () => import("@/views/preferences/index.vue"),
         meta: {
             title: "Preferences - reAudioPlayer One"
         }
     },
     {
         path: '/preferences/my-data',
-        component: () => import( /* webpackChunkName: "preferences" */ "@/views/preferences/LocalData.vue"),
+        component: () => import("@/views/preferences/LocalData.vue"),
         meta: {
             title: "Preferences - reAudioPlayer One"
         }
@@ -134,35 +131,35 @@ const routes = [{
     },
     {
         path: '/welcome',
-        component: () => import( /* webpackChunkName: "welcome" */ "@/views/Welcome.vue"),
+        component: () => import("@/views/Welcome.vue"),
         meta: {
             title: "Welcome to reAudioPlayer One"
         }
     },
     {
         path: '/news',
-        component: () => import( /* webpackChunkName: "news" */ "@/views/News.vue"),
+        component: () => import("@/views/News.vue"),
         meta: {
             title: "News - reAudioPlayer One"
         }
     },
     {
         path: '/sports',
-        component: () => import( /* webpackChunkName: "sports" */ "@/views/Sports.vue"),
+        component: () => import("@/views/Sports.vue"),
         meta: {
             title: "Sports - reAudioPlayer One"
         }
     },
     {
         path: '/news/:url',
-        component: () => import( /* webpackChunkName: "newsArticle" */ "@/views/NewsArticle.vue"),
+        component: () => import("@/views/NewsArticle.vue"),
         meta: {
             title: "News - reAudioPlayer One"
         }
     },
     {
         path: '/player',
-        component: () => import( /* webpackChunkName: "bigPlayer" */ "@/views/BigPlayer.vue"),
+        component: () => import("@/views/BigPlayer.vue"),
         meta: {
             title: "reAudioPlayer One"
         }
