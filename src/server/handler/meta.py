@@ -2,11 +2,11 @@
 """reAudioPlayer ONE"""
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from aiohttp import web
 from pyaddict import JDict
-from pyaddict.schema import Object, String, Integer, Array
+from pyaddict.schema import Object, String, Integer, Array, Boolean
 
 from db.dbManager import DbManager
 from helper.asyncThread import asyncRunInThreadWithReturn
@@ -15,8 +15,9 @@ from helper.payloadParser import withObjectPayload
 from meta.metadata import Metadata
 from meta.releases import Releases
 from meta.search import Search
-from meta.spotify import Spotify, SpotifyResult
+from meta.spotify import Spotify, SpotifyResult, SpotifyTrack
 from dataModel.track import SpotifyPlaylist
+from dataModel.metadata import SongMetadata, SpotifyMetadata
 from config.runtime import Runtime
 from config.customData import LocalTrack, LocalCover
 
@@ -200,6 +201,94 @@ class MetaHandler:
                 file.write(await obj.read())
                 return web.Response(text = file.displayPath)
         return web.Response(status = 400)
+
+    @withObjectPayload(Object({
+        "id": Integer().min(1),
+        "forceFetch": Boolean().optional()
+    }), inBody = True)
+    async def fetchSongMeta(self, payload: Dict[str, Any]) -> web.Response:
+        """post(/api/spotify/meta)"""
+        id_ = payload["id"]
+        forceFetch = payload.get("forceFetch", False)
+        song = self._dbManager.getSongById(id_)
+
+        if not song:
+            return web.HTTPNotFound(text = "song not found")
+
+        if not forceFetch:
+            if song.metadata:
+                return web.json_response(song.metadata.toDict())
+
+        onSpotify: Optional[str] = None
+        spotifySong: Optional[SpotifyTrack] = None
+
+        if song.metadata and song.metadata.spotify:
+            onSpotify = song.metadata.spotify.id
+
+        if not song.metadata:
+            query = f"{song.artist} {song.title}"
+            result = await self._searchOnSpotify(query, 1)
+            if not result:
+                return result.httpResponse()
+            spotifySong = result.unwrap()[0]
+            onSpotify = spotifySong.id
+
+        if not onSpotify:
+            return web.HTTPNotFound(text = "metadata not found")
+
+        metadata = SongMetadata(id_)
+        metadata.spotify = SpotifyMetadata(onSpotify)
+
+        spotifyFeatures = self._spotify.audioFeatures(onSpotify)
+
+        if not spotifyFeatures:
+            return spotifyFeatures.httpResponse()
+
+        metadata.spotify.update(
+            features = spotifyFeatures.unwrap()
+        )
+
+        if spotifySong:
+            metadata.spotify.update(
+                album = spotifySong.albumItem,
+                artists = spotifySong.artistItems,
+                explicit = spotifySong.explicit,
+                popularity = spotifySong.popularity,
+                releaseDate = spotifySong.releaseDate,
+            )
+
+        self._dbManager.updateMeta(metadata)
+        return web.json_response(metadata.toDict())
+
+    async def _searchOnSpotify(self, query: str, limit: int) -> SpotifyResult[List[SpotifyTrack]]:
+        def _implement() -> SpotifyResult[List[SpotifyTrack]]:
+            return self._spotify.searchTrack(query, limit)
+        return await asyncRunInThreadWithReturn(_implement)
+
+    @withObjectPayload(Object({
+        "id": Integer().min(1).coerce()
+    }), inPath = True)
+    async def spotifyRecommendSong(self, payload: Dict[str, Any]) -> web.Response:
+        id_: int = payload["id"]
+        song = self._dbManager.getSongById(id_)
+        if not song:
+            return web.HTTPNotFound(text = "song not found")
+        if not song.metadata:
+            return web.HTTPNotFound(text = "metadata not found")
+        if not song.metadata.spotify:
+            return web.HTTPNotFound(text = "spotify metadata not found")
+        if not song.metadata.spotify.id:
+            return web.HTTPNotFound(text = "spotify id not found")
+        
+        result = self._spotify.recommendations(
+            [ artist.id for artist in song.metadata.spotify.artists or [] ],
+            [ song.metadata.spotify.id ],
+            []
+        )
+        if not result:
+            return result.httpResponse()
+        tracks = result.unwrap()
+        return web.json_response([ track.toDict() for track in tracks ])
 
     @withObjectPayload(Object({
         "query": String().min(1).optional(),

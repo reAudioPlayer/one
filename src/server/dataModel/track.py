@@ -57,25 +57,54 @@ class ITrack(ABC):
         return None
 
 
+class BasicSpotifyItem:
+    __slots__ = ("_id", "_name")
+
+    def __init__(self, id_: str, name: str) -> None:
+        self._id = id_
+        self._name = name
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def toDict(self) -> dict:
+        return {"id": self._id, "name": self._name}
+
+    @staticmethod
+    def fromDict(data: JDict) -> BasicSpotifyItem:
+        return BasicSpotifyItem(data.ensure("id", str), data.ensure("name", str))
+
+
 class SpotifyTrack(ITrack):
     """spotify track model"""
-    __slots__ = ("_title", "_album", "_artists", "_id", "_preview", "_cover", "_markets")
+    __slots__ = ("_title", "_album", "_artists", "_id", "_preview", "_cover", "_markets",
+                 "_popularity", "_releaseDate", "_duration", "_explicit", "_url")
 
     def __init__(self, track: Dict[str, Any]) -> None:
         dex = JDict(track).chain()
         self._title = dex.ensure("name", str)
         album = dex.optionalCast("album", JDict)
+        self._cover: Optional[str] = None
+        self._releaseDate: Optional[str] = None
+
         if album:
-            self._album = album.ensure("name", str)
+            self._album = BasicSpotifyItem(album.ensure("id", str), album.ensure("name", str))
             self._cover = album.chain().ensure("images.[0].url", str)
+            self._releaseDate = album.optionalGet("release_date", str)
         elif "images" in track: # probably album
             self._cover = dex.ensure("images.[0].url", str)
-            self._releaseDate = dex.ensure("release_date", str)
-        self._artists    = [x.ensure("name", str)
-                            for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)]
+        self._artists = [ BasicSpotifyItem(x.ensure("id", str), x.ensure("name", str))
+                          for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict) ]
         self._id = dex.ensure("id", str)
         self._preview = dex.ensure("preview_url", str)
         self._markets = dex.ensureCast("available_markets", JList).iterator().ensure(str)
+        self._popularity = dex.ensure("popularity", int)
+        self._explicit = dex.ensure("explicit", bool)
 
     @property
     def markets(self) -> List[str]:
@@ -85,6 +114,11 @@ class SpotifyTrack(ITrack):
     @property
     def artists(self) -> List[str]:
         """return artists"""
+        return [x.name for x in self._artists]
+
+    @property
+    def artistItems(self) -> List[BasicSpotifyItem]:
+        """return simple artists"""
         return self._artists
 
     @property
@@ -98,7 +132,15 @@ class SpotifyTrack(ITrack):
 
     @property
     def album(self) -> str:
+        return self._album.name
+
+    @property
+    def albumItem(self) -> BasicSpotifyItem:
         return self._album
+
+    @property
+    def explicit(self) -> bool:
+        return self._explicit
 
     @property
     def cover(self) -> str:
@@ -108,6 +150,14 @@ class SpotifyTrack(ITrack):
     def id(self) -> str:
         """return track id"""
         return self._id
+
+    @property
+    def popularity(self) -> int:
+        return self._popularity
+
+    @property
+    def releaseDate(self) -> str:
+        return self._releaseDate
 
     @property
     def url(self) -> str:
@@ -123,7 +173,8 @@ class SpotifyTrack(ITrack):
             "cover": self.cover,
             "href": self.url,
             "preview": self.preview,
-            "markets": self.markets
+            "markets": self.markets,
+            "album": self.album,
         }
 
 

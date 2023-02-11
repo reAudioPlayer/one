@@ -8,6 +8,7 @@ from typing import List, Optional
 
 from dataModel.playlist import Playlist
 from dataModel.song import Song
+from dataModel.metadata import SongMetadata
 
 from config.runtime import Runtime
 
@@ -23,6 +24,7 @@ class DbManager:
         self._db = sl.connect(file)
         self._createSongTable()
         self._createPlaylistTable()
+        self._createMetaTable()
         self._updatePlaylistTable()
 
     def shutdown(self) -> None:
@@ -53,12 +55,36 @@ class DbManager:
         with self._db:
             self._db.execute(sql)
 
+    def _createMetaTable(self) -> None:
+        sql = """create table if not exists Meta (
+            id INTEGER NOT NULL PRIMARY KEY,
+            spotify TEXT,
+            plays INTEGER NOT NULL);"""
+        with self._db:
+            self._db.execute(sql)
+
     def _updatePlaylistTable(self) -> None:
         sql = """PRAGMA table_info("Playlists")"""
         with self._db:
             val = [ (name) for (_, name, *_) in self._db.execute(sql) ]
             if "cover" not in val:
                 self._db.execute('ALTER TABLE "Playlists" ADD cover TEXT;')
+
+    def updateMeta(self, meta: SongMetadata) -> None:
+        """updates or adds meta"""
+        with self._db:
+            sql = 'INSERT OR REPLACE INTO Meta (id, spotify, plays) values(?, ?, ?)' # pylint: disable=line-too-long
+            data = [
+                meta.toSql()
+            ]
+            self._db.executemany(sql, data)
+
+    def getMeta(self, id_: int) -> Optional[SongMetadata]:
+        """get meta"""
+        with self._db:
+            sql = f"SELECT * FROM Meta WHERE id={id_}"
+            rows = self._db.execute(sql)
+            return SongMetadata.fromSql(rows.fetchone())
 
     def addSong(self, song: Song) -> None:
         """add song to db"""
@@ -83,14 +109,18 @@ class DbManager:
         with self._db:
             self._db.execute(f"DELETE FROM Playlists WHERE id={playlistId}")
 
-    @staticmethod
-    def _castToSongList(rows: sl.Cursor) -> List[Song]:
-        return [ Song.fromSql(row) for row in rows ]
+    def _castToSongList(self, rows: sl.Cursor) -> List[Song]:
+        songs: List[Song] = []
+        for row in rows:
+            song = Song.fromSql(row)
+            song.metadata = self.getMeta(song.id)
+            songs.append(song)
+        return songs
 
     def getSongs(self) -> List[Song]:
         """get all songs"""
         with self._db:
-            return DbManager._castToSongList(self._db.execute("SELECT * FROM Songs"))
+            return self._castToSongList(self._db.execute("SELECT * FROM Songs"))
 
     def getSongById(self, id_: int) -> Song:
         """get song by id"""
@@ -100,7 +130,7 @@ class DbManager:
     def getSongsByIdList(self, idList: List[int]) -> List[Song]:
         """get songs by id list"""
         with self._db:
-            songs = DbManager._castToSongList(
+            songs = self._castToSongList(
                 self._db.execute(
                     f"SELECT * FROM Songs WHERE id IN ({','.join([str(int) for int in idList]) })")) # pylint: disable=line-too-long
             return [ next((x for x in songs if x.id == songId), Song()) for songId in idList ] # sort based on id list, pylint: disable=line-too-long
@@ -108,19 +138,19 @@ class DbManager:
     def getLatestSongs(self, count: int) -> List[Song]:
         """get latest songs"""
         with self._db:
-            return DbManager._castToSongList(
+            return self._castToSongList(
                 self._db.execute(f"SELECT * FROM Songs ORDER BY id DESC LIMIT {count}"))
 
     def getLikedSongs(self) -> List[Song]:
         """get liked songs"""
         with self._db:
-            return DbManager._castToSongList(
+            return self._castToSongList(
                 self._db.execute("SELECT * FROM Songs WHERE favourite=1"))
 
     def getSongsByCustomFilter(self, filter_: str) -> List[Song]:
         """get songs by custom sql filter"""
         with self._db:
-            return DbManager._castToSongList(
+            return self._castToSongList(
                 self._db.execute(f"SELECT * FROM Songs WHERE {filter_}"))
 
     def getSongsByQuery(self, query: str) -> List[Song]:
@@ -143,9 +173,9 @@ class DbManager:
 
         try:
             with self._db:
-                return DbManager._castToSongList(
+                return self._castToSongList(
                     self._db.execute(f"SELECT * FROM Songs WHERE {filter_}"))
-        except Exception as err:
+        except Exception as err: # pylint: disable=broad-except
             print(err)
             return [ ]
 

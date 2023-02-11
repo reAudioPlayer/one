@@ -5,6 +5,7 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from functools import wraps
 from enum import Enum
+import logging
 from typing import Any, Callable, Dict, Generic, List, Optional, ParamSpec, Type, TypeVar
 
 from aiohttp import web
@@ -118,12 +119,14 @@ def _connectionRequired(func: Callable[P, U]) -> Callable[P, U]:
 
 
 def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
+    logger = logging.getLogger("Spotify._mayFail")
+
     @wraps(func)
     def wrapper(self: Spotify, *args: Any, **kwargs: Any) -> Any:
         try:
             return func(self, *args, **kwargs) # type: ignore
         except SpotifyException as exc:
-            print(exc)
+            logger.exception("SpotifyException")
 
             if exc.http_status == 401:
                 self.auth.invalidate()
@@ -132,12 +135,127 @@ def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
             if exc.http_status == 429:
                 return SpotifyResult.errorResult(SpotifyState.QuoteExceeded)
 
-            print(exc)
+            logger.exception("SpotifyException")
             return SpotifyResult.errorResult(SpotifyState.InternalError)
         except Exception as exc: # pylint: disable=broad-except
-            print(exc)
+            logger.exception("Exception")
+            # if KeyError 'expires_at'
+            if isinstance(exc, KeyError):
+                self.auth.addExpiresAt()
+                return SpotifyResult.errorResult(SpotifyState.Unauthorised)
             return SpotifyResult.errorResult(SpotifyState.InternalError)
     return wrapper # type: ignore
+
+
+class SpotifyMode(Enum):
+    """mode of a track"""
+    Major = 1
+    Minor = 0
+
+    @staticmethod
+    def fromInt(value: Optional[int]) -> Optional[SpotifyMode]:
+        """Returns the mode from an int"""
+        if value is None:
+            return None
+        if value == 0:
+            return SpotifyMode.Minor
+        return SpotifyMode.Major
+
+    @staticmethod
+    def fromName(name: str) -> SpotifyMode:
+        """Returns the mode from a name"""
+        if name == "Major":
+            return SpotifyMode.Major
+        return SpotifyMode.Minor
+
+
+class SpotifyKey(Enum):
+    """key of a track"""
+    C = 0
+    CSharp = 1
+    D = 2
+    DSharp = 3
+    E = 4
+    F = 5
+    FSharp = 6
+    G = 7
+    GSharp = 8
+    A = 9
+    ASharp = 10
+    B = 11
+
+    def toStr(self) -> str:
+        """Returns the key as a string"""
+        return self.name.replace("Sharp", "#")
+
+    @staticmethod
+    def fromInt(value: Optional[int]) -> Optional[SpotifyKey]:
+        """Returns the key from an int"""
+        if value is None:
+            return None
+        return SpotifyKey(value)
+
+    @staticmethod
+    def fromName(name: str) -> SpotifyKey:
+        name = name.replace("#", "Sharp")
+        for key in SpotifyKey:
+            if key.name == name:
+                return key
+        raise ValueError(f"Invalid key name {name}")
+
+class SpotifyAudioFeatures:
+    __slots__ = ("_acousticness", "_danceability", "_energy",
+                 "_instrumentalness", "_key", "_liveness", "_loudness",
+                 "_mode", "_speechiness", "_tempo", "_time_signature", "_valence")
+    
+    def __init__(self, data: JDict) -> None:
+        self._acousticness = data.assertGet("acousticness", float)
+        self._danceability = data.assertGet("danceability", float)
+        self._energy = data.assertGet("energy", float)
+        self._instrumentalness = data.assertGet("instrumentalness", float)
+        self._liveness = data.assertGet("liveness", float)
+        self._loudness = data.assertGet("loudness", float)
+
+        self._key = SpotifyKey.fromInt(data.optionalGet("key", int)) # spotify
+        if self._key is None:
+            self._key = SpotifyKey.fromName(data.assertGet("key", str)) # cache
+
+        self._mode = SpotifyMode.fromInt(data.optionalGet("mode", int)) # spotify
+        if self._mode is None:
+            self._mode = SpotifyMode.fromName(data.assertGet("mode", str)) # cache
+
+        self._speechiness = data.assertGet("speechiness", float)
+        self._tempo = data.assertGet("tempo", float)
+        self._time_signature = data.assertGet("time_signature", int)
+        self._valence = data.assertGet("valence", float)
+
+    @staticmethod
+    def fromSql(data: Optional[str]) -> Optional[SpotifyAudioFeatures]:
+        """Returns the audio features from sql"""
+        if data is None:
+            return None
+        return SpotifyAudioFeatures(JDict.fromString(data))
+
+    def toDict(self) -> Dict[str, Any]:
+        """Returns the audio features as a dict"""
+        return {
+            "acousticness": self._acousticness,
+            "danceability": self._danceability,
+            "energy": self._energy,
+            "instrumentalness": self._instrumentalness,
+            "key": self._key.toStr(),
+            "liveness": self._liveness,
+            "loudness": self._loudness,
+            "mode": self._mode.name,
+            "speechiness": self._speechiness,
+            "tempo": self._tempo,
+            "time_signature": self._time_signature,
+            "valence": self._valence
+        }
+
+    def toSql(self) -> str:
+        """Returns the audio features as sql"""
+        return JDict(self.toDict()).toString()
 
 
 class Spotify:
@@ -181,10 +299,10 @@ class Spotify:
 
     @_connectionRequired
     @_mayFail
-    def searchTrack(self, query: str) -> SpotifyResult[List[SpotifyTrack]]:
+    def searchTrack(self, query: str, limit: int = 10) -> SpotifyResult[List[SpotifyTrack]]:
         """Searches for a track"""
         assert self._spotify is not None
-        search = self._spotify.search(query, limit = 10, type = "track")
+        search = self._spotify.search(query, limit = limit, type = "track")
         tracks = JDict(search).chain().ensure("tracks.items", list)
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
 
@@ -311,3 +429,13 @@ class Spotify:
         assert self._spotify is not None
         self._spotify.user_unfollow_artists([artistId])
         return SpotifyResult.successResult(None)
+
+    @_connectionRequired
+    @_mayFail
+    def audioFeatures(self, trackId: str) -> SpotifyResult[SpotifyAudioFeatures]:
+        """Returns the audio features of a track"""
+        assert self._spotify is not None
+        features = self._spotify.audio_features([trackId])
+        if not features:
+            return SpotifyResult.errorResult("No audio features found")
+        return SpotifyResult.successResult(SpotifyAudioFeatures(JDict(features[0])))
