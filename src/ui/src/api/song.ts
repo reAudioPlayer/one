@@ -3,8 +3,8 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import {ISong} from "../common";
-import {createPlaylist} from "./playlist";
+import { IMetadata, ISong, ISpotifySong, unhashTrack } from "../common";
+import { createPlaylist } from "./playlist";
 
 /**
  * updates a song based on its id
@@ -62,7 +62,7 @@ export const addSong = async (playlistId: number | string, song: ISong) => {
 /**
  * adds an existing song to a playlist
  * @param playlistId the id of the playlist to add the song to
- * @param songId the id of the song to add
+ * @param songId the id of the song to add, not the hash
  */
 export const addExistingSong = async (playlistId: number, songId: number) => {
     await fetch(`/api/playlists/${playlistId}/tracks/${songId}`, {
@@ -70,6 +70,11 @@ export const addExistingSong = async (playlistId: number, songId: number) => {
     })
 }
 
+/**
+ * favours or unfavours a song
+ * @param songId the id of the song to favourite, not the hash
+ * @param favourite whether to favourite or unfavourite the song
+ */
 export const favouriteSong = async (songId: number, favourite: boolean = true) => {
     await fetch(`/api/tracks/${songId}`, {
         method: "PUT",
@@ -81,7 +86,7 @@ export const favouriteSong = async (songId: number, favourite: boolean = true) =
 
 /**
  * sets the duration of a song
- * @param songId the id of the song to set the duration of
+ * @param songId the id of the song to set the duration of, not the hash
  * @param duration the duration in seconds
  */
 export const saveDuration = async(songId: number, duration: number) => {
@@ -93,6 +98,46 @@ export const saveDuration = async(songId: number, duration: number) => {
     })
 }
 
+/**
+ * downloads a song
+ * @param songId the id of the song to download, not the hash
+ */
 export const downloadSong = async (songId: number) => {
     window.open(`/api/tracks/${songId}/download`)
+}
+
+/**
+ * gets a song by its id, not the hash
+ * @param songId the id of the song to get
+ * @returns the song
+ */
+export const getSong = async (songId: number): Promise<ISong> => {
+    const res = await fetch(`/api/tracks/${songId}`);
+    return await res.json();
+}
+
+/**
+ * gets a song by its hash
+ * @param hash the hash of the song to get
+ * @returns the song
+ */
+export const getSongByHash = async (hash: string): Promise<ISong> => {
+    const songId = unhashTrack(hash);
+    return await getSong(songId);
+}
+
+export const getSongMetadata = async (songId: number, forceFetch = false): Promise<IMetadata> => {
+    const res = await fetch("/api/spotify/meta", {
+        method: "POST",
+        body: JSON.stringify({
+            id: songId,
+            forceFetch
+        })
+    });
+    return await res.json();
+}
+
+export const getRecommendations = async (songId: number): Promise<ISpotifySong[]> => {
+    const res = await fetch(`/api/spotify/recommendations/${songId}`);
+    return await res.json();
 }

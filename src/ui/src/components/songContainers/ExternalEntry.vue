@@ -4,13 +4,14 @@
   -->
 
 <script lang="ts" setup>
-import {isMobile, ISong} from "../../common";
-import {computed, PropType, ref} from "vue";
+import { isMobile, ISong } from "../../common";
+import { computed, PropType, ref } from "vue";
 import Marquee from "../Marquee.vue";
-import {usePlayerStore} from "../../store/player";
-import {favouriteSong} from "../../api/song";
+import { usePlayerStore } from "../../store/player";
+import { favouriteSong } from "../../api/song";
 import Cover from "../image/Cover.vue";
-import {playInPicture} from "../../PlayerInPicture.vue";
+import { playInPicture } from "../../PlayerInPicture.vue";
+import ImportSpotifySong from "../popups/ImportSpotifySong.vue";
 
 const props = defineProps({
     song: {
@@ -40,9 +41,14 @@ const props = defineProps({
         type: Number,
         required: false,
         default: null
+    },
+    canImport: {
+        type: Boolean,
+        required: false,
+        default: false
     }
 });
-const emit = defineEmits(["update"]);
+const emit = defineEmits(["update", "add"]);
 
 const playerStore = usePlayerStore();
 const playing = computed(() => props.song.id == playerStore.song.id);
@@ -55,7 +61,7 @@ const toggleFavourite = () => {
 
 const playlistId = computed(() => props.playlistId == null ? playerStore.playlist.id : props.playlistId);
 const playSong = () => {
-    playInPicture(props.song.title, props.song.artist, props.song.source);
+    playInPicture(props.song.title, props.song.artist, props.song.source || props.song.href);
 }
 
 const updatePopup = ref(null);
@@ -66,8 +72,21 @@ const edit = () => {
 const update = () => {
     emit("update");
 }
+
+const addOrImport = () => {
+    if (props.canImport) {
+        updatePopup.value.show();
+    } else {
+        emit('add');
+    }
+}
 </script>
 <template>
+    <ImportSpotifySong
+        v-if="canImport"
+        ref="updatePopup"
+        :song="song"
+    />
     <div
         :class="{
             playing,
@@ -114,7 +133,7 @@ const update = () => {
         </div>
         <div
             class="icon text-left material-symbols-rounded"
-            @click.stop="emit('add')"
+            @click.stop="addOrImport"
         >
             {{ song.added ? "done" : "add" }}
         </div>

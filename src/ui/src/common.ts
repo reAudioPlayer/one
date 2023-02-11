@@ -4,8 +4,8 @@
  */
 
 // @ts-ignore
-import Hashids from 'hashids';
-import {computed} from "vue";
+import Hashids from "hashids";
+import { computed } from "vue";
 
 const playlistHash = new Hashids("reapOne.playlist", 22);
 const hashidsTrack = new Hashids("reapOne.track", 22);
@@ -14,16 +14,18 @@ export const hashPlaylist = (id: string): string => {
     return playlistHash.encode(id);
 }
 
-export const unhashPlaylist = (id: string): string => {
-    return playlistHash.decode(id);
+export const unhashPlaylist = (id: string): number => {
+    const ids = playlistHash.decode(id)
+    return Number(ids[0]);
 }
 
 export const hashTrack = (id: string | number): string => {
     return hashidsTrack.encode(String(id));
 }
 
-export const unhashTrack = (id: string): string => {
-    return hashidsTrack.decode(id);
+export const unhashTrack = (id: string): number => {
+    const ids = hashidsTrack.decode(id)
+    return Number(ids[0]);
 }
 
 export const zeroPad = (num: number, places: number): string => {
@@ -48,6 +50,29 @@ export const parseAnyCover = (cover: string, type: "track" | "playlist" = "track
     return parse(cover);
 }
 
+export interface IMetadata {
+    id: number;
+    spotify: {
+        id: string;
+        features: {
+            acousticness: number;
+            danceability: number;
+            energy: number;
+            instrumentalness: number;
+            liveness: number;
+            loudness: number;
+            speechiness: number;
+            tempo: number;
+            valence: number;
+            key: string;
+            mode: string;
+        };
+        popularity: number;
+        releaseDate: string;
+        explicit: boolean;
+    }
+}
+
 export interface ISong {
     source: string;
     id?: number;
@@ -57,6 +82,7 @@ export interface ISong {
     cover: string;
     favourite?: boolean;
     duration?: number;
+    metadata?: IMetadata;
 }
 
 export interface IPlaylistMeta {
@@ -125,4 +151,13 @@ export const isMobile = computed(() => {
 export const isLink = (str: string) => {
     const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i;
     return urlRegex.test(str);
+}
+
+export const getCamelotKey = (meta: IMetadata): string => {
+    const { key, mode } = meta.spotify.features;
+    const major = ["B", "F#", "C#", "G#", "D#", "A#", "F", "C", "G", "D", "A", "E"];
+    const minor = ["A", "D#", "A#", "F", "C", "G", "D", "A", "E", "B", "F#", "C#"];
+    const keys = mode == "Major" ? major : minor;
+    const index = keys.indexOf(key);
+    return `${index + 1}${mode == "Major" ? "B" : "A"}`;
 }
