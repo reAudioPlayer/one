@@ -7,13 +7,14 @@
 import { useRoute } from "vue-router";
 import { getRecommendations, getSongByHash, getSongMetadata } from "../api/song";
 import { computed, onMounted, ref, watch } from "vue";
-import { getCamelotKey, IMetadata, ISong, ISpotifySong } from "../common";
+import { getCamelotKey, IMetadata, ISong, ISpotifySong, openInNewTab, parseSpotifyId } from "../common";
 import Loader from "../components/Loader.vue";
 import Cover from "../components/image/Cover.vue";
 import Card from "../containers/Card.vue";
 import ProgressCircle from "../components/inputs/ProgressCircle.vue";
 import ExternalEntry from "../components/songContainers/ExternalEntry.vue";
 import { usePlayerStore } from "../store/player";
+import TextInputWithIcon from "../components/inputs/TextInputWithIcon.vue";
 
 const route = useRoute();
 const player = usePlayerStore();
@@ -21,6 +22,8 @@ const player = usePlayerStore();
 const hash = computed(() => route.params.hash as string);
 
 const song = ref(null as ISong | null);
+const spotifyUrl = ref(null as string | null);
+const spotifyUrlIcon = ref("url");
 const metadata = ref(null as IMetadata | null);
 const recommendations = ref([] as ISpotifySong[]);
 const circles = ref([] as { key: string; value: number, icon: string }[]);
@@ -36,14 +39,18 @@ const icons = {
     "loudness": "volume_up",
 }
 
-const load = async () => {
+const load = async (spotifyId: string = null) => {
     // reset
     song.value = null;
     metadata.value = null;
     recommendations.value = [];
 
     song.value = await getSongByHash(hash.value);
-    metadata.value = await getSongMetadata(song.value.id);
+
+    window.document.title = `${song.value.title} - reAudioPlayer One`
+
+    metadata.value = await getSongMetadata(song.value.id, !!spotifyId, spotifyId);
+    spotifyUrl.value = `https://open.spotify.com/track/${metadata.value.spotify.id}`;
     recommendations.value = await getRecommendations(song.value.id)
     circles.value = [];
 
@@ -71,7 +78,27 @@ const load = async () => {
 }
 
 onMounted(load);
-watch(route, load, { deep: true })
+watch(route, load, { deep: true });
+watch(spotifyUrl, () => {
+    if (song.value?.metadata?.spotify?.id == parseSpotifyId(spotifyUrl.value, "track")) {
+        spotifyUrlIcon.value = "link";
+        return;
+    }
+
+    spotifyUrlIcon.value = "save";
+});
+const onSpotifyUrlClick = () => {
+    if (spotifyUrlIcon.value === "save") {
+        const id = parseSpotifyId(spotifyUrl.value, "track");
+        if (!id) {
+            return;
+        }
+        load(id);
+        return;
+    }
+
+    openInNewTab(spotifyUrl.value);
+}
 </script>
 <template>
 <div class="track p-4">
@@ -124,16 +151,16 @@ watch(route, load, { deep: true })
                             <p class="my-0 text-muted">
                                 Key
                             </p>
-                        </Card>
+                            </Card>
                         <Card
-                            class="p-4 w-full"
-                        >
-                            <h2 class="mx-4">
-                                {{ getCamelotKey(metadata) }}
-                            </h2>
-                            <p class="my-0 text-muted">
-                                Camelot
-                            </p>
+                                class="p-4 w-full"
+                            >
+                                <h2 class="mx-4">
+                                    {{ getCamelotKey(metadata) }}
+                                </h2>
+                                <p class="my-0 text-muted">
+                                    Camelot
+                                </p>
                         </Card>
                         <Card
                             class="p-4 w-full"
@@ -155,12 +182,18 @@ watch(route, load, { deep: true })
                                 Duration
                             </p>
                         </Card>
-                    </div>
-                        <div class="spotify-infos flex flex-row justify-around">
-                            <p>Release Date: <span class="font-bold">{{ metadata.spotify.releaseDate }}</span></p>
-                            <p>Explicit: <span class="font-bold">{{ metadata.spotify.explicit }}</span></p>
-                            <p>Popularity: <span class="font-bold">{{ metadata.spotify.popularity }}</span></p>
                         </div>
+                            <div class="spotify-infos flex flex-row justify-between items-center mt-4">
+                                <p>Release Date: <span class="font-bold">{{ metadata.spotify.releaseDate }}</span></p>
+                                <p>Explicit: <span class="font-bold">{{ metadata.spotify.explicit }}</span></p>
+                                <p>Popularity: <span class="font-bold">{{ metadata.spotify.popularity }}</span></p>
+                                <TextInputWithIcon
+                                    v-model="spotifyUrl"
+                                    :icon="spotifyUrlIcon"
+                                    :onClick="onSpotifyUrlClick"
+                                    class="!w-72"
+                                />
+                            </div>
                     </template>
                 </div>
             </div>

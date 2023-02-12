@@ -5,7 +5,13 @@
 
 <template>
     <div class="text-input-with-icon rounded-3xl flex items-center px-4">
-        <span class="material-symbols-rounded ms-wght-200">{{ icon }}</span>
+        <span
+            :class="{ 'cursor-pointer': onClick }"
+            class="material-symbols-rounded ms-wght-200"
+            @click="onClick"
+        >
+            {{ icon }}
+        </span>
         <input
             v-model="value"
             :placeholder="placeholder"
@@ -16,13 +22,17 @@
     </div>
 </template>
 
-<script setup>
-import {ref, watch} from "vue";
+<script lang="ts" setup>
+import { PropType, ref, watch } from "vue";
 
 const props = defineProps({
     icon: String,
     placeholder: String,
-    modelValue: String
+    modelValue: String,
+    onClick: {
+        type: Function as PropType<() => void>,
+        required: false,
+    }
 })
 
 const value = ref(props.modelValue);

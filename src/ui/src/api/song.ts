@@ -126,13 +126,22 @@ export const getSongByHash = async (hash: string): Promise<ISong> => {
     return await getSong(songId);
 }
 
-export const getSongMetadata = async (songId: number, forceFetch = false): Promise<IMetadata> => {
+export const getSongMetadata = async (songId: number, forceFetch = false, spotifyId: string = null): Promise<IMetadata> => {
+    const body = {
+        id: songId
+    } as any;
+
+    if (forceFetch) {
+        body.forceFetch = true;
+    }
+
+    if (spotifyId) {
+        body.spotifyId = spotifyId;
+    }
+
     const res = await fetch("/api/spotify/meta", {
         method: "POST",
-        body: JSON.stringify({
-            id: songId,
-            forceFetch
-        })
+        body: JSON.stringify(body)
     });
     return await res.json();
 }
