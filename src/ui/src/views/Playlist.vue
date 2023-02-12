@@ -66,18 +66,18 @@
 </template>
 
 <script>
-import FixedPlaylistHeader from '../components/Playlist/FixedPlaylistHeader.vue'
-import PlaylistEntry from '../components/songContainers/PlaylistEntry.vue'
-import PlaylistHeader from '../components/songContainers/PlaylistHeader.vue'
-import AddSong from "../components/popups/AddNewSong.vue"
-import EditPlaylist from '../components/popups/EditPlaylist.vue'
-import draggable from 'vuedraggable'
-import Cover from '@/components/image/Cover.vue'
+import FixedPlaylistHeader from "../components/Playlist/FixedPlaylistHeader.vue";
+import PlaylistEntry from "../components/songContainers/PlaylistEntry.vue";
+import PlaylistHeader from "../components/songContainers/PlaylistHeader.vue";
+import AddSong from "../components/popups/AddNewSong.vue";
+import EditPlaylist from "../components/popups/EditPlaylist.vue";
+import draggable from "vuedraggable";
+import Cover from "@/components/image/Cover.vue";
 
-import {hashPlaylist, parseCover, parsePlaylistCover, unhashPlaylist} from "@/common";
-import {usePlayerStore} from "@/store/player";
-import {createPlaylist, getPlaylist} from "@/api/playlist";
-import {useDataStore} from "@/store/data";
+import { hashPlaylist, parseCover, parsePlaylistCover, unhashPlaylist } from "@/common";
+import { usePlayerStore } from "@/store/player";
+import { createPlaylist, getPlaylist } from "@/api/playlist";
+import { useDataStore } from "@/store/data";
 
 const data = useDataStore();
 
@@ -143,7 +143,7 @@ export default {
             })
         },
         updatePlaylist() {
-            if (!this.id) {
+            if (this.id == null) {
                 return
             }
             if (!this.$route.path.includes("/playlist/")) {
