@@ -7,7 +7,7 @@
 import { useRoute } from "vue-router";
 import { getRecommendations, getSongByHash, getSongMetadata } from "../api/song";
 import { computed, onMounted, ref, watch } from "vue";
-import { getCamelotKey, IMetadata, ISong, ISpotifySong, openInNewTab, parseSpotifyId } from "../common";
+import { getCamelotKey, IMetadata, ISong, ISpotifySong, localeDate, openInNewTab, parseSpotifyId } from "../common";
 import Loader from "../components/Loader.vue";
 import Cover from "../components/image/Cover.vue";
 import Card from "../containers/Card.vue";
@@ -183,15 +183,19 @@ const onSpotifyUrlClick = () => {
                             </p>
                         </Card>
                         </div>
-                            <div class="spotify-infos flex flex-row justify-between items-center mt-4">
-                                <p>Release Date: <span class="font-bold">{{ metadata.spotify.releaseDate }}</span></p>
-                                <p>Explicit: <span class="font-bold">{{ metadata.spotify.explicit }}</span></p>
-                                <p>Popularity: <span class="font-bold">{{ metadata.spotify.popularity }}</span></p>
+                            <div class="spotify-infos mt-4">
+                                <div class="meta items-center ">
+                                    <span>{{ localeDate(metadata.spotify.releaseDate) }}</span>
+                                    <span v-if="metadata.spotify.explicit" class="material-symbols-rounded ms-fill">explicit</span>
+                                    <span class="flex flex-row align-items">
+                                        <span class="material-symbols-rounded ms-fill mr-2">local_fire_department</span>
+                                        <span class="font-bold">{{ metadata.spotify.popularity }}</span>
+                                    </span>
+                                </div>
                                 <TextInputWithIcon
                                     v-model="spotifyUrl"
                                     :icon="spotifyUrlIcon"
                                     :onClick="onSpotifyUrlClick"
-                                    class="!w-72"
                                 />
                             </div>
                     </template>
@@ -248,6 +252,21 @@ const onSpotifyUrlClick = () => {
     display: grid;
     grid-template-columns: fit-content(100%) minmax(500px, 1fr);
     gap: 2rem;
+}
+
+.spotify-infos {
+    display: grid;
+    grid-template-columns: fit-content(100%) 1fr;
+    gap: 1rem;
+
+    .meta {
+        display: grid;
+        grid-template-columns: repeat(3, fit-content(100%));
+
+        >*:not(:last-child) {
+            margin-right: 1rem;
+        }
+    }
 }
 
 .card {

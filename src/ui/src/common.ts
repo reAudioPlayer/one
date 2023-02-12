@@ -173,3 +173,7 @@ export const parseSpotifyId = (url: string, type: "track" | "album" | "playlist"
     if (!match) return null;
     return match[1];
 }
+
+export const localeDate = (date: string | Date): string => {
+    return new Date(date).toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" });
+}
