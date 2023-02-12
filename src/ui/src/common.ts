@@ -161,3 +161,15 @@ export const getCamelotKey = (meta: IMetadata): string => {
     const index = keys.indexOf(key);
     return `${index + 1}${mode == "Major" ? "B" : "A"}`;
 }
+
+export const parseSpotifyId = (url: string, type: "track" | "album" | "playlist" = null): string | null => {
+    if (!type) {
+        if (url.includes("track")) type = "track";
+        if (url.includes("album")) type = "album";
+        if (url.includes("playlist")) type = "playlist";
+    }
+    const regex = new RegExp(`https:\/\/open.spotify.com\/${type}\/([a-zA-Z0-9]+)`);
+    const match = url.match(regex);
+    if (!match) return null;
+    return match[1];
+}
