@@ -231,17 +231,17 @@ class MetaHandler:
             onSpotify = spotifyId
 
         if onSpotify and (spotifyId or forceFetch):
-            result = self._spotify.track(onSpotify)
-            if not result:
-                return result.httpResponse()
-            spotifySong = result.unwrap()
+            trackResult = self._spotify.track(onSpotify)
+            if not trackResult:
+                return trackResult.httpResponse()
+            spotifySong = trackResult.unwrap()
 
         if not onSpotify:
             query = f"{song.artist} {song.title}"
-            result = await self._searchOnSpotify(query, 1)
-            if not result:
-                return result.httpResponse()
-            spotifySong = result.unwrap()[0]
+            searchResult = await self._searchOnSpotify(query, 1)
+            if not searchResult:
+                return searchResult.httpResponse()
+            spotifySong = searchResult.unwrap()[0]
             onSpotify = spotifySong.id
 
         if not onSpotify:
