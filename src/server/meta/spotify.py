@@ -212,12 +212,12 @@ class SpotifyAudioFeatures:
                  "_mode", "_speechiness", "_tempo", "_timeSignature", "_valence")
 
     def __init__(self, data: JDict) -> None:
-        self._acousticness = data.assertGet("acousticness", float)
-        self._danceability = data.assertGet("danceability", float)
-        self._energy = data.assertGet("energy", float)
-        self._instrumentalness = data.assertGet("instrumentalness", float)
-        self._liveness = data.assertGet("liveness", float)
-        self._loudness = data.assertGet("loudness", float)
+        self._acousticness = data.ensureCast("acousticness", float)
+        self._danceability = data.ensureCast("danceability", float)
+        self._energy = data.ensureCast("energy", float)
+        self._instrumentalness = data.ensureCast("instrumentalness", float)
+        self._liveness = data.ensureCast("liveness", float)
+        self._loudness = data.ensureCast("loudness", float)
 
         key = SpotifyKey.fromInt(data.optionalGet("key", int)) # spotify
         if key is None:
@@ -229,10 +229,10 @@ class SpotifyAudioFeatures:
             mode = SpotifyMode.fromName(data.assertGet("mode", str)) # cache
         self._mode = mode
 
-        self._speechiness = data.assertGet("speechiness", float)
-        self._tempo = data.assertGet("tempo", float)
-        self._timeSignature = data.assertGet("time_signature", int)
-        self._valence = data.assertGet("valence", float)
+        self._speechiness = data.ensureCast("speechiness", float)
+        self._tempo = data.ensureCast("tempo", float)
+        self._timeSignature = data.ensureCast("time_signature", int)
+        self._valence = data.ensureCast("valence", float)
 
     @staticmethod
     def fromSql(data: Optional[str]) -> Optional[SpotifyAudioFeatures]:

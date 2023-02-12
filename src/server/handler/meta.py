@@ -204,12 +204,14 @@ class MetaHandler:
 
     @withObjectPayload(Object({
         "id": Integer().min(1),
-        "forceFetch": Boolean().optional()
+        "forceFetch": Boolean().optional(),
+        "spotifyId": String().optional().min(22).max(22)
     }), inBody = True)
     async def fetchSongMeta(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/meta)"""
         id_ = payload["id"]
         forceFetch = payload.get("forceFetch", False)
+        spotifyId: Optional[str] = payload.get("spotifyId", None)
         song = self._dbManager.getSongById(id_)
 
         if not song:
@@ -225,7 +227,16 @@ class MetaHandler:
         if song.metadata and song.metadata.spotify:
             onSpotify = song.metadata.spotify.id
 
-        if not song.metadata:
+        if spotifyId:
+            onSpotify = spotifyId
+
+        if onSpotify and (spotifyId or forceFetch):
+            result = self._spotify.track(onSpotify)
+            if not result:
+                return result.httpResponse()
+            spotifySong = result.unwrap()
+
+        if not onSpotify:
             query = f"{song.artist} {song.title}"
             result = await self._searchOnSpotify(query, 1)
             if not result:
