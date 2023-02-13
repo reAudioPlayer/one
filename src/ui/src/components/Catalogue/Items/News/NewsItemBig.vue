@@ -4,7 +4,7 @@
   -->
 
 <template>
-    <Card class="p-4 col-span-2 cursor-pointer" @click="redirect">
+    <Card class="p-4 col-span-2 cursor-pointer" with-hover @click="redirect">
         <img v-if="image" :src="image" />
         <h4>{{title}}</h4>
         <p class="newsSummary" v-html="summary" />

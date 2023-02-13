@@ -4,9 +4,9 @@
   -->
 
 <script lang="ts" setup>
-import {PropType, ref} from "vue";
+import { PropType, ref } from "vue";
 import Loader from "../../Loader.vue";
-import IconButton, {IButton} from "../../inputs/IconButton.vue";
+import IconButton, { IButton } from "../../inputs/IconButton.vue";
 
 const props = defineProps({
     name: {
@@ -88,7 +88,7 @@ defineExpose({
             </div>
             <div
                 v-else
-                class="p-4 pt-0"
+                class="p-4 pt-0 flex flex-col overflow-hidden"
             >
                 <slot />
                 <div v-if="props.submit || props.secondary" class="confirm">
@@ -115,7 +115,9 @@ defineExpose({
 .wrapper {
     cursor: default;
     position: relative;
-    /*overflow: hidden;*/
+    max-height: calc(100vh - var(--h-header) - var(--h-player) - 2em);
+    display: flex;
+    flex-direction: column;
 }
 
 .confirm {

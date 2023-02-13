@@ -4,8 +4,8 @@
   -->
 
 <script lang="ts" setup>
-import {ISpotifySong} from "../../../common";
-import {PropType} from "vue";
+import { ISpotifySong } from "../../../common";
+import { PropType } from "vue";
 import PlaylistHeader from "../../songContainers/PlaylistHeader.vue";
 import ExternalEntry from "../../songContainers/ExternalEntry.vue";
 
@@ -42,7 +42,8 @@ const props = defineProps({
 <style lang="scss" scoped>
 .playlist {
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 
     .entries {
         position: relative;
