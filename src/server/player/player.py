@@ -7,7 +7,6 @@ import logging
 
 from typing import Awaitable, Callable, Optional
 
-from config.config import PersistentConfig
 from config.runtime import Runtime
 from config.cacheStrategy import ICacheStrategy
 
@@ -43,10 +42,8 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
     def __init__(self,
                  dbManager: DbManager,
                  downloader: Downloader,
-                 playlistManager: PlaylistManager,
-                 config: PersistentConfig) -> None:
+                 playlistManager: PlaylistManager) -> None:
         self._dbManager = dbManager
-        self._config = config
         self._playlistManager = playlistManager
         self._downloader = downloader
         self._playerPlaylist: Optional[PlayerPlaylist] = None

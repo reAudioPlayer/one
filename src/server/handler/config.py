@@ -34,7 +34,10 @@ class ConfigHandler:
             "preserve": Boolean().optional(),
             "preserveInSession": Boolean().optional(),
         }).optional(),
-
+        "github": Object({
+            "githubPat": String().optional(),
+            "gistId": String().optional(),
+        }).optional(),
     }), inBody = True)
     async def updateConfig(self, payload: Dict[str, Any]) -> web.Response:
         """put(/api/config)"""

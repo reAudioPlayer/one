@@ -25,7 +25,6 @@ try:
 
     from meta.spotify import Spotify
 
-    from config.config import PersistentConfig
     from config.runtime import Runtime
     from config.config import Migrator
 
@@ -64,9 +63,8 @@ mimetypes.types_map['.js'] = 'application/javascript; charset=utf-8'
 Migrator.migrate()
 dbManager = DbManager()
 downloader = Downloader()
-config = PersistentConfig()
 playlistManager = PlaylistManager(dbManager)
-player = Player(dbManager, downloader, playlistManager, config)
+player = Player(dbManager, downloader, playlistManager)
 
 
 @middleware
