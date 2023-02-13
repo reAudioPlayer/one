@@ -34,8 +34,13 @@ export interface ICacheConfig {
     preserveInSession: boolean;
     strategy: CacheStrategy;
 }
+export interface IGithubConfig {
+    gistId: string;
+    githubPat: string;
+}
 export interface IConfig {
     cache: ICacheConfig;
+    github: IGithubConfig;
 }
 
 export const getConfig = async (): Promise<IConfig> => {

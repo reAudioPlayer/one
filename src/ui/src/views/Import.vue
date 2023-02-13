@@ -7,39 +7,30 @@
     <div class="import">
         <div class="action">
             <h1>Restore From File</h1>
-            <input type="file" ref="upFile" style="display: none" accept="application/json" />
-            <button @click="() => $refs.upFile.click()" class="iconWithText"><span class="material-symbols-rounded">file_upload</span> Upload</button>
-            <button @click="$refs.playlistsElements.forEach(x => x.import())" class="iconWithText"><span class="material-symbols-rounded">done</span> Apply</button>
+            <input ref="upFile" accept="application/json" style="display: none" type="file" />
+            <IconButton icon="file_upload" label="Upload" @click="() => $refs.upFile.click()" />
+            <IconButton icon="done" label="Apply" @click="$refs.playlistsElements.forEach(x => x.import())" />
         </div>
-        <div class="action" v-if="false">
-            <h1>Restore From Cloud</h1>
-            <template v-if="userData.user">
-                <h2 v-if="userData.user">Hello {{userData.user.userinfo.name}} ({{userData.user.userinfo.email}})</h2>
-                <button @click="$refs.playlistsElements.forEach(x => x.import())" class="iconWithText"><span class="material-symbols-rounded">cloud_download</span> Synchronise</button>
-            </template>
-            <template v-else>
-                <button @click="login" class="iconWithText"><span class="material-symbols-rounded">login</span> Log In</button>
-            </template>
+        <div class="action">
+            <h2>Synchronise From Github Gists</h2>
+            <IconButton icon="cloud_download" label="Synchronise" @click="$refs.playlistsElements.forEach(x => x.import())" />
         </div>
         <div class="data">
-            <CloudPlaylist @remove="() => cloudPlaylists.splice(index, 1)" ref="playlistsElements" v-for="(playlist, index) in cloudPlaylists" :key="index" :playlist="playlist" :localPlaylists="localPlaylists" />
+            <CloudPlaylist v-for="(playlist, index) in cloudPlaylists" :key="index" ref="playlistsElements" :localPlaylists="localPlaylists" :playlist="playlist" @remove="() => cloudPlaylists.splice(index, 1)" />
         </div>
     </div>
 </template>
 
 <script>
-import CloudPlaylist from '../components/cloudSync/CloudPlaylist.vue';
-import {useDataStore} from "@/store/data";
+import CloudPlaylist from "../components/cloudSync/CloudPlaylist.vue";
+import { useDataStore } from "@/store/data";
+import IconButton from "@/components/inputs/IconButton.vue";
+import GistClient from "@/api/gistClient";
 
 
 export default {
     name: "import",
-    methods: {
-        login() {
-            window.location = `https://eu-apollo.herokuapp.com/user/accessToken?redirect=${encodeURIComponent(window.location.origin + "/#/import/<token>")}`;
-        }
-    },
-    mounted() {
+    async mounted() {
         this.$refs.upFile.addEventListener("change", () => {
             const file = this.$refs.upFile.files?.[0]
             if (!file)
@@ -54,20 +45,14 @@ export default {
                 this.cloudPlaylists = JSON.parse(reader.result);
             }
             reader.readAsText(file);
-            return;
-        })
+
+        });
+
+        this.cloudPlaylists = await GistClient.getContent();
+        console.log(this.cloudPlaylists);
     },
     data() {
         const dataStore = useDataStore();
-
-        if (this.$route.params.data) {
-            const accessToken = this.$route.params.data;
-
-            fetch(`https://eu-apollo.herokuapp.com/user/${accessToken}`).then(async userData => {
-                this.userData = await userData.json()
-                this.cloudPlaylists = this.userData.data.playlists
-            })
-        }
 
         for (let id = 0; id < dataStore.playlists.length; id++) {
             fetch(`/api/playlists/${id}`).then(x => x.json()).then(playlist => this.localPlaylists.push(playlist));
@@ -80,7 +65,7 @@ export default {
             dataStore
         };
     },
-    components: { CloudPlaylist }
+    components: { IconButton, CloudPlaylist }
 }
 </script>
 
