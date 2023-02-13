@@ -13,6 +13,7 @@ import Theme from "../../components/Preferences/Theme.vue";
 import IconButton from "../../components/inputs/IconButton.vue";
 import Dropdown from "../../components/inputs/Dropdown.vue";
 import { getConfig, IConfig, setConfig } from "../../api/config";
+import TextInputWithIcon from "../../components/inputs/TextInputWithIcon.vue";
 
 const spotifyEnabled = ref(false);
 const spotifyClient = ref({
@@ -229,6 +230,28 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
                     label: 'Current Song Only'
                 }]"
                 icon="cached"
+            />
+            <IconButton
+                :disabled="!config || !configChanged"
+                class="ml-auto mt-4"
+                icon="save"
+                label="Save"
+                @click="updateConfig"
+            />
+        </Card>
+        <Card aria-description="github settings" class="p-4 pt-0">
+            <h2 class="mt-[10px]">Github</h2>
+            <h5 class="mt-4">PAT: </h5>
+            <TextInputWithIcon
+                v-if="config"
+                v-model="config.github.githubPat"
+                icon="lock"
+            />
+            <h5 class="mt-4">Gist ID: </h5>
+            <TextInputWithIcon
+                v-if="config"
+                v-model="config.github.gistId"
+                icon="numbers"
             />
             <IconButton
                 :disabled="!config || !configChanged"
