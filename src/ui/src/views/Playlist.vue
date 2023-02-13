@@ -317,10 +317,12 @@ $mobileWidth: 950px;
     vertical-align: middle;
     border-radius: 1000vmax;
     margin-bottom: 1.25rem;
+    transition: all 0.2s ease-in-out;
 
     &:hover {
         background: var(--bg-hover-lt);
         color: var(--fg-secondary);
+        transition: none;
     }
 }
 
