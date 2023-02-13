@@ -14,7 +14,7 @@ from pyaddict import JDict
 
 from helper.singleton import Singleton
 from helper.cacheDecorator import clearCache
-from config.config import SPOTIFY, CACHE, BASE
+from config.config import SPOTIFY, CACHE, BASE, GITHUB
 
 
 class Args(metaclass = Singleton):
@@ -94,6 +94,69 @@ class CacheStrategy(Enum):
     None_ = "none" # pylint: disable=invalid-name
 
 
+class GithubConfig(metaclass = Singleton):
+    """The github config class is used to store the cache configuration."""
+    _FILE = GITHUB
+
+    __slots__ = ("_githubPat",  "_gistId")
+
+    def __init__(self) -> None:
+        self._githubPat: Optional[str] = None
+        self._gistId: Optional[str] = None
+        self._read()
+
+    def _read(self) -> None:
+        """Reads the cache configuration from the config file."""
+        if exists(self._FILE):
+            with open(self._FILE, encoding = "utf-8") as file:
+                config = JDict(json.load(file))
+        else:
+            config = JDict()
+        self._githubPat = config.optionalGet("githubPat", str)
+        self._gistId = config.optionalGet("gistId", str)
+
+    def _write(self) -> None:
+        """Writes the cache configuration to the config file."""
+        with open(self._FILE, "w", encoding = "utf-8") as file:
+            json.dump(self.toDict(), file)
+
+    def update(self, data: Dict[str, Any]) -> None:
+        """Updates the cache configuration."""
+        dex = JDict(data)
+        self._githubPat = dex.get("githubPat", self._githubPat)
+        self._gistId = dex.get("gistId", self._gistId)
+        self._write()
+
+    @property
+    def githubPat(self) -> Optional[str]:
+        """Returns the github id."""
+        return self._githubPat
+
+    @githubPat.setter
+    def githubPat(self, value: str) -> None:
+        """Sets the preserve flag."""
+        self._githubPat = value
+        self._write()
+
+    @property
+    def gistId(self) -> Optional[str]:
+        """Returns the gist id."""
+        return self._gistId
+
+    @gistId.setter
+    def gistId(self, value: str) -> None:
+        """Sets the preserve flag."""
+        self._gistId = value
+        self._write()
+
+    def toDict(self) -> Dict[str, Any]:
+        """Returns a dict representation of the cache configuration."""
+        return {
+            "githubPat": self._githubPat,
+            "gistId": self._gistId
+        }
+
+
 class CacheConfig(metaclass = Singleton):
     """The cache config class is used to store the cache configuration."""
     _FILE = CACHE
@@ -167,9 +230,10 @@ class CacheConfig(metaclass = Singleton):
 
     def toDict(self) -> Dict[str, Any]:
         """Returns a dict representation of the cache configuration."""
-        return {"preserve": self.preserve,
-                "strategy": self._strategy.value,
-                "preserveInSession": self.preserveInSession,
+        return {
+            "preserve": self.preserve,
+            "strategy": self._strategy.value,
+            "preserveInSession": self.preserveInSession,
         }
 
 
@@ -177,6 +241,7 @@ class Runtime:
     """The runtime class is used to store the runtime configuration of the server."""
     args: Args = Args()
     cache: CacheConfig = CacheConfig()
+    github: GithubConfig = GithubConfig()
 
     @staticmethod
     def spotifyConfig() -> Optional[JDict]:
@@ -200,10 +265,12 @@ class Runtime:
         """Updates the configuration."""
         dex = JDict(data)
         Runtime.cache.update(dex.get("cache", {}))
+        Runtime.github.update(dex.get("github", {}))
 
     @staticmethod
     def config() -> Dict[str, Any]:
         """Returns the configuration."""
         return {
-            "cache": Runtime.cache.toDict()
+            "cache": Runtime.cache.toDict(),
+            "github": Runtime.github.toDict()
         }
