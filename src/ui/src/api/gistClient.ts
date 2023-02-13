@@ -41,7 +41,7 @@ const get = async () => {
 
 export default {
     get,
-    getContent: async (filename: string = "one.lib.json"): object => {
+    getContent: async (filename: string = "one.lib.json"): Promise<object> => {
         const gist = await get();
         return JSON.parse(gist.files[filename].content);
     },

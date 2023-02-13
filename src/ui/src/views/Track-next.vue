@@ -15,6 +15,7 @@ import ProgressCircle from "../components/inputs/ProgressCircle.vue";
 import ExternalEntry from "../components/songContainers/ExternalEntry.vue";
 import { usePlayerStore } from "../store/player";
 import TextInputWithIcon from "../components/inputs/TextInputWithIcon.vue";
+import FactCard from "../containers/FactCard.vue";
 
 const route = useRoute();
 const player = usePlayerStore();
@@ -142,50 +143,30 @@ const onSpotifyUrlClick = () => {
                         v-if="metadata && metadata.spotify.features"
                         class="features flex flex-row gap-4 mt-4"
                     >
-                        <Card
-                            class="p-4 w-full"
-                        >
-                            <h2 class="mx-4">
-                                {{ metadata.spotify.features.key }} {{ metadata.spotify.features.mode }}
-                            </h2>
-                            <p class="my-0 text-muted">
-                                Key
-                            </p>
-                            </Card>
-                        <Card
-                                class="p-4 w-full"
-                            >
-                                <h2 class="mx-4">
-                                    {{ getCamelotKey(metadata) }}
-                                </h2>
-                                <p class="my-0 text-muted">
-                                    Camelot
-                                </p>
-                        </Card>
-                        <Card
-                            class="p-4 w-full"
-                        >
-                            <h2 class="mx-4">
-                                {{ Math.round(metadata.spotify.features.tempo) }}
-                            </h2>
-                            <p class="my-0 text-muted">
-                                BPM
-                            </p>
-                        </Card>
-                        <Card
-                            class="p-4 w-full"
-                        >
-                            <h2 class="mx-4">
-                                {{ song.duration }}
-                            </h2>
-                            <p class="my-0 text-muted">
-                                Duration
-                            </p>
-                        </Card>
+                        <FactCard
+                            :primary-text="metadata.spotify.features.key + ' ' + metadata.spotify.features.mode"
+                            class="w-full"
+                            secondary-text="Key"
+                        />
+                        <FactCard
+                            :primary-text="getCamelotKey(metadata)"
+                            class="w-full"
+                            secondary-text="Camelot"
+                        />
+                        <FactCard
+                            :primary-text="Math.round(metadata.spotify.features.tempo)"
+                            class="w-full"
+                            secondary-text="BPM"
+                        />
+                        <FactCard
+                            :primary-text="song.duration"
+                            class="w-full"
+                            secondary-text="Duration"
+                        />
                         </div>
                             <div class="spotify-infos mt-4">
                                 <div class="meta items-center ">
-                                    <span>{{ localeDate(metadata.spotify.releaseDate) }}</span>
+                                    <span class="text-muted">{{ localeDate(metadata.spotify.releaseDate) }}</span>
                                     <span v-if="metadata.spotify.explicit" class="material-symbols-rounded ms-fill">explicit</span>
                                     <span class="flex flex-row align-items">
                                         <span class="material-symbols-rounded ms-fill mr-2">local_fire_department</span>
