@@ -6,7 +6,7 @@
 <template>
     <div class="fixedPlaylistHeader">
         <div class="upperWrapper">
-            <span id="loadPlaylist" class="material-symbols-rounded hideIfMobile" @click="this.$emit('loadPlaylist')">play_circle</span>
+            <span id="loadPlaylist" class="material-symbols-rounded hideIfMobile ms-fill" @click="this.$emit('loadPlaylist')">play_circle</span>
             <h3 class="font-bold">{{title}}</h3>
         </div>
         <div class="padding-20 darkback">

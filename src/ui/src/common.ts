@@ -10,8 +10,8 @@ import { computed } from "vue";
 const playlistHash = new Hashids("reapOne.playlist", 22);
 const hashidsTrack = new Hashids("reapOne.track", 22);
 
-export const hashPlaylist = (id: string): string => {
-    return playlistHash.encode(id);
+export const hashPlaylist = (id: string | number): string => {
+    return playlistHash.encode(String(id));
 }
 
 export const unhashPlaylist = (id: string): number => {
@@ -81,7 +81,7 @@ export interface ISong {
     album: string;
     cover: string;
     favourite?: boolean;
-    duration?: number;
+    duration?: string;
     metadata?: IMetadata;
 }
 
