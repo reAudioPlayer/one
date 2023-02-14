@@ -71,17 +71,21 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     @staticmethod
     def liked(dbManager: DbManager) -> PlayerPlaylist:
         """liked songs"""
+        songs = dbManager.getLikedSongs()
         return PlayerPlaylist(dbManager,
-                              songs = dbManager.getLikedSongs(),
+                              songs = songs,
                               name="Liked Songs",
+                              description = f"your {len(songs)} favourite tracks, automatically updated", # pylint: disable=line-too-long
                               playlistIndex = -1)
 
     @staticmethod
     def breaking(dbManager: DbManager) -> PlayerPlaylist:
         """newest songs"""
+        songs = dbManager.getLatestSongs(25)
         return PlayerPlaylist(dbManager,
-                              songs = dbManager.getLatestSongs(25),
+                              songs = songs,
                               name="Breaking",
+                              description = f"your {len(songs)} newest songs, automatically updated", # pylint: disable=line-too-long
                               playlistIndex = -2)
 
     def _updateCover(self, cover: Optional[str]) -> None:
