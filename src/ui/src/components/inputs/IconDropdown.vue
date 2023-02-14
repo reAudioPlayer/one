@@ -4,8 +4,8 @@
   -->
 
 <script lang="ts" setup>
-import {IDropdownOption} from "../../common";
-import {nextTick, PropType, ref, watch} from "vue";
+import { IDropdownOption } from "../../common";
+import { nextTick, PropType, ref, watch } from "vue";
 
 const props = defineProps({
     modelValue: {
@@ -132,7 +132,7 @@ document.addEventListener("click", () => {
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             display: grid;
-            grid-template-columns: 20px 1fr 20px;
+            grid-template-columns: 35px 1fr 20px;
 
             &:hover {
                 background: var(--bg-hover);

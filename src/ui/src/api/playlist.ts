@@ -3,8 +3,8 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import {hashTrack, IFullPlaylist, IPlaylistMeta} from "../common";
-import {useDataStore} from "../store/data";
+import { hashTrack, IFullPlaylist, IPlaylistMeta, unhashPlaylist } from "../common";
+import { useDataStore } from "../store/data";
 
 const dataStore = useDataStore();
 
@@ -28,7 +28,7 @@ export const updatePlaylistMetadata = async (playlist: IPlaylistMeta) => {
  * fetches a playlist from the server
  * @param id the playlist's id
  */
-export const getPlaylist = async (id: string): Promise<IFullPlaylist> => {
+export const getPlaylist = async (id: string | number): Promise<IFullPlaylist> => {
     const res = await fetch(`/api/playlists/${id}`);
 
     if (res.status === 404) {
@@ -39,7 +39,18 @@ export const getPlaylist = async (id: string): Promise<IFullPlaylist> => {
     for (const song of playlist.songs) {
         song.href = `/track/${hashTrack(song.id)}`;
     }
+
+    playlist.id = id;
+
     return playlist;
+}
+
+/**
+ * fetches a playlist from the server based on its hash
+ * @param hash the playlist's hash
+ */
+export const getPlaylistByHash = async (hash: string): Promise<IFullPlaylist> => {
+    return await getPlaylist(unhashPlaylist(hash));
 }
 
 /**

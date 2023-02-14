@@ -4,51 +4,26 @@
   -->
 
 <template>
-    <div class="playlist">
-        <fixed-playlist-header @click="loadPlaylist" ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }"
-                               :title="playlistName"/>
-        <div class="padding-20" v-observe-visibility="headerVisibilityChanged">
-            <h1>{{ playlistName }}</h1>
-            <h6>Your {{ playlist.length }} favourite tracks, auto-generated just for you</h6>
-        </div>
-        <hr>
-        <div class="padding-20">
-            <span id="loadPlaylist" @click="loadPlaylist" class="material-icons-outlined">play_circle_filled</span>
-            <div class="grid">
-                <PlaylistHeader
-                    class="hideIfMobile"
-                    with-more
-                />
-                <hr>
-                <div class="playlistEntries">
-                    <PlaylistEntry
-                        v-for="(element, index) in playlist"
-                        :key="element.source"
-                        :index="index"
-                        :song="element"
-                        with-cover
-                        with-album
-                        with-more
-                        :playlist-id="id"
-                        @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
-                        @update="updateTracks"
-                        :selected="selectedSongId == element.id"
-                    />
-                </div>
-            </div>
-        </div>
-    </div>
+    <Template
+        :playlist="playlist"
+        :playlist-id="id"
+    />
 </template>
 
 <script>
-import FixedPlaylistHeader from '@/components/Playlist/FixedPlaylistHeader.vue'
-import PlaylistEntry from '@/components/songContainers/PlaylistEntry.vue'
-import PlaylistHeader from '@/components/songContainers/PlaylistHeader.vue'
-import {usePlayerStore} from "@/store/player";
-import {parseCover} from "@/common";
+import FixedPlaylistHeader from "@/components/Playlist/FixedPlaylistHeader.vue";
+import PlaylistEntry from "@/components/songContainers/PlaylistEntry.vue";
+import PlaylistHeader from "@/components/songContainers/PlaylistHeader.vue";
+import { usePlayerStore } from "@/store/player";
+import { parseCover } from "@/common";
+import Index from "@/views/Playlist/index.vue";
+import Template from "@/views/Playlist/Template.vue";
+
 
 export default {
     components: {
+        Template,
+        Index,
         PlaylistEntry,
         FixedPlaylistHeader,
         PlaylistHeader
@@ -67,20 +42,9 @@ export default {
         this.updateTracks()
         return {
             fixedHeaderHidden: true,
-            playlist: [],
-            playlistName: "",
+            playlist: {},
             store: usePlayerStore(),
             selectedSongId: -1
-        }
-    },
-    watch: {
-        currentSong() {
-            this.updateIsPlaying()
-        }
-    },
-    computed: {
-        currentSong() {
-            return this.store.song.id
         }
     },
     methods: {
@@ -89,21 +53,10 @@ export default {
             const data = this.playlist?.[index]
             window.open(`/api/tracks/${data.id}/download`)
         },
-        updateIsPlaying() {
-            console.log("Updating is playing", this.currentSong)
-            this.playlist.forEach((element) => {
-                element.playing = element.id == this.currentSong
-            })
-        },
-        headerVisibilityChanged(a) {
-            this.fixedHeaderHidden = a
-        },
         updateTracks() {
             fetch(this.src)
                 .then(x => x.json()).then(jdata => {
-                this.playlist = jdata.songs
-                this.playlistName = jdata.name
-                this.updateIsPlaying()
+                this.playlist = jdata;
             })
         },
         loadPlaylist() {

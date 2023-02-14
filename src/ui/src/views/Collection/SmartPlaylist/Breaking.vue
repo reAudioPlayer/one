@@ -4,11 +4,10 @@
   -->
 
 <script setup>
-import Index from "@/views/Collection/SmartPlaylist/index";
-</script>
+import Index from "@/views/Collection/SmartPlaylist/index.vue";</script>
 <template>
     <index
-        src="/api/me/new"
         :id="-2"
+        src="/api/me/new"
     />
 </template>

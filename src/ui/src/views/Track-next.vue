@@ -79,7 +79,7 @@ const load = async (spotifyId: string = null) => {
 }
 
 onMounted(load);
-watch(route, load, { deep: true });
+watch(route, () => load(), { deep: true });
 watch(spotifyUrl, () => {
     if (song.value?.metadata?.spotify?.id == parseSpotifyId(spotifyUrl.value, "track")) {
         spotifyUrlIcon.value = "link";
