@@ -5,8 +5,8 @@
 
 <template>
     <div class="cloudPlaylist">
-        <span @click="() => $emit('remove')" class="close material-symbols-rounded">close</span>
-        <img :src="parseCover(cover)">
+        <span class="close material-symbols-rounded" @click="() => $emit('remove')">close</span>
+        <Cover :src="cover" />
         <div class="data">
             <h2>{{playlist.name}}</h2>
             <div class="lead">
@@ -21,10 +21,12 @@
 </template>
 
 <script>
-import {parseCover} from "@/common";
+import { parseCover } from "@/common";
+import Cover from "@/components/image/Cover.vue";
 
 export default {
     name: "cloudPlaylist",
+    components: { Cover },
     props: {
         playlist: Object,
         localPlaylists: Array,
@@ -117,7 +119,7 @@ export default {
     flex-direction: row;
     position: relative;
 
-    background: var(--background-light);
+    background: var(--bg-base-lt);
     padding: 20px;
     border-radius: 20px;
 
