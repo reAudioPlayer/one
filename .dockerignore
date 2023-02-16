@@ -2,6 +2,7 @@
 __pycache__
 
 src/usr
+src/cache
 
 src/server/.cache
 src/server/_cache
