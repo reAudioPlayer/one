@@ -4,8 +4,8 @@
   -->
 
 <script lang="ts" setup>
-import {Playable, usePlayerStore} from "../../store/player";
-import {onMounted, ref, watch} from "vue";
+import { Playable, usePlayerStore } from "../../store/player";
+import { onMounted, ref, watch } from "vue";
 
 const player = usePlayerStore();
 const audio = ref<HTMLAudioElement>(null);
@@ -30,12 +30,16 @@ onMounted(() => {
 });
 
 watch(() => player.song.id, () => {
-    forcePlay = player.playing;
     audio.value.src = null;
     audio.value.src = player.stream;
     audio.value.load();
     player.setPlaying(!audio.value.paused);
 });
+
+const onSongEnded = () => {
+    forcePlay = true;
+    player.onSongEnded();
+}
 
 const play = () => {
     try {
@@ -80,7 +84,7 @@ defineExpose(playable);
         <audio
             ref="audio"
             :src="player.stream"
-            @ended="player.onSongEnded"
+            @ended="onSongEnded"
             @pause="player.setPlaying(false)"
             @play="player.setPlaying(true)"
             @timeupdate="player.setProgress(audio?.currentTime)"
