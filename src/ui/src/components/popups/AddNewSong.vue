@@ -6,10 +6,10 @@
 <script lang="ts" setup>
 import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
-import {ref} from "vue";
-import {hashTrack, isLink, ISong, unhashPlaylist} from "../../common";
-import {addSong, fetchMetadata} from "../../api/song";
-import {useRoute} from "vue-router";
+import { ref } from "vue";
+import { hashTrack, isLink, ISong, unhashPlaylist } from "../../common";
+import { addSong, fetchMetadata } from "../../api/song";
+import { useRoute } from "vue-router";
 
 const route = useRoute();
 
@@ -103,7 +103,7 @@ const show = async () => {
 }
 
 const onSubmit = async _ => {
-    const id = Number(unhashPlaylist(String(route.params.id)));
+    const id = Number(unhashPlaylist(String(route.params.hash)));
     await addSong(id, form.value.toObject());
 }
 
