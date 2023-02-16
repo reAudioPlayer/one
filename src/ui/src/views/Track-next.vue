@@ -5,7 +5,7 @@
 
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
-import { getRecommendations, getSongByHash, getSongMetadata } from "../api/song";
+import { downloadSong, getRecommendations, getSongByHash, getSongMetadata } from "../api/song";
 import { computed, onMounted, ref, watch } from "vue";
 import { getCamelotKey, IMetadata, ISong, ISpotifySong, localeDate, openInNewTab, parseSpotifyId } from "../common";
 import Loader from "../components/Loader.vue";
@@ -16,6 +16,7 @@ import ExternalEntry from "../components/songContainers/ExternalEntry.vue";
 import { usePlayerStore } from "../store/player";
 import TextInputWithIcon from "../components/inputs/TextInputWithIcon.vue";
 import FactCard from "../containers/FactCard.vue";
+import EditSong from "../components/popups/EditSong.vue";
 
 const route = useRoute();
 const player = usePlayerStore();
@@ -103,6 +104,12 @@ const onSpotifyUrlClick = () => {
 </script>
 <template>
 <div class="track p-4">
+    <EditSong
+        v-if="song"
+        ref="updatePopup"
+        :song="song"
+        @update="() => load()"
+    />
     <Loader v-if="!song" />
     <div v-else class="wrap">
         <div
@@ -199,30 +206,48 @@ const onSpotifyUrlClick = () => {
                 />
             </Card>
         </div>
-        <aside class="spotify__features__circles mt-4">
-            <Card
-                v-for="circle in circles"
-                class="p-2"
-            >
-                <ProgressCircle
-                    v-if="circle.key === 'loudness'"
-                    v-model="circle.value"
-                    :display-value="Math.round(-60 + circle.value) + 'dB'"
-                    class="circle"
-                    max="60"
-                />
-                <ProgressCircle
-                    v-else
-                    v-model="circle.value"
-                    :display-value="Math.round(circle.value * 100) + '%'"
-                    class="circle"
-                    max="1"
-                />
-                <p class="text-muted mb-0 text-center text-sm capitalize flex justify-center">
-                    <span class="material-symbols-rounded mr-2">{{circle.icon}}</span>
-                    {{ circle.key }}
-                </p>
-            </Card>
+        <aside class="relative w-full">
+            <div class="fixed pr-4">
+                <div class="ml-4 mb-2 grid grid-cols-2 gap-4">
+                    <Card
+                        class="p-4 flex flex-col w-full items-center justify-center"
+                    >
+                        <span id="addToPlaylist" class="material-symbols-rounded ms-fill" @click="$refs.updatePopup.show()">edit</span>
+                        <span class="text-muted">Edit This Song</span>
+                    </Card>
+                    <Card
+                        class="p-4 flex flex-col w-full items-center justify-center"
+                    >
+                        <span id="addToPlaylist" class="material-symbols-rounded ms-fill" @click="downloadSong(song.id)">download</span>
+                        <span class="text-muted">Download</span>
+                    </Card>
+                </div>
+                <div class="spotify__features__circles">
+                    <Card
+                        v-for="circle in circles"
+                        class="p-2"
+                    >
+                        <ProgressCircle
+                            v-if="circle.key === 'loudness'"
+                            v-model="circle.value"
+                            :display-value="Math.round(-60 + circle.value) + 'dB'"
+                            class="circle"
+                            max="60"
+                        />
+                        <ProgressCircle
+                            v-else
+                            v-model="circle.value"
+                            :display-value="Math.round(circle.value * 100) + '%'"
+                            class="circle"
+                            max="1"
+                        />
+                        <p class="text-muted mb-0 text-center text-sm capitalize flex justify-center">
+                            <span class="material-symbols-rounded mr-2">{{circle.icon}}</span>
+                            {{ circle.key }}
+                        </p>
+                    </Card>
+                </div>
+            </div>
         </aside>
     </div>
 </div>
@@ -283,6 +308,25 @@ const onSpotifyUrlClick = () => {
 
     p {
         text-align: center;
+    }
+}
+
+#loadPlaylist,
+#addToPlaylist {
+    font-size: 3rem;
+    border-radius: 1000vmax;
+    width: 70px;
+    line-height: 70px;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    margin-bottom: 1.25rem;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+        background: var(--bg-hover-lt);
+        color: var(--fg-secondary);
+        transition: none;
     }
 }
 </style>

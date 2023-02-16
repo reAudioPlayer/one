@@ -15,7 +15,13 @@
             <IconButton icon="cloud_upload" label="Synchronise" @click="upload" />
         </div>
         <div class="data">
-            <CloudPlaylist v-for="(playlist, index) in playlists" :key="index" :cloudPlaylists="userData.data?.playlists || []" :playlist="playlist" @remove="() => playlists.splice(index, 1)" />
+            <CloudPlaylist
+                v-for="(playlist, index) in playlists"
+                :key="index"
+                :cloudPlaylists="cloudPlaylists"
+                :playlist="playlist"
+                @remove="() => playlists.splice(index, 1)"
+            />
         </div>
     </div>
 </template>
@@ -26,6 +32,7 @@ import CloudPlaylist from "../components/cloudSync/CloudPlaylist.vue";
 import Hashids from "hashids";
 import GistClient from "@/api/gistClient";
 import IconButton from "@/components/inputs/IconButton.vue";
+import { useDataStore } from "@/store/data";
 
 window.Buffer = Buffer;
 const hashids = new Hashids("reapApollo")
@@ -33,9 +40,6 @@ const hashids = new Hashids("reapApollo")
 export default {
     name: "import",
     methods: {
-        login() {
-            window.location = `https://eu-apollo.herokuapp.com/user/accessToken?redirect=${encodeURIComponent(window.location.origin + "/#/export/<token>")}`;
-        },
         downloadFile() {
             var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.playlists));
             var dlAnchorElem = document.getElementById('downloadAnchorElem');
@@ -45,26 +49,37 @@ export default {
         },
         async upload() {
             console.log(await GistClient.save(this.playlists));
+            this.fetchGists();
+        },
+        async fetchGists() {
+            this.cloudPlaylists = await GistClient.getContent();
+        },
+        async fetchLocalPlaylists() {
+            console.log("fetching local playlists", this.dataStore?.playlists);
+            this.playlists = [ ];
+            for (let id = 0; id < this.dataStore?.playlists?.length; id++) {
+                const res = await fetch(`/api/playlists/${id}`)
+                const playlist = await res.json();
+                this.playlists.push(playlist);
+            }
+        }
+    },
+    watch: {
+        dataStore: {
+            handler() {
+                this.fetchLocalPlaylists();
+            },
+            deep: true
         }
     },
     data() {
-        if (this.$route.params.data) {
-            const accessToken = this.$route.params.data;
-
-            fetch(`https://eu-apollo.herokuapp.com/user/${accessToken}`).then(async userData => this.userData = await userData.json())
-        }
-
-        fetch("/api/playlists").then(async (inRes) => {
-            const playlists = await inRes.json();
-            for (let id = 0; id < playlists.length; id++) {
-                const res = await fetch(`/api/playlists/${id}`);
-                this.playlists.push(await res.json());
-            }
-        });
+        this.fetchGists();
 
         return {
             playlists: [],
-            userData: { }
+            userData: { },
+            cloudPlaylists: [],
+            dataStore: useDataStore()
         };
     },
     components: { IconButton, CloudPlaylist }
