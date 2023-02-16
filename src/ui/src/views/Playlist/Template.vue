@@ -5,7 +5,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, watch } from "vue";
-import { IFullPlaylist, ISong } from "../../common";
+import { IFullPlaylist } from "../../common";
 import Loader from "../../components/Loader.vue";
 import Cover from "../../components/image/Cover.vue";
 import Card from "../../containers/Card.vue";
@@ -19,6 +19,7 @@ import {
     applyFilters,
     artistOptions,
     filterApplied,
+    IFilteredSong,
     IPlaylistFilters,
     titleOptions,
 } from "./applyFilters";
@@ -60,11 +61,11 @@ const emit = defineEmits<{
 }>();
 
 const player = usePlayerStore();
-const songs = ref(props.playlist?.songs ?? [] as ISong[]);
+const songs = ref(props.playlist?.songs ?? [] as IFilteredSong[]);
 const fixedHeaderHidden = ref(true);
 const selectedSongId = ref(null as number | null);
 const defaultFilters = () => ({
-    sort: "added",
+    sort: "index",
     order: "asc",
     search: "",
     title: [],
@@ -94,7 +95,7 @@ const sortOptions = [{
     label: "Duration",
     icon: "timer",
 }, {
-    value: "added",
+    value: "index",
     label: "Added",
     icon: "date_range",
 }];
@@ -297,11 +298,14 @@ const onObserveVisibility = (isVisible, entry) => {
             <div class="items">
                 <draggable
                     v-model="songs"
+                    :class="filters.order == 'asc' ? 'flex-col' : 'flex-col-reverse'"
                     :disabled="filterApplied(filters)"
+                    class="flex"
                     @change="onPlaylistRearrange"
                 >
                     <template #item="{element}">
                         <PlaylistEntry
+                            v-show="element.show"
                             :index="playlist.songs.findIndex(x => x.source == element.source)"
                             :playlist-id="playlistId"
                             :selected="selectedSongId == element.id"
