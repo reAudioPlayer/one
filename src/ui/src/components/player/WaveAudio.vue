@@ -4,8 +4,8 @@
   -->
 
 <script lang="ts" setup>
-import {Playable, usePlayerStore} from "../../store/player";
-import {onMounted, ref, watch} from "vue";
+import { Playable, usePlayerStore } from "../../store/player";
+import { onMounted, ref, watch } from "vue";
 import WaveSurfer from "wavesurfer.js";
 
 // @ts-ignore
@@ -29,6 +29,7 @@ onMounted(() => {
         pixelRatio: 1,
         responsive: true,
         barGap: 0,
+        backend: 'MediaElement'
     });
     audio.value.on("play", () => {
         player.setPlaying(true);
