@@ -16,7 +16,13 @@
             <IconButton icon="cloud_download" label="Synchronise" @click="$refs.playlistsElements.forEach(x => x.import())" />
         </div>
         <div class="data">
-            <CloudPlaylist v-for="(playlist, index) in cloudPlaylists" :key="index" ref="playlistsElements" :localPlaylists="localPlaylists" :playlist="playlist" @remove="() => cloudPlaylists.splice(index, 1)" />
+            <CloudPlaylist
+                v-for="(playlist, index) in cloudPlaylists"
+                :key="index" ref="playlistsElements"
+                :localPlaylists="localPlaylists"
+                :playlist="playlist"
+                @remove="() => cloudPlaylists.splice(index, 1)"
+            />
         </div>
     </div>
 </template>
@@ -45,18 +51,28 @@ export default {
                 this.cloudPlaylists = JSON.parse(reader.result);
             }
             reader.readAsText(file);
-
         });
 
         this.cloudPlaylists = await GistClient.getContent();
-        console.log(this.cloudPlaylists);
+    },
+    methods: {
+        fetchLocalPlaylists() {
+            this.localPlaylists = [ ];
+            for (let id = 0; id < this.dataStore.playlists.length; id++) {
+                fetch(`/api/playlists/${id}`).then(x => x.json()).then(playlist => this.localPlaylists.push(playlist));
+            }
+        }
+    },
+    watch: {
+        dataStore: {
+            handler() {
+                this.fetchLocalPlaylists();
+            },
+            deep: true
+        }
     },
     data() {
         const dataStore = useDataStore();
-
-        for (let id = 0; id < dataStore.playlists.length; id++) {
-            fetch(`/api/playlists/${id}`).then(x => x.json()).then(playlist => this.localPlaylists.push(playlist));
-        }
 
         return {
             localPlaylists: [ ],

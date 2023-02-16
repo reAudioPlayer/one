@@ -20,9 +20,10 @@
     </div>
 </template>
 
-<script>
-import { parseCover } from "@/common";
+<script lang="ts">
+import { IFullPlaylist, ISong, parseCover } from "../../common";
 import Cover from "@/components/image/Cover.vue";
+import { addSong } from "../../api/song";
 
 export default {
     name: "cloudPlaylist",
@@ -34,14 +35,29 @@ export default {
     },
     data() {
         return {
-            statusText: ""
+            statusText: "",
+            toAdd: [] as ISong[],
         }
     },
     methods: {
         parseCover,
-        import() {
+        async import() {
             if (this.statusIcon == "cloud_done")
             {
+                return;
+            }
+
+            if (this.statusIcon == "cloud_sync")
+            {
+                for (let i = 0; i < this.toAdd.length; i++)
+                {
+                    const song = this.toAdd[i];
+                    this.statusText = `adding song ${i} / ${this.toAdd.length - 1}...`
+
+                    await addSong(this.localPlaylist.id, song);
+                }
+
+                this.statusText = "";
                 return;
             }
 
@@ -49,46 +65,70 @@ export default {
             {
                 this.statusText = "creating playlist...";
 
-                fetch("/api/playlists/new").then(async create => {
-                    this.statusText = "updating playlist...";
+                const create = await fetch("/api/playlists/new");
+                this.statusText = "updating playlist...";
 
-                    const id = Number(await create.text());
+                const id = Number(await create.text());
 
-                    await fetch(`/api/playlists/${id}`, {
+                await fetch(`/api/playlists/${id}`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        name: this.playlist.name,
+                        description: this.playlist.description
+                    })
+                });
+
+                for (let i = 0; i < this.playlist.songs.length; i++)
+                {
+                    const song = this.playlist.songs[i];
+                    this.statusText = `adding song ${i} / ${this.playlist.songs.length - 1}...`
+
+                    await fetch(`/api/playlists/${id}/tracks`, {
                         method: "POST",
                         body: JSON.stringify({
-                            name: this.playlist.name,
-                            description: this.playlist.description
+                            source: song.source,
+                            title: song.title,
+                            artist: song.artist,
+                            album: song.album,
+                            cover: song.cover,
+                            favourite: song.favourite,
+                            duration: song.duration
                         })
-                    });
+                    })
+                }
 
-                    for (let i = 0; i < this.playlist.songs.length; i++)
-                    {
-                        const song = this.playlist.songs[i];
-                        this.statusText = `adding song ${i} / ${this.playlist.songs.length - 1}...`
-
-                        await fetch(`/api/playlists/${id}/tracks`, {
-                            method: "POST",
-                            body: JSON.stringify({
-                                source: song.source,
-                                title: song.title,
-                                artist: song.artist,
-                                album: song.album,
-                                cover: song.cover,
-                                favourite: song.favourite,
-                                duration: song.duration
-                            })
-                        })
-                    }
-
-                    this.statusText = "";
-                });
+                this.statusText = "";
             }
+        },
+        songEquals(a: ISong, b: ISong) {
+            if (!a || !b)
+            {
+                return false;
+            }
+
+            return a.source == b.source &&
+                a.title == b.title &&
+                a.artist == b.artist &&
+                a.album == b.album &&
+                a.cover == b.cover;
         }
     },
     computed: {
         cover() {
             return this.playlist.cover || this.playlist.songs?.[0]?.cover || "/assets/img/music_placeholder.png"
+        },
+        localPlaylist() {
+            for (let i = 0; i < this.localPlaylists.length; i++)
+            {
+                const playlist = this.localPlaylists[i];
+                if (playlist.name == this.playlist.name)
+                {
+                    return {
+                        ...playlist,
+                        id: i
+                    };
+                }
+            }
         },
         statusIcon() {
             if (this.statusText)
@@ -96,18 +136,37 @@ export default {
                 return "cloud_sync"
             }
 
-            const other = this.localPlaylists || this.cloudPlaylists
-            if (other.filter(x => JSON.stringify(x) == JSON.stringify(this.playlist) ).length)
+            const others: IFullPlaylist[] = this.localPlaylists || this.cloudPlaylists
+            const other = others.filter(x => x.name == this.playlist.name)?.[0];
+
+            if (!other)
             {
-                return "cloud_done"
+                return this.localPlaylists ? "cloud" : "cloud_off"
             }
 
-            if (other.filter(x => x.name == this.playlist.name).length)
+            if (this.playlist.description != other.description)
             {
                 return "cloud_sync"
             }
 
-            return this.localPlaylists ? "cloud" : "cloud_off"
+            this.toAdd = [];
+            for (let i = 0; i < this.playlist.songs.length; i++)
+            {
+                const song = this.playlist.songs[i];
+                const otherSong = other.songs?.[i];
+
+                if (!this.songEquals(song, otherSong))
+                {
+                    this.toAdd.push(song);
+                }
+            }
+
+            if (this.toAdd.length)
+            {
+                return "cloud_sync";
+            }
+
+            return "cloud_done";
         }
     }
 }

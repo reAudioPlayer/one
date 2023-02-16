@@ -17,6 +17,8 @@ const props = defineProps({
     }
 })
 
+const emit = defineEmits(["close", "update"]);
+
 const upload = async (endpoint: string, file: File) => {
     const data = new FormData()
     const ext = "." + file.name.split('.').pop();
@@ -77,6 +79,7 @@ const onSubmit = async () => {
         ...props.song,
         ...form.value.toObject()
     });
+    emit("update");
 }
 
 const modal = ref(null);
