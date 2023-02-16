@@ -5,13 +5,13 @@
 
 <script setup>
 import PlayerInPicture from "./PlayerInPicture.vue";
-import Header from './Header.vue';
+import Header from "./Header.vue";
 
-import {usePlayerStore} from "@/store/player";
-import {computed, ref, watch} from "vue";
+import { usePlayerStore } from "@/store/player";
+import { computed, ref, watch } from "vue";
 import Startup from "@/views/Startup.vue";
-import {parseAnyCover} from "@/common";
-import {initPictureInPicture} from "@/pictureInPicture";
+import { parseAnyCover } from "@/common";
+import { initPictureInPicture } from "@/pictureInPicture";
 
 initPictureInPicture();
 
@@ -298,7 +298,7 @@ body {
     height: 100%;
     width: 100%;
     z-index: 0 !important;
-    filter: blur(100px);
+    filter: blur(100px) brightness(0.75);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
