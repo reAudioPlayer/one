@@ -6,4 +6,5 @@ services:
       - "1234:80"
     volumes:
       - ./src/usr/:/opt/reAudioPlayer/usr/
+      - ./src/cache/:/opt/reAudioPlayer/server/_cache/
     stop_signal: SIGTERM
