@@ -6,9 +6,9 @@
 <script lang="ts" setup>
 import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
-import {PropType, ref} from "vue";
-import {ISong} from "../../common";
-import {updateSong} from "../../api/song";
+import { PropType, ref, watch } from "vue";
+import { ISong } from "../../common";
+import { updateSong } from "../../api/song";
 
 const props = defineProps({
     song: {
@@ -89,6 +89,12 @@ const show = () => {
 defineExpose({
     show
 })
+
+watch(props, () => {
+    for (const option of options.value.map(x => x.name)) {
+        options.value.find(x => x.name == option).value = props.song?.[option];
+    }
+}, {deep: true})
 </script>
 <template>
     <Template

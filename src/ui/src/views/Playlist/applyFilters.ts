@@ -10,29 +10,35 @@ export interface IPlaylistFilters {
     artist: string[];
     title: string[];
     album: string[];
-    sort: "title" | "artist" | "album" | "duration" | "added";
+    sort: "title" | "artist" | "album" | "duration" | "index";
     order: "asc" | "desc";
+}
+
+export interface IFilteredSong extends ISong {
+    show: boolean;
+    index: number;
 }
 
 export const filterApplied = (filters: IPlaylistFilters) => {
     const { search, artist, title, album, order, sort } = filters;
-    return search.length || artist.length || title.length || album.length || order != "asc" || sort != "added";
+    return search.length || artist.length || title.length || album.length || order != "asc" || sort != "index";
 }
 
-export const applyFilters = (songs: ISong[], filters: IPlaylistFilters): ISong[] => {
-    const { search, artist, title, album } = filters;
+export const applyFilters = (songs: ISong[], filters: IPlaylistFilters): IFilteredSong[] => {
+    const { search, artist, title, album, sort } = filters;
 
-    const filtered = songs.filter((song) => {
+    return songs.map((song) => {
         const searchMatch = search.length ? song.title.toLowerCase().includes(search.toLowerCase()) || song.artist.toLowerCase().includes(search.toLowerCase()) : true;
         const artistMatch = artist.length ? artist.includes(song.artist) : true;
         const titleMatch = title.length ? title.includes(song.title) : true;
         const albumMatch = album.length ? album.includes(song.album) : true;
 
-        return searchMatch && artistMatch && titleMatch && albumMatch;
-    });
-
-    const { sort } = filters;
-    let sorted = filtered.sort((a, b) => {
+        return {
+            ...song,
+            show: searchMatch && artistMatch && titleMatch && albumMatch,
+            index: songs.indexOf(song),
+        }
+    }).sort((a, b) => {
         const aVal = a[sort];
         const bVal = b[sort];
 
@@ -44,14 +50,6 @@ export const applyFilters = (songs: ISong[], filters: IPlaylistFilters): ISong[]
             return 0;
         }
     });
-
-    const { order } = filters;
-
-    if (order == "desc") {
-        sorted = sorted.reverse();
-    }
-
-    return sorted;
 }
 
 export const titleOptions = (songs: ISong[]) => {

@@ -4,12 +4,12 @@
   -->
 
 <script lang="ts" setup>
-import {computed, PropType, ref} from "vue";
-import {ISong} from "../../common";
-import {playInPicture} from "../../api/playerInPicture";
-import {useDataStore} from "../../store/data";
-import {createPlaylistWithMetadata, removeSongFromPlaylist} from "../../api/playlist";
-import {addSong as addSongToPlaylist, downloadSong} from "../../api/song";
+import { computed, PropType, ref } from "vue";
+import { ISong } from "../../common";
+import { playInPicture } from "../../api/playerInPicture";
+import { useDataStore } from "../../store/data";
+import { createPlaylistWithMetadata, removeSongFromPlaylist } from "../../api/playlist";
+import { addSong as addSongToPlaylist, downloadSong } from "../../api/song";
 
 const dataStore = useDataStore();
 
@@ -83,19 +83,19 @@ defineExpose({
     show, toggle, hide
 });
 
-const sources = {
+const sources = computed( () => ({
     "Soundcloud": `https://soundcloud.com/search?q=${props.song.artist} ${props.song.title}`,
     "Audius": `https://audius.co/search/${props.song.artist} ${props.song.title}`,
     "Youtube Music": `https://music.youtube.com/search?q=${props.song.artist} ${props.song.title}`,
     "Spotify": `https://open.spotify.com/search/${props.song.artist} ${props.song.title}`
-}
+}));
 
 const editSong = () => {
     emit('edit');
 }
 
 const openSource = (source: string) => {
-    window.open(sources[source]);
+    window.open(sources.value[source]);
     editSong();
 }
 </script>
