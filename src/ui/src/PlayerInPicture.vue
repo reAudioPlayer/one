@@ -19,7 +19,8 @@
 </template>
 
 <script>
-import Marquee from '@/components/Marquee.vue'
+import Marquee from "@/components/Marquee.vue";
+import { usePlayerStore } from "@/store/player";
 
 export const playInPicture = (title, artist, source) => {
     const event = new CustomEvent('player.play', { detail: {
@@ -70,7 +71,8 @@ export const playInPicture = (title, artist, source) => {
                 container.style.cursor='move';
                 var diffX = posX - divLeft,
                     diffY = posY - divTop;
-                document.onmousemove = (evt) => {
+
+                document.onmousemove = evt => {
                     evt = evt || window.event;
                     evt.preventDefault();
                     evt.stopPropagation();
@@ -83,7 +85,7 @@ export const playInPicture = (title, artist, source) => {
                     if (aX + eWi > cWi) aX = cWi - eWi;
                     if (aY + eHe > cHe) aY = cHe - eHe;
                     this.divMove(divid,aX,aY);
-                }
+                };
             },
             mouseUp() {
                 document.getElementById("appRoot").style.cursor='default';
@@ -97,13 +99,15 @@ export const playInPicture = (title, artist, source) => {
                 divid.style.top = ypos + 'px';
             }
         },
-        setup() {},
         data() {
+            const player = usePlayerStore();
 
             window.addEventListener('player.play', e => {
                 const song = e.detail;
                 const url = song.source;
                 this.name = `${song.artist} - ${song.title}`
+
+                player.pause();
 
                 if (url.includes("youtu"))
                 {
@@ -172,7 +176,8 @@ export const playInPicture = (title, artist, source) => {
                 el: null,
                 minimised: true,
                 disabled: true,
-                name: ""
+                name: "",
+                track: false
             }
         }
     }

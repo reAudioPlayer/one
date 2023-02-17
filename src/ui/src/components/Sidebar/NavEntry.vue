@@ -4,10 +4,10 @@
   -->
 
 <template>
-    <router-link class="link" :to="href">
-        <div class="navEntry" :class="{ active, img }">
+    <router-link :to="href" class="link">
+        <div :class="{ active, img }" class="navEntry">
             <span v-if="icon" class="material-icons-round icon">{{icon}}</span>
-            <Cover v-if="img" class="icon" :src="img" type="playlist" />
+            <Cover v-if="img" :src="img" class="icon" type="playlist" />
             <span v-if="!minimised" class="name hideIfMobile">{{name}}</span>
         </div>
     </router-link>
@@ -16,7 +16,7 @@
 <script>
 import Cover from "@/components/image/Cover.vue";
 
-    export default {
+export default {
         name: 'NavEntry',
         components: {
             Cover
@@ -46,7 +46,7 @@ import Cover from "@/components/image/Cover.vue";
     }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
     $horizontalWidth: 1200px;
     $mobileWidth: 950px;
 
@@ -86,12 +86,12 @@ import Cover from "@/components/image/Cover.vue";
     .icon {
         width: 34px;
 
-        @media screen and (max-width: $mobileWidth) {
-            width: 34px;
+        :has:not(.material-symbols-rounded) {
+            height: 34px;
         }
     }
 
-    img.icon {
+    .icon {
         width: 100%;
         border-radius: 3px;
     }

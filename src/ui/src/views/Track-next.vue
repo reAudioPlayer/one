@@ -17,6 +17,7 @@ import { usePlayerStore } from "../store/player";
 import TextInputWithIcon from "../components/inputs/TextInputWithIcon.vue";
 import FactCard from "../containers/FactCard.vue";
 import EditSong from "../components/popups/EditSong.vue";
+import ButtonCard from "../containers/ButtonCard.vue";
 
 const route = useRoute();
 const player = usePlayerStore();
@@ -111,7 +112,7 @@ const onSpotifyUrlClick = () => {
         @update="() => load()"
     />
     <Loader v-if="!song" />
-    <div v-else class="wrap">
+    <div v-else>
         <div
             class="track__data"
         >
@@ -151,16 +152,19 @@ const onSpotifyUrlClick = () => {
                         class="features flex flex-row gap-4 mt-4"
                     >
                         <FactCard
+                            v-if="metadata"
                             :primary-text="metadata.spotify.features.key + ' ' + metadata.spotify.features.mode"
                             class="w-full"
                             secondary-text="Key"
                         />
                         <FactCard
+                            v-if="metadata"
                             :primary-text="getCamelotKey(metadata)"
                             class="w-full"
                             secondary-text="Camelot"
                         />
                         <FactCard
+                            v-if="metadata"
                             :primary-text="Math.round(metadata.spotify.features.tempo)"
                             class="w-full"
                             secondary-text="BPM"
@@ -170,6 +174,14 @@ const onSpotifyUrlClick = () => {
                             class="w-full"
                             secondary-text="Duration"
                         />
+                        <FactCard
+                            v-if="metadata"
+                            :primary-text="metadata.plays"
+                            class="w-full"
+                            secondary-text="Plays"
+                        />
+                        <ButtonCard icon="edit" label="Edit" @click="$refs.updatePopup.show()" />
+                        <ButtonCard icon="download" label="Download" @click="downloadSong(song.id)" />
                         </div>
                             <div class="spotify-infos mt-4">
                                 <div class="meta items-center ">
@@ -189,66 +201,50 @@ const onSpotifyUrlClick = () => {
                     </template>
                 </div>
             </div>
-            <Card
-                v-if="recommendations.length"
-                class="p-4 mt-8"
-            >
-                <h2 class="!text-left">Similar Songs</h2>
-                <ExternalEntry
-                    v-for="(recommendation, index) in recommendations"
-                    :key="index"
-                    :index="index"
-                    :song="recommendation"
-                    can-import
-                    cannot-add
-                    with-album
-                    with-cover
-                />
-            </Card>
         </div>
-        <aside class="relative w-full">
-            <div class="fixed pr-4">
-                <div class="ml-4 mb-2 grid grid-cols-2 gap-4">
-                    <Card
-                        class="p-4 flex flex-col w-full items-center justify-center"
-                    >
-                        <span id="addToPlaylist" class="material-symbols-rounded ms-fill" @click="$refs.updatePopup.show()">edit</span>
-                        <span class="text-muted">Edit This Song</span>
-                    </Card>
-                    <Card
-                        class="p-4 flex flex-col w-full items-center justify-center"
-                    >
-                        <span id="addToPlaylist" class="material-symbols-rounded ms-fill" @click="downloadSong(song.id)">download</span>
-                        <span class="text-muted">Download</span>
-                    </Card>
-                </div>
-                <div class="spotify__features__circles">
-                    <Card
-                        v-for="circle in circles"
-                        class="p-2"
-                    >
-                        <ProgressCircle
-                            v-if="circle.key === 'loudness'"
-                            v-model="circle.value"
-                            :display-value="Math.round(-60 + circle.value) + 'dB'"
-                            class="circle"
-                            max="60"
-                        />
-                        <ProgressCircle
-                            v-else
-                            v-model="circle.value"
-                            :display-value="Math.round(circle.value * 100) + '%'"
-                            class="circle"
-                            max="1"
-                        />
-                        <p class="text-muted mb-0 text-center text-sm capitalize flex justify-center">
-                            <span class="material-symbols-rounded mr-2">{{circle.icon}}</span>
-                            {{ circle.key }}
-                        </p>
-                    </Card>
-                </div>
+        <div class="relative w-full mt-4">
+            <div class="spotify__features__circles">
+                <Card
+                    v-for="circle in circles"
+                    class="p-2"
+                >
+                    <ProgressCircle
+                        v-if="circle.key === 'loudness'"
+                        v-model="circle.value"
+                        :display-value="Math.round(-60 + circle.value) + 'dB'"
+                        class="circle"
+                        max="60"
+                    />
+                    <ProgressCircle
+                        v-else
+                        v-model="circle.value"
+                        :display-value="Math.round(circle.value * 100) + '%'"
+                        class="circle"
+                        max="1"
+                    />
+                    <p class="text-muted mb-0 text-center text-sm capitalize flex justify-center">
+                        <span class="material-symbols-rounded mr-2">{{circle.icon}}</span>
+                        {{ circle.key }}
+                    </p>
+                </Card>
             </div>
-        </aside>
+        </div>
+        <Card
+            v-if="recommendations.length"
+            class="p-4 mt-4"
+        >
+            <h2 class="!text-left">Similar Songs</h2>
+            <ExternalEntry
+                v-for="(recommendation, index) in recommendations"
+                :key="index"
+                :index="index"
+                :song="recommendation"
+                can-import
+                cannot-add
+                with-album
+                with-cover
+            />
+        </Card>
     </div>
 </div>
 </template>
@@ -281,22 +277,15 @@ const onSpotifyUrlClick = () => {
     }
 }
 
-.wrap {
-    grid-template-columns: 2fr 1fr;
-    display: grid;
-    align-items: start;
-}
-
 .spotify__features__circles {
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
     justify-content: flex-end;
     gap: 1rem;
-    margin-left: 1rem;
 
     div {
-        min-width: 150px;
+        min-width: 100px;
         flex: 1;
     }
 
@@ -308,25 +297,6 @@ const onSpotifyUrlClick = () => {
 
     p {
         text-align: center;
-    }
-}
-
-#loadPlaylist,
-#addToPlaylist {
-    font-size: 3rem;
-    border-radius: 1000vmax;
-    width: 70px;
-    line-height: 70px;
-    text-align: center;
-    vertical-align: middle;
-    cursor: pointer;
-    margin-bottom: 1.25rem;
-    transition: all 0.2s ease-in-out;
-
-    &:hover {
-        background: var(--bg-hover-lt);
-        color: var(--fg-secondary);
-        transition: none;
     }
 }
 </style>

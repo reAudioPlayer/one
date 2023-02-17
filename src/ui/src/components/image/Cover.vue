@@ -3,9 +3,10 @@
   - Licenced under the GNU General Public License v3.0
   -->
 
-<script setup lang="ts">
-import {computed, PropType, ref, watch} from "vue";
-import {parseAnyCover, parseCover, parsePlaylistCover} from "../../common";
+<script lang="ts" setup>
+import { computed, PropType, ref, watch } from "vue";
+import { parseAnyCover } from "../../common";
+import Placeholder from "./Placeholder.vue";
 
 const props = defineProps({
     src: {
@@ -17,18 +18,43 @@ const props = defineProps({
         required: false,
         default: "track"
     },
+    placeholder: {
+        type: String,
+        required: false,
+    }
+});
+
+const placeholderIcon = computed(() => {
+    if (props.placeholder) {
+        return props.placeholder;
+    }
+    return props.type === "track" ? "music_note" : "queue_music";
 });
 
 const src = ref(props.src);
+
+const realSrc = computed(() => {
+    if (src.value) {
+        return parseAnyCover(src.value);
+    }
+    return null;
+});
+
 watch(() => props.src, () => {
     src.value = props.src;
 });
 </script>
 <template>
     <img
-        :src="parseAnyCover(src, type)"
+        v-if="realSrc"
         :alt="props.type"
+        :src="realSrc"
         class="cover"
         @error="src = null"
+    />
+    <Placeholder
+        v-else
+        :icon="placeholderIcon"
+        class="cover"
     />
 </template>

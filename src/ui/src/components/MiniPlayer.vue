@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { playInPicture } from "@/api/playerInPicture";
+import { playInPicture } from "@/PlayerInPicture.vue";
 
 export default {
     name: "MiniPlayer",

@@ -78,12 +78,14 @@ defineExpose({
                         type="text"
                         @change="option?.onChange(option.value)"
                     />
-                    <Cover
-                        v-if="option.imagePreview"
-                        :src="parseCover(option.value)"
-                        class="imagePreview"
-                        @click="openInNewTab(option.value)"
-                    />
+                    <div class="imagePreview">
+                        <Cover
+                            v-if="option.imagePreview"
+                            :src="parseCover(option.value)"
+                            class="cover"
+                            @click="openInNewTab(option.value)"
+                        />
+                    </div>
                 </template>
                 <template v-else-if="option.type == 'dropdown'">
                     <Dropdown
@@ -135,15 +137,18 @@ defineExpose({
         font-variation-settings: "wght" 300;
     }
 
-    img.imagePreview {
-        height: 42px;
-        width: 42px;
+    .imagePreview {
+        min-width: 42px;
+        max-width: 42px;
         margin-left: 10px;
-        border-radius: 5px;
 
-        &:hover {
-            cursor: pointer;
-            filter: grayscale(0.4) blur(2px);
+        .cover {
+            border-radius: 5px;
+
+            &:hover {
+                cursor: pointer;
+                filter: grayscale(0.4) blur(2px);
+            }
         }
     }
 }

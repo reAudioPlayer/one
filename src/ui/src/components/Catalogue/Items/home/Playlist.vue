@@ -30,7 +30,7 @@ defineProps({
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 .home-playlist {
     background: var(--bg-base-lt);
@@ -48,7 +48,7 @@ defineProps({
 
     margin: 10px;
 
-    img {
+    .cover {
         border-radius: 12px;
         width: 100%;
     }

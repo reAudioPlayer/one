@@ -8,6 +8,7 @@ import Index from "@/views/Collection/SmartPlaylist/index.vue";</script>
 <template>
     <index
         :id="-2"
+        icon="trending_up"
         src="/api/me/new"
     />
 </template>

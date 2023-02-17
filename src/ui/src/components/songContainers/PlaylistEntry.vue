@@ -226,10 +226,10 @@ const update = () => {
     .cover {
         display: flex;
         justify-content: center;
+        border-radius: 4px;
     }
 
     img {
-        border-radius: 4px;
         margin: auto 0;
     }
 
