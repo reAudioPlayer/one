@@ -7,7 +7,7 @@ import argparse
 from os.path import exists
 import os
 import json
-from typing import Optional, Dict, Any, Set, Awaitable, Callable
+from typing import Optional, Dict, Any, Set, Coroutine, Callable
 from enum import Enum
 import asyncio
 
@@ -158,6 +158,9 @@ class GithubConfig(metaclass = Singleton):
         }
 
 
+StrategyChangeCallback = Callable[[CacheStrategy], Coroutine[None, None, None]]
+
+
 class CacheConfig(metaclass = Singleton):
     """The cache config class is used to store the cache configuration."""
     _FILE = CACHE
@@ -169,17 +172,12 @@ class CacheConfig(metaclass = Singleton):
         self._preserveInSession = False
         self._strategy = CacheStrategy.Current
         self._read()
-        self._onStrategyChange: Set[Callable[[CacheStrategy], Awaitable[None]]] = set()
+        self._onStrategyChange: Set[StrategyChangeCallback] = set()
 
     @property
-    def onStrategyChange(self) -> Set[Callable[[CacheStrategy], Awaitable[None]]]:
+    def onStrategyChange(self) -> Set[StrategyChangeCallback]:
         """Returns the on strategy change event."""
         return self._onStrategyChange
-
-    def addOnStrategyChange(self, callback: Callable[[CacheStrategy], Awaitable[None]]) -> None:
-        """Adds a callback to the on strategy change event."""
-        self._onStrategyChange.add(callback)
-        asyncio.create_task(callback(self._strategy))
 
     def _read(self) -> None:
         """Reads the cache configuration from the config file."""

@@ -18,8 +18,8 @@ class Table(Enum):
     """table enum"""
     SONGS = "Songs"
     PLAYLISTS = "Playlists"
-    SONG_META = "SongMeta"
-    PLAYLIST_META = "PlaylistMeta"
+    SONG_META = "SongMeta" # pylint: disable=invalid-name
+    PLAYLIST_META = "PlaylistMeta" # pylint: disable=invalid-name
     ARTISTS = "Artists"
 
 
@@ -142,7 +142,7 @@ class DbManager: # pylint: disable=too-many-public-methods
         """get latest songs"""
         with self._db:
             return self._castToSongList(
-                self._db.execute(f"SELECT * FROM {Table.SONGS.value} ORDER BY id DESC LIMIT {count}"))
+                self._db.execute(f"SELECT * FROM {Table.SONGS.value} ORDER BY id DESC LIMIT {count}")) # pylint: disable=line-too-long
 
     def getLikedSongs(self) -> List[Song]:
         """get liked songs"""
@@ -185,7 +185,7 @@ class DbManager: # pylint: disable=too-many-public-methods
     def addPlaylist(self, playlist: Playlist) -> None:
         """add playlist to db"""
         with self._db:
-            sql = f'INSERT INTO {Table.PLAYLISTS.value} (name, description, songs, cover) values(?, ?, ?, ?)'
+            sql = f'INSERT INTO {Table.PLAYLISTS.value} (name, description, songs, cover) values(?, ?, ?, ?)' # pylint: disable=line-too-long
             data = [
                 playlist.sql()
             ]

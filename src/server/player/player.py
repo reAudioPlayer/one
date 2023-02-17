@@ -64,7 +64,7 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         Player._INSTANCE = self # pylint: disable=protected-access
         self._strategy: Optional[ICacheStrategy] = None
         Runtime.cache.onStrategyChange.add(self._onStrategyChange)
-        self._incrementPlayCountTask: Optional[asyncio.Task] = None
+        self._incrementPlayCountTask: Optional[asyncio.Task[None]] = None
 
     @classmethod
     def getInstance(cls) -> Player:
@@ -93,7 +93,7 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         async def _incrementPlayCount() -> None:
             await asyncio.sleep(30)
             newSong.ensureMetadata.plays += 1
-            await self._dbManager.updateMeta(newSong.ensureMetadata)
+            self._dbManager.updateMeta(newSong.ensureMetadata)
         self._incrementPlayCountTask = asyncio.create_task(_incrementPlayCount())
 
 
