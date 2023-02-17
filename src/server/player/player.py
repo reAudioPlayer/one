@@ -4,8 +4,9 @@ from __future__ import annotations
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import logging
+import asyncio
 
-from typing import Awaitable, Callable, Optional
+from typing import Awaitable, Callable, Optional, TYPE_CHECKING
 
 from config.runtime import Runtime
 from config.cacheStrategy import ICacheStrategy
@@ -21,6 +22,10 @@ from player.playlistManager import PlaylistManager
 
 from downloader.downloader import Downloader
 
+if TYPE_CHECKING:
+    from config.runtime import CacheStrategy
+
+
 
 class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attributes
     """Player"""
@@ -35,7 +40,9 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         "_shuffle",
         "_logger",
         "_playlistChangeCallback",
-        "_songChangeCallback"
+        "_songChangeCallback",
+        "_strategy",
+        "_incrementPlayCountTask"
     )
     _INSTANCE: Optional[Player] = None
 
@@ -55,6 +62,9 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         self._playlistChangeCallback: Optional[Callable[[PlayerPlaylist], Awaitable[None]]] = None
         self._songChangeCallback: Optional[Callable[[Song], Awaitable[None]]] = None
         Player._INSTANCE = self # pylint: disable=protected-access
+        self._strategy: Optional[ICacheStrategy] = None
+        Runtime.cache.onStrategyChange.add(self._onStrategyChange)
+        self._incrementPlayCountTask: Optional[asyncio.Task] = None
 
     @classmethod
     def getInstance(cls) -> Player:
@@ -62,18 +72,30 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         assert cls._INSTANCE is not None
         return cls._INSTANCE
 
-    async def _strategy(self) -> ICacheStrategy:
-        return await ICacheStrategy.get(Runtime.cache.strategy, self)
+    async def _onStrategyChange(self, newStrategy: CacheStrategy) -> None:
+        self._strategy = ICacheStrategy.get(newStrategy, self)
 
     async def _onPlaylistChange(self, playlist: PlayerPlaylist) -> None:
-        await (await self._strategy()).onPlaylistLoad(playlist)
+        if self._strategy:
+            await self._strategy.onPlaylistLoad(playlist)
         if self._playlistChangeCallback:
             await self._playlistChangeCallback(playlist) # pylint: disable=not-callable
 
     async def _onSongChange(self, newSong: Song) -> None:
-        await (await self._strategy()).onSongLoad(newSong)
+        if self._strategy:
+            await self._strategy.onSongLoad(newSong)
         if self._songChangeCallback:
             await self._songChangeCallback(newSong) # pylint: disable=not-callable
+
+        if self._incrementPlayCountTask:
+            self._incrementPlayCountTask.cancel()
+
+        async def _incrementPlayCount() -> None:
+            await asyncio.sleep(30)
+            newSong.ensureMetadata.plays += 1
+            await self._dbManager.updateMeta(newSong.ensureMetadata)
+        self._incrementPlayCountTask = asyncio.create_task(_incrementPlayCount())
+
 
     async def loadPlaylist(self,
                            playlist: Optional[PlayerPlaylist],

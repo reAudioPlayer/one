@@ -167,6 +167,13 @@ spotify=[{self._spotify}] source=[{self._source}]"
         return self._id
 
     @property
+    def ensureMetadata(self) -> SongMetadata:
+        """ensure metadata"""
+        if not self._metadata:
+            self._metadata = SongMetadata(self._id)
+        return self._metadata
+
+    @property
     def metadata(self) -> Optional[SongMetadata]:
         """return metadata"""
         return self._metadata

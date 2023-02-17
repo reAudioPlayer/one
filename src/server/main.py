@@ -143,6 +143,7 @@ async def main() -> None:
     await runner.setup()
     site = web.TCPSite(runner, host = Runtime.args.host, port = Runtime.args.port)
     await site.start()
+    await Runtime.cache.init()
 
     while True: # endless loop
         await asyncio.sleep(1)

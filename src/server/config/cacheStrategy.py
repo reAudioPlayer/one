@@ -29,7 +29,7 @@ class ICacheStrategy(metaclass = Singleton):
         self._player = player
 
     @classmethod
-    async def get(cls, strategy: CacheStrategy, player: Player) -> ICacheStrategy:
+    def get(cls, strategy: CacheStrategy, player: Player) -> ICacheStrategy:
         """get the cache strategy"""
         if cls._STRATEGY == strategy:
             assert cls._INSTANCE is not None

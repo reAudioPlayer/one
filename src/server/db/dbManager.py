@@ -5,12 +5,22 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 import os
 import sqlite3 as sl
 from typing import List, Optional
+from enum import Enum
 
 from dataModel.playlist import Playlist
 from dataModel.song import Song
 from dataModel.metadata import SongMetadata
 
 from config.runtime import Runtime
+
+
+class Table(Enum):
+    """table enum"""
+    SONGS = "Songs"
+    PLAYLISTS = "Playlists"
+    SONG_META = "SongMeta"
+    PLAYLIST_META = "PlaylistMeta"
+    ARTISTS = "Artists"
 
 
 class DbManager: # pylint: disable=too-many-public-methods
@@ -25,14 +35,13 @@ class DbManager: # pylint: disable=too-many-public-methods
         self._createSongTable()
         self._createPlaylistTable()
         self._createMetaTable()
-        self._updatePlaylistTable()
 
     def shutdown(self) -> None:
         """close db connection"""
         self._db.close()
 
     def _createSongTable(self) -> None:
-        sql = """create table if not exists Songs (
+        sql = f"""create table if not exists {Table.SONGS.value} (
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             artist TEXT,
@@ -46,7 +55,7 @@ class DbManager: # pylint: disable=too-many-public-methods
             self._db.execute(sql)
 
     def _createPlaylistTable(self) -> None:
-        sql = """create table if not exists Playlists (
+        sql = f"""create table if not exists {Table.PLAYLISTS.value} (
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             description TEXT,
@@ -56,24 +65,17 @@ class DbManager: # pylint: disable=too-many-public-methods
             self._db.execute(sql)
 
     def _createMetaTable(self) -> None:
-        sql = """create table if not exists Meta (
+        sql = f"""create table if not exists {Table.SONG_META.value} (
             id INTEGER NOT NULL PRIMARY KEY,
             spotify TEXT,
             plays INTEGER NOT NULL);"""
         with self._db:
             self._db.execute(sql)
 
-    def _updatePlaylistTable(self) -> None:
-        sql = """PRAGMA table_info("Playlists")"""
-        with self._db:
-            val = [ (name) for (_, name, *_) in self._db.execute(sql) ]
-            if "cover" not in val:
-                self._db.execute('ALTER TABLE "Playlists" ADD cover TEXT;')
-
     def updateMeta(self, meta: SongMetadata) -> None:
         """updates or adds meta"""
         with self._db:
-            sql = 'INSERT OR REPLACE INTO Meta (id, spotify, plays) values(?, ?, ?)' # pylint: disable=line-too-long
+            sql = f"INSERT OR REPLACE INTO {Table.SONG_META.value} (id, spotify, plays) values(?, ?, ?)" # pylint: disable=line-too-long
             data = [
                 meta.toSql()
             ]
@@ -82,14 +84,14 @@ class DbManager: # pylint: disable=too-many-public-methods
     def getMeta(self, id_: int) -> Optional[SongMetadata]:
         """get meta"""
         with self._db:
-            sql = f"SELECT * FROM Meta WHERE id={id_}"
+            sql = f"SELECT * FROM {Table.SONG_META.value} WHERE id={id_}"
             rows = self._db.execute(sql)
             return SongMetadata.fromSql(rows.fetchone())
 
     def addSong(self, song: Song) -> None:
         """add song to db"""
         with self._db:
-            sql = 'INSERT INTO Songs (name, artist, album, cover, duration, favourite, spotify, source) values(?, ?, ?, ?, ?, ?, ?, ?)' # pylint: disable=line-too-long
+            sql = f'INSERT INTO {Table.SONGS.value} (name, artist, album, cover, duration, favourite, spotify, source) values(?, ?, ?, ?, ?, ?, ?, ?)' # pylint: disable=line-too-long
             data = [
                 song.sql()
             ]
@@ -102,12 +104,13 @@ class DbManager: # pylint: disable=too-many-public-methods
             if songId in playlist.songs:
                 return
         with self._db:
-            self._db.execute(f"DELETE FROM Songs WHERE id={songId}")
+            self._db.execute(f"DELETE FROM {Table.SONG_META.value} WHERE id={songId}")
+            self._db.execute(f"DELETE FROM {Table.SONGS.value} WHERE id={songId}")
 
     def removePlaylist(self, playlistId: int) -> None:
         """remove playlist"""
         with self._db:
-            self._db.execute(f"DELETE FROM Playlists WHERE id={playlistId}")
+            self._db.execute(f"DELETE FROM {Table.PLAYLISTS.value} WHERE id={playlistId}")
 
     def _castToSongList(self, rows: sl.Cursor) -> List[Song]:
         songs: List[Song] = []
@@ -120,7 +123,7 @@ class DbManager: # pylint: disable=too-many-public-methods
     def getSongs(self) -> List[Song]:
         """get all songs"""
         with self._db:
-            return self._castToSongList(self._db.execute("SELECT * FROM Songs"))
+            return self._castToSongList(self._db.execute(f"SELECT * FROM {Table.SONGS.value}"))
 
     def getSongById(self, id_: int) -> Song:
         """get song by id"""
@@ -132,26 +135,26 @@ class DbManager: # pylint: disable=too-many-public-methods
         with self._db:
             songs = self._castToSongList(
                 self._db.execute(
-                    f"SELECT * FROM Songs WHERE id IN ({','.join([str(int) for int in idList]) })")) # pylint: disable=line-too-long
+                    f"SELECT * FROM {Table.SONGS.value} WHERE id IN ({','.join([str(int) for int in idList]) })")) # pylint: disable=line-too-long
             return [ next((x for x in songs if x.id == songId), Song()) for songId in idList ] # sort based on id list, pylint: disable=line-too-long
 
     def getLatestSongs(self, count: int) -> List[Song]:
         """get latest songs"""
         with self._db:
             return self._castToSongList(
-                self._db.execute(f"SELECT * FROM Songs ORDER BY id DESC LIMIT {count}"))
+                self._db.execute(f"SELECT * FROM {Table.SONGS.value} ORDER BY id DESC LIMIT {count}"))
 
     def getLikedSongs(self) -> List[Song]:
         """get liked songs"""
         with self._db:
             return self._castToSongList(
-                self._db.execute("SELECT * FROM Songs WHERE favourite=1"))
+                self._db.execute(f"SELECT * FROM {Table.SONGS.value} WHERE favourite=1"))
 
     def getSongsByCustomFilter(self, filter_: str) -> List[Song]:
         """get songs by custom sql filter"""
         with self._db:
             return self._castToSongList(
-                self._db.execute(f"SELECT * FROM Songs WHERE {filter_}"))
+                self._db.execute(f"SELECT * FROM {Table.SONGS.value} WHERE {filter_}"))
 
     def getSongsByQuery(self, query: str) -> List[Song]:
         """get songs by (non-sql) query (for the search function)"""
@@ -174,7 +177,7 @@ class DbManager: # pylint: disable=too-many-public-methods
         try:
             with self._db:
                 return self._castToSongList(
-                    self._db.execute(f"SELECT * FROM Songs WHERE {filter_}"))
+                    self._db.execute(f"SELECT * FROM {Table.SONGS.value} WHERE {filter_}"))
         except Exception as err: # pylint: disable=broad-except
             print(err)
             return [ ]
@@ -182,7 +185,7 @@ class DbManager: # pylint: disable=too-many-public-methods
     def addPlaylist(self, playlist: Playlist) -> None:
         """add playlist to db"""
         with self._db:
-            sql = 'INSERT INTO Playlists (name, description, songs, cover) values(?, ?, ?, ?)'
+            sql = f'INSERT INTO {Table.PLAYLISTS.value} (name, description, songs, cover) values(?, ?, ?, ?)'
             data = [
                 playlist.sql()
             ]
@@ -192,12 +195,12 @@ class DbManager: # pylint: disable=too-many-public-methods
         """get all playlists"""
         with self._db:
             return [ Playlist.fromSql(playlist)
-                     for playlist in self._db.execute("SELECT id, name, description, songs, cover FROM Playlists") ] # pylint: disable=line-too-long
+                     for playlist in self._db.execute(f"SELECT id, name, description, songs, cover FROM {Table.PLAYLISTS.value}") ] # pylint: disable=line-too-long
 
     def getPlaylistById(self, id_: int) -> Optional[Playlist]:
         """get playlist by id"""
         with self._db:
-            rows = self._db.execute(f"SELECT id, name, description, songs, cover FROM Playlists WHERE id={id_}") # pylint: disable=line-too-long
+            rows = self._db.execute(f"SELECT id, name, description, songs, cover FROM {Table.PLAYLISTS.value} WHERE id={id_}") # pylint: disable=line-too-long
             for row in rows:
                 return Playlist.fromSql(row)
             return None
@@ -206,27 +209,27 @@ class DbManager: # pylint: disable=too-many-public-methods
         """get playlist by custom sql filter"""
         with self._db:
             return [ Playlist.fromSql(playlist)
-                     for playlist in self._db.execute(f"SELECT id, name, description, songs, cover FROM Playlists WHERE {filter_}") ] # pylint: disable=line-too-long
+                     for playlist in self._db.execute(f"SELECT id, name, description, songs, cover FROM {Table.PLAYLISTS.value} WHERE {filter_}") ] # pylint: disable=line-too-long
 
     def updatePlaylist(self, newPlaylist: Playlist) -> None:
         """update playlist"""
         with self._db:
             name, description, songs, cover = newPlaylist.sql()
-            sql = f"UPDATE Playlists SET name='{name}', description='{description}', songs='{songs}', cover='{cover}' WHERE id={newPlaylist.id}" # pylint: disable=line-too-long
+            sql = f"UPDATE {Table.PLAYLISTS.value} SET name='{name}', description='{description}', songs='{songs}', cover='{cover}' WHERE id={newPlaylist.id}" # pylint: disable=line-too-long
             self._db.execute(sql)
 
     def updateSongsOfPlaylist(self, id_: int, songs: List[int]) -> None:
         """update songs of playlist"""
         with self._db:
-            sql = f"UPDATE Playlists SET songs='{str(songs)}' WHERE id={id_}"
+            sql = f"UPDATE {Table.PLAYLISTS.value} SET songs='{str(songs)}' WHERE id={id_}"
             self._db.execute(sql)
 
     def updateSongMetadata(self, id_: int, values: str) -> None:
         """update song metadata"""
         with self._db:
-            self._db.execute(f"UPDATE Songs SET {values} WHERE id={id_}")
+            self._db.execute(f"UPDATE {Table.SONGS.value} SET {values} WHERE id={id_}")
 
     def updatePlaylistMetadata(self, id_: int, values: str) -> None:
         """update playlist metadata"""
         with self._db:
-            self._db.execute(f"UPDATE Playlists SET {values} WHERE id={id_}")
+            self._db.execute(f"UPDATE {Table.PLAYLISTS.value} SET {values} WHERE id={id_}")
