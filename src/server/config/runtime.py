@@ -7,8 +7,9 @@ import argparse
 from os.path import exists
 import os
 import json
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Set, Awaitable, Callable
 from enum import Enum
+import asyncio
 
 from pyaddict import JDict
 
@@ -161,13 +162,24 @@ class CacheConfig(metaclass = Singleton):
     """The cache config class is used to store the cache configuration."""
     _FILE = CACHE
 
-    __slots__ = ("_preserveInSession",  "_preserve", "_strategy")
+    __slots__ = ("_preserveInSession",  "_preserve", "_strategy", "_onStrategyChange")
 
     def __init__(self) -> None:
         self._preserve = False
         self._preserveInSession = False
         self._strategy = CacheStrategy.Current
         self._read()
+        self._onStrategyChange: Set[Callable[[CacheStrategy], Awaitable[None]]] = set()
+
+    @property
+    def onStrategyChange(self) -> Set[Callable[[CacheStrategy], Awaitable[None]]]:
+        """Returns the on strategy change event."""
+        return self._onStrategyChange
+
+    def addOnStrategyChange(self, callback: Callable[[CacheStrategy], Awaitable[None]]) -> None:
+        """Adds a callback to the on strategy change event."""
+        self._onStrategyChange.add(callback)
+        asyncio.create_task(callback(self._strategy))
 
     def _read(self) -> None:
         """Reads the cache configuration from the config file."""
@@ -186,11 +198,25 @@ class CacheConfig(metaclass = Singleton):
         with open(self._FILE, "w", encoding = "utf-8") as file:
             json.dump(self.toDict(), file)
 
+    async def init(self) -> None:
+        """Initializes the cache configuration."""
+        self._fireStrategyChange()
+
+    def _fireStrategyChange(self) -> None:
+        """Fires the strategy change event."""
+        for callback in self._onStrategyChange:
+            asyncio.create_task(callback(self._strategy))
+
     def update(self, data: Dict[str, Any]) -> None:
         """Updates the cache configuration."""
         dex = JDict(data)
         self._preserve = dex.get("preserve", self.preserve)
-        self._strategy = CacheStrategy(dex.get("strategy", self._strategy.value))
+        newStrategy = CacheStrategy(dex.get("strategy", self._strategy.value))
+
+        if newStrategy != self._strategy:
+            self._strategy = newStrategy
+            self._fireStrategyChange()
+
         self._preserveInSession = dex.get("preserveInSession",
                                           self.preserveInSession)
         self._write()
@@ -225,7 +251,10 @@ class CacheConfig(metaclass = Singleton):
     @strategy.setter
     def strategy(self, value: CacheStrategy) -> None:
         """Sets the cache strategy."""
+        if value == self._strategy:
+            return
         self._strategy = value
+        self._fireStrategyChange()
         self._write()
 
     def toDict(self) -> Dict[str, Any]:
