@@ -91,8 +91,11 @@ class SpotifyMetadata:
         return self._album
 
     @staticmethod
-    def fromDict(data: JDict) -> SpotifyMetadata:
+    def fromDict(data: JDict) -> Optional[SpotifyMetadata]:
         """Create from dict"""
+        if "id" not in data:
+            return None
+
         return SpotifyMetadata(
             data.assertGet("id", str),
             SpotifyAudioFeatures(data.ensureCast("features", JDict)),
@@ -159,6 +162,11 @@ class SongMetadata:
     def plays(self) -> int:
         """return plays"""
         return self._plays
+
+    @plays.setter
+    def plays(self, value: int) -> None:
+        """set plays"""
+        self._plays = value
 
     @spotify.setter # type: ignore
     def spotify(self, value: Optional[SpotifyMetadata]) -> None:

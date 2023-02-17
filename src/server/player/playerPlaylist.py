@@ -91,7 +91,7 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     def _updateCover(self, cover: Optional[str]) -> None:
         self._cover = cover or (self._playlist[0].cover \
                                 if len(self._playlist) > 0 \
-                                else "/assets/img/music_placeholder.png")
+                                else "")
 
     def _load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
         """loads from database"""

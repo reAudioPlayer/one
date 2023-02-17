@@ -39,7 +39,7 @@ class Song(ITrack):
                  source: Optional[str] = None,
                  id_: int = -1,
                  album: str = "N/A",
-                 cover: str = "/assets/img/placeholders/underground.png",
+                 cover: str = "",
                  duration: int = -1,
                  favourite: bool = False) -> None:
         self._id = id_

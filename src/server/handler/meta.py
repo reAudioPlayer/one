@@ -3,6 +3,7 @@
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import Any, Dict, List, Optional
+import logging
 
 from aiohttp import web
 from pyaddict import JDict
@@ -24,9 +25,12 @@ from config.customData import LocalTrack, LocalCover
 
 class MetaHandler:
     """handler for different 'meta' features (e.g. metadata, spotify, search)"""
+    __slots__ = ("_spotify", "_dbManager", "_logger")
+
     def __init__(self, dbManager: DbManager, spotify: Spotify) -> None:
         self._spotify = spotify
         self._dbManager = dbManager
+        self._logger = logging.getLogger(MetaHandler.__name__)
 
     @withObjectPayload(Object({
         "url": String().url()
@@ -218,7 +222,7 @@ class MetaHandler:
             return web.HTTPNotFound(text = "song not found")
 
         if not forceFetch:
-            if song.metadata:
+            if song.metadata and song.metadata.spotify:
                 return web.json_response(song.metadata.toDict())
 
         onSpotify: Optional[str] = None
