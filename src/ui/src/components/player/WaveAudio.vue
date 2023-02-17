@@ -44,16 +44,7 @@ onMounted(() => {
         forcePlay = true;
         player.onSongEnded();
     });
-});
-
-const player = usePlayerStore();
-let forcePlay = false;
-
-
-onMounted(() => {
-    audio.value.load(player.stream);
-
-    audio.value.on("ready", () => {
+    audio.value.on("waveform-ready", () => {
         if (!audio.value) return;
         player.setDuration(audio.value.getDuration());
 
@@ -62,6 +53,14 @@ onMounted(() => {
             forcePlay = false;
         }
     });
+});
+
+const player = usePlayerStore();
+let forcePlay = false;
+
+
+onMounted(() => {
+    audio.value.load(player.stream);
 });
 
 watch(() => player.song.id, () => {
