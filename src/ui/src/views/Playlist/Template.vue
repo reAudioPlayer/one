@@ -53,6 +53,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    coverIcon: {
+        type: String,
+        required: false
+    },
 });
 
 const emit = defineEmits<{
@@ -185,8 +189,10 @@ const onObserveVisibility = (isVisible, entry) => {
         >
             <div v-observe-visibility="onObserveVisibility" class="upper">
                 <Cover
+                    :placeholder="coverIcon"
                     :src="playlist.cover"
                     class="max-w-sm rounded-xl"
+                    type="playlist"
                 />
                 <div
                     class="track__info__details flex flex-col justify-end"

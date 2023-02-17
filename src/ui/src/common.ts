@@ -33,13 +33,13 @@ export const zeroPad = (num: number, places: number): string => {
 }
 
 export const parseCover = (cover: string) => {
-    if (!cover) return "/assets/img/placeholders/song.svg";
+    if (!cover) return null;
     if (cover.startsWith("local:")) return cover.replace("local:", "/src/covers/");
     return cover;
 }
 
 export const parsePlaylistCover = (cover: string) => {
-    if (!cover) return "/assets/img/placeholders/playlist.svg";
+    if (!cover) return null;
     if (cover.startsWith("local:")) return cover.replace("local:", "/src/covers/");
     return cover;
 }
@@ -70,7 +70,8 @@ export interface IMetadata {
         popularity: number;
         releaseDate: string;
         explicit: boolean;
-    }
+    };
+    plays: number;
 }
 
 export interface ISong {

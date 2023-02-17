@@ -5,6 +5,7 @@
 
 <template>
     <Template
+        :cover-icon="icon"
         :playlist="playlist"
         :playlist-id="id"
     />
@@ -36,7 +37,12 @@ export default {
         id: {
             type: Number,
             required: true
-        }
+        },
+        icon: {
+            type: String,
+            required: false,
+            default: "favorite"
+        },
     },
     data() {
         this.updateTracks()

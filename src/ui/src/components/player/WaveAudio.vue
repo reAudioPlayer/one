@@ -117,8 +117,10 @@ defineExpose(playable);
     />
 </template>
 <style lang="scss">
+#waveform {
     wave, canvas {
         width: 100%;
         height: calc(var(--h-player) / 2 - 1em) !important;
     }
+}
 </style>
