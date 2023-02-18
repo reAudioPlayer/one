@@ -57,7 +57,7 @@ export default {
     div.navEntry {
         display: flex;
         flex-direction: row;
-        padding: 10px 0 10px 10px;
+        padding: 10px;
         border-radius: 5px;
         color: var(--fg-base-dk);
 

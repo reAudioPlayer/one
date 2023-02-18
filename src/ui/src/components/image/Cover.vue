@@ -5,8 +5,7 @@
 
 <script lang="ts" setup>
 import { computed, PropType, ref, watch } from "vue";
-import { parseAnyCover } from "../../common";
-import Placeholder from "./Placeholder.vue";
+import { generatePlaceholder, getCover } from "./placeholder";
 
 const props = defineProps({
     src: {
@@ -33,28 +32,26 @@ const placeholderIcon = computed(() => {
 
 const src = ref(props.src);
 
-const realSrc = computed(() => {
-    if (src.value) {
-        return parseAnyCover(src.value);
-    }
-    return null;
-});
-
 watch(() => props.src, () => {
     src.value = props.src;
 });
+
+const onError = async () => {
+    src.value = await generatePlaceholder(placeholderIcon.value);
+
+    if (src.value === undefined) {
+        setTimeout(() => {
+            onError();
+        }, 100);
+        return;
+    }
+}
 </script>
 <template>
     <img
-        v-if="realSrc"
         :alt="props.type"
-        :src="realSrc"
+        :src="getCover(src, placeholderIcon)"
         class="cover"
-        @error="src = null"
-    />
-    <Placeholder
-        v-else
-        :icon="placeholderIcon"
-        class="cover"
+        @error="onError"
     />
 </template>
