@@ -4,7 +4,6 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import Any, Callable, Optional
 import asyncio
-from dataModel.playlist import Playlist
 from dataModel.song import Song
 from db.database import Database
 from db.table.playlists import PlaylistModel
@@ -21,6 +20,7 @@ class PlaylistManager:
         self._playlists: OrderedUniqueList[PlayerPlaylist] = OrderedUniqueList()
 
     async def loadPlaylists(self) -> None:
+        """loads all playlists"""
         playlists = await self._dbManager.playlists.all()
         for playlist in playlists:
             self._playlists.append(PlayerPlaylist(playlist.id))

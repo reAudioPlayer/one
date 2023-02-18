@@ -104,7 +104,11 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         model = await self._dbManager.playlists.byId(playlistIndex)
         assert model is not None
         self._dataPlaylist = Playlist(model)
-        self._playlist.update(Song.list(await self._dbManager.songs.allByIds(self._dataPlaylist.songs)))
+        self._playlist.update(
+            Song.list(
+                await self._dbManager.songs.allByIds(self._dataPlaylist.songs)
+            )
+        )
 
     @property
     def valid(self) -> bool:

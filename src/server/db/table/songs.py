@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
 from __future__ import annotations
+__copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
+
 from typing import Type, Tuple, Optional, Union, List, Any, Dict
 from hashids import Hashids # type: ignore
 import aiosqlite
@@ -9,6 +13,7 @@ hashids = Hashids(salt="reapOne.track", min_length=22)
 
 
 class SongModel(IModel):
+    """song model"""
     __slots__ = ("_id",
                  "_name",
                  "_artist",
@@ -33,7 +38,7 @@ class SongModel(IModel):
                "plays",
                ]
 
-    def __init__(self,
+    def __init__(self, # pylint: disable=too-many-arguments
                  name: str,
                  artist: str,
                  album: str,
@@ -92,11 +97,13 @@ class SongModel(IModel):
 
     @property
     def id(self) -> int:
+        """return id"""
         assert self._id is not None
         return self._id
 
     @property
     def name(self) -> str:
+        """return name"""
         return self._name
 
     @name.setter
@@ -108,6 +115,7 @@ class SongModel(IModel):
 
     @property
     def artist(self) -> str:
+        """return artist"""
         return self._artist
 
     @artist.setter
@@ -119,10 +127,12 @@ class SongModel(IModel):
 
     @property
     def artists(self) -> List[str]:
+        """return artists"""
         return self._artist.split(", ")
 
     @property
     def album(self) -> str:
+        """return album"""
         return self._album
 
     @album.setter
@@ -134,6 +144,7 @@ class SongModel(IModel):
 
     @property
     def cover(self) -> str:
+        """return cover"""
         return self._cover
 
     @cover.setter
@@ -145,6 +156,7 @@ class SongModel(IModel):
 
     @property
     def favourite(self) -> bool:
+        """return favourite"""
         return bool(self._favourite)
 
     @favourite.setter
@@ -156,6 +168,7 @@ class SongModel(IModel):
 
     @property
     def duration(self) -> int:
+        """return duration"""
         return self._duration
 
     @duration.setter
@@ -167,6 +180,7 @@ class SongModel(IModel):
 
     @property
     def source(self) -> str:
+        """return source"""
         return self._source
 
     @source.setter
@@ -178,6 +192,7 @@ class SongModel(IModel):
 
     @property
     def plays(self) -> int:
+        """return plays"""
         return self._plays
 
     @plays.setter
@@ -189,6 +204,7 @@ class SongModel(IModel):
 
     @property
     def spotify(self) -> str:
+        """return spotify"""
         return self._spotify
 
     @spotify.setter
@@ -210,6 +226,7 @@ class SongModel(IModel):
         return str(self.id)
 
     def toDict(self) -> Dict[str, Any]:
+        """return dict"""
         return {
             "id": self.id,
             "name": self.name,
@@ -227,6 +244,7 @@ class SongModel(IModel):
 
 
 class SongsTable(ITable[SongModel]):
+    """Songs table"""
     NAME = "Songs"
     DESCRIPTION = """
                   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -245,6 +263,7 @@ class SongsTable(ITable[SongModel]):
         return SongModel
 
     async def byId(self, id_: int) -> Optional[SongModel]:
+        """get song by id"""
         where = f"id = {id_}"
         rows = await self.select(append = f"WHERE {where}")
         if len(rows) != 1:
@@ -252,6 +271,7 @@ class SongsTable(ITable[SongModel]):
         return rows[0]
 
     async def allByIds(self, ids: List[int]) -> List[SongModel]:
+        """get songs by ids"""
         where = " OR ".join([f"id = {id_}" for id_ in ids])
         return await self.select(append = f"WHERE {where}")
 

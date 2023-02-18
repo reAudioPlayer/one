@@ -3,9 +3,9 @@
 from __future__ import annotations
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
-from typing import List, Optional, Tuple, Dict, Any
-from db.table.playlists import PlaylistModel
+from typing import List, Dict, Any
 import json
+from db.table.playlists import PlaylistModel
 
 
 class Playlist:

@@ -8,8 +8,8 @@ from typing import List, Any, Dict
 from db.database import Database
 from meta.spotify import Spotify
 
-from dataModel.track import YoutubeTrack
-from dataModel.song import ITrack, Song
+from dataModel.track import YoutubeTrack, ITrack
+from dataModel.song import Song
 
 
 class Search:
