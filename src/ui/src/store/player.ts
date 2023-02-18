@@ -3,12 +3,12 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import {defineStore} from 'pinia'
-import {parseCover, zeroPad} from "../common";
-import {useDataStore} from "./data";
-import {SharedPlayer} from "../api/sharedPlayer";
-import {getShuffle, nextSong, prevSong, setShuffle} from "../api/player";
-import {computed} from "vue";
+import { defineStore } from "pinia";
+import { parseCover, zeroPad } from "../common";
+import { useDataStore } from "./data";
+import { SharedPlayer } from "../api/sharedPlayer";
+import { getShuffle, nextSong, prevSong, setShuffle } from "../api/player";
+import { computed } from "vue";
 
 
 type PlaylistType = "playlist" | "collection" | "collection/breaking" | "track";
@@ -235,10 +235,7 @@ export const usePlayerStore = defineStore({
     },
     getters: {
         durationSeconds(state) {
-            if (state.song.duration == null) return 0;
-
-            const [minutes, seconds] = state.song.duration.split(":");
-            return parseInt(minutes) * 60 + parseInt(seconds);
+            return state.song.duration;
         },
         stream(state) {
             return `/api/player/stream/${state.song.id}`;

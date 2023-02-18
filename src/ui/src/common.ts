@@ -82,7 +82,7 @@ export interface ISong {
     album: string;
     cover: string;
     favourite?: boolean;
-    duration?: string;
+    duration?: number;
     metadata?: IMetadata;
 }
 
@@ -177,4 +177,11 @@ export const parseSpotifyId = (url: string, type: "track" | "album" | "playlist"
 
 export const localeDate = (date: string | Date): string => {
     return new Date(date).toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" });
+}
+
+export const displayDuration = (duration: number): string => {
+    if (duration <= 0) return "N/A";
+    const min = Math.floor(duration / 60);
+    const sec = zeroPad(Math.floor(duration % 60), 2);
+    return `${min}:${sec}`;
 }
