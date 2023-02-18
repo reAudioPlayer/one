@@ -6,7 +6,7 @@
 
 const VERSION = 1;
 const storage = window.localStorage.getItem("renderedIcons");
-const renderedIcons = storage ? new Map(JSON.parse(storage)) : new Map<string, string>();
+const renderedIcons: Map<string, string> = storage ? new Map(JSON.parse(storage)) : new Map<string, string>();
 
 const updateStorage = () => {
     window.localStorage.setItem("renderedIcons", JSON.stringify([...renderedIcons]));
@@ -22,7 +22,7 @@ export const getCover = (cover: string | null, placeholder: string, size: number
 }
 
 
-export const generatePlaceholder = async (icon: string, size: number = 500) => {
+export const generatePlaceholder = async (icon: string, size: number = 500): Promise<string> => {
     await document.fonts.ready;
 
     const key = `${VERSION}-${icon}-${size}`;
