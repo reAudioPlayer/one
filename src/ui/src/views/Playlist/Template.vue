@@ -113,10 +113,9 @@ const estimatedDuration = computed(() => {
     }
 
     for (const song of props.playlist.songs) {
-        isEstimate = isEstimate || ("-1:59" == song.duration);
-        const songDurString = song.duration == "-1:59" ? "3:00" : song.duration; // estimate 3:00 if unknown
-        const [min, sec] = songDurString.split(":")
-        duration += Number(min) * 60 + Number(sec);
+        isEstimate = isEstimate || song.duration == 0;
+        const seconds = song.duration == 0 ? 3 * 60 : song.duration; // estimate 3:00 if unknown
+        duration += seconds;
     }
 
     const sec = duration;

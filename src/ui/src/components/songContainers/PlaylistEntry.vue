@@ -4,7 +4,7 @@
   -->
 
 <script lang="ts" setup>
-import { hashTrack, isMobile, ISong } from "../../common";
+import { displayDuration, hashTrack, isMobile, ISong } from "../../common";
 import { computed, PropType, ref } from "vue";
 import Marquee from "../Marquee.vue";
 import EditSong from "../popups/EditSong.vue";
@@ -142,7 +142,7 @@ const update = () => {
                 {{ song.favourite ? "favorite" : "heart_plus" }}
             </div>
             <div class="duration text-center">
-                {{song.duration == "-1:59" ? "N/A" : song.duration }}
+                {{displayDuration(song.duration)}}
             </div>
             <div
                 v-if="false && withMore && (selected || hovering)"
