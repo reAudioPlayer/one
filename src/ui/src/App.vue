@@ -8,20 +8,24 @@ import PlayerInPicture from "./PlayerInPicture.vue";
 import Header from "./Header.vue";
 
 import { usePlayerStore } from "@/store/player";
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import Startup from "@/views/Startup.vue";
-import { parseAnyCover } from "@/common";
 import { initPictureInPicture } from "@/pictureInPicture";
+import { getCover } from "@/components/image/placeholder";
 
 initPictureInPicture();
 
 const playerStore = usePlayerStore();
 
-const src = ref(playerStore.song.cover);
+const cover = ref(null);
 watch(() => playerStore.song.cover, () => {
-    src.value = playerStore.song.cover;
+    setCover();
 });
-const cover = computed(() => parseAnyCover(src.value));
+
+const setCover = async () => {
+    cover.value = await getCover(playerStore.song.cover, "graphic_eq")
+}
+setCover();
 </script>
 
 <template>
