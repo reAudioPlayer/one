@@ -35,7 +35,7 @@ class OrderedUniqueList(List[T]):
 
 class PlayerPlaylist: # pylint: disable=too-many-public-methods
     """player playlist (not to be confused with db (dataModel) playlist)"""
-    __slots__ = ("_dbManager", "_playlist", "_cursor", "_playlistIndex",
+    __slots__ = ("_dbManager", "_playlist", "_cursor", "_playlistIndex", "_loaded",
                  "_name", "_description", "_cover", "_iterCursor", "_dataPlaylist")
 
     def __init__(self,
@@ -52,7 +52,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         self._description: Optional[str] = description
         self._cover: Optional[str] = cover
         self._updateCover(cover)
-        asyncio.create_task(self._load(playlistIndex, songs))
+        self._loaded = False
+        asyncio.create_task(self.load(playlistIndex, songs))
         self._iterCursor = 0
         self._dataPlaylist: Optional[Playlist] = None
 
@@ -72,28 +73,33 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     @staticmethod
     async def liked() -> PlayerPlaylist:
         """liked songs"""
-        songs = await Database().songs.select("*", "WHERE favourite = 1")
-        return PlayerPlaylist(songs = Song.list(songs),
-                              name="Liked Songs",
-                              description = f"your {len(songs)} favourite tracks, automatically updated", # pylint: disable=line-too-long
-                              playlistIndex = -1)
+        songs = await Database().songs.select(append = "WHERE favourite = 1")
+        playlist = PlayerPlaylist(name="Liked Songs",
+                                  description = f"your {len(songs)} favourite tracks, automatically updated", # pylint: disable=line-too-long
+                                  playlistIndex = -1)
+        await playlist.load(-1, Song.list(songs))
+        return playlist
 
     @staticmethod
     async def breaking() -> PlayerPlaylist:
         """newest songs"""
         songs = await Database().songs.select("*", "ORDER BY id DESC LIMIT 25")
-        return PlayerPlaylist(songs = Song.list(songs),
-                              name="Breaking",
-                              description = f"your {len(songs)} newest songs, automatically updated", # pylint: disable=line-too-long
-                              playlistIndex = -2)
+        playlist = PlayerPlaylist(name="Breaking",
+                                  description = f"your {len(songs)} newest songs, automatically updated", # pylint: disable=line-too-long
+                                  playlistIndex = -2)
+        await playlist.load(-2, Song.list(songs))
+        return playlist
 
     def _updateCover(self, cover: Optional[str]) -> None:
         self._cover = cover or (self._playlist[0].model.cover \
                                 if len(self._playlist) > 0 \
                                 else "")
 
-    async def _load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
+    async def load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
         """loads from database"""
+        if self._loaded:
+            return
+
         if (playlistIndex is None or playlistIndex < 0) and songs is not None:
             self._playlist.update(songs)
             return
