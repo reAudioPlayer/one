@@ -4,7 +4,13 @@
  */
 
 
-const renderedIcons = new Map<string, string>();
+const VERSION = 1;
+const storage = window.localStorage.getItem("renderedIcons");
+const renderedIcons = storage ? new Map(JSON.parse(storage)) : new Map<string, string>();
+
+const updateStorage = () => {
+    window.localStorage.setItem("renderedIcons", JSON.stringify([...renderedIcons]));
+}
 
 
 export const getCover = (cover: string | null, placeholder: string, size: number = 500) => {
@@ -19,7 +25,7 @@ export const getCover = (cover: string | null, placeholder: string, size: number
 export const generatePlaceholder = async (icon: string, size: number = 500) => {
     await document.fonts.ready;
 
-    const key = `${icon}-${size}`;
+    const key = `${VERSION}-${icon}-${size}`;
 
     if (renderedIcons.has(key)) {
         const src = renderedIcons.get(key);
@@ -51,5 +57,6 @@ export const generatePlaceholder = async (icon: string, size: number = 500) => {
 
     const src = canvas.toDataURL();
     renderedIcons.set(key, src);
+    updateStorage();
     return src;
 };
