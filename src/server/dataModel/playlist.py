@@ -4,70 +4,30 @@ from __future__ import annotations
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import List, Optional, Tuple, Dict, Any
+from db.table.playlists import PlaylistModel
 import json
 
 
 class Playlist:
     """playlist model"""
+    __slots__ = ("_model", )
+
     def __init__(self,
-                 name: str,
-                 songs: Optional[List[int]] = None,
-                 id_: int = -1,
-                 description: str = "",
-                 cover: str = "") -> None:
-        self._name = name
-        self._description = description
-        self._songs = songs or [ ]
-        self._cover = cover
-        self._id = id_
+                 model: PlaylistModel) -> None:
+        self._model = model
 
-    def sql(self) -> Tuple[str, str, str, str]:
-        """return sql values"""
-        return ( self._name.replace("'", "''"),
-                 self._description.replace("'", "''"),
-                 json.dumps(self._songs),
-                 self._cover )
+    @property
+    def model(self) -> PlaylistModel:
+        """return model"""
+        return self._model
 
-    @staticmethod
-    def fromSql(row: Tuple[int, str, str, str, str]) -> Playlist:
-        """create playlist from sql row"""
-        id_, name, description, songs, cover = row
-        return Playlist(name, json.loads(songs or "[]"), id_, description, cover)
-
-    def __repr__(self) -> str:
-        return f"(DataModel.Playlist) id=[{self._id}] name=[{self._name}] \
-songs={self._songs} description=[{self._description}]"
+    def toDict(self) -> Dict[str, Any]:
+        """return dict"""
+        return self._model.toDict()
 
     @property
     def songs(self) -> List[int]:
         """return songs"""
-        return self._songs
-
-    @property
-    def id(self) -> int:
-        """return id"""
-        return self._id
-
-    @property
-    def name(self) -> str:
-        """return name"""
-        return self._name
-
-    @property
-    def description(self) -> str:
-        """return description"""
-        return self._description
-
-    @property
-    def cover(self) -> str:
-        """return cover"""
-        return self._cover
-
-    def toDict(self) -> Dict[str, Any]:
-        """return dict"""
-        return {
-            "id": self._id,
-            "name": self._name,
-            "description": self._description,
-            "cover": self._cover
-        }
+        songs = json.loads(self._model.songs)
+        assert isinstance(songs, list)
+        return songs

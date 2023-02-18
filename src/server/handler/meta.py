@@ -9,7 +9,7 @@ from aiohttp import web
 from pyaddict import JDict
 from pyaddict.schema import Object, String, Integer, Array, Boolean
 
-from db.dbManager import DbManager
+from db.database import Database
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.cacheDecorator import useCache
 from helper.payloadParser import withObjectPayload
@@ -18,6 +18,7 @@ from meta.releases import Releases
 from meta.search import Search
 from meta.spotify import Spotify, SpotifyResult, SpotifyTrack
 from dataModel.track import SpotifyPlaylist
+from dataModel.song import Song
 from dataModel.metadata import SongMetadata, SpotifyMetadata
 from config.runtime import Runtime
 from config.customData import LocalTrack, LocalCover
@@ -27,9 +28,9 @@ class MetaHandler:
     """handler for different 'meta' features (e.g. metadata, spotify, search)"""
     __slots__ = ("_spotify", "_dbManager", "_logger")
 
-    def __init__(self, dbManager: DbManager, spotify: Spotify) -> None:
+    def __init__(self, spotify: Spotify) -> None:
         self._spotify = spotify
-        self._dbManager = dbManager
+        self._dbManager = Database()
         self._logger = logging.getLogger(MetaHandler.__name__)
 
     @withObjectPayload(Object({
@@ -48,11 +49,10 @@ class MetaHandler:
     async def getTrack(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/tracks/{id})"""
         id_: int = payload["id"]
-        try:
-            song = self._dbManager.getSongById(id_)
-            return web.json_response(song.toDict())
-        except IndexError:
-            return web.Response(status = 404)
+        song = await self._dbManager.songs.byId(id_)
+        if not song:
+            return web.HTTPNotFound(text = "no track found")
+        return web.json_response(data = Song(song).toDict())
 
     @withObjectPayload(Object({
         "query": String().min(1)
@@ -61,8 +61,7 @@ class MetaHandler:
         """post(/api/search)"""
         query: str = payload["query"]
         search = await asyncRunInThreadWithReturn(Search,
-                                                  Search.searchTracks(self._dbManager,
-                                                                      query),
+                                                  Search.searchTracks(query),
                                                   self._spotify,
                                                   query)
         return web.json_response(data = search.toDict())
@@ -216,10 +215,12 @@ class MetaHandler:
         id_ = payload["id"]
         forceFetch = payload.get("forceFetch", False)
         spotifyId: Optional[str] = payload.get("spotifyId", None)
-        song = self._dbManager.getSongById(id_)
+        model = await self._dbManager.songs.byId(id_)
 
-        if not song:
+        if not model:
             return web.HTTPNotFound(text = "song not found")
+
+        song = Song(model)
 
         if not forceFetch:
             if song.metadata and song.metadata.spotify:
@@ -241,7 +242,7 @@ class MetaHandler:
             spotifySong = trackResult.unwrap()
 
         if not onSpotify:
-            query = f"{song.artist} {song.title}"
+            query = f"{song.model.artist} {song.model.name}"
             searchResult = await self._searchOnSpotify(query, 1)
             if not searchResult:
                 return searchResult.httpResponse()
@@ -272,7 +273,7 @@ class MetaHandler:
                 releaseDate = spotifySong.releaseDate,
             )
 
-        self._dbManager.updateMeta(metadata)
+        #self._dbManager.updateMeta(metadata) # TODO re-implement
         return web.json_response(metadata.toDict())
 
     async def _searchOnSpotify(self, query: str, limit: int) -> SpotifyResult[List[SpotifyTrack]]:
@@ -286,9 +287,10 @@ class MetaHandler:
     async def spotifyRecommendSong(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/recommendations/{id})"""
         id_: int = payload["id"]
-        song = self._dbManager.getSongById(id_)
-        if not song:
+        model = await self._dbManager.songs.byId(id_)
+        if not model:
             return web.HTTPNotFound(text = "song not found")
+        song = Song(model)
         if not song.metadata:
             return web.HTTPNotFound(text = "metadata not found")
         if not song.metadata.spotify:

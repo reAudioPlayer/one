@@ -5,7 +5,7 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import List, Any, Dict
 
-from db.dbManager import DbManager
+from db.database import Database
 from meta.spotify import Spotify
 
 from dataModel.track import YoutubeTrack
@@ -27,14 +27,14 @@ class Search:
         self._spotifyArtists = spotify.searchArtist(query).unwrapOr([])
 
     @staticmethod
-    def searchTracks(dbManager: DbManager, query: str) -> List[Song]:
+    async def searchTracks(query: str) -> List[Song]:
         """searches for tracks"""
-        return dbManager.getSongsByQuery(query)
+        return Song.list(await Database().songs.search(query))
 
     def toDict(self) -> Dict[str, Any]:
         """serialise"""
         return {
-            "tracks": [ self._trackToDict(track) for track in self._tracks ],
+            "tracks": [ track.toDict() for track in self._tracks ],
         #    "artists": [ self._trackToDict(track) for track in self._artists ],
             "spotifyTracks": [ self._trackToDict(track) for track in self._spotifyTracks ],
             "spotifyArtists": [ artist.toDict() for artist in self._spotifyArtists ],

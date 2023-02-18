@@ -73,7 +73,7 @@ class CacheAllStrategy(ICacheStrategy, metaclass = Singleton):
         async def _task() -> None:
             for playlist in self._player.playlistManager.playlists:
                 for song in playlist:
-                    await self._downloader.downloadSong(song)
+                    await self._downloader.downloadSong(song.model)
         asyncio.create_task(_task())
 
 
@@ -83,7 +83,7 @@ class CachePlaylistStrategy(ICacheStrategy, metaclass = Singleton):
         assert self._playlist is not None
         SongCache.prune(self._playlist)
         for song in self._playlist:
-            await self._downloader.downloadSong(song)
+            await self._downloader.downloadSong(song.model)
 
     async def onStrategyLoad(self) -> None:
         await super().onStrategyLoad()
@@ -108,4 +108,4 @@ class CacheCurrentNextStrategy(ICacheStrategy, metaclass = Singleton):
         assert self._playlist is not None
         currentSong, nextSong = song, self._playlist.next(True)
         SongCache.prune([currentSong, nextSong])
-        await self._downloader.downloadSong(nextSong)
+        await self._downloader.downloadSong(nextSong.model)

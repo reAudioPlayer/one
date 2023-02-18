@@ -15,7 +15,7 @@ from helper.singleton import Singleton
 
 from dataModel.song import Song
 
-from db.dbManager import DbManager
+from db.database import Database
 
 from player.playerPlaylist import PlayerPlaylist
 from player.playlistManager import PlaylistManager
@@ -47,10 +47,9 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
     _INSTANCE: Optional[Player] = None
 
     def __init__(self,
-                 dbManager: DbManager,
                  downloader: Downloader,
                  playlistManager: PlaylistManager) -> None:
-        self._dbManager = dbManager
+        self._dbManager = Database()
         self._playlistManager = playlistManager
         self._downloader = downloader
         self._playerPlaylist: Optional[PlayerPlaylist] = None
@@ -92,8 +91,7 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
 
         async def _incrementPlayCount() -> None:
             await asyncio.sleep(30)
-            newSong.ensureMetadata.plays += 1
-            self._dbManager.updateMeta(newSong.ensureMetadata)
+            newSong.model.plays += 1
         self._incrementPlayCountTask = asyncio.create_task(_incrementPlayCount())
 
 
@@ -119,7 +117,7 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         if not self._playerPlaylist:
             return
         current = self._playerPlaylist.current()
-        cId = current.id if current else 0
+        cId = current.model.id if current else 0
         self._logger.debug("unload %d", cId)
 
     async def last(self) -> None:
@@ -162,11 +160,11 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         if not self._playerPlaylist or not song:
             return
         initial = self._playerPlaylist.cursor
-        while not await self._downloader.downloadSong(song):
+        while not await self._downloader.downloadSong(song.model):
             self._logger.debug("invalid [%s], preload next", song)
             song = self._playerPlaylist.next()
             assert initial != self._playerPlaylist.cursor, "no valid song"
-        self._preloaded = song.source
+        self._preloaded = song.model.source
 
     @property
     def playlistManager(self) -> PlaylistManager:
@@ -184,7 +182,6 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
 
     def updateSongMetadata(self, id_: int, song: Song) -> None:
         """updates the metadata"""
-        self._dbManager.updateSongMetadata(id_, song.sqlUpdate())
         self._playlistManager.updateSong(id_, lambda _: song)
 
     async def _loadSong(self, song: Optional[Song] = None) -> None:
@@ -194,16 +191,16 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         if not song:
             return
         self._logger.debug("load [%s]", song)
-        if self._preloaded == song.source:
+        if self._preloaded == song.model.source:
             self._song = song
             await self._onSongChange(self._song)
 
     @property
-    def currentSong(self) -> Song:
+    def currentSong(self) -> Optional[Song]:
         """currently playing song"""
-        return self._song or Song()
+        return self._song
 
     @property
     def currentPlaylist(self) -> PlayerPlaylist:
         """currently loaded playlist"""
-        return self._playerPlaylist or PlayerPlaylist(self._dbManager)
+        return self._playerPlaylist or PlayerPlaylist()

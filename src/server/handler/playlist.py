@@ -21,7 +21,7 @@ class PlaylistHandler:
         """post(/api/playlists/{id}/tracks)"""
         id_ = int(request.match_info['id'])
         jdata = await request.json()
-        self._playlistManager.addToPlaylist(id_, Song.fromDict(jdata))
+        await self._playlistManager.addToPlaylist(id_, Song.fromDict(jdata))
         return web.Response(status = 200, text = "success!")
 
     async def moveSong(self, request: web.Request) -> web.Response:
@@ -39,7 +39,7 @@ class PlaylistHandler:
         jdata = await request.json()
         if not "songId" in jdata:
             return web.Response(status = 400, text = "no songId")
-        self._playlistManager.removefromPlaylist(id_, jdata["songId"])
+        await self._playlistManager.removefromPlaylist(id_, jdata["songId"])
         return web.Response(status = 200, text = "success!")
 
     @withObjectPayload(Object({

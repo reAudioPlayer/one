@@ -8,12 +8,14 @@ import json
 
 from aiohttp import web
 from pyaddict.schema import Object, String, Integer
+from pyaddict import JDict
 
-from db.dbManager import DbManager
+from db.database import Database
 from helper.payloadParser import withObjectPayload
 from player.player import Player
 from player.playerPlaylist import PlayerPlaylist
 from player.playlistManager import PlaylistManager
+from dataModel.song import Song
 
 
 MIN_PLAYLIST_ID = -2
@@ -27,11 +29,10 @@ class PlayerHandler:
     """player handler"""
     def __init__(self,
                  player: Player,
-                 playlistManager: PlaylistManager,
-                 dbManager: DbManager) -> None:
+                 playlistManager: PlaylistManager) -> None:
         self._player = player
         self._playlistManager = playlistManager
-        self._dbManager = dbManager
+        self._dbManager = Database()
 
     async def getNext(self, _: web.Request) -> web.Response:
         """get(/api/player/next)"""
@@ -63,18 +64,17 @@ class PlayerHandler:
             return web.Response()
 
         if type_ == "collection":
-            asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist.liked(self._dbManager)))
+            asyncio.create_task(self._player.loadPlaylist(await PlayerPlaylist.liked()))
             return web.Response()
 
         if type_ == "collection/breaking":
-            asyncio.create_task(self._player.loadPlaylist(PlayerPlaylist.breaking(self._dbManager)))
+            asyncio.create_task(self._player.loadPlaylist(await PlayerPlaylist.breaking()))
             return web.Response()
 
         if type_ == "track":
+            songs = await self._dbManager.songs.select("*", f"WHERE id={id_}")
             asyncio.create_task(self._player
-                .loadPlaylist(PlayerPlaylist(self._dbManager,
-                                             songs = self._dbManager\
-                                                .getSongsByCustomFilter(f"id={id_}"),
+                .loadPlaylist(PlayerPlaylist(songs = Song.list(songs),
                                              name = str(id_))))
 
         return web.Response()
@@ -102,15 +102,15 @@ class PlayerHandler:
                 found = await self._player.at(songId)
 
         elif type_ == "collection/breaking":
-            if await self._player.loadPlaylist(PlayerPlaylist.breaking(self._dbManager),
-                                                    songId):
+            if await self._player.loadPlaylist(await PlayerPlaylist.breaking(),
+                                               songId):
                 found = True
             else:
                 found = await self._player.at(songId)
 
         elif type_ == "collection":
-            if await self._player.loadPlaylist(PlayerPlaylist.liked(self._dbManager),
-                                                    songId):
+            if await self._player.loadPlaylist(await PlayerPlaylist.liked(),
+                                               songId):
                 found = True
             else:
                 found = await self._player.at(songId)
@@ -125,9 +125,18 @@ class PlayerHandler:
     async def updateSong(self, request: web.Request) -> web.Response:
         """post(/api/tracks/{id})"""
         id_ = int(request.match_info['id'])
-        jdata: Dict[str, Any] = await request.json()
-        self._player.updateSongMetadata(id_,
-                                        self._dbManager.getSongById(id_).updateFromDict(jdata))
+        jdata = JDict(await request.json())
+        song = await self._dbManager.songs.byId(id_)
+        if song is None:
+            return web.HTTPNotFound()
+
+        song.album = jdata.ensure("album", str, song.album)
+        song.artist = jdata.ensure("artist", str, song.artist)
+        song.name = jdata.ensure("title", str, song.name)
+        song.cover = jdata.ensure("cover", str, song.cover)
+        song.duration = jdata.ensure("duration", int, song.duration)
+        song.favourite = jdata.ensure("favourite", bool, song.favourite)
+        song.source = jdata.ensure("source", str, song.source)
         return web.Response(status = 200)
 
     async def postShuffle(self, request: web.Request) -> web.Response:
@@ -145,6 +154,8 @@ class PlayerHandler:
 
     async def getCurrentTrack(self, _: web.Request) -> web.Response:
         """get(/api/me/player/current-track)"""
+        if self._player.currentSong is None:
+            return web.HTTPNotFound()
         return web.json_response(self._player.currentSong.toDict())
 
     async def getCurrentPlaylist(self, _: web.Request) -> web.Response:
