@@ -8,7 +8,7 @@ from aiohttp import web
 from pyaddict import JDict
 from pyaddict.schema import Object, String, Boolean
 
-from db.dbManager import DbManager
+from db.database import Database
 from helper.payloadParser import withObjectPayload
 from config.runtime import Runtime
 from config.customData import LocalTrack, LocalCover
@@ -16,8 +16,8 @@ from config.customData import LocalTrack, LocalCover
 
 class ConfigHandler:
     """back end configuration handler"""
-    def __init__(self, dbManager: DbManager) -> None:
-        self._dbManager = dbManager
+    def __init__(self) -> None:
+        self._dbManager = Database()
 
     async def firstTime(self, _: web.Request) -> web.Response:
         """get(/api/config/first-time)"""
@@ -62,8 +62,8 @@ class ConfigHandler:
         covers = LocalCover.getAll()
         result: List[Dict[str, Any]] = [ ]
         for cover in covers:
-            songs = self._dbManager.getSongsByCustomFilter(f"cover = '{cover.displayPath}'")
-            playlists = self._dbManager.getPlaylistsByCustomFilter(f"cover = '{cover.displayPath}'")
+            songs = await self._dbManager.songs.select(f"WHERE cover = '{cover.displayPath}'")
+            playlists = await self._dbManager.songs.select(append = f"WHERE cover = '{cover.displayPath}'")
             result.append({
                 "name": cover.displayPath,
                 "songs": [ song.toDict() for song in songs ],
@@ -85,7 +85,7 @@ class ConfigHandler:
         tracks = LocalTrack.getAll()
         result: List[Dict[str, Any]] = [ ]
         for track in tracks:
-            songs = self._dbManager.getSongsByCustomFilter(f"source = '{track.displayPath}'")
+            songs = await self._dbManager.songs.select(append = f"WHERE source = '{track.displayPath}'")
             result.append({
                 "name": track.displayPath,
                 "songs": [ song.toDict() for song in songs ]

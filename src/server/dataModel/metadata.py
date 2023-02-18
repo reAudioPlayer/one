@@ -110,7 +110,7 @@ class SpotifyMetadata:
     @staticmethod
     def fromSql(row: Optional[str]) -> Optional[SpotifyMetadata]:
         """Create from sql"""
-        if row is None:
+        if not row:
             return None
         return SpotifyMetadata.fromDict(JDict.fromString(row))
 

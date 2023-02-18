@@ -9,7 +9,7 @@ from aiohttp import web
 from multidict import MultiDict
 from pyaddict.schema import Object, Integer
 
-from db.dbManager import DbManager
+from db.database import Database
 from downloader.downloader import Downloader
 from helper.payloadParser import withObjectPayload
 from player.player import Player
@@ -17,22 +17,25 @@ from player.player import Player
 
 class DownloadHandler:
     """download handler"""
-    def __init__(self, dbManager: DbManager, downloader: Downloader, player: Player) -> None:
-        self._dbManager = dbManager
+    def __init__(self, downloader: Downloader, player: Player) -> None:
+        self._dbManager = Database()
         self._downloader = downloader
         self._player = player
 
     async def downloadTrack(self, request: web.Request) -> web.Response:
         """get(/api/tracks/{id}/download)"""
         id_ = int(request.match_info['id'])
-        song = self._dbManager.getSongById(id_)
+        song = await self._dbManager.songs.byId(id_)
+    
+        if not song:
+            return web.HTTPNotFound(text = "song not found")
+
         pathAndName = f"./_cache/{song.id}.dl.mp3"
 
         if not await self._downloader.downloadSong(song, True, True):
             return web.HTTPExpectationFailed(text = "not downloadable")
 
-        artists = ", ".join(song.artists)
-        filename = f"{artists} - {song.title}".replace(",", "%2C") # header
+        filename = f"{song.artist} - {song.name}".replace(",", "%2C") # header
 
         res = web.FileResponse(pathAndName,
             headers=MultiDict({"Content-Disposition": f"Attachment;filename={filename}.mp3"}))
@@ -62,4 +65,4 @@ class DownloadHandler:
         """get(/api/player/stream)"""
         if not self._player.currentSong:
             return web.HTTPPreconditionRequired()
-        return web.HTTPPermanentRedirect(f"/api/player/stream/{self._player.currentSong.id}")
+        return web.HTTPPermanentRedirect(f"/api/player/stream/{self._player.currentSong.model.id}")

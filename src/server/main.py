@@ -9,7 +9,7 @@ from typing import Awaitable, Callable
 try:
     from typing import Optional
 
-    from db.dbManager import DbManager
+    from db.database import Database
 
     from downloader.downloader import Downloader
 
@@ -61,10 +61,9 @@ mimetypes.init()
 mimetypes.types_map['.js'] = 'application/javascript; charset=utf-8'
 
 Migrator.migrate()
-dbManager = DbManager()
 downloader = Downloader()
-playlistManager = PlaylistManager(dbManager)
-player = Player(dbManager, downloader, playlistManager)
+playlistManager = PlaylistManager()
+player = Player(downloader, playlistManager)
 
 
 @middleware
@@ -95,12 +94,12 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
 
     spotify = Spotify()
 
-    playerHandler = PlayerHandler(player, playlistManager, dbManager)
+    playerHandler = PlayerHandler(player, playlistManager)
     playlistHandler = PlaylistHandler(player, playlistManager)
-    collectionHandler = CollectionHandler(dbManager)
-    metaHandler = MetaHandler(dbManager, spotify)
-    downloadHandler = DownloadHandler(dbManager, downloader, player)
-    configHandler = ConfigHandler(dbManager)
+    collectionHandler = CollectionHandler()
+    metaHandler = MetaHandler(spotify)
+    downloadHandler = DownloadHandler(downloader, player)
+    configHandler = ConfigHandler()
     newsHandler = NewsHandler()
     sportsHandler = SportsHandler()
     websocket = Websocket(player)
@@ -143,6 +142,8 @@ async def main() -> None:
     await runner.setup()
     site = web.TCPSite(runner, host = Runtime.args.host, port = Runtime.args.port)
     await site.start()
+    await Database().init()
+    await playlistManager.loadPlaylists()
     await Runtime.cache.init()
 
     while True: # endless loop

@@ -5,9 +5,10 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from random import randint
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
+import asyncio
 from dataModel.playlist import Playlist
 from dataModel.song import Song
-from db.dbManager import DbManager
+from db.database import Database
 
 
 T = TypeVar('T') # pylint: disable=invalid-name
@@ -35,25 +36,25 @@ class OrderedUniqueList(List[T]):
 class PlayerPlaylist: # pylint: disable=too-many-public-methods
     """player playlist (not to be confused with db (dataModel) playlist)"""
     __slots__ = ("_dbManager", "_playlist", "_cursor", "_playlistIndex",
-                 "_name", "_description", "_cover", "_iterCursor")
+                 "_name", "_description", "_cover", "_iterCursor", "_dataPlaylist")
 
     def __init__(self,
-                 dbManager: DbManager,
                  playlistIndex: Optional[int] = None,
                  songs: Optional[List[Song]] = None,
                  name: Optional[str] = None,
                  description: Optional[str] = None,
                  cover: Optional[str] = None) -> None:
-        self._dbManager = dbManager
+        self._dbManager = Database()
         self._playlist: OrderedUniqueList[Song] = OrderedUniqueList()
         self._cursor: int = -1
         self._playlistIndex = playlistIndex
-        self._name: str = name or "N/A"
-        self._description: str = description or "N/A"
-        self._cover: str = ""
+        self._name: Optional[str] = name
+        self._description: Optional[str] = description
+        self._cover: Optional[str] = cover
         self._updateCover(cover)
-        self._load(playlistIndex, songs)
+        asyncio.create_task(self._load(playlistIndex, songs))
         self._iterCursor = 0
+        self._dataPlaylist: Optional[Playlist] = None
 
     def __iter__(self) -> PlayerPlaylist:
         return self
@@ -69,31 +70,29 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         return len(self._playlist)
 
     @staticmethod
-    def liked(dbManager: DbManager) -> PlayerPlaylist:
+    async def liked() -> PlayerPlaylist:
         """liked songs"""
-        songs = dbManager.getLikedSongs()
-        return PlayerPlaylist(dbManager,
-                              songs = songs,
+        songs = await Database().songs.select("*", "WHERE favourite = 1")
+        return PlayerPlaylist(songs = Song.list(songs),
                               name="Liked Songs",
                               description = f"your {len(songs)} favourite tracks, automatically updated", # pylint: disable=line-too-long
                               playlistIndex = -1)
 
     @staticmethod
-    def breaking(dbManager: DbManager) -> PlayerPlaylist:
+    async def breaking() -> PlayerPlaylist:
         """newest songs"""
-        songs = dbManager.getLatestSongs(25)
-        return PlayerPlaylist(dbManager,
-                              songs = songs,
+        songs = await Database().songs.select("*", "ORDER BY id DESC LIMIT 25")
+        return PlayerPlaylist(songs = Song.list(songs),
                               name="Breaking",
                               description = f"your {len(songs)} newest songs, automatically updated", # pylint: disable=line-too-long
                               playlistIndex = -2)
 
     def _updateCover(self, cover: Optional[str]) -> None:
-        self._cover = cover or (self._playlist[0].cover \
+        self._cover = cover or (self._playlist[0].model.cover \
                                 if len(self._playlist) > 0 \
                                 else "")
 
-    def _load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
+    async def _load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
         """loads from database"""
         if (playlistIndex is None or playlistIndex < 0) and songs is not None:
             self._playlist.update(songs)
@@ -102,13 +101,10 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         if playlistIndex is None:
             return
 
-        playlist = self._dbManager.getPlaylistById(playlistIndex)
-        if not playlist:
-            return
-        self._playlist.update(self._dbManager.getSongsByIdList(playlist.songs))
-        self._name = playlist.name
-        self._description = playlist.description
-        self._updateCover(playlist.cover)
+        model = await self._dbManager.playlists.byId(playlistIndex)
+        assert model is not None
+        self._dataPlaylist = Playlist(model)
+        self._playlist.update(Song.list(await self._dbManager.songs.allByIds(self._dataPlaylist.songs)))
 
     @property
     def valid(self) -> bool:
@@ -182,50 +178,37 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         """play the last song"""
         return self._playlist[self.lastIndex(preview, increment)]
 
-    def add(self, song: Song, alreadyInDb: bool = False) -> None:
+    async def add(self, song: Song, alreadyInDb: bool = False) -> None:
         """adds a song to the db"""
         if not alreadyInDb:
-            self._dbManager.addSong(song)
-        x = self._dbManager.getSongsByCustomFilter(f"source='{song.source}'")[0]
-        self._playlist.append(x)
-        songs = list(map(lambda x: x.id, self._playlist))
+            await self._dbManager.songs.insert(song.model)
+        songs = await self._dbManager.songs.select(append = f"WHERE source='{song.model.source}'")
+        x = songs[0]
+        assert x is not None
+        self._playlist.append(Song(x))
         assert self._playlistIndex is not None
-        self._dbManager.updatePlaylist(Playlist(self._name,
-                                                songs,
-                                                self._playlistIndex,
-                                                self._description,
-                                                self._cover))
 
-    def remove(self, songId: int) -> None:
+    async def remove(self, songId: int) -> None:
         """removes a song (and optionally form the db)"""
-        x = self._dbManager.getSongById(songId)
-        self._playlist.remove(x)
-        songs = list(map(lambda x: x.id, self._playlist))
+        x = await self._dbManager.songs.byId(songId)
+        assert x is not None
+        self._playlist.remove(Song(x))
         assert self._playlistIndex is not None
-        self._dbManager.updatePlaylist(Playlist(self._name,
-                                                songs,
-                                                self._playlistIndex,
-                                                self._description,
-                                                self._cover))
-        self._dbManager.removeSong(songId)
+        await self._dbManager.songs.delete(x)
 
     def move(self, songIndex: int, newSongIndex: int) -> None:
         """moves a song in this playlist"""
         self._playlist.changeIndex(songIndex, newSongIndex)
-        songs = list(map(lambda x: x.id, self._playlist))
         assert self._playlistIndex is not None
-        self._dbManager.updatePlaylist(Playlist(self._name,
-                                                songs,
-                                                self._playlistIndex,
-                                                self._description,
-                                                self._cover))
         if self._cursor == songIndex:
             self._cursor = newSongIndex
 
     @property
     def name(self) -> str:
         """playlist name"""
-        return self._name
+        if self._dataPlaylist:
+            return self._dataPlaylist.model.name
+        return self._name or "N/A"
 
     @name.setter
     def name(self, value: str) -> None:
@@ -234,7 +217,9 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     @property
     def description(self) -> str:
         """playlist description"""
-        return self._description
+        if self._dataPlaylist:
+            return self._dataPlaylist.model.description
+        return self._description or ""
 
     @description.setter
     def description(self, value: str) -> None:
@@ -243,7 +228,10 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     @property
     def cover(self) -> str:
         """playlist cover"""
-        return self._cover
+        if self._dataPlaylist:
+            return self._dataPlaylist.model.cover
+
+        return self._cover or ""
 
     @cover.setter
     def cover(self, value: str) -> None:
@@ -252,16 +240,16 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     def toDict(self) -> Dict[str, Any]:
         """serialise"""
         return {
-            "description": self._description,
+            "description": self.description,
             "index": self._cursor, # currently playing song
-            "name": self._name,
-            "cover": self._cover,
+            "name": self.name,
+            "cover": self.cover,
             "songs": list(map(lambda x: x.toDict(), self._playlist))
         }
 
     def byId(self, id_: int) -> List[Song]:
         """find all songs in this playlist with this id"""
-        return [ x for x in self._playlist if x.id == id_ ]
+        return [ x for x in self._playlist if x.model.id == id_ ]
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, PlayerPlaylist):
@@ -273,12 +261,3 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
 
     def __repr__(self) -> str:
         return f"(Player.PlayerPlaylist) name=[{self._name}] id=[{self._cursor}]"
-
-    def toDMPlaylist(self) -> Playlist:
-        """converts to database playlist"""
-        assert self._playlistIndex is not None
-        return Playlist(self.name,
-                        [ x.id for x in self._playlist],
-                        self._playlistIndex,
-                        self.description,
-                        self._cover)

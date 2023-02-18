@@ -18,6 +18,7 @@ from yt_dlp import YoutubeDL # type: ignore
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.singleton import Singleton
 from config.customData import LocalTrack
+from db.table.songs import SongModel
 from dataModel.song import Song
 
 
@@ -40,21 +41,21 @@ class Downloader(metaclass = Singleton):
         self._ydl = YoutubeDL(self._opts)
         self._logger = logging.getLogger("downloader")
 
-    async def _getCover(self, song: Song) -> bytes:
+    async def _getCover(self, song: SongModel) -> bytes:
         async with aiohttp.ClientSession() as session:
             async with session.get(song.cover) as resp:
                 if resp.status != 200:
                     raise LookupError()
                 return await resp.read()
 
-    async def _applyMetadata(self, filename: str, song: Song) -> None:
+    async def _applyMetadata(self, filename: str, song: SongModel) -> None:
         fullPath = f"./_cache/{filename}.mp3"
         file = eyed3.load(fullPath)
         tag = file.tag or Tag()
 
         if song.artists:
             tag.artist = ", ".join(song.artists)
-        tag.title = song.title
+        tag.title = song.name
         tag.album = song.album
 
         tag.images.set(ImageFrame.FRONT_COVER,
@@ -66,11 +67,11 @@ class Downloader(metaclass = Singleton):
         tag.save(version=eyed3.id3.ID3_V2_3)
 
     async def downloadSong(self,
-                           song: Song,
+                           song: SongModel,
                            forExport: bool = False,
                            withMetadata: bool = False) -> bool:
         """downloads a song"""
-        filename = song.downloadPath(forExport)
+        filename = Song(song).downloadPath(forExport)
         result = await self.download(song.source, filename)
         if not result:
             return False
