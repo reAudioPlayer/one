@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
 from __future__ import annotations
+__copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
+
 from abc import ABC, abstractmethod
 import asyncio
 from typing import Any, List, Generic, TypeVar, Tuple, Type, Set, Callable, Coroutine, cast
@@ -6,6 +10,7 @@ import aiosqlite
 
 
 class IModel(ABC):
+    """model interface"""
     __slots__ = ("_onChanged", )
     COLUMNS: List[str] = []
 
@@ -14,6 +19,7 @@ class IModel(ABC):
 
     @property
     def onChanged(self) -> Set[Callable[[IModel], Coroutine[Any, Any, None]]]:
+        """return onChanged"""
         return self._onChanged
 
     def _fireChanged(self) -> None:
@@ -23,26 +29,26 @@ class IModel(ABC):
     @classmethod
     @abstractmethod
     def fromTuple(cls, row: aiosqlite.Row) -> IModel:
-        ...
+        """create model from tuple"""
 
     @abstractmethod
     def toTuple(self) -> Tuple[Any, ...]:
-        ...
+        """return tuple"""
 
     @property
     @abstractmethod
     def insertStatement(self) -> str:
-        ...
+        """return insert statement"""
 
     @property
     @abstractmethod
     def updateStatement(self) -> str:
-        ...
+        """return update statement"""
 
     @property
     @abstractmethod
     def eq(self) -> str:
-        ...
+        """return eq statement"""
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({', '.join([str(x) for x in self.toTuple()])})"
@@ -55,6 +61,7 @@ _T = TypeVar("_T", bound=IModel)
 
 
 class ITable(ABC, Generic[_T]):
+    """table interface"""
     __slots__ = ("_db", )
     NAME = ""
     DESCRIPTION = ""
@@ -67,30 +74,38 @@ class ITable(ABC, Generic[_T]):
         ...
 
     def cast(self, row: aiosqlite.Row) -> _T:
+        """cast row to model"""
         item = self._model().fromTuple(row)
         item.onChanged.add(self.update)
         return cast(_T, item)
 
     async def all(self) -> List[_T]:
+        """get all items"""
         async with self._db.execute(f"SELECT * FROM {self.NAME}") as cursor:
             return [self.cast(row) for row in await cursor.fetchall()]
 
     async def insert(self, item: _T) -> None:
+        """insert item"""
         await self._db.execute(f"INSERT INTO {self.NAME} {item.insertStatement}", item.toTuple())
         item.onChanged.add(self.update)
 
     async def delete(self, item: _T) -> None:
+        """delete item"""
         await self._db.execute(f"DELETE FROM {self.NAME} WHERE {item.eq}")
         item.onChanged.remove(self.update)
 
     async def update(self, item: IModel) -> None:
-        await self._db.execute(f"UPDATE {self.NAME} SET {item.updateStatement} WHERE {item.eq}", item.toTuple())
+        """update item"""
+        await self._db.execute(f"UPDATE {self.NAME} SET {item.updateStatement} WHERE {item.eq}",
+                               item.toTuple())
 
     async def create(self) -> None:
+        """create table"""
         await self._db.execute(f"CREATE TABLE IF NOT EXISTS {self.NAME} ({self.DESCRIPTION})")
         await self._alter()
 
     async def select(self, select: str = "*", append: str = "") -> List[_T]:
+        """select items"""
         async with self._db.execute(f"SELECT {select} FROM {self.NAME} {append}") as cursor:
             return [self.cast(row) for row in await cursor.fetchall()]
 
@@ -100,7 +115,7 @@ class ITable(ABC, Generic[_T]):
             columns = [row[1] for row in await cursor.fetchall()]
         # get model columns
         model = self._model()
-        modelColumns = [x for x in model.COLUMNS]
+        modelColumns = model.COLUMNS
         # get columns to add
         toAdd = [x for x in modelColumns if x not in columns]
         toRemove = [x for x in columns if x not in modelColumns]
@@ -112,4 +127,5 @@ class ITable(ABC, Generic[_T]):
             await self._db.execute(f"ALTER TABLE {self.NAME} DROP COLUMN {column}")
 
     async def drop(self) -> None:
+        """drop table"""
         await self._db.execute(f"DROP TABLE IF EXISTS {self.NAME}")

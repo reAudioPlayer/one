@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+from __future__ import annotations
+__copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
+
 from typing import Optional
 import asyncio
 import logging
@@ -11,6 +16,7 @@ from config.runtime import Runtime
 
 
 class Database(metaclass=Singleton):
+    """Database"""
     __slots__ = ("_db", "_songs", "_playlists", "_autoCommit", "_logger")
 
     def __init__(self) -> None:
@@ -30,6 +36,7 @@ class Database(metaclass=Singleton):
                 await self._db.commit()
 
     async def init(self) -> None:
+        """Initialise database"""
         path = Runtime.args.db
         self._db = await aiosqlite.connect(path)
         self._songs = SongsTable(self._db)
@@ -43,15 +50,18 @@ class Database(metaclass=Singleton):
         self._autoCommit = asyncio.create_task(self._autoCommitTask())
 
     async def close(self) -> None:
+        """Close database"""
         assert self._db is not None
         await self._db.close()
 
     @property
     def songs(self) -> SongsTable:
+        """Return songs table"""
         assert self._songs is not None
         return self._songs
 
     @property
     def playlists(self) -> PlaylistsTable:
+        """Return playlists table"""
         assert self._playlists is not None
         return self._playlists

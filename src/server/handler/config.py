@@ -62,8 +62,10 @@ class ConfigHandler:
         covers = LocalCover.getAll()
         result: List[Dict[str, Any]] = [ ]
         for cover in covers:
-            songs = await self._dbManager.songs.select(f"WHERE cover = '{cover.displayPath}'")
-            playlists = await self._dbManager.songs.select(append = f"WHERE cover = '{cover.displayPath}'")
+            songs = await self._dbManager.songs.select(
+                f"WHERE cover = '{cover.displayPath}'")
+            playlists = await self._dbManager.songs.select(
+                append = f"WHERE cover = '{cover.displayPath}'")
             result.append({
                 "name": cover.displayPath,
                 "songs": [ song.toDict() for song in songs ],
@@ -85,7 +87,8 @@ class ConfigHandler:
         tracks = LocalTrack.getAll()
         result: List[Dict[str, Any]] = [ ]
         for track in tracks:
-            songs = await self._dbManager.songs.select(append = f"WHERE source = '{track.displayPath}'")
+            songs = await self._dbManager.songs.select(
+                append = f"WHERE source = '{track.displayPath}'")
             result.append({
                 "name": track.displayPath,
                 "songs": [ song.toDict() for song in songs ]

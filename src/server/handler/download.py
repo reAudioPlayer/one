@@ -26,7 +26,7 @@ class DownloadHandler:
         """get(/api/tracks/{id}/download)"""
         id_ = int(request.match_info['id'])
         song = await self._dbManager.songs.byId(id_)
-    
+
         if not song:
             return web.HTTPNotFound(text = "song not found")
 

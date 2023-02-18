@@ -1,10 +1,15 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
 from __future__ import annotations
+__copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
+
 from typing import Type, Tuple, Optional, Dict, Any
 import aiosqlite
 from db.table.table import ITable, IModel
 
 
 class PlaylistModel(IModel):
+    """playlist model"""
     __slots__ = ("_id", "_name", "_songs", "_description", "_cover", "_plays")
     _SQLType = Tuple[int, str, str, str, str, int]
     _SQLInsertType = Tuple[str, str, str, str, int]
@@ -57,6 +62,7 @@ class PlaylistModel(IModel):
 
     @property
     def name(self) -> str:
+        """name of the playlist"""
         return self._name
 
     @name.setter
@@ -68,6 +74,7 @@ class PlaylistModel(IModel):
 
     @property
     def description(self) -> str:
+        """description of the playlist"""
         return self._description
 
     @description.setter
@@ -79,6 +86,7 @@ class PlaylistModel(IModel):
 
     @property
     def cover(self) -> str:
+        """cover of the playlist"""
         return self._cover
 
     @cover.setter
@@ -90,6 +98,7 @@ class PlaylistModel(IModel):
 
     @property
     def songs(self) -> str:
+        """songs of the playlist"""
         return self._songs
 
     @songs.setter
@@ -101,6 +110,7 @@ class PlaylistModel(IModel):
 
     @property
     def plays(self) -> int:
+        """plays of the playlist"""
         return self._plays
 
     @plays.setter
@@ -112,10 +122,12 @@ class PlaylistModel(IModel):
 
     @property
     def id(self) -> int:
+        """id of the playlist"""
         assert self._id is not None
         return self._id
 
     def toDict(self) -> Dict[str, Any]:
+        """return dict"""
         return {
             "id": self._id,
             "name": self._name,
@@ -127,6 +139,7 @@ class PlaylistModel(IModel):
 
 
 class PlaylistsTable(ITable[PlaylistModel]):
+    """playlist table"""
     NAME = "Playlists"
     DESCRIPTION = """
                   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -141,6 +154,7 @@ class PlaylistsTable(ITable[PlaylistModel]):
         return PlaylistModel
 
     async def byId(self, id_: int) -> Optional[PlaylistModel]:
+        """get playlist by id"""
         async with self._db.execute(f"SELECT * FROM {self.NAME} WHERE id=?", str(id_)) as cursor: # pylint: disable=line-too-long
             row = await cursor.fetchone()
             if row is None:
@@ -148,4 +162,5 @@ class PlaylistsTable(ITable[PlaylistModel]):
             return self.cast(row)
 
     async def deleteById(self, id_: int) -> None:
+        """delete playlist by id"""
         await self._db.execute(f"DELETE FROM {self.NAME} WHERE id=?", str(id_))

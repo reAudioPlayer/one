@@ -3,14 +3,12 @@
 from __future__ import annotations
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
-from typing import Any, Dict, List, Optional, Tuple
-import math
+from typing import Any, Dict, List, Optional
 from hashids import Hashids # type: ignore
 
 from pyaddict import JDict
 
 from dataModel.metadata import SongMetadata
-from dataModel.track import ITrack
 
 from db.table.songs import SongModel
 
@@ -84,7 +82,7 @@ class Song:
         favourite = dex.ensure("favourite", bool)
         duration = _castDuration(dex.get("duration"))
         source = dex.ensure("source", str)
-        model = SongModel(name, artist, album, cover, favourite, duration, source, 0, "")
+        model = SongModel(name, artist, album, cover, favourite, duration, "", source, 0)
         return cls(model)
 
     def update(self, other: Song) -> None:
