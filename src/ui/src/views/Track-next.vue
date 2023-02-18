@@ -54,6 +54,7 @@ const load = async (spotifyId: string = null) => {
 
     metadata.value = await getSongMetadata(song.value.id, !!spotifyId, spotifyId);
     spotifyUrl.value = `https://open.spotify.com/track/${metadata.value.spotify.id}`;
+    spotifyUrlIcon.value = "link";
     recommendations.value = await getRecommendations(song.value.id)
     circles.value = [];
 
@@ -82,8 +83,10 @@ const load = async (spotifyId: string = null) => {
 
 onMounted(load);
 watch(route, () => load(), { deep: true });
+
 watch(spotifyUrl, () => {
-    if (song.value?.metadata?.spotify?.id == parseSpotifyId(spotifyUrl.value, "track")) {
+    console.log(parseSpotifyId(spotifyUrl.value, "track"), metadata.value?.spotify?.id)
+    if (metadata.value?.spotify?.id == parseSpotifyId(spotifyUrl.value, "track")) {
         spotifyUrlIcon.value = "link";
         return;
     }
