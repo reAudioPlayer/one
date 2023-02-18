@@ -58,7 +58,7 @@ class PlaylistHandler:
 
     async def createPlaylist(self, _: web.Request) -> web.Response:
         """get(/api/playlists/new)"""
-        return web.Response(status = 200, text = str(self._playlistManager.addPlaylist()))
+        return web.Response(status = 200, text = str(await self._playlistManager.addPlaylist()))
 
     @withObjectPayload(Object({
         "id": Integer().min(0).coerce(),
