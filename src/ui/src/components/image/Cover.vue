@@ -6,6 +6,7 @@
 <script lang="ts" setup>
 import { computed, PropType, ref, watch } from "vue";
 import { generatePlaceholder, getCover } from "./placeholder";
+import { parseAnyCover } from "../../common";
 
 const props = defineProps({
     src: {
@@ -30,27 +31,34 @@ const placeholderIcon = computed(() => {
     return props.type === "track" ? "music_note" : "queue_music";
 });
 
-const src = ref(props.src);
-
-watch(() => props.src, () => {
-    src.value = props.src;
-});
+const imgSrc = ref(null);
 
 const onError = async () => {
-    src.value = await generatePlaceholder(placeholderIcon.value);
+    imgSrc.value = await generatePlaceholder(placeholderIcon.value);
 
-    if (src.value === undefined) {
+    if (imgSrc.value === undefined) {
         setTimeout(() => {
             onError();
         }, 100);
         return;
     }
 }
+
+const updateSrc = () => {
+    imgSrc.value = parseAnyCover(props.src, props.type);
+
+    if (!imgSrc.value) {
+        onError();
+    }
+}
+
+watch(() => props.src, updateSrc);
+updateSrc();
 </script>
 <template>
     <img
         :alt="props.type"
-        :src="getCover(src, placeholderIcon)"
+        :src="getCover(imgSrc, placeholderIcon)"
         class="cover"
         @error="onError"
     />
