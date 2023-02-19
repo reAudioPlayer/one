@@ -91,6 +91,31 @@ class SongModel(IModel):
             self._plays,
         )
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SongModel):
+            return False
+        if self._id != other._id:
+            return False
+        if self._name != other._name:
+            return False
+        if self._artist != other._artist:
+            return False
+        if self._album != other._album:
+            return False
+        if self._cover != other._cover:
+            return False
+        if self._favourite != other._favourite:
+            return False
+        if self._duration != other._duration:
+            return False
+        if self._source != other._source:
+            return False
+        if self._plays != other._plays:
+            return False
+        if self._spotify != other._spotify:
+            return False
+        return True
+
     @property
     def eq(self) -> str:
         return f"id = {self._id}"
@@ -108,6 +133,7 @@ class SongModel(IModel):
 
     @name.setter
     def name(self, value: str) -> None:
+        print("name setter", value)
         if value == self._name:
             return
         self._name = value
@@ -265,10 +291,7 @@ class SongsTable(ITable[SongModel]):
     async def byId(self, id_: int) -> Optional[SongModel]:
         """get song by id"""
         where = f"id = {id_}"
-        rows = await self.select(append = f"WHERE {where}")
-        if len(rows) != 1:
-            return None
-        return rows[0]
+        return await self.selectOne(append = f"WHERE {where}")
 
     async def allByIds(self, ids: List[int]) -> List[SongModel]:
         """get songs by ids"""

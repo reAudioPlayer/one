@@ -10,6 +10,7 @@ from pyaddict import JDict
 
 from meta.spotify import SpotifyAudioFeatures
 from dataModel.track import BasicSpotifyItem
+from db.table.songs import SongModel
 
 
 SQLRow = Tuple[int, Optional[str], int]
@@ -137,6 +138,11 @@ class SongMetadata:
         if sql is None:
             return None
         return SongMetadata(*sql)
+
+    @staticmethod
+    def fromSongModel(model: SongModel) -> SongMetadata:
+        """create Metadata from SongModel"""
+        return SongMetadata(model.id, model.spotify, model.plays)
 
     def toSql(self) -> SQLRow:
         """return sql representation"""

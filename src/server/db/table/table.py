@@ -5,7 +5,10 @@ __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
 from abc import ABC, abstractmethod
 import asyncio
-from typing import Any, List, Generic, TypeVar, Tuple, Type, Set, Callable, Coroutine, cast
+from typing import Optional, Any, List, \
+                   Generic, TypeVar, Tuple, \
+                   Type, Set, Callable, \
+                   Coroutine, cast
 import aiosqlite
 
 
@@ -23,7 +26,9 @@ class IModel(ABC):
         return self._onChanged
 
     def _fireChanged(self) -> None:
+        print("fire", len(self._onChanged))
         for callback in self._onChanged:
+            print(callback)
             asyncio.create_task(callback(self))
 
     @classmethod
@@ -62,12 +67,22 @@ _T = TypeVar("_T", bound=IModel)
 
 class ITable(ABC, Generic[_T]):
     """table interface"""
-    __slots__ = ("_db", )
+    __slots__ = ("_db", "_onChanged")
     NAME = ""
     DESCRIPTION = ""
 
     def __init__(self, db: aiosqlite.Connection) -> None:
         self._db = db
+        self._onChanged: Set[Callable[[_T], Coroutine[Any, Any, None]]] = set()
+
+    @property
+    def onChanged(self) -> Set[Callable[[_T], Coroutine[Any, Any, None]]]:
+        """return onChanged"""
+        return self._onChanged
+
+    def _fireChanged(self, item: _T) -> None:
+        for callback in self._onChanged:
+            asyncio.create_task(callback(item))
 
     @abstractmethod
     def _model(self) -> Type[_T]:
@@ -98,6 +113,8 @@ class ITable(ABC, Generic[_T]):
         """update item"""
         await self._db.execute(f"UPDATE {self.NAME} SET {item.updateStatement} WHERE {item.eq}",
                                item.toTuple())
+        assert isinstance(item, self._model())
+        self._fireChanged(item)
 
     async def create(self) -> None:
         """create table"""
@@ -108,6 +125,14 @@ class ITable(ABC, Generic[_T]):
         """select items"""
         async with self._db.execute(f"SELECT {select} FROM {self.NAME} {append}") as cursor:
             return [self.cast(row) for row in await cursor.fetchall()]
+
+    async def selectOne(self, select: str = "*", append: str = "") -> Optional[_T]:
+        """select one item"""
+        async with self._db.execute(f"SELECT {select} FROM {self.NAME} {append}") as cursor:
+            row = await cursor.fetchone()
+            if row is not None:
+                return self.cast(row)
+            return None
 
     async def _alter(self) -> None:
         # get columns

@@ -72,7 +72,7 @@ class PlaylistHandler:
     async def updatePlaylist(self, request: web.Request) -> web.Response:
         """post(/api/playlists/{id})"""
         id_ = int(request.match_info['id'])
-        jdata = await request.json()
+        jdata: Dict[str, Any] = await request.json()
         self._playlistManager.updatePlaylist(id_,
                                              jdata.get("name"),
                                              jdata.get("description"),

@@ -155,11 +155,7 @@ class PlaylistsTable(ITable[PlaylistModel]):
 
     async def byId(self, id_: int) -> Optional[PlaylistModel]:
         """get playlist by id"""
-        async with self._db.execute(f"SELECT * FROM {self.NAME} WHERE id=?", str(id_)) as cursor: # pylint: disable=line-too-long
-            row = await cursor.fetchone()
-            if row is None:
-                return None
-            return self.cast(row)
+        return await self.selectOne(append = f"WHERE id = {id_}")
 
     async def deleteById(self, id_: int) -> None:
         """delete playlist by id"""
