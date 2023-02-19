@@ -5,9 +5,9 @@
 
 <template>
     <router-link :to="href" class="link">
-        <div :class="{ active, img }" class="navEntry">
+        <div :class="{ active, img: showImg }" class="navEntry">
             <span v-if="icon" class="material-icons-round icon">{{icon}}</span>
-            <Cover v-if="img" :src="img" class="icon" type="playlist" />
+            <Cover v-if="showImg" :src="img" class="icon" type="playlist" />
             <span v-if="!minimised" class="name hideIfMobile">{{name}}</span>
         </div>
     </router-link>
@@ -31,6 +31,12 @@ export default {
             minimised: Boolean
         },
         computed: {
+            showImg() {
+                if (this.img) {
+                    return true;
+                }
+                return /^\/playlist\/\w{22}$/.exec(this.href);
+            },
             active() {
                 if (!this.hasChildSites) {
                     return false;

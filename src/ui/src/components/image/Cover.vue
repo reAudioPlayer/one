@@ -36,7 +36,7 @@ const imgSrc = ref(null);
 const onError = async () => {
     imgSrc.value = await generatePlaceholder(placeholderIcon.value);
 
-    if (imgSrc.value === undefined) {
+    if (!imgSrc.value) {
         setTimeout(() => {
             onError();
         }, 100);
