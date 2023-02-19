@@ -295,7 +295,7 @@ class SongsTable(ITable[SongModel]):
 
     async def allByIds(self, ids: List[int]) -> List[SongModel]:
         """get songs by ids"""
-        where = " OR ".join([f"id = {id_}" for id_ in ids])
+        where = f"id IN ({', '.join([ str(x) for x in ids ])})"
         return await self.select(append = f"WHERE {where}")
 
     async def search(self, query: str) -> List[SongModel]:
