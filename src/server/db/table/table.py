@@ -26,9 +26,7 @@ class IModel(ABC):
         return self._onChanged
 
     def _fireChanged(self) -> None:
-        print("fire", len(self._onChanged))
         for callback in self._onChanged:
-            print(callback)
             asyncio.create_task(callback(self))
 
     @classmethod

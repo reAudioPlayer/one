@@ -163,7 +163,6 @@ def _cleanCache() -> None:
 
 def _exitHandler(sig: int, frame: Optional[object]) -> None: # pylint: disable=unused-argument
     _cleanCache()
-    sys.exit(0)
 
 signal.signal(signal.SIGTERM, _exitHandler)
 

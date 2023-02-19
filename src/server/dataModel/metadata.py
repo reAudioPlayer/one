@@ -125,39 +125,19 @@ class SongMetadata:
     __slots__ = ("_id", "_spotify", "_spotifyFeatures", "_spotifyAnalysis", "_plays")
 
     def __init__(self,
-                 id_: int,
                  spotify: Optional[str] = None,
                  plays: int = 0) -> None:
-        self._id = id_
         self._plays = plays
         self._spotify = SpotifyMetadata.fromSql(spotify)
 
     @staticmethod
-    def fromSql(sql: Optional[SQLRow]) -> Optional[SongMetadata]:
-        """create Metadata from sql"""
-        if sql is None:
-            return None
-        return SongMetadata(*sql)
-
-    @staticmethod
     def fromSongModel(model: SongModel) -> SongMetadata:
         """create Metadata from SongModel"""
-        return SongMetadata(model.id, model.spotify, model.plays)
-
-    def toSql(self) -> SQLRow:
-        """return sql representation"""
-        return (self._id,
-                self._spotify.toStr() if self._spotify else "{}",
-                self._plays)
+        return SongMetadata(model.spotify, model.plays)
 
     def __repr__(self) -> str:
-        return f"(DataModel.Metadata) id=[{self._id}] \
+        return f"(DataModel.Metadata) \
             spotify=[{self._spotify}] plays=[{self._plays}]"
-
-    @property
-    def id(self) -> int:
-        """return id"""
-        return self._id
 
     @property
     def spotify(self) -> Optional[SpotifyMetadata]:
@@ -187,7 +167,6 @@ class SongMetadata:
     def toDict(self) -> Dict[str, Any]:
         """return dict representation"""
         return {
-            "id": self._id,
             "spotify": self._spotify.toDict() if self._spotify else None,
             "plays": self._plays
         }

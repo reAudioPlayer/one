@@ -199,10 +199,11 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         """adds a song to the db"""
         if not alreadyInDb:
             await self._dbManager.songs.insert(song.model)
-        songs = await self._dbManager.songs.select(append = f"WHERE source='{song.model.source}'")
-        x = songs[0]
+        x = await self._dbManager.songs.selectOne(append = f"WHERE source='{song.model.source}'")
         assert x is not None
+        assert self._dataPlaylist is not None
         self._playlist.append(Song(x))
+        self._dataPlaylist.addSong(x.id)
         assert self._playlistIndex is not None
 
     async def remove(self, songId: int) -> None:

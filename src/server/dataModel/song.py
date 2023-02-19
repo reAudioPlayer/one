@@ -64,6 +64,14 @@ class Song:
         """return metadata"""
         return self._metadata
 
+    @metadata.setter
+    def metadata(self, value: SongMetadata) -> None:
+        self._metadata = value
+        if value.spotify:
+            self._model.spotify = value.spotify.toStr()
+        if value.plays:
+            self._model.plays = value.plays
+
     def toDict(self) -> Dict[str, Any]:
         """return as dict"""
         result = self._model.toDict()
@@ -85,7 +93,11 @@ class Song:
     def fromDict(cls, data: Dict[str, Any]) -> Song:
         """return from dict"""
         dex = JDict(data)
-        name = dex.ensure("name", str)
+
+        name = dex.optionalGet("title", str)
+        if not name:
+            name = dex.ensure("name", str)
+
         artist = dex.ensure("artist", str)
         album = dex.ensure("album", str)
         cover = dex.ensure("cover", str)
