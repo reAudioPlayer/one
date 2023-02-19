@@ -22,7 +22,7 @@ class PlaylistHandler:
         id_ = int(request.match_info['id'])
         jdata = await request.json()
         await self._playlistManager.addToPlaylist(id_, Song.fromDict(jdata))
-        return web.Response(status = 200, text = "success!")
+        return web.Response()
 
     async def moveSong(self, request: web.Request) -> web.Response:
         """put(/api/playlists/{id}/tracks)"""
@@ -31,7 +31,7 @@ class PlaylistHandler:
         self._playlistManager.moveInPlaylist(id_,
                                              jdata["songOldIndex"],
                                              jdata["songNewIndex"])
-        return web.Response(status = 200, text = "success!")
+        return web.Response()
 
     async def removeSong(self, request: web.Request) -> web.Response:
         """/api/playlists/{id}/tracks"""

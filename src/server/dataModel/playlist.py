@@ -31,3 +31,14 @@ class Playlist:
         songs = json.loads(self._model.songs)
         assert isinstance(songs, list)
         return songs
+
+    @songs.setter
+    def songs(self, value: List[int]) -> None:
+        self._model.songs = json.dumps(value)
+
+    def addSong(self, song: int) -> None:
+        """add song"""
+        songs = self.songs
+        if song not in songs:
+            songs.append(song)
+        self.songs = songs

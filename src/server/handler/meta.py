@@ -252,7 +252,7 @@ class MetaHandler:
         if not onSpotify:
             return web.HTTPNotFound(text = "metadata not found")
 
-        metadata = SongMetadata(id_)
+        metadata = SongMetadata()
         metadata.spotify = SpotifyMetadata(onSpotify) # type: ignore
 
         spotifyFeatures = self._spotify.audioFeatures(onSpotify)
@@ -273,7 +273,7 @@ class MetaHandler:
                 releaseDate = spotifySong.releaseDate,
             )
 
-        #self._dbManager.updateMeta(metadata) # TODO re-implement
+        song.metadata = metadata
         return web.json_response(metadata.toDict())
 
     async def _searchOnSpotify(self, query: str, limit: int) -> SpotifyResult[List[SpotifyTrack]]:
