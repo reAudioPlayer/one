@@ -103,7 +103,9 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
                 if song.model != model:
                     self._playlist[i] = Song(model)
 
-    async def load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
+    async def load(self,
+                   playlistIndex: Optional[int],
+                   songs: Optional[List[Song]] = None) -> None:
         """loads from database"""
         if self._loaded:
             return
@@ -122,6 +124,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         self._playlist.update(
             Song.list(await self._dbManager.songs.allByIds(self._dataPlaylist.songs))
         )
+
+        self._loaded = True
 
     @property
     def valid(self) -> bool:
@@ -231,6 +235,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     @name.setter
     def name(self, value: str) -> None:
         self._name = value
+        if self._dataPlaylist:
+            self._dataPlaylist.model.name = value
 
     @property
     def description(self) -> str:
@@ -242,6 +248,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     @description.setter
     def description(self, value: str) -> None:
         self._description = value
+        if self._dataPlaylist:
+            self._dataPlaylist.model.description = value
 
     @property
     def cover(self) -> str:
@@ -254,6 +262,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     @cover.setter
     def cover(self, value: str) -> None:
         self._cover = value
+        if self._dataPlaylist:
+            self._dataPlaylist.model.cover = value
 
     def toDict(self) -> Dict[str, Any]:
         """serialise"""
@@ -278,4 +288,4 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         return hash((self._name, self._playlistIndex))
 
     def __repr__(self) -> str:
-        return f"(Player.PlayerPlaylist) name=[{self._name}] id=[{self._cursor}]"
+        return f"(Player.PlayerPlaylist) name=[{self.name}] id=[{self._playlistIndex}]"

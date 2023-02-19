@@ -77,18 +77,19 @@ try:
     with requests.get("http://localhost:1234/api/playlists", timeout = 10) as res:
         logger.info(res.status_code)
         playlists = JList(res.json())
+        logger.info(playlists)
         newPlaylist = playlists.ensure(0, str) # pylint: disable=invalid-name
-        assert newPlaylist == playlist["name"]
+        assert newPlaylist == playlist["name"], f"{newPlaylist} != {playlist['name']}"
 
     # get our playlist
     with requests.get(f"http://localhost:1234/api/playlists/{id_}", timeout = 10) as res:
         playlist = JDict(res.json())
         logger.info(res.status_code)
         logger.info(playlist)
-        assert playlist.ensure("name", str) == playlist["name"]
-        assert playlist.ensure("description", str) == playlist["description"]
-        assert playlist.ensure("cover", str) == playlist["cover"]
-        assert len(playlist.ensure("songs", list)) == 0
+        assert playlist.ensure("name", str) == playlist["name"], f"{playlist.ensure('name', str)} != {playlist['name']}" # pylint: disable=line-too-long
+        assert playlist.ensure("description", str) == playlist["description"], f"{playlist.ensure('description', str)} != {playlist['description']}" # pylint: disable=line-too-long
+        assert playlist.ensure("cover", str) == playlist["cover"], f"{playlist.ensure('cover', str)} != {playlist['cover']}" # pylint: disable=line-too-long
+        assert len(playlist.ensure("songs", list)) == 0, f"{len(playlist.ensure('songs', list))} != 0" # pylint: disable=line-too-long
 
     logger.info("==========================================================")
     logger.info("====================== Get Metadata ======================")
@@ -135,7 +136,8 @@ try:
     logger.info("======================== END TEST ========================")
     logger.info("==========================================================")
 
-except: # pylint: disable=bare-except
+except Exception as e: # pylint: disable=broad-except
+    logger.exception(e)
     SUCCESS = False
 try:
     requests.get("http://localhost:1234/api/system/kill", timeout = 10)
