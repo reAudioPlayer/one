@@ -66,6 +66,8 @@ class PlaylistHandler:
     async def deletePlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """delete(/api/playlists/id/{id})"""
         index: int = payload["id"]
+        if index >= self._playlistManager.playlistLength:
+            return web.Response(status = 404)
         self._playlistManager.removePlaylist(index)
         return web.Response(status = 200)
 

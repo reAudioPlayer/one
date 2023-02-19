@@ -30,7 +30,6 @@ class Database(metaclass=Singleton):
         assert self._db is not None
         while True:
             await asyncio.sleep(30)
-
             if self._db.in_transaction:
                 self._logger.debug("Committing transaction")
                 await self._db.commit()
