@@ -86,7 +86,7 @@ class PlaylistManager:
         plId = self.playlistLength
         name = name or f"My Playlist #{plId + 1}"
         await self._dbManager.playlists.insert(PlaylistModel(name))
-        await self.loadPlaylists()
+        self._playlists.append(PlayerPlaylist(plId, name = name))
         return plId
 
     def removePlaylist(self, playlistIndex: int) -> None:

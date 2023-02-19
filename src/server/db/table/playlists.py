@@ -159,4 +159,4 @@ class PlaylistsTable(ITable[PlaylistModel]):
 
     async def deleteById(self, id_: int) -> None:
         """delete playlist by id"""
-        await self._db.execute(f"DELETE FROM {self.NAME} WHERE id=?", str(id_))
+        await self._db.execute(f"DELETE FROM {self.NAME} WHERE id={id_}")
