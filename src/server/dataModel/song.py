@@ -4,12 +4,11 @@ from __future__ import annotations
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import Any, Dict, List, Optional
-from hashids import Hashids # type: ignore
 
+from hashids import Hashids # type: ignore
 from pyaddict import JDict
 
 from dataModel.metadata import SongMetadata
-
 from db.table.songs import SongModel
 
 
@@ -29,22 +28,33 @@ def _castDuration(value: Optional[Any]) -> int:
 
 class Song:
     """song model"""
-    __slots__ = ("_metadata", "_model" )
+    __slots__ = ("_metadata", "_model", "_onChanged" )
 
     def __init__(self,
                  model: SongModel) -> None:
         self._model = model
-        self._metadata = SongMetadata(model.id, model.spotify, model.plays)
+        self._metadata = SongMetadata.fromSongModel(model)
 
     @property
     def model(self) -> SongModel:
         """return model"""
         return self._model
 
+    @model.setter
+    def model(self, value: SongModel) -> None:
+        self._model = value
+        self._metadata = SongMetadata.fromSongModel(value)
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Song):
             return False
         return self._model.id == other._model.id
+
+    def deepEqual(self, other: object) -> bool:
+        """deep equal"""
+        if not isinstance(other, Song):
+            return False
+        return self._model == other._model # pylint: disable=protected-access
 
     def __hash__(self) -> int:
         return hash(self._model.id)

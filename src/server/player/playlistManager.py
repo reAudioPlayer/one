@@ -55,12 +55,21 @@ class PlaylistManager:
             for song in songs:
                 song.update(updateFunction(song))
 
-    def updatePlaylist(self, id_: int, name: str, description: str, cover: str) -> None:
+    def updatePlaylist(self,
+                       id_: int,
+                       name: Optional[str],
+                       description: Optional[str],
+                       cover: Optional[str]) -> None:
         """updates a playlist"""
-        playlist: PlayerPlaylist = self._playlists[id_]
-        playlist.name = name
-        playlist.description = description
-        playlist.cover = cover
+        if id_ >= self.playlistLength:
+            return
+        playlist = self._playlists[id_]
+        if name:
+            playlist.name = name
+        if description:
+            playlist.description = description
+        if cover:
+            playlist.cover = cover
 
     @property
     def playlists(self) -> OrderedUniqueList[PlayerPlaylist]:
@@ -76,7 +85,7 @@ class PlaylistManager:
         """creates a playlist"""
         plId = self.playlistLength
         name = name or f"My Playlist #{plId + 1}"
-        await self._dbManager.playlists.insert(PlaylistModel(name, id_ = plId))
+        await self._dbManager.playlists.insert(PlaylistModel(name))
         await self.loadPlaylists()
         return plId
 

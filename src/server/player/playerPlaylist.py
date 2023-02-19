@@ -9,6 +9,7 @@ import asyncio
 from dataModel.playlist import Playlist
 from dataModel.song import Song
 from db.database import Database
+from db.table.songs import SongModel
 
 
 T = TypeVar('T') # pylint: disable=invalid-name
@@ -36,7 +37,7 @@ class OrderedUniqueList(List[T]):
 class PlayerPlaylist: # pylint: disable=too-many-public-methods
     """player playlist (not to be confused with db (dataModel) playlist)"""
     __slots__ = ("_dbManager", "_playlist", "_cursor", "_playlistIndex", "_loaded",
-                 "_name", "_description", "_cover", "_iterCursor", "_dataPlaylist")
+                 "_name", "_description", "_cover", "_iterCursor", "_dataPlaylist" )
 
     def __init__(self,
                  playlistIndex: Optional[int] = None,
@@ -95,25 +96,31 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
                                 if len(self._playlist) > 0 \
                                 else "")
 
+    async def onSongChange(self, model: SongModel) -> None:
+        """updates the playlist if a song changes"""
+        for i, song in enumerate(self._playlist):
+            if song.model.id == model.id:
+                if song.model != model:
+                    self._playlist[i] = Song(model)
+
     async def load(self, playlistIndex: Optional[int], songs: Optional[List[Song]]) -> None:
         """loads from database"""
         if self._loaded:
             return
 
-        if (playlistIndex is None or playlistIndex < 0) and songs is not None:
-            self._playlist.update(songs)
-            return
+        if self._dbManager.ready:
+            self._dbManager.songs.onChanged.add(self.onSongChange)
 
-        if playlistIndex is None:
+        if playlistIndex is None or playlistIndex < 0:
+            if songs is not None:
+                self._playlist.update(songs)
             return
 
         model = await self._dbManager.playlists.byId(playlistIndex)
-        assert model is not None
+        assert model is not None, f"playlist {playlistIndex} not found"
         self._dataPlaylist = Playlist(model)
         self._playlist.update(
-            Song.list(
-                await self._dbManager.songs.allByIds(self._dataPlaylist.songs)
-            )
+            Song.list(await self._dbManager.songs.allByIds(self._dataPlaylist.songs))
         )
 
     @property
@@ -264,7 +271,7 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, PlayerPlaylist):
             return False
-        return self.name == other.name and self._playlistIndex == other._playlistIndex
+        return self._playlistIndex == other._playlistIndex
 
     def __hash__(self) -> int:
         return hash((self._name, self._playlistIndex))

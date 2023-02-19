@@ -65,3 +65,14 @@ class Database(metaclass=Singleton):
         """Return playlists table"""
         assert self._playlists is not None
         return self._playlists
+
+    @property
+    def ready(self) -> bool:
+        """Return if database is ready"""
+        if self._db is None:
+            return False
+        if self._songs is None:
+            return False
+        if self._playlists is None:
+            return False
+        return True
