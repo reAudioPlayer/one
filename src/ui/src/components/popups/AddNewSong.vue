@@ -12,6 +12,7 @@ import { addSong, fetchMetadata } from "../../api/song";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
+const emit = defineEmits(["update"]);
 
 const song: ISong = {
     title: "",
@@ -105,6 +106,7 @@ const show = async () => {
 const onSubmit = async _ => {
     const id = Number(unhashPlaylist(String(route.params.hash)));
     await addSong(id, form.value.toObject());
+    emit("update");
 }
 
 defineExpose({

@@ -113,8 +113,8 @@ const estimatedDuration = computed(() => {
     }
 
     for (const song of props.playlist.songs) {
-        isEstimate = isEstimate || song.duration == 0;
-        const seconds = song.duration == 0 ? 3 * 60 : song.duration; // estimate 3:00 if unknown
+        isEstimate = isEstimate || song.duration <= 0;
+        const seconds = song.duration <= 0 ? 3 * 60 : song.duration; // estimate 3:00 if unknown
         duration += seconds;
     }
 
@@ -165,7 +165,7 @@ const onObserveVisibility = (isVisible, entry) => {
 <div class="playlist p-4">
     <AddNewSong
         ref="addSongPopup"
-        @close="$emit('update')"
+        @update="$emit('update')"
     />
     <EditPlaylist
         v-if="playlist"
