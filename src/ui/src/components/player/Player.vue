@@ -4,17 +4,17 @@
   -->
 
 <script lang="ts" setup>
-import {Playable, usePlayerStore} from "../../store/player";
+import { Playable, usePlayerStore } from "../../store/player";
 import HtmlAudio from "./HtmlAudio.vue";
-import {computed, onMounted, Ref, ref, watch} from "vue";
+import { computed, onMounted, Ref, ref, watch } from "vue";
 import Cover from "../image/Cover.vue";
 import Marquee from "../Marquee.vue";
 import ProgressBar from "../ProgressBar.vue";
 import IconDropdown from "../inputs/IconDropdown.vue";
-import {useSettingsStore} from "../../store/settings";
-import {pictureInPictureStatus, requestPictureInPicture} from "../../pictureInPicture";
+import { useSettingsStore } from "../../store/settings";
+import { pictureInPictureStatus, requestPictureInPicture } from "../../pictureInPicture";
 import Spinner from "../loaders/Spinner.vue";
-import {hashTrack, isMobile} from "../../common";
+import { hashTrack, isMobile } from "../../common";
 import WaveAudio from "./WaveAudio.vue";
 
 const player = usePlayerStore();
@@ -86,6 +86,7 @@ const showWebWavePlayer = computed(() => {
             <div class="song-info">
                 <router-link class="linkOnHover" to="/player">
                     <Cover
+                        v-if="player.loaded"
                         :src="player.song.cover"
                         class="cover rounded-md"
                     />
