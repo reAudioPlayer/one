@@ -152,7 +152,7 @@ const onSpotifyUrlClick = () => {
                     <template v-if="metadata && metadata.spotify.features">
                         <div
                         v-if="metadata && metadata.spotify.features"
-                        class="features flex flex-row gap-4 mt-4"
+                        class="features flex flex-row gap-4 mt-4 overflow-x-auto"
                     >
                         <FactCard
                             v-if="metadata"
@@ -272,6 +272,10 @@ const onSpotifyUrlClick = () => {
             margin-right: 1rem;
         }
     }
+}
+
+.features div {
+    min-width: 150px;
 }
 
 .card {

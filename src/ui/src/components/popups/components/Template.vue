@@ -88,7 +88,7 @@ defineExpose({
             </div>
             <div
                 v-else
-                class="p-4 pt-0 flex flex-col overflow-hidden"
+                class="p-4 pt-0 flex flex-col overflow-x-hidden overflow-y-auto"
             >
                 <slot />
                 <div v-if="props.submit || props.secondary" class="confirm">

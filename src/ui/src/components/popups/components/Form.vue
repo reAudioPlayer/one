@@ -4,9 +4,8 @@
   -->
 
 <script lang="ts" setup>
-import { IDropdownOption } from "../../../common";
+import { IDropdownOption, openInNewTab, parseCover, toTitleCase } from "../../../common";
 import { PropType } from "vue";
-import { openInNewTab, parseCover, toTitleCase } from "@/common";
 import Dropdown from "../../inputs/Dropdown.vue";
 import TextInputWithIcon from "../../inputs/TextInputWithIcon.vue";
 import Cover from "../../image/Cover.vue";
@@ -117,15 +116,9 @@ defineExpose({
 </template>
 
 <style lang="scss" scoped>
-.form {
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
 .content {
     display: flex;
     flex-direction: row;
-    overflow-x: hidden;
 
     .icon-button {
         margin-right: 10px;

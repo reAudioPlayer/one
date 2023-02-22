@@ -71,7 +71,11 @@ window.addEventListener("click", () => {
 </script>
 <template>
     <div class="dropdown">
-        <div class="dropdown__selected" @click.stop="expanded = !expanded">
+        <div
+            :class="{ expanded }"
+            class="dropdown__selected"
+            @click.stop="expanded = !expanded"
+        >
             <div class="flex flex-row gap-2">
                 <span
                     v-if="icon"
@@ -123,6 +127,10 @@ window.addEventListener("click", () => {
         flex-direction: row;
         justify-content: space-between;
 
+        &.expanded {
+            border-radius: 1em 1em 0 0;
+        }
+
         &:focus-within, &:hover {
             border-color: var(--fg-base);
             color: var(--fg-base);
@@ -137,7 +145,7 @@ window.addEventListener("click", () => {
         max-height: 20rem;
         overflow-y: auto;
         background: var(--bg-base);
-        border-radius: 1em;
+        border-radius: 0 0 1em 1em;
         filter: var(--drop-shadow);
 
         .dropdown__option {
