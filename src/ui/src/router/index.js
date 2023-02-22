@@ -82,7 +82,7 @@ const routes = [{
     },
     {
         path: '/track/:hash',
-        component: () => import("@/views/Track-next.vue"),
+        component: () => import("@/views/Track.vue"),
         meta: {
             title: "Track - reAudioPlayer One"
         }

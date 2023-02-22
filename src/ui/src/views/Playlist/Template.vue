@@ -215,7 +215,7 @@ const onObserveVisibility = (isVisible, entry) => {
                         </p>
                     </div>
                     <div
-                        class="features flex flex-row gap-4 mt-4"
+                        class="features flex flex-row gap-4 mt-4 overflow-x-auto"
                     >
                         <FactCard
                             :primary-text="playlist.songs?.length"
@@ -343,6 +343,16 @@ const onObserveVisibility = (isVisible, entry) => {
 
     .multiselect {
         overflow-x: hidden;
+    }
+}
+
+.features div {
+    &.w-full {
+        min-width: 150px;
+    }
+
+    &.w-1\/2 {
+        min-width: 100px;
     }
 }
 
