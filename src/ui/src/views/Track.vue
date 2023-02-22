@@ -3,270 +3,307 @@
   - Licenced under the GNU General Public License v3.0
   -->
 
+<script lang="ts" setup>
+import { useRoute } from "vue-router";
+import { downloadSong, getRecommendations, getSongByHash, getSongMetadata } from "../api/song";
+import { computed, onMounted, ref, watch } from "vue";
+import { getCamelotKey, IMetadata, ISong, ISpotifySong, localeDate, openInNewTab, parseSpotifyId } from "../common";
+import Loader from "../components/Loader.vue";
+import Cover from "../components/image/Cover.vue";
+import Card from "../containers/Card.vue";
+import ProgressCircle from "../components/inputs/ProgressCircle.vue";
+import ExternalEntry from "../components/songContainers/ExternalEntry.vue";
+import { usePlayerStore } from "../store/player";
+import TextInputWithIcon from "../components/inputs/TextInputWithIcon.vue";
+import FactCard from "../containers/FactCard.vue";
+import EditSong from "../components/popups/EditSong.vue";
+import ButtonCard from "../containers/ButtonCard.vue";
+
+const route = useRoute();
+const player = usePlayerStore();
+
+const hash = computed(() => route.params.hash as string);
+
+const song = ref(null as ISong | null);
+const spotifyUrl = ref(null as string | null);
+const spotifyUrlIcon = ref("url");
+const metadata = ref(null as IMetadata | null);
+const recommendations = ref([] as ISpotifySong[]);
+const circles = ref([] as { key: string; value: number, icon: string }[]);
+
+const icons = {
+    "acousticness": "piano",
+    "danceability": "nightlife",
+    "energy": "electric_bolt",
+    "happiness": "mood",
+    "instrumentalness": "mic_off",
+    "liveness": "groups_2",
+    "speechiness": "mic",
+    "loudness": "volume_up",
+}
+
+const load = async (spotifyId: string = null) => {
+    // reset
+    song.value = null;
+    metadata.value = null;
+    recommendations.value = [];
+
+    song.value = await getSongByHash(hash.value);
+
+    window.document.title = `${song.value.title} - reAudioPlayer One`
+
+    metadata.value = await getSongMetadata(song.value.id, !!spotifyId, spotifyId);
+    spotifyUrl.value = `https://open.spotify.com/track/${metadata.value.spotify.id}`;
+    spotifyUrlIcon.value = "link";
+    recommendations.value = await getRecommendations(song.value.id)
+    circles.value = [];
+
+    for (let [key, value] of Object.entries(metadata.value.spotify.features)) {
+        if (["key", "mode", "tempo", "duration_ms", "time_signature"].includes(key)) {
+            continue;
+        }
+        if (typeof value !== "number") {
+            continue;
+        }
+
+        key = key.replaceAll("_", " ");
+        key = key.replace("valence", "happiness");
+
+        if (key === "loudness") {
+            value = 60 + value;
+        }
+
+        circles.value.push({
+            key,
+            value,
+            icon: icons[key]
+        });
+    }
+}
+
+onMounted(load);
+watch(route, () => load(), { deep: true });
+
+watch(spotifyUrl, () => {
+    console.log(parseSpotifyId(spotifyUrl.value, "track"), metadata.value?.spotify?.id)
+    if (metadata.value?.spotify?.id == parseSpotifyId(spotifyUrl.value, "track")) {
+        spotifyUrlIcon.value = "link";
+        return;
+    }
+
+    spotifyUrlIcon.value = "save";
+});
+const onSpotifyUrlClick = () => {
+    if (spotifyUrlIcon.value === "save") {
+        const id = parseSpotifyId(spotifyUrl.value, "track");
+        if (!id) {
+            return;
+        }
+        load(id);
+        return;
+    }
+
+    openInNewTab(spotifyUrl.value);
+}
+</script>
 <template>
-    <div class="playlist">
-        <EditSong
-            ref="editSongPopup"
-            :song="{
-                cover,
-                album,
-                title,
-                artist,
-                source: src,
-                id,
-            }"
-            @close="updatePlaylist"
-        />
-        <fixed-playlist-header ref="fixedHeading" :class="{ 'hidden': fixedHeaderHidden }"
-                               :title="`${artist} - ${title}`"
-                               @loadPlaylist="loadPlaylist" />
-        <div v-observe-visibility="headerVisibilityChanged" class="padding-20 songdetails" @click="editSong">
-            <img :src="cover" class="cover" />
-            <div class="details">
-                <h7>Song</h7>
-                <h1>{{ title }}</h1>
-                <h5>{{ artist }}</h5>
-            </div>
-        </div>
-        <hr>
-        <div class="padding-20">
-            <span id="loadPlaylist" class="material-icons-outlined" @click="loadPlaylist">play_circle_filled</span>
-            <!-- implement after context menu refactoring -->
-            <span
-                v-show="false"
-                id="addToPlaylist"
-                class="material-icons-outlined"
-                @click="addToPlaylist"
-            >add_circle</span>
-            <div v-if="recommendations.length" class="grid">
-                <h2>{{ "Recommendations based on " + title }}</h2>
-                <PlaylistHeader />
-                <hr>
-                <div class="playlistEntries">
-                    <spotify-playlist-entry
-                        v-for="(element, index) in recommendations"
-                        :id="element.id"
-                        :album="element.album"
-                        :artist="element.artists.join(', ')"
-                        :cover="element.cover"
-                        :duration="element.duration"
-                        :favourite="element.favourite"
-                        :index="index"
-                        :preview="element.preview"
-                        :source="element.href"
-                        :title="element.title"
-                        no-add
-                    />
+<div class="track p-4">
+    <EditSong
+        v-if="song"
+        ref="updatePopup"
+        :song="song"
+        @update="() => load()"
+    />
+    <Loader v-if="!song" />
+    <div v-else>
+        <div
+            class="track__data"
+        >
+            <div class="upper">
+                <Cover
+                    :src="song.cover"
+                    class="max-w-sm rounded-xl"
+                />
+                <div
+                    :class="{
+                        'justify-end': metadata,
+                        'justify-center': !metadata,
+                    }"
+                    class="track__info__details flex flex-col"
+                >
+                    <div class="trac__info__details__normal">
+                        <h3 class="text-secondary my-0 text-2xl font-bold">
+                            {{ song.artist }} <span class="text-muted text-base ml-2 font-light">• {{ song.album }}</span>
+                        </h3>
+                        <div class="flex flew-row items-center">
+                            <span
+                                class="text-5xl cursor-pointer material-symbols-rounded ms-fill my-auto"
+                                @click="player.loadPlaylist('track', song.id)"
+                            >
+                                play_circle
+                            </span>
+                            <h1
+                                class="font-black text-5xl ml-4"
+                            >
+                                {{ song.title }}
+                            </h1>
+                        </div>
+                    </div>
+                    <template v-if="metadata && metadata.spotify.features">
+                        <div
+                        v-if="metadata && metadata.spotify.features"
+                        class="features flex flex-row gap-4 mt-4 overflow-x-auto"
+                    >
+                        <FactCard
+                            v-if="metadata"
+                            :primary-text="metadata.spotify.features.key + ' ' + metadata.spotify.features.mode"
+                            class="w-full"
+                            secondary-text="Key"
+                        />
+                        <FactCard
+                            v-if="metadata"
+                            :primary-text="getCamelotKey(metadata)"
+                            class="w-full"
+                            secondary-text="Camelot"
+                        />
+                        <FactCard
+                            v-if="metadata"
+                            :primary-text="Math.round(metadata.spotify.features.tempo)"
+                            class="w-full"
+                            secondary-text="BPM"
+                        />
+                        <FactCard
+                            :primary-text="song.duration"
+                            class="w-full"
+                            secondary-text="Duration"
+                        />
+                        <FactCard
+                            v-if="metadata"
+                            :primary-text="metadata.plays"
+                            class="w-full"
+                            secondary-text="Plays"
+                        />
+                        <ButtonCard icon="edit" label="Edit" @click="$refs.updatePopup.show()" />
+                        <ButtonCard icon="download" label="Download" @click="downloadSong(song.id)" />
+                        </div>
+                            <div class="spotify-infos mt-4">
+                                <div class="meta items-center ">
+                                    <span class="text-muted">{{ localeDate(metadata.spotify.releaseDate) }}</span>
+                                    <span v-if="metadata.spotify.explicit" class="material-symbols-rounded ms-fill">explicit</span>
+                                    <span class="flex flex-row align-items">
+                                        <span class="material-symbols-rounded ms-fill mr-2">local_fire_department</span>
+                                        <span class="font-bold">{{ metadata.spotify.popularity }}</span>
+                                    </span>
+                                </div>
+                                <TextInputWithIcon
+                                    v-model="spotifyUrl"
+                                    :icon="spotifyUrlIcon"
+                                    :onClick="onSpotifyUrlClick"
+                                />
+                            </div>
+                    </template>
                 </div>
             </div>
         </div>
+        <div class="relative w-full mt-4">
+            <div class="spotify__features__circles">
+                <Card
+                    v-for="circle in circles"
+                    class="p-2"
+                >
+                    <ProgressCircle
+                        v-if="circle.key === 'loudness'"
+                        v-model="circle.value"
+                        :display-value="Math.round(-60 + circle.value) + 'dB'"
+                        class="circle"
+                        max="60"
+                    />
+                    <ProgressCircle
+                        v-else
+                        v-model="circle.value"
+                        :display-value="Math.round(circle.value * 100) + '%'"
+                        class="circle"
+                        max="1"
+                    />
+                    <p class="text-muted mb-0 text-center text-sm capitalize flex justify-center">
+                        <span class="material-symbols-rounded mr-2">{{circle.icon}}</span>
+                        {{ circle.key }}
+                    </p>
+                </Card>
+            </div>
+        </div>
+        <Card
+            v-if="recommendations.length"
+            class="p-4 mt-4"
+        >
+            <h2 class="!text-left">Similar Songs</h2>
+            <ExternalEntry
+                v-for="(recommendation, index) in recommendations"
+                :key="index"
+                :index="index"
+                :song="recommendation"
+                can-import
+                cannot-add
+                with-album
+                with-cover
+            />
+        </Card>
     </div>
+</div>
 </template>
 
-<script>
-import FixedPlaylistHeader from "../components/Playlist/FixedPlaylistHeader.vue";
-import PlaylistHeader from "@/components/songContainers/PlaylistHeader.vue";
-import EditSong from "@/components/popups/EditSong";
-import draggable from "vuedraggable";
-import SpotifyPlaylistEntry from "../components/SpotifyPlaylist/SpotifyPlaylistEntry.vue";
-import { parseCover, unhashTrack } from "@/common";
+<style lang="scss" scoped>
+.track__data .upper {
+    display: grid;
+    grid-template-columns: fit-content(100%) minmax(500px, 1fr);
+    gap: 2rem;
+}
 
-export default {
-    components: {
-        PlaylistHeader,
-        FixedPlaylistHeader,
-        draggable,
-        SpotifyPlaylistEntry,
-        EditSong,
-    },
-    data() {
-        this.updatePlaylist();
+.spotify-infos {
+    display: grid;
+    grid-template-columns: fit-content(100%) 1fr;
+    gap: 1rem;
 
-        return {
-            fixedHeaderHidden: true,
-            title: "N/A",
-            artist: "N/A",
-            album: "N/A",
-            cover: parseCover(null),
-            src: "",
-            id: -1,
-            recommendations: [],
-        };
-    },
-    methods: {
-        getId() {
-            return unhashTrack(this.$route.params.id);
-        },
-        onPlaylistRearrange(type) {
-            const moved = type.moved;
+    .meta {
+        display: grid;
+        grid-template-columns: repeat(3, fit-content(100%));
 
-            if (!moved) {
+        >*:not(:last-child) {
+            margin-right: 1rem;
+        }
+    }
+}
 
-            }
-        },
-        headerVisibilityChanged(a) {
-            this.fixedHeaderHidden = a;
-        },
-        editSong() {
-            this.$refs.editSongPopup.show();
-        },
-        addToPlaylist() {
-            return;
-            this.$refs.addSongPopup.show();
-        },
-        updatePlaylist() {
-            if (!this.getId()) {
-                return;
-            }
-            if (!this.$route.path.includes("/track/")) {
-                return;
-            }
-            fetch(`/api/tracks/${this.getId()}`).then(async x => {
-                if (x.status == 404) {
-                    this.$router.push("/");
-                    return;
-                }
+.features div {
+    min-width: 150px;
+}
 
-                const jdata = await x.json();
-                console.log(jdata);
-                this.title = jdata.title || "N/A";
-                this.artist = jdata.artist || "N/A";
-                this.cover = parseCover(jdata.cover);
-                this.src = jdata.source;
-                this.album = jdata.album || "N/A";
-                this.id = jdata.id;
-                document.title = `${this.title} • ${this.artist}`;
+.card {
+    p, h2 {
+        text-align: center;
+    }
+}
 
-                const resp = await fetch("/api/spotify/recommendations", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        query: `${this.artist} ${this.title}`,
-                    }),
-                });
-                const recommendations = await resp.json();
-                this.recommendations.push(...recommendations);
-            });
-        },
-        loadPlaylist() {
-            fetch("/api/player/load", {
-                method: "POST",
-                body: JSON.stringify({
-                    id: Number(this.getId()),
-                    type: "track",
-                }),
-            });
-        },
-    },
-    watch: {
-        $route() {
-            this.updatePlaylist();
-        },
-        currentSong() {
-            this.updateIsPlaying();
-        },
-    },
-};
-</script>
-
-<style scoped>
-.songdetails {
+.spotify__features__circles {
     display: flex;
+    flex-wrap: wrap;
     flex-direction: row;
-    margin-bottom: 20px;
-    margin-top: 5vh;
-}
-
-.songdetails > img {
-    width: 20%;
-    margin-right: 20px;
-    border-radius: 5px;
-}
-
-.songdetails > .details {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
     justify-content: flex-end;
-}
+    gap: 1rem;
 
-.songdetails:hover {
-    cursor: pointer;
-}
+    div {
+        min-width: 100px;
+        flex: 1;
+    }
 
-.songdetails > .details > h1 {
-    font-size: 3em;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
+    .circle {
+        width: 50%;
+        margin-left: auto;
+        margin-right: auto;
+    }
 
-.songdetails > .details > .detailswrapper {
-    font-size: .8em;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-}
-
-.songdetails > .details > .detailswrapper > .share {
-    margin-left: 10px;
-    line-height: 15px;
-    font-size: 15px;
-}
-
-.share:hover {
-    cursor: pointer;
-}
-
-.songdetails > .details > h5 {
-    font-size: .8em;
-    font-weight: normal;
-    color: var(--fg-base-dk);
-    margin: 0;
-}
-
-.playlistEntries {
-    display: flex;
-    flex-direction: column;
-}
-
-#loadPlaylist,
-#addToPlaylist {
-    cursor: pointer;
-    font-size: 60px;
-    margin-bottom: 20px;
-    width: 70px;
-    line-height: 70px;
-    text-align: center;
-    align-items: center;
-    vertical-align: middle;
-}
-
-#loadPlaylist:hover,
-#addToPlaylist:hover {
-    cursor: pointer;
-    font-size: 62px;
-}
-
-.padding-20 {
-    padding: 20px;
-}
-
-h3 {
-    text-transform: uppercase;
-}
-
-h7 {
-    text-transform: uppercase;
-    font-weight: bold;
-    font-size: 0.83em;
-}
-
-h1 {
-    margin-block-start: 0.15em;
-    margin-block-end: 0.15em;
-    font-size: 2.91em;
-}
-
-.hidden {
-    display: none !important;
+    p {
+        text-align: center;
+    }
 }
 </style>
