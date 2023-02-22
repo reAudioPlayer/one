@@ -134,7 +134,7 @@ class PlayerHandler:
         song.artist = jdata.ensure("artist", str, song.artist)
         song.name = jdata.ensure("title", str, song.name)
         song.cover = jdata.ensure("cover", str, song.cover)
-        song.duration = jdata.ensure("duration", int, song.duration)
+        song.duration = jdata.ensureCast("duration", int, song.duration)
         song.favourite = jdata.ensure("favourite", bool, song.favourite)
         song.source = jdata.ensure("source", str, song.source)
         return web.Response(status = 200)

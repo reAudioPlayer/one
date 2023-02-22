@@ -47,7 +47,7 @@ class MetaHandler:
         "id": Integer().coerce()
     }), inPath = True)
     async def getTrack(self, payload: Dict[str, Any]) -> web.Response:
-        """post(/api/tracks/{id})"""
+        """get(/api/tracks/{id})"""
         id_: int = payload["id"]
         song = await self._dbManager.songs.byId(id_)
         if not song:
