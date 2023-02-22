@@ -42,8 +42,6 @@ const props = defineProps({
 <style lang="scss" scoped>
 .playlist {
     position: relative;
-    overflow-x: hidden;
-    overflow-y: auto;
 
     .entries {
         position: relative;
