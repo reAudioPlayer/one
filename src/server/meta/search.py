@@ -3,7 +3,7 @@
 from __future__ import annotations
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Optional
 
 from db.database import Database
 from meta.spotify import Spotify
@@ -12,19 +12,55 @@ from dataModel.track import YoutubeTrack, ITrack
 from dataModel.song import Song
 
 
+class SearchScope():
+    """search scope"""
+
+    __slots__ = ("_value",)
+
+    def __init__(self, value: Optional[List[str]]) -> None:
+        self._value = value
+
+    @property
+    def spotify(self) -> bool:
+        """spotify"""
+        if self._value is None:
+            return True
+        return "spotify" in self._value
+
+    @property
+    def youtube(self) -> bool:
+        """youtube"""
+        if self._value is None:
+            return True
+        return "youtube" in self._value
+
+    @property
+    def local(self) -> bool:
+        """local"""
+        if self._value is None:
+            return True
+        return "local" in self._value
+
+
 class Search:
     """search engine"""
-    def __init__(self, tracks: List[Song], spotify: Spotify, query: str) -> None:
+    def __init__(self,
+                 tracks: List[Song],
+                 spotify: Spotify,
+                 query: str,
+                 scope: SearchScope) -> None:
         self._tracks = tracks
         #self._artists = [ ]
         self._spotifyTracks = [ ]
         self._spotifyArtists = [ ]
         self._youtubeTracks = [ ]
 
-        self._youtubeTracks = YoutubeTrack.fromQuery(query) or []
+        if scope.youtube:
+            self._youtubeTracks = YoutubeTrack.fromQuery(query) or []
 
-        self._spotifyTracks = spotify.searchTrack(query).unwrapOr([])
-        self._spotifyArtists = spotify.searchArtist(query).unwrapOr([])
+        if scope.spotify:
+            self._spotifyTracks = spotify.searchTrack(query).unwrapOr([])
+            self._spotifyArtists = spotify.searchArtist(query).unwrapOr([])
 
     @staticmethod
     async def searchTracks(query: str) -> List[Song]:
