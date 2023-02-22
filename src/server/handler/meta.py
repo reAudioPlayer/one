@@ -15,7 +15,7 @@ from helper.cacheDecorator import useCache
 from helper.payloadParser import withObjectPayload
 from meta.metadata import Metadata
 from meta.releases import Releases
-from meta.search import Search
+from meta.search import Search, SearchScope
 from meta.spotify import Spotify, SpotifyResult, SpotifyTrack
 from dataModel.track import SpotifyPlaylist
 from dataModel.song import Song
@@ -55,15 +55,22 @@ class MetaHandler:
         return web.json_response(data = Song(song).toDict())
 
     @withObjectPayload(Object({
-        "query": String().min(1)
+        "query": String().min(1),
+        "scope": Array(String().enum("local", "spotify", "youtube")).min(1).max(3).optional(),
     }), inBody = True)
     async def search(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/search)"""
         query: str = payload["query"]
-        search = await asyncRunInThreadWithReturn(Search,
-                                                  Search.searchTracks(query),
-                                                  self._spotify,
-                                                  query)
+        scope = SearchScope(payload.get("scope", None))
+        localTracks: List[Song] = [ ]
+
+        if scope.local:
+            localTracks = Song.list(await self._dbManager.songs.search(query))
+
+        def _implement() -> Search:
+            return Search(localTracks, self._spotify, query, scope)
+
+        search = await asyncRunInThreadWithReturn(_implement)
         return web.json_response(data = search.toDict())
 
     @withObjectPayload(Object({

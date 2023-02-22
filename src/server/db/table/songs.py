@@ -265,7 +265,8 @@ class SongModel(IModel):
             "source": self.source,
             "plays": self.plays,
             "spotify": self.spotify,
-            "url": self.url
+            "url": self.url,
+            "artists": self.artists,
         }
 
 
