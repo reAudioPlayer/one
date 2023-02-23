@@ -18,6 +18,7 @@ if /i "%command%" == "push" goto push
 if /i "%command%" == "remove" goto remove
 if /i "%command%" == "status" goto status
 if /i "%command%" == "rebuild" goto rebuild
+if /i "%command%" == "dev" goto dev
 if /i "%command%" == "" goto deploy
 
 echo unrecognised command '%command%'
@@ -83,6 +84,12 @@ exit
 
 :status
 docker ps
+exit
+
+:dev
+docker compose -f docker-compose.dev.yml down
+docker rmi ghcr.io/reaudioplayer/reap-one:dev
+docker compose -f docker-compose.dev.yml up
 exit
 
 :end

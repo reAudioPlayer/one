@@ -1,0 +1,18 @@
+FROM python:3.10
+
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y ffmpeg nginx
+
+COPY build/nginx.conf /etc/nginx/sites-available/default
+
+COPY src/server/requirements.txt /opt/reAudioPlayer/server/requirements.txt
+WORKDIR /opt/reAudioPlayer/server
+
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+EXPOSE 80
+
+VOLUME /opt/reAudioPlayer/
+VOLUME /opt/reAudioPlayer/server/_cache/
+
+ENTRYPOINT [ "python", "dev.main.py", "--with-docker" ]

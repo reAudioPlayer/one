@@ -20,7 +20,10 @@ class Nginx:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             if not Runtime.args.withDocker:
                 return None
-            return func(*args, **kwargs)
+            try:
+                return func(*args, **kwargs)
+            except Exception as e: # pylint: disable=broad-except
+                Nginx._logger.error(e)
         return wrapper
 
     @staticmethod
