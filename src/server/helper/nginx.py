@@ -22,8 +22,9 @@ class Nginx:
                 return None
             try:
                 return func(*args, **kwargs)
-            except Exception as e: # pylint: disable=broad-except
-                Nginx._logger.error(e)
+            except Exception as exc: # pylint: disable=broad-except
+                Nginx._logger.error(exc)
+                return None
         return wrapper
 
     @staticmethod
