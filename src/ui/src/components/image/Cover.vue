@@ -7,6 +7,7 @@
 import { computed, PropType, ref, watch } from "vue";
 import { generatePlaceholder, getCover } from "./placeholder";
 import { parseAnyCover } from "../../common";
+import { applyBoxShadow } from "../../helpers/accent";
 
 const props = defineProps({
     src: {
@@ -21,6 +22,16 @@ const props = defineProps({
     placeholder: {
         type: String,
         required: false,
+    },
+    withAmbient: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
+    ambientOpacity: {
+        type: Number,
+        required: false,
+        default: 0.2
     }
 });
 
@@ -31,7 +42,7 @@ const placeholderIcon = computed(() => {
     return props.type === "track" ? "music_note" : "queue_music";
 });
 
-const imgSrc = ref(null);
+const imgSrc = ref(null as string | null);
 
 const onError = async () => {
     imgSrc.value = await generatePlaceholder(placeholderIcon.value);
@@ -54,12 +65,33 @@ const updateSrc = () => {
 
 watch(() => props.src, updateSrc);
 updateSrc();
+
+const element = ref(null as HTMLImageElement | null);
+const onLoad = async () => {
+    if (!props.withAmbient) return;
+    if (!element.value) return;
+
+    // @ts-ignore
+    if (!window.getCurrentThemeProperty("supportsAmbient")) return;
+
+    const src = await getCover(imgSrc.value, placeholderIcon.value);
+
+    applyBoxShadow(element.value, src, props.ambientOpacity);
+}
 </script>
 <template>
     <img
+        ref="element"
         :alt="props.type"
         :src="getCover(imgSrc, placeholderIcon)"
         class="cover"
         @error="onError"
+        @load="onLoad"
     />
 </template>
+
+<style lang="scss" scoped>
+.cover {
+    transform: scale(1,1);
+}
+</style>

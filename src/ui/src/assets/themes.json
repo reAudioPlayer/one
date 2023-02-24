@@ -108,5 +108,9 @@
     "coverAsBackground": {
         "dark": false,
         "dynamic": true
+    },
+    "supportsAmbient": {
+        "dark": true,
+        "dynamic": false
     }
 }

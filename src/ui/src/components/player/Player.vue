@@ -16,6 +16,7 @@ import { pictureInPictureStatus, requestPictureInPicture } from "../../pictureIn
 import Spinner from "../loaders/Spinner.vue";
 import { hashTrack, isMobile } from "../../common";
 import WaveAudio from "./WaveAudio.vue";
+import AmbientBackground from "../image/AmbientBackground.vue";
 
 const player = usePlayerStore();
 const settings = useSettingsStore();
@@ -76,7 +77,7 @@ const showWebWavePlayer = computed(() => {
 });
 </script>
 <template>
-    <div class="player">
+    <div class="player relative">
         <HtmlAudio
             v-if="showWebPlayer"
             ref="playable"
@@ -192,7 +193,7 @@ const showWebWavePlayer = computed(() => {
                         <span
                             class="text-xs text-muted text-left"
                         >
-                            {{ player.song.duration }}
+                            {{ player.displayDuration }}
                         </span>
                     </div>
                 </div>
@@ -375,7 +376,10 @@ const showWebWavePlayer = computed(() => {
                 </div>
             </div>
         </div>
-
+        <AmbientBackground
+            :src="player.song.cover"
+            direction="to top right"
+        />
     </div>
 </template>
 <style lang="scss">
