@@ -78,6 +78,11 @@ const showWebWavePlayer = computed(() => {
 </script>
 <template>
     <div class="player relative">
+        <AmbientBackground
+            :src="player.song.cover"
+            direction="to top right"
+        />
+
         <HtmlAudio
             v-if="showWebPlayer"
             ref="playable"
@@ -128,7 +133,7 @@ const showWebWavePlayer = computed(() => {
                 </template>
             </div>
             <div class="controls">
-                <div class="top">
+                <div class="top relative">
                     <span
                         class="icon cursor-pointer material-symbols-rounded ms-wght-300"
                         @click="player.toggleShuffle"
@@ -198,7 +203,7 @@ const showWebWavePlayer = computed(() => {
                     </div>
                 </div>
             </div>
-            <div class="aux">
+            <div class="aux relative">
                 <IconDropdown
                     v-model="selectedPlaybackDevice"
                     :class="{
@@ -376,10 +381,6 @@ const showWebWavePlayer = computed(() => {
                 </div>
             </div>
         </div>
-        <AmbientBackground
-            :src="player.song.cover"
-            direction="to top right"
-        />
     </div>
 </template>
 <style lang="scss">

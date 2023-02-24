@@ -21,10 +21,10 @@
 </template>
 
 <script setup>
-import Logo from '/src/assets/images/logo/logo.svg'
-import NavEntry from '@/components/Sidebar/NavEntry.vue'
+import Logo from "/src/assets/images/logo/logo.svg";
+import NavEntry from "@/components/Sidebar/NavEntry.vue";
 import router from "@/router";
-import {onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 import TextInputWithIcon from "@/components/inputs/TextInputWithIcon.vue";
 
 let query = ref('');
@@ -52,7 +52,7 @@ let submit = () => {
         justify-content: space-between;
         align-items: center;
         box-shadow: 0 0 10px 0 var(--shadow);
-        z-index: 2;
+        z-index: 10;
     }
 
     .logo {

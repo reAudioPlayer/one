@@ -15,6 +15,9 @@ const applyOpacity = (colour: FastAverageColorResult, opacity: number) => {
 }
 
 export const applyBoxShadow = async (element: HTMLImageElement, src: string, opacity: number = 0.2) => {
+
+    console.log(element);
+
     var sizeX = element.width / 10;
     var sizeY = element.height / 10;
 
@@ -44,6 +47,8 @@ export const applyBoxShadow = async (element: HTMLImageElement, src: string, opa
         "0 ".concat(deltaY, " ").concat(blur, " ").concat(spread, " ").concat(colorBottom),
         "-".concat(deltaX, " 0 ").concat(blur, " ").concat(spread, " ").concat(colorLeft),
     ].join(', ');
+
+    console.log(element.style.boxShadow);
 };
 
 export const applyGradient = async (element: HTMLElement, src: string, direction = "to top right", opacity = 0.2) => {

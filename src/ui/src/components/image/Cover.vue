@@ -89,9 +89,3 @@ const onLoad = async () => {
         @load="onLoad"
     />
 </template>
-
-<style lang="scss" scoped>
-.cover {
-    transform: scale(1,1);
-}
-</style>
