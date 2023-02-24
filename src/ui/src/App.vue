@@ -118,14 +118,15 @@ export default {
                     continue;
                 }
 
-                document.documentElement.style.setProperty(`--${key}`, value[theme] || value.dark);
+                document.documentElement.style.setProperty(`--${key}`, value[theme] ?? value.dark);
             }
         }
 
         window.setTheme(settings.theme || "dynamic") // optional, loads the default theme
 
         window.getCurrentThemeProperty = (property) => {
-            return themes[property][settings.theme];
+            const value = themes[property]
+            return value[settings.theme] ?? value.dark;
         }
 
         initialiseStores();
