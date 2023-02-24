@@ -117,10 +117,6 @@ const onSpotifyUrlClick = () => {
 }
 </script>
 <template>
-<AmbientBackground
-    v-if="song"
-    :src="song.cover"
-/>
 <div class="track p-4">
     <EditSong
         v-if="song"
@@ -264,6 +260,10 @@ const onSpotifyUrlClick = () => {
         </Card>
     </div>
 </div>
+<AmbientBackground
+    v-if="song"
+    :src="song.cover"
+/>
 </template>
 
 <style lang="scss" scoped>

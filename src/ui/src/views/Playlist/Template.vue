@@ -163,11 +163,6 @@ const onObserveVisibility = (isVisible, entry) => {
 </script>
 
 <template>
-<AmbientBackground
-    v-if="playlist"
-    :placeholder="coverIcon"
-    :src="playlist.cover"
-/>
 <div class="playlist p-4">
     <AddNewSong
         ref="addSongPopup"
@@ -333,6 +328,11 @@ const onObserveVisibility = (isVisible, entry) => {
         </div>
     </div>
 </div>
+<AmbientBackground
+    v-if="playlist"
+    :placeholder="coverIcon"
+    :src="playlist.cover"
+/>
 </template>
 
 <style lang="scss" scoped>
