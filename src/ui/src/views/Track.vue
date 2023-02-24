@@ -7,7 +7,16 @@
 import { useRoute } from "vue-router";
 import { downloadSong, getRecommendations, getSongByHash, getSongMetadata } from "../api/song";
 import { computed, onMounted, ref, watch } from "vue";
-import { getCamelotKey, IMetadata, ISong, ISpotifySong, localeDate, openInNewTab, parseSpotifyId } from "../common";
+import {
+    displayDuration,
+    getCamelotKey,
+    IMetadata,
+    ISong,
+    ISpotifySong,
+    localeDate,
+    openInNewTab,
+    parseSpotifyId,
+} from "../common";
 import Loader from "../components/Loader.vue";
 import Cover from "../components/image/Cover.vue";
 import Card from "../containers/Card.vue";
@@ -178,7 +187,7 @@ const onSpotifyUrlClick = () => {
                             secondary-text="BPM"
                         />
                         <FactCard
-                            :primary-text="song.duration"
+                            :primary-text="displayDuration(song.duration)"
                             class="w-full"
                             secondary-text="Duration"
                         />
