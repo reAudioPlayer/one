@@ -18,6 +18,7 @@ import TextInputWithIcon from "../components/inputs/TextInputWithIcon.vue";
 import FactCard from "../containers/FactCard.vue";
 import EditSong from "../components/popups/EditSong.vue";
 import ButtonCard from "../containers/ButtonCard.vue";
+import AmbientBackground from "../components/image/AmbientBackground.vue";
 
 const route = useRoute();
 const player = usePlayerStore();
@@ -107,6 +108,10 @@ const onSpotifyUrlClick = () => {
 }
 </script>
 <template>
+<AmbientBackground
+    v-if="song"
+    :src="song.cover"
+/>
 <div class="track p-4">
     <EditSong
         v-if="song"

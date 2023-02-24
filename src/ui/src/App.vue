@@ -124,6 +124,10 @@ export default {
 
         window.setTheme(settings.theme || "dynamic") // optional, loads the default theme
 
+        window.getCurrentThemeProperty = (property) => {
+            return themes[property][settings.theme];
+        }
+
         initialiseStores();
         connect();
 

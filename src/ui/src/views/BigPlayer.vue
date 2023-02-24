@@ -3,15 +3,15 @@
   - Licenced under the GNU General Public License v3.0
   -->
 
-<script setup>
-import {usePlayerStore} from "@/store/player";
-import {useDataStore} from "@/store/data";
-import {computed, onMounted, ref, watch} from "vue";
+<script lang="ts" setup>
+import { usePlayerStore } from "../store/player";
+import { useDataStore } from "../store/data";
+import { computed, onMounted, ref, watch } from "vue";
 
-import PlaylistEntry from '../components/songContainers/PlaylistEntry.vue'
-import PlaylistHeader from '../components/songContainers/PlaylistHeader.vue'
+import PlaylistEntry from "../components/songContainers/PlaylistEntry.vue";
+import PlaylistHeader from "../components/songContainers/PlaylistHeader.vue";
 
-import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem";
+import PlaylistItem from "../components/Catalogue/Items/Playlists/PlaylistItem.vue";
 import Cover from "@/components/image/Cover.vue";
 
 const player = usePlayerStore();
@@ -68,6 +68,7 @@ const selectedSongId = ref(-1);
                     :src="cover"
                     class="drop-shadow-2xl"
                     type="track"
+                    with-ambient
                 />
                 <div :class="{ playing, animate }" class="blocks">
                     <div :style="{'animation-delay': '0s'}" class="block"></div>

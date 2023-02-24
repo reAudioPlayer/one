@@ -29,6 +29,7 @@ import FixedPlaylistHeader from "../../components/Playlist/FixedPlaylistHeader.v
 import PlaylistHeader from "../../components/songContainers/PlaylistHeader.vue";
 import EditPlaylist from "../../components/popups/EditPlaylist.vue";
 import { usePlayerStore } from "../../store/player";
+import AmbientBackground from "../../components/image/AmbientBackground.vue";
 
 console.log(draggable);
 
@@ -162,6 +163,11 @@ const onObserveVisibility = (isVisible, entry) => {
 </script>
 
 <template>
+<AmbientBackground
+    v-if="playlist"
+    :placeholder="coverIcon"
+    :src="playlist.cover"
+/>
 <div class="playlist p-4">
     <AddNewSong
         ref="addSongPopup"
@@ -186,7 +192,7 @@ const onObserveVisibility = (isVisible, entry) => {
         <div
             class="track__data"
         >
-            <div v-observe-visibility="onObserveVisibility" class="upper">
+            <div v-observe-visibility="onObserveVisibility" class="upper relative">
                 <Cover
                     :placeholder="coverIcon"
                     :src="playlist.cover"

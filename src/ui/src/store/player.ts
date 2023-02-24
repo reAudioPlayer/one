@@ -141,7 +141,7 @@ export const usePlayerStore = defineStore({
             }
         },
         setDuration(duration) {
-            this.song.duration = `${Math.floor(duration / 60)}:${zeroPad(Math.round(duration % 60), 2)}`;
+            this.song.duration = duration;
 
             fetch(`/api/tracks/${this.song.id}`, {
                 method: "PUT",
@@ -236,6 +236,11 @@ export const usePlayerStore = defineStore({
     getters: {
         durationSeconds(state) {
             return state.song.duration;
+        },
+        displayDuration(state) {
+            const duration = state.song.duration;
+            if (isNaN(duration)) return "0:00";
+            return `${Math.floor(duration / 60)}:${zeroPad(Math.floor(duration % 60), 2)}`
         },
         stream(state) {
             return `/api/player/stream/${state.song.id}`;
