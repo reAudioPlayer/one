@@ -14,12 +14,9 @@ const applyOpacity = (colour: FastAverageColorResult, opacity: number) => {
     return hex + alpha;
 }
 
-export const applyBoxShadow = async (element: HTMLImageElement, src: string, opacity: number = 0.2) => {
-
-    console.log(element);
-
-    var sizeX = element.width / 10;
-    var sizeY = element.height / 10;
+export const applyBoxShadow = async (element: HTMLImageElement, src: string, opacity: number = 0.25) => {
+    var sizeX = element.width / 100;
+    var sizeY = element.height / 100;
 
     var width = element.naturalWidth;
     var height = element.naturalHeight;
@@ -31,15 +28,19 @@ export const applyBoxShadow = async (element: HTMLImageElement, src: string, opa
         fac.getColorAsync(src, { top: height - sizeY, height: sizeY }),
     ]);
 
+    sizeX *= 40;
+    sizeY *= 40;
+
     var colorTop = applyOpacity(colours[0], opacity);
     var colorRight = applyOpacity(colours[1], opacity);
     var colorBottom = applyOpacity(colours[2], opacity);
     var colorLeft = applyOpacity(colours[3], opacity);
 
-    var spread = " 10px"
+    const spread = " 10px"
     const blur = ` ${sizeX}px `;
-    var deltaX = sizeX + 'px';
-    var deltaY = sizeY + 'px';
+    //const blur = ` 0px `;
+    const deltaX = sizeX + 'px';
+    const deltaY = sizeY + 'px';
 
     element.style.boxShadow = [
         "0 -".concat(deltaY, " ").concat(blur, " ").concat(spread, " ").concat(colorTop),
@@ -47,8 +48,6 @@ export const applyBoxShadow = async (element: HTMLImageElement, src: string, opa
         "0 ".concat(deltaY, " ").concat(blur, " ").concat(spread, " ").concat(colorBottom),
         "-".concat(deltaX, " 0 ").concat(blur, " ").concat(spread, " ").concat(colorLeft),
     ].join(', ');
-
-    console.log(element.style.boxShadow);
 };
 
 export const applyGradient = async (element: HTMLElement, src: string, direction = "to top right", opacity = 0.2) => {
