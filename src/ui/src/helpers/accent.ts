@@ -5,6 +5,7 @@
 
 
 import { FastAverageColor, FastAverageColorResult } from "fast-average-color";
+import { useSettingsStore } from "../store/settings";
 
 const fac = new FastAverageColor();
 
@@ -15,6 +16,9 @@ const applyOpacity = (colour: FastAverageColorResult, opacity: number) => {
 }
 
 export const applyBoxShadow = async (element: HTMLImageElement, src: string, opacity: number = 0.25) => {
+    const settings = useSettingsStore();
+    if (!settings.ambient) return;
+
     var sizeX = element.width / 100;
     var sizeY = element.height / 100;
 
@@ -51,6 +55,9 @@ export const applyBoxShadow = async (element: HTMLImageElement, src: string, opa
 };
 
 export const applyGradient = async (element: HTMLElement, src: string, direction = "to top right", opacity = 0.2) => {
+    const settings = useSettingsStore();
+    if (!settings.ambient) return;
+
     const colour = await fac.getColorAsync(src);
     const hex = applyOpacity(colour, opacity);
     const gradient = `linear-gradient(${direction}, ${hex}, transparent)`;
