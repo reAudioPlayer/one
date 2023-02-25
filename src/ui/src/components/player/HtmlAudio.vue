@@ -30,6 +30,10 @@ onMounted(() => {
 });
 
 watch(() => player.song.id, () => {
+    if (!audio.value.paused) {
+        forcePlay = true;
+    }
+
     audio.value.src = null;
     audio.value.src = player.stream;
     audio.value.load();
