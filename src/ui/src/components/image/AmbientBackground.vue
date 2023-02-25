@@ -27,11 +27,25 @@ const props = defineProps({
 
 const ambientGradient = ref(null as HTMLElement);
 
-const apply = async () => {
+const apply = async (forceSrc = undefined) => {
     if (!ambientGradient.value) return;
-    const propSrc = parseAnyCover(props.src, "playlist");
+
+    const propSrc = forceSrc === undefined ? parseAnyCover(props.src) : forceSrc;
     const src = await getCover(propSrc, props.placeholder);
-    await applyGradient(ambientGradient.value, src, props.direction);
+
+    try {
+        await applyGradient(ambientGradient.value, src, props.direction);
+    } catch (e: any) {
+        if (!(e instanceof Error)) {
+            throw e;
+        }
+
+        if (!e.message.includes("Error loading image")) {
+            throw e;
+        }
+
+        await apply(null);
+    }
 }
 
 watch(() => props.src, () => nextTick(apply));
@@ -40,7 +54,7 @@ onMounted(apply);
 
 <template>
     <div
-        v-if="src"
+        v-if="src != null"
         ref="ambientGradient"
         class="ambient-gradient absolute inset-0 pointer-events-none"
     />

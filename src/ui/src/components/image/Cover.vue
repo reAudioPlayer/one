@@ -76,6 +76,8 @@ const onLoad = async () => {
 
     const src = await getCover(imgSrc.value, placeholderIcon.value);
 
+    console.log(src);
+
     applyBoxShadow(element.value, src, props.ambientOpacity);
 }
 </script>

@@ -76,7 +76,7 @@ const selectedSongId = ref(-1);
                     <div :style="{'animation-delay': '.5s'}" class="block"></div>
                 </div>
             </div>
-            <div v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl">
+            <div v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl relative">
                 <div ref="playlistScroll" class="playlist">
                     <PlaylistHeader />
                     <PlaylistEntry
