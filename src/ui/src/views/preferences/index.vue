@@ -181,6 +181,11 @@ const spotifyRedirect = `http://${host}/api/spotify/callback`
         </Card>
         <Card aria-description="theme" class="p-4 pt-0">
             <h2 class="mt-[10px]">Theme</h2>
+            <Checkbox
+                v-model="settings.ambient"
+                :disabled="!settings.themeSupportsAmbient"
+                label="Ambient"
+            />
             <div class="themes">
                 <Theme
                     v-for="(theme, index) in themes"

@@ -3,8 +3,8 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import {defineStore} from 'pinia'
-import {ref, watch} from "vue";
+import { defineStore } from "pinia";
+import { computed, ref, watch } from "vue";
 
 const KEY = "reapOne.settings";
 const DEFAULT_THEME = "dynamic";
@@ -23,13 +23,15 @@ export interface ISettings {
         type: IWebPlayer;
     },
     theme: string;
+    ambient: boolean;
 }
 
 const updateStorage = (settings: ISettings) => {
     localStorage.setItem(KEY, JSON.stringify({
         sidebar: settings.sidebar,
         player: settings.player,
-        theme: settings.theme
+        theme: settings.theme,
+        ambient: settings.ambient
     }));
 }
 
@@ -44,7 +46,8 @@ const defaultSettings: ISettings = {
         pictureInPicture: false,
         type: "web"
     },
-    theme: DEFAULT_THEME
+    theme: DEFAULT_THEME,
+    ambient: true
 }
 
 const getSettings = (): ISettings => {
@@ -94,18 +97,24 @@ export const useSettingsStore = defineStore("settings", () => {
     const playerState = ref(getSettings().player);
     const sidebarState = ref(getSettings().sidebar);
     const theme = ref(getSettings().theme);
+    const ambient = ref(getSettings().ambient);
 
     const update = () => {
         updateStorage({
             player: playerState.value,
             sidebar: sidebarState.value,
-            theme: theme.value
+            theme: theme.value,
+            ambient: ambient.value
         });
-    }
+    };
 
     watch(() => playerState, update, {deep: true});
     watch(() => sidebarState, update, {deep: true});
     watch(() => theme, update, {deep: true});
+    watch(() => ambient, update, {deep: true});
 
-    return { player: playerState, sidebar: sidebarState, theme };
+    // @ts-ignore
+    const themeSupportsAmbient = computed(() => window.getCurrentThemeProperty("supportsAmbient"));
+
+    return { player: playerState, sidebar: sidebarState, theme, ambient, themeSupportsAmbient };
 });

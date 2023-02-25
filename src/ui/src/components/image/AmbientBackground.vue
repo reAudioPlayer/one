@@ -8,6 +8,9 @@ import { nextTick, onMounted, ref, watch } from "vue";
 import { applyGradient } from "../../helpers/accent";
 import { getCover } from "./placeholder";
 import { parseAnyCover } from "../../common";
+import { useSettingsStore } from "../../store/settings";
+
+const settings = useSettingsStore();
 
 const props = defineProps({
     src: {
@@ -54,7 +57,7 @@ onMounted(apply);
 
 <template>
     <div
-        v-if="src != null"
+        v-if="src != null && settings.ambient"
         ref="ambientGradient"
         class="ambient-gradient absolute inset-0 pointer-events-none"
     />
