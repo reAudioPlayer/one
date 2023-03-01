@@ -218,23 +218,40 @@ class SpotifyArtist:
     """spotify artist model"""
     def __init__(self, artist: Dict[str, Any]) -> None:
         dex = JDict(artist).chain()
+        self._all = artist
         self._name = dex.ensure("name", str)
         self._id = dex.ensure("id", str)
         self._cover = dex.ensure("images.[0].url", str)
-        self._description = f"{dex.ensure('followers.total', int)} followers"
+        self._followers = dex.ensure('followers.total', int)
+        self._description = f"{self._followers} followers"
+        self._genres = dex.ensureCast("genres", JList).iterator().ensure(str)
+        self._popularity = dex.ensure("popularity", int)
 
     @property
     def id(self) -> str:
         """return id"""
         return self._id
 
+    @property
+    def cover(self) -> str:
+        """return cover"""
+        return self._cover
+
+    @property
+    def name(self) -> str:
+        """return name"""
+        return self._name
+
     def toDict(self) -> Dict[str, Any]:
         """return dict of artist"""
         return {
             "name": self._name,
             "description": self._description,
+            "followers": self._followers,
             "cover": self._cover,
-            "id": self._id
+            "id": self._id,
+            "genres": self._genres,
+            "popularity": self._popularity
         }
 
 

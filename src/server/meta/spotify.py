@@ -343,6 +343,14 @@ class Spotify:
 
     @_connectionRequired
     @_mayFail
+    def artist(self, artistId: str) -> SpotifyResult[SpotifyArtist]:
+        """Returns the tracks from an artist"""
+        assert self._spotify is not None
+        artist = self._spotify.artist(artistId)
+        return SpotifyResult.successResult(SpotifyArtist(artist))
+
+    @_connectionRequired
+    @_mayFail
     def artistTracks(self, artistId: str) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns the tracks from an artist"""
         assert self._spotify is not None
