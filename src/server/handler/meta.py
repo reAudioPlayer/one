@@ -16,7 +16,7 @@ from helper.payloadParser import withObjectPayload
 from meta.metadata import Metadata
 from meta.releases import Releases
 from meta.search import Search, SearchScope
-from meta.spotify import Spotify, SpotifyResult, SpotifyTrack
+from meta.spotify import Spotify, SpotifyResult, SpotifyTrack, SpotifyArtist
 from dataModel.track import SpotifyPlaylist
 from dataModel.song import Song
 from dataModel.metadata import SongMetadata, SpotifyMetadata
@@ -53,6 +53,66 @@ class MetaHandler:
         if not song:
             return web.HTTPNotFound(text = "no track found")
         return web.json_response(data = Song(song).toDict())
+
+    @withObjectPayload(Object({
+        "name": String().min(1)
+    }), inPath = True)
+    async def getArtist(self, payload: Dict[str, Any]) -> web.Response:
+        """get(/api/artists/{name})"""
+        artist: str = payload["name"]
+        tracks = Song.list(await self._dbManager.songs.select(
+            append = f"WHERE artist = '{artist}' or artist LIKE '%, {artist}, %' or artist LIKE '%, {artist}' or artist LIKE '{artist}, %' or spotify LIKE '%\"{artist}\"%' COLLATE NOCASE" # pylint: disable=line-too-long
+        ))
+
+        artistName: Optional[str] = next(( x
+                                           for x in tracks[0].model.artists
+                                           if x.lower() == artist.lower() ),
+                                         None)
+
+        if not artistName:
+            return web.HTTPNotFound(text = "no tracks found")
+
+        spotifyArtist: Optional[str] = None
+
+        async def _fetchMetadata() -> Optional[SpotifyArtist]:
+            if not spotifyArtist:
+                return None
+            result = await asyncRunInThreadWithReturn(self._spotify.artist, spotifyArtist)
+            if not result:
+                return None
+            return result.unwrap()
+
+        for track in tracks:
+            trackMeta = track.metadata.spotify
+            if not trackMeta or not trackMeta.artists:
+                continue
+            basicArtist = next(( x
+                                 for x in trackMeta.artists
+                                 if x.name.lower() == artist.lower()),
+                               None)
+            if basicArtist:
+                spotifyArtist = basicArtist.id
+                break
+
+        if not spotifyArtist:
+            result = await asyncRunInThreadWithReturn(self._spotify.searchArtist, artistName)
+            if result:
+                artists = result.unwrap()
+                firstArtist = next(( x
+                                     for x in artists
+                                     if x.name.lower() == artist.lower()),
+                                   None)
+                if firstArtist:
+                    spotifyArtist = firstArtist.id
+
+        metadata = await _fetchMetadata()
+
+        return web.json_response(data = {
+            "name": artistName,
+            "cover": metadata.cover if metadata else None,
+            "metadata": metadata.toDict() if metadata else None,
+            "songs": [ track.toDict() for track in tracks ]
+        })
 
     @withObjectPayload(Object({
         "query": String().min(1),

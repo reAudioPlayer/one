@@ -98,6 +98,9 @@ class Router:
         app.router.add_put('/api/tracks/{id}', playerHandler.updateSong)
         app.router.add_get('/api/tracks/{id}/download', downloadHandler.downloadTrack)
 
+        # /api/artists
+        app.router.add_get('/api/artists/{name}', metaHandler.getArtist)
+
         # /api/playlists/
         app.router.add_get('/api/playlists/new', playlistHandler.createPlaylist)
         app.router.add_get('/api/playlists', playlistHandler.getPlaylists)
