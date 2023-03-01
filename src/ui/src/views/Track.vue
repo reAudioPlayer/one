@@ -166,9 +166,9 @@ const onSpotifyUrlClick = () => {
                     </div>
                     <template v-if="metadata && metadata.spotify.features">
                         <div
-                        v-if="metadata && metadata.spotify.features"
-                        class="features flex flex-row gap-4 mt-4 overflow-x-auto"
-                    >
+                            v-if="metadata && metadata.spotify.features"
+                            class="features flex flex-row gap-4 mt-4 overflow-x-auto"
+                        >
                         <FactCard
                             v-if="metadata"
                             :primary-text="metadata.spotify.features.key + ' ' + metadata.spotify.features.mode"

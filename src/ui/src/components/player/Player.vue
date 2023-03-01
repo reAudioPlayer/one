@@ -17,6 +17,7 @@ import Spinner from "../loaders/Spinner.vue";
 import { hashTrack, isMobile } from "../../common";
 import WaveAudio from "./WaveAudio.vue";
 import AmbientBackground from "../image/AmbientBackground.vue";
+import ArtistMarquee from "../ArtistMarquee.vue";
 
 const player = usePlayerStore();
 const settings = useSettingsStore();
@@ -102,9 +103,7 @@ const showWebWavePlayer = computed(() => {
                         <router-link :to="`/track/${hashTrack(player.song.id)}`" class="linkOnHover">
                             <Marquee :text="player.song.title" class="" />
                         </router-link>
-                        <router-link :to="`/search/${player.song.artist}`" class="linkOnHover">
-                            <Marquee :text="player.song.artist" class="text-muted text-xs" />
-                        </router-link>
+                        <ArtistMarquee :artist="player.song.artist" class="text-muted text-xs" />
                     </div>
                     <span
                         :class="{'ms-fill': player.song.favourite}"

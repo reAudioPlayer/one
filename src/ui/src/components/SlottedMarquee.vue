@@ -6,10 +6,10 @@
 <template>
     <div :class="{marquee: isMarquee}" class="marqueeWrapper">
         <span ref="marquee" :class="{marquee: isMarquee}">
-            {{text}}
+            <slot />
 
             <span v-if="isMarquee" class="replacer">
-                {{text}}
+                <slot />
             </span>
         </span>
         <div v-if="isMarquee" class="overlay"/>
@@ -37,14 +37,6 @@ export default {
             setTimeout(() => {
                 this.isMarquee = this.isTruncated(this.$refs.marquee);
             }, 10);
-        }
-    },
-    props: {
-        text: String
-    },
-    watch: {
-        text() {
-            this.update();
         }
     }
 }

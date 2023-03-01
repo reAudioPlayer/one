@@ -12,6 +12,7 @@ import SongContext from "../contextMenus-next/SongContext.vue";
 import { usePlayerStore } from "../../store/player";
 import { favouriteSong } from "../../api/song";
 import Cover from "../image/Cover.vue";
+import ArtistMarquee from "../ArtistMarquee.vue";
 
 const props = defineProps({
     song: {
@@ -43,7 +44,7 @@ const props = defineProps({
         default: false
     },
     playlistId: {
-        type: Number,
+        type: String as PropType<string | number>,
         required: false,
         default: null
     }
@@ -61,7 +62,12 @@ const toggleFavourite = () => {
 
 const playlistId = computed(() => props.playlistId == null ? playerStore.playlist.id : props.playlistId);
 const playSong = () => {
-    playerStore.loadSong(playlistId.value, props.index);
+    if (playlistId.value == "track") {
+        playerStore.loadPlaylist("track", props.song.id);
+        return;
+    }
+
+    playerStore.loadSong(Number(playlistId.value), props.index);
 }
 
 const updatePopup = ref(null);
@@ -122,9 +128,7 @@ const update = () => {
                     </router-link>
                 </span>
                 <span class="artist">
-                    <router-link :to="`/search/artist:${song.artist}`" class="linkOnHover">
-                        <Marquee :text="song.artist" />
-                    </router-link>
+                    <ArtistMarquee :artist="song.artist" class="text-muted text-xs" />
                 </span>
             </div>
             <div
