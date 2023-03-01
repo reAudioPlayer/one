@@ -88,6 +88,13 @@ const routes = [{
         }
     },
     {
+        path: '/artist/:name',
+        component: () => import("@/views/Artist.vue"),
+        meta: {
+            title: "Artist - reAudioPlayer One"
+        }
+    },
+    {
         path: '/preferences',
         component: () => import("@/views/preferences/index.vue"),
         meta: {
