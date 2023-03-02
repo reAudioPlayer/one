@@ -10,6 +10,7 @@ from pyaddict import JDict
 from pyaddict.schema import Object, String, Integer, Array, Boolean
 
 from db.database import Database
+from db.table.artists import ArtistModel
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.cacheDecorator import useCache
 from helper.payloadParser import withObjectPayload
@@ -57,7 +58,7 @@ class MetaHandler:
     @withObjectPayload(Object({
         "name": String().min(1)
     }), inPath = True)
-    async def getArtist(self, payload: Dict[str, Any]) -> web.Response:
+    async def getArtist(self, payload: Dict[str, Any]) -> web.Response: # pylint: disable=too-many-locals
         """get(/api/artists/{name})"""
         artist: str = payload["name"]
         tracks = Song.list(await self._dbManager.songs.select(
@@ -74,6 +75,7 @@ class MetaHandler:
 
         spotifyArtist: Optional[str] = None
 
+        # fetch from spotify
         async def _fetchMetadata() -> Optional[SpotifyArtist]:
             if not spotifyArtist:
                 return None
@@ -82,18 +84,26 @@ class MetaHandler:
                 return None
             return result.unwrap()
 
-        for track in tracks:
-            trackMeta = track.metadata.spotify
-            if not trackMeta or not trackMeta.artists:
-                continue
-            basicArtist = next(( x
-                                 for x in trackMeta.artists
-                                 if x.name.lower() == artist.lower()),
-                               None)
-            if basicArtist:
-                spotifyArtist = basicArtist.id
-                break
+        # search in db
+        artistModel = await self._dbManager.artists.byName(artistName)
+        if artistModel and artistModel.spotifyModel:
+            spotifyArtist = artistModel.spotifyModel.id
 
+        # extract from tracks
+        if not spotifyArtist:
+            for track in tracks:
+                trackMeta = track.metadata.spotify
+                if not trackMeta or not trackMeta.artists:
+                    continue
+                basicArtist = next(( x
+                                    for x in trackMeta.artists
+                                    if x.name.lower() == artist.lower()),
+                                None)
+                if basicArtist:
+                    spotifyArtist = basicArtist.id
+                    break
+
+        # search for artist
         if not spotifyArtist:
             result = await asyncRunInThreadWithReturn(self._spotify.searchArtist, artistName)
             if result:
@@ -106,11 +116,27 @@ class MetaHandler:
                     spotifyArtist = firstArtist.id
 
         metadata = await _fetchMetadata()
+        if not artistModel and metadata:
+            artistModel = ArtistModel(metadata.name,
+                                      JDict(metadata.toDict()).toString(),
+                                      metadata.cover)
+            spModel = artistModel.spotifyModel
+            if spModel:
+                await spModel.fetchRelated(self._spotify)
+                artistModel.spotifyModel = spModel
+            await self._dbManager.artists.insert(artistModel)
+
+        metaDict: Optional[Dict[str, Any]] = None
+
+        if artistModel and artistModel.spotifyModel:
+            spModel = artistModel.spotifyModel
+            await spModel.topTracks(self._spotify)
+            metaDict = spModel.toDict()
 
         return web.json_response(data = {
             "name": artistName,
-            "cover": metadata.cover if metadata else None,
-            "metadata": metadata.toDict() if metadata else None,
+            "cover": artistModel.image if artistModel else None,
+            "metadata": metaDict,
             "songs": [ track.toDict() for track in tracks ]
         })
 
