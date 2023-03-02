@@ -14,6 +14,8 @@ import PlaylistHeader from "../components/songContainers/PlaylistHeader.vue";
 import PlaylistEntry from "../components/songContainers/PlaylistEntry.vue";
 import Loader from "../components/Loader.vue";
 import Tag from "../containers/Tag.vue";
+import ExternalEntry from "../components/songContainers/ExternalEntry.vue";
+import Card from "../containers/Card.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -28,6 +30,7 @@ interface IArtist {
         genres: string[];
         followers: number;
         popularity: number;
+        topTracks: ISong[];
     }
 }
 
@@ -132,6 +135,24 @@ watch(() => route.params.name, () => {
                     @update="$emit('update')"
                 />
             </div>
+            <Card
+                v-if="artist.metadata?.topTracks?.length"
+                class="p-4 mt-4"
+            >
+                <h2>Top Tracks</h2>
+                <div class="items">
+                    <ExternalEntry
+                        v-for="element in artist.metadata.topTracks"
+                        v-show="true"
+                        :index="artist.metadata.topTracks.findIndex(x => x.source == element.source)"
+                        :song="element"
+                        with-album
+                        with-cover
+                        with-more
+                        @update="$emit('update')"
+                    />
+                </div>
+            </Card>
         </div>
     </div>
 </div>
