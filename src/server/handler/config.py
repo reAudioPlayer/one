@@ -63,7 +63,7 @@ class ConfigHandler:
         result: List[Dict[str, Any]] = [ ]
         for cover in covers:
             songs = await self._dbManager.songs.select(
-                f"WHERE cover = '{cover.displayPath}'")
+                append = f"WHERE cover = '{cover.displayPath}'")
             playlists = await self._dbManager.songs.select(
                 append = f"WHERE cover = '{cover.displayPath}'")
             result.append({
