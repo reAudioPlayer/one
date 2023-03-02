@@ -322,6 +322,15 @@ class Spotify:
 
     @_connectionRequired
     @_mayFail
+    def relatedArtists(self, artistId: str) -> SpotifyResult[List[SpotifyArtist]]:
+        """Returns the related artists"""
+        assert self._spotify is not None
+        artists = self._spotify.artist_related_artists(artistId)
+        artists = JDict(artists).ensure("artists", list)
+        return SpotifyResult.successResult([SpotifyArtist(artist) for artist in artists])
+
+    @_connectionRequired
+    @_mayFail
     def playlistTracks(self, playlistId: str) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns the tracks from a playlist"""
         assert self._spotify is not None
