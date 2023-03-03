@@ -95,7 +95,6 @@ onMounted(load);
 watch(route, () => load(), { deep: true });
 
 watch(spotifyUrl, () => {
-    console.log(parseSpotifyId(spotifyUrl.value, "track"), metadata.value?.spotify?.id)
     if (metadata.value?.spotify?.id == parseSpotifyId(spotifyUrl.value, "track")) {
         spotifyUrlIcon.value = "link";
         return;
@@ -103,6 +102,7 @@ watch(spotifyUrl, () => {
 
     spotifyUrlIcon.value = "save";
 });
+
 const onSpotifyUrlClick = () => {
     if (spotifyUrlIcon.value === "save") {
         const id = parseSpotifyId(spotifyUrl.value, "track");
@@ -169,53 +169,53 @@ const onSpotifyUrlClick = () => {
                             v-if="metadata && metadata.spotify.features"
                             class="features flex flex-row gap-4 mt-4 overflow-x-auto"
                         >
-                        <FactCard
-                            v-if="metadata"
-                            :primary-text="metadata.spotify.features.key + ' ' + metadata.spotify.features.mode"
-                            class="w-full"
-                            secondary-text="Key"
-                        />
-                        <FactCard
-                            v-if="metadata"
-                            :primary-text="getCamelotKey(metadata)"
-                            class="w-full"
-                            secondary-text="Camelot"
-                        />
-                        <FactCard
-                            v-if="metadata"
-                            :primary-text="Math.round(metadata.spotify.features.tempo)"
-                            class="w-full"
-                            secondary-text="BPM"
-                        />
-                        <FactCard
-                            :primary-text="displayDuration(song.duration)"
-                            class="w-full"
-                            secondary-text="Duration"
-                        />
-                        <FactCard
-                            v-if="metadata"
-                            :primary-text="metadata.plays"
-                            class="w-full"
-                            secondary-text="Plays"
-                        />
-                        <ButtonCard icon="edit" label="Edit" @click="$refs.updatePopup.show()" />
-                        <ButtonCard icon="download" label="Download" @click="downloadSong(song.id)" />
+                            <FactCard
+                                v-if="metadata"
+                                :primary-text="metadata.spotify.features.key + ' ' + metadata.spotify.features.mode"
+                                class="w-full"
+                                secondary-text="Key"
+                            />
+                            <FactCard
+                                v-if="metadata"
+                                :primary-text="getCamelotKey(metadata)"
+                                class="w-full"
+                                secondary-text="Camelot"
+                            />
+                            <FactCard
+                                v-if="metadata"
+                                :primary-text="Math.round(metadata.spotify.features.tempo)"
+                                class="w-full"
+                                secondary-text="BPM"
+                            />
+                            <FactCard
+                                :primary-text="displayDuration(song.duration)"
+                                class="w-full"
+                                secondary-text="Duration"
+                            />
+                            <FactCard
+                                v-if="metadata"
+                                :primary-text="metadata.plays"
+                                class="w-full"
+                                secondary-text="Plays"
+                            />
+                            <ButtonCard icon="edit" label="Edit" @click="$refs.updatePopup.show()" />
+                            <ButtonCard icon="download" label="Download" @click="downloadSong(song.id)" />
                         </div>
-                            <div class="spotify-infos mt-4">
-                                <div class="meta items-center ">
-                                    <span class="text-muted">{{ localeDate(metadata.spotify.releaseDate) }}</span>
-                                    <span v-if="metadata.spotify.explicit" class="material-symbols-rounded ms-fill">explicit</span>
-                                    <span class="flex flex-row align-items">
-                                        <span class="material-symbols-rounded ms-fill mr-2">local_fire_department</span>
-                                        <span class="font-bold">{{ metadata.spotify.popularity }}</span>
-                                    </span>
-                                </div>
-                                <TextInputWithIcon
-                                    v-model="spotifyUrl"
-                                    :icon="spotifyUrlIcon"
-                                    :onClick="onSpotifyUrlClick"
-                                />
+                        <div class="spotify-infos mt-4">
+                            <div class="meta items-center ">
+                                <span class="text-muted">{{ localeDate(metadata.spotify.releaseDate) }}</span>
+                                <span v-if="metadata.spotify.explicit" class="material-symbols-rounded ms-fill">explicit</span>
+                                <span class="flex flex-row align-items">
+                                    <span class="material-symbols-rounded ms-fill mr-2">local_fire_department</span>
+                                    <span class="font-bold">{{ metadata.spotify.popularity }}</span>
+                                </span>
                             </div>
+                            <TextInputWithIcon
+                                v-model="spotifyUrl"
+                                :icon="spotifyUrlIcon"
+                                :onClick="onSpotifyUrlClick"
+                            />
+                        </div>
                     </template>
                 </div>
             </div>
