@@ -65,13 +65,13 @@ class MetaHandler:
             append = f"WHERE artist = '{artist}' or artist LIKE '%, {artist}, %' or artist LIKE '%, {artist}' or artist LIKE '{artist}, %' or spotify LIKE '%\"{artist}\"%' COLLATE NOCASE" # pylint: disable=line-too-long
         ))
 
-        artistName: Optional[str] = next(( x
-                                           for x in tracks[0].model.artists
-                                           if x.lower() == artist.lower() ),
-                                         None)
+        artistName: Optional[str] = artist
 
-        if not artistName:
-            return web.HTTPNotFound(text = "no tracks found")
+        if len(tracks) > 0:
+            artistName = next(( x
+                                for x in tracks[0].model.artists
+                                if x.lower() == artist.lower() ),
+                              None)
 
         spotifyArtist: Optional[str] = None
 
