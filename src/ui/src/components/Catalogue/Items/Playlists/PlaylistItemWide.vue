@@ -4,8 +4,8 @@
   -->
 
 <template>
-    <div class="itemBig drop-shadow-md">
-        <PlaylistCtx :href="href" :id="id" :name="title">
+    <Card class="itemBig" with-hover>
+        <PlaylistCtx :id="id" :href="href" :name="title">
             <div class="item" @click="redirect">
                 <img :src="cover" />
                 <div class="wrapper">
@@ -13,12 +13,14 @@
                 </div>
             </div>
         </PlaylistCtx>
-    </div>
+    </Card>
 </template>
 
 <script>
-import PlaylistCtx from '../../../ContextMenus/PlaylistCtx.vue'
-    export default {
+import PlaylistCtx from "../../../ContextMenus/PlaylistCtx.vue";
+import Card from "@/containers/Card.vue";
+
+export default {
     name: "PlaylistItemWide",
     methods: {
         redirect() {
@@ -31,7 +33,7 @@ import PlaylistCtx from '../../../ContextMenus/PlaylistCtx.vue'
         cover: String,
         id: Number
     },
-    components: { PlaylistCtx }
+    components: { Card, PlaylistCtx }
 }
 </script>
 

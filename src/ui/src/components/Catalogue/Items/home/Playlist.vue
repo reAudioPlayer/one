@@ -5,14 +5,15 @@
 
 <template>
     <router-link :to="href" class="no-underline">
-        <div class="home-playlist drop-shadow-md">
+        <Card class="home-playlist drop-shadow-md" with-hover>
             <Cover :src="cover" type="playlist" />
             <h2>{{name}}</h2>
-        </div>
+        </Card>
     </router-link>
 </template>
 <script setup>
 import Cover from "@/components/image/Cover.vue";
+import Card from "@/containers/Card.vue";
 
 defineProps({
     name: {

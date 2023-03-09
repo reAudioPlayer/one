@@ -132,7 +132,7 @@ watch(() => route.params.name, () => {
                                 secondary-text="Tracks in Your Library"
                             />
                         </div>
-                        <div class="spotify-infos mt-4">
+                        <div class="spotify-infos pt-4 pb-2">
                             <div class="meta items-center ">
                                 <span class="flex flex-row align-items">
                                         <span class="material-symbols-rounded ms-fill mr-2">local_fire_department</span>

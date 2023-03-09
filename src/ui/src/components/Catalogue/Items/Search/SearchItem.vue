@@ -4,8 +4,9 @@
   -->
 
 <template>
-    <div class="wrapper drop-shadow-md">
+    <Card class="wrapper" with-hover>
         <add-song-to-playlist
+            ref="addAlbum"
             :song="{
                 cover,
                 artist,
@@ -13,22 +14,23 @@
                 preview,
                 href
             }"
-            ref="addAlbum"
         />
         <div class="item" @click="redirect">
             <Cover :src="cover" />
             <h4>{{title}}</h4>
             <p>{{artist}}</p>
-            <p class="note" v-if="releaseDate">Released on {{releaseDate}}</p>
+            <p v-if="releaseDate" class="note">Released on {{releaseDate}}</p>
         </div>
-    </div>
+    </Card>
 </template>
 
 <script>
-    import AddSongToPlaylist from '../../../popups/ImportSpotifySong.vue'
-    import Cover from "@/components/image/Cover.vue";
-    export default {
-        components: {Cover, AddSongToPlaylist },
+import AddSongToPlaylist from "../../../popups/ImportSpotifySong.vue";
+import Cover from "@/components/image/Cover.vue";
+import Card from "@/containers/Card.vue";
+
+export default {
+        components: { Card, Cover, AddSongToPlaylist },
         name: 'SearchItem',
         methods: {
             redirect() {

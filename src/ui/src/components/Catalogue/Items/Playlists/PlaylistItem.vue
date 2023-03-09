@@ -4,7 +4,7 @@
   -->
 
 <template>
-    <div class="wrapper drop-shadow-md">
+    <Card class="wrapper drop-shadow-md" with-hover>
         <add-playlist-to-playlist
             v-if="spotify"
             ref="import"
@@ -21,16 +21,17 @@
             <h4>{{title}}</h4>
             <p class="text-muted text-xs hideIfMobile" v-html="description" />
         </div>
-    </div>
+    </Card>
 </template>
 
 <script>
-import {parseCover} from "@/common";
-import AddPlaylistToPlaylist from '../../../popups/ImportSpotifyPlaylist.vue'
+import { parseCover } from "@/common";
+import AddPlaylistToPlaylist from "../../../popups/ImportSpotifyPlaylist.vue";
 import Cover from "@/components/image/Cover.vue";
+import Card from "@/containers/Card.vue";
 
 export default {
-        components: {Cover, AddPlaylistToPlaylist },
+        components: { Card, Cover, AddPlaylistToPlaylist },
         name: 'PlaylistItem',
         methods: {
             parseCover,

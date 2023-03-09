@@ -4,29 +4,31 @@
   -->
 
 <template>
-    <div class="wrapper drop-shadow-md">
+    <Card class="wrapper" with-hover>
         <add-artist-to-playlist
+            ref="import"
             :artist="{
                 id,
                 name,
                 href: `https://open.spotify.com/artist/${id}`,
                 image: cover
             }"
-            ref="import"
         />
         <div class="item" @click="redirect">
             <img :src="cover" />
             <h4>{{name}}</h4>
             <p v-html="description" />
-            <button @click="follow" v-if="showFollowButton" class="followButton">{{following ? "Following" : "Follow"}}</button>
+            <button v-if="showFollowButton" class="followButton" @click="follow">{{following ? "Following" : "Follow"}}</button>
         </div>
-    </div>
+    </Card>
 </template>
 
 <script>
-    import AddArtistToPlaylist from '../../../popups/ImportSpotifyArtist.vue'
-    export default {
-        components: { AddArtistToPlaylist },
+import AddArtistToPlaylist from "../../../popups/ImportSpotifyArtist.vue";
+import Card from "@/containers/Card.vue";
+
+export default {
+        components: { Card, AddArtistToPlaylist },
         name: 'ArtistItem',
         methods: {
             redirect() {

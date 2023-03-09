@@ -4,21 +4,22 @@
   -->
 
 <template>
-    <div class="wrapper drop-shadow-md">
+    <Card class="wrapper" with-hover>
         <div class="item" @click="redirect">
             <Cover :src="cover" />
             <h4>{{title}}</h4>
             <p>{{artist}}</p>
         </div>
-    </div>
+    </Card>
 </template>
 
 <script>
-    import Cover from "@/components/image/Cover.vue";
+import Cover from "@/components/image/Cover.vue";
+import Card from "@/containers/Card.vue";
 
-    export default {
+export default {
         name: 'TrackItem',
-        components: {Cover},
+        components: { Card, Cover},
         methods: {
             redirect() {
                 console.log("redirect")

@@ -4,13 +4,9 @@
   -->
 
 <template>
-    <div class="wrapper drop-shadow-md">
+    <Card class="wrapper" with-hover>
         <add-album-to-playlist
             :id="this.href?.replace('https://open.spotify.com/album/', '')"
-            :cover="cover"
-            :title="title"
-            :artist="artist"
-            :href="href"
             ref="addAlbum"
             :album="{
                 id: this.href?.replace('https://open.spotify.com/album/', ''),
@@ -20,21 +16,27 @@
                 href: this.href,
                 releaseDate: this.releaseDate
             }"
+            :artist="artist"
+            :cover="cover"
+            :href="href"
+            :title="title"
         />
         <div class="item" @click="redirect">
             <img :src="cover" />
             <h4>{{title}}</h4>
             <p>{{artist}}</p>
-            <p class="note" v-if="releaseDate">Released on {{releaseDate}}</p>
+            <p v-if="releaseDate" class="note">Released on {{releaseDate}}</p>
         </div>
-    </div>
+    </Card>
 </template>
 
 <script>
-import AddAlbumToPlaylist from '../../../popups/ImportSpotifyAlbum.vue';
-    export default {
+import AddAlbumToPlaylist from "../../../popups/ImportSpotifyAlbum.vue";
+import Card from "@/containers/Card.vue";
+
+export default {
         name: 'ReleaseItem',
-        components: { AddAlbumToPlaylist },
+        components: { Card, AddAlbumToPlaylist },
         methods: {
             redirect() {
                 this.$refs.addAlbum.show()
