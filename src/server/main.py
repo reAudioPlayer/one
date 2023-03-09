@@ -3,6 +3,7 @@
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import os
+import sys
 from queue import Empty
 from typing import Awaitable, Callable
 
@@ -53,7 +54,7 @@ try:
 except Exception as e: # pylint: disable=bare-except, broad-except
     print(e)
     print("you need to run setup.bat (or the documented commands) first")
-    import time, sys # pylint: disable=ungrouped-imports, multiple-imports
+    import time # pylint: disable=ungrouped-imports, multiple-imports
     time.sleep(5)
     sys.exit()
 
@@ -104,7 +105,8 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     sportsHandler = SportsHandler()
     websocket = Websocket(player)
 
-    logging.basicConfig(level = logging.INFO)
+    pipeHandler = logging.StreamHandler(sys.stdout)
+    logging.basicConfig(handlers = [pipeHandler], level = logging.INFO)
 
     app = web.Application(middlewares=[IndexMiddleware(), _exceptionMiddleware])
 
