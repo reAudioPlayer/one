@@ -221,7 +221,7 @@ const onObserveVisibility = (isVisible, entry) => {
                         </p>
                     </div>
                     <div
-                        class="features flex flex-row gap-4 mt-4 overflow-x-auto"
+                        class="features flex flex-row gap-4 pt-4 pb-2 overflow-x-auto"
                     >
                         <FactCard
                             :primary-text="playlist.songs?.length"

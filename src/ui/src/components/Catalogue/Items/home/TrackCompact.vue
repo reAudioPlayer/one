@@ -5,11 +5,12 @@
 
 <script setup>
 import Marquee from "@/components/Marquee.vue";
-import AddAlbumToPlaylist from '../../../popups/ImportSpotifyAlbum.vue';
-import ImportSpotifySong from '../../../popups/ImportSpotifySong.vue';
-import {hashTrack, parseAnyCover} from "@/common";
-import {computed, ref, watch} from "vue";
-import {useRouter} from "vue-router";
+import AddAlbumToPlaylist from "../../../popups/ImportSpotifyAlbum.vue";
+import ImportSpotifySong from "../../../popups/ImportSpotifySong.vue";
+import { hashTrack, parseAnyCover } from "@/common";
+import { computed, ref, watch } from "vue";
+import { useRouter } from "vue-router";
+import Card from "@/containers/Card.vue";
 
 const props = defineProps({
     title: String,
@@ -56,7 +57,7 @@ const cover = computed(() => parseAnyCover(src.value));
 </script>
 
 <template>
-<div class="home-track-compact-wrapper drop-shadow-md">
+<div class="home-track-compact-wrapper">
     <add-album-to-playlist
         v-if="href.includes('spotify.com/album/')"
         ref="addRelease"
@@ -81,7 +82,7 @@ const cover = computed(() => parseAnyCover(src.value));
             releaseDate: null
         }"
     />
-    <div class="home-track-compact" @click="openModal">
+    <Card class="home-track-compact" with-hover @click="openModal">
         <div :style="{ backgroundImage: `url(${parseAnyCover(src)})` }" class="cover" @click="play">
             <img
                 :src="parseAnyCover(src)"
@@ -105,7 +106,7 @@ const cover = computed(() => parseAnyCover(src.value));
                 <span class="artist">{{artist}}</span>
             </router-link>
         </div>
-    </div>
+    </Card>
 </div>
 </template>
 

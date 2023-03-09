@@ -5,6 +5,7 @@
 
 <script lang="ts" setup>
 import { PropType } from "vue";
+import Card from "./Card.vue";
 
 defineProps({
     withHover: {
@@ -23,26 +24,17 @@ defineProps({
 })
 </script>
 <template>
-    <div :class="{ withHover }" class="card p-4">
+    <Card :with-hover="withHover" class="card p-4">
         <h2 class="mx-4">
             {{ primaryText }}
         </h2>
         <p v-if="secondaryText" class="my-0 text-muted">
             {{ secondaryText }}
         </p>
-    </div>
+    </Card>
 </template>
 <style lang="scss" scoped>
 .card {
-    background: var(--bg-base-lt);
-    border-radius: 1em;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-    border: var(--border-container);
-
-    &.withHover:hover {
-        background: var(--bg-hover-dk);
-    }
-
     p, h2 {
         text-align: center;
     }
