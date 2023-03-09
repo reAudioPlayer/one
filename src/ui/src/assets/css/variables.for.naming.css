@@ -16,6 +16,7 @@
     --bg-hover: hsla(0,0%,100%,0.3);
     --bg-hover-dk: hsla(0,0%,100%,0.1);
     --border-base: hsla(0,0%,100%,0.1);
+    --border-container: var(--border-base);
     --bg-gradient: linear-gradient(to left bottom, #1ed760, #217e41);
     --bg-base: #121212;
     --bg-base-lt: #181818;

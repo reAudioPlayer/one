@@ -222,7 +222,9 @@ export const usePlayerStore = defineStore({
             }
 
             if (typeof playlist === "number") {
-                body["playlistIndex"] = playlist;
+                if (!isNaN(playlist)) {
+                    body["playlistIndex"] = playlist;
+                }
             } else {
                 body["type"] = playlist;
             }

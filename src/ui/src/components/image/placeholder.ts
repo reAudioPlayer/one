@@ -4,7 +4,7 @@
  */
 
 
-const VERSION = 1;
+const VERSION = 1.1;
 const storage = window.localStorage.getItem("renderedIcons");
 const renderedIcons: Map<string, string> = storage ? new Map(JSON.parse(storage)) : new Map<string, string>();
 
@@ -35,7 +35,6 @@ export const generatePlaceholder = async (icon: string, size: number = 500): Pro
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
-    const fgBase = getComputedStyle(document.documentElement).getPropertyValue('--fg-base');
     const bgGradient = getComputedStyle(document.documentElement).getPropertyValue('--bg-gradient');
     const stop1 = bgGradient.match(/(#[0-9a-f]{3,6})/g)[0];
     const stop2 = bgGradient.match(/(#[0-9a-f]{3,6})/g)[1];
@@ -52,7 +51,7 @@ export const generatePlaceholder = async (icon: string, size: number = 500): Pro
     ctx.fillRect(0, 0, baseHeight, baseHeight);
 
     ctx.font = `300 ${baseHeight}px Material Symbols Rounded`;
-    ctx.fillStyle = fgBase;
+    ctx.fillStyle = "whitesmoke";
     ctx.fillText(icon,0, baseHeight);
 
     const src = canvas.toDataURL();

@@ -37,6 +37,7 @@ defineProps({
     background: var(--bg-base-lt);
     border-radius: 1em;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    border: var(--border-container);
 
     &.withHover:hover {
         background: var(--bg-hover-dk);

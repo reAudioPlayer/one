@@ -167,6 +167,7 @@ window.addEventListener("click", () => {
         align-items: center;
         justify-content: space-between;
         overflow-x: hidden;
+        border: var(--border-container);
 
         &.expanded {
             border-radius: 1em 1em 0 0;

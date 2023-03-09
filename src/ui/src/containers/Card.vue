@@ -3,7 +3,7 @@
   - Licenced under the GNU General Public License v3.0
   -->
 
-<script setup lang="ts">
+<script lang="ts" setup>
 defineProps({
     withHover: {
         type: Boolean,
@@ -12,7 +12,7 @@ defineProps({
 })
 </script>
 <template>
-    <div class="card" :class="{ withHover }">
+    <div :class="{ withHover }" class="card">
         <slot />
     </div>
 </template>
@@ -21,6 +21,7 @@ defineProps({
         background: var(--bg-base-lt);
         border-radius: 1em;
         box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+        border: var(--border-container);
 
         &.withHover:hover {
             background: var(--bg-hover-dk);
