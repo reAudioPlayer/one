@@ -3,13 +3,17 @@
 from __future__ import annotations
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
-from typing import Type, Tuple, Optional, Any, Dict, List, Union
+from typing import Type, Tuple, Optional, Any, Dict, List, Union, TYPE_CHECKING
 from pyaddict import JDict, JList
 import aiosqlite
 from helper.asyncThread import asyncRunInThreadWithReturn
-from meta.spotify import Spotify
-from dataModel.track import BasicSpotifyItem, SpotifyTrack, SpotifyArtist
 from db.table.table import ITable, IModel
+from dataModel.track import BasicSpotifyItem, SpotifyTrack, SpotifyArtist
+
+if TYPE_CHECKING:
+    from meta.spotify import Spotify
+    from db.database import Database
+    from dataModel.song import Song
 
 
 class SpotifyArtistData:
@@ -236,6 +240,80 @@ class ArtistModel(IModel):
             "spotify": self.spotify,
             "image": self.image
         }
+
+    @staticmethod
+    async def _fetchMetadata(spotifyId: str, spotify: Spotify) -> Optional[SpotifyArtist]:
+        if not spotifyId:
+            return None
+        result = await asyncRunInThreadWithReturn(spotify.artist, spotifyId)
+        if not result:
+            return None
+        return result.unwrap()
+
+    @staticmethod
+    async def _findArtistByTrack(artistName: str, tracks: List[Song]) -> Optional[str]:
+        for track in tracks:
+            trackMeta = track.metadata.spotify
+            if not trackMeta or not trackMeta.artists:
+                continue
+            basicArtist = next(( x
+                                for x in trackMeta.artists
+                                if x.name.lower() == artistName.lower()),
+                               None)
+            if basicArtist:
+                return basicArtist.id
+        return None
+
+    @staticmethod
+    async def _findArtistBySpotifySearch(artistName: str, spotify: Spotify) -> Optional[str]:
+        result = await asyncRunInThreadWithReturn(spotify.searchArtist, artistName)
+        if result:
+            artists = result.unwrap()
+            firstArtist = next(( x
+                                    for x in artists
+                                    if x.name.lower() == artistName.lower()),
+                                None)
+            if firstArtist:
+                return firstArtist.id
+        return None
+
+    @classmethod
+    async def _createModel(cls,
+                           artistName: str,
+                           spotify: Spotify,
+                           db: Database,
+                           tracks: List[Song]) -> Optional[ArtistModel]:
+        model = await db.artists.byName(artistName)
+        if model:
+            return model
+        artistId = await cls._findArtistByTrack(artistName, tracks)
+        if not artistId:
+            artistId = await cls._findArtistBySpotifySearch(artistName, spotify)
+        if not artistId:
+            return None
+        metadata = await cls._fetchMetadata(artistId, spotify)
+        if not metadata:
+            return None
+        artistModel = ArtistModel(metadata.name,
+                                  JDict(metadata.toDict()).toString(),
+                                  metadata.cover)
+        spotifyModel = artistModel.spotifyModel
+        if spotifyModel:
+            await spotifyModel.fetchRelated(spotify)
+            artistModel.spotifyModel = spotifyModel
+        await db.artists.insert(artistModel)
+        return artistModel
+
+    @classmethod
+    async def fetch(cls,
+                    artistName: str,
+                    spotify: Spotify,
+                    db: Database,
+                    tracks: List[Song]) -> ArtistModel:
+        """fetch artist"""
+        model = await cls._createModel(artistName, spotify, db, tracks)
+        assert model is not None
+        return model
 
 
 class ArtistsTable(ITable[ArtistModel]):

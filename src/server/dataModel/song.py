@@ -107,6 +107,16 @@ class Song:
         model = SongModel(name, artist, album, cover, favourite, duration, "", source, 0)
         return cls(model)
 
+    @staticmethod
+    def autoCorrectArtist(songs: List[Song], artist: str) -> str:
+        """corrects casing of artist"""
+        if len(songs) == 0:
+            return artist
+        return next(( x
+                      for x in songs[0].model.artists
+                      if x.lower() == artist.lower() ),
+                    artist)
+
     def update(self, other: Song) -> None:
         """update from other"""
         self._model = other.model
