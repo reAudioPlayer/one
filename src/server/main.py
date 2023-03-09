@@ -82,7 +82,7 @@ async def _exceptionMiddleware(request: web.Request,
     except web.HTTPException as exc:
         logger.exception(exc)
         resp = exc
-    except Exception as exc: # pylint: disable=bare-except
+    except Exception as exc: # pylint: disable=broad-except
         logger.exception(exc)
         resp = web.Response(status = 500, text = str(exc))
     logger.info("%s %s (%s s)", request.method, request.path, time.time() - start)

@@ -317,3 +317,9 @@ class SongsTable(ITable[SongModel]):
                 ands.append(f"{tagAndQuery[0]} LIKE '%{tagAndQuery[1]}%'")
         filter_ = " AND ".join(ands)
         return await self.select(append = f"WHERE {filter_}")
+
+    async def byArtist(self, artist: str) -> List[SongModel]:
+        """get songs by artist"""
+        return await self.select(
+            append = f"WHERE artist = '{artist}' or artist LIKE '%, {artist}, %' or artist LIKE '%, {artist}' or artist LIKE '{artist}, %' or spotify LIKE '%\"{artist}\"%' COLLATE NOCASE" # pylint: disable=line-too-long
+        )
