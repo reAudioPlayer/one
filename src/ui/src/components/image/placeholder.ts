@@ -35,7 +35,7 @@ export const generatePlaceholder = async (icon: string, size: number = 500): Pro
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
-    const bgGradient = getComputedStyle(document.documentElement).getPropertyValue('--bg-gradient');
+    const bgGradient = getComputedStyle(document.documentElement).getPropertyValue('--bg-gradient-placeholder');
     const stop1 = bgGradient.match(/(#[0-9a-f]{3,6})/g)[0];
     const stop2 = bgGradient.match(/(#[0-9a-f]{3,6})/g)[1];
     const gradient = ctx.createLinearGradient(size, 0, 0, size);

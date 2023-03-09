@@ -56,6 +56,9 @@
         "dynamic": "linear-gradient(to left bottom, #00a53c, #00297f)",
         "light": "linear-gradient(to left bottom, #18a74b, #80dda0)"
     },
+    "bg-gradient-placeholder": {
+        "dark": "linear-gradient(to left bottom, #00a53c, #00297f)"
+    },
     "bg-base": {
         "dark": "#121212",
         "light": "white"
