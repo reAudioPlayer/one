@@ -30,6 +30,7 @@ export default {
     },
     methods: {
         isTruncated(el) {
+            if (!el) return false;
             return el.scrollWidth > el.clientWidth
         },
         update() {
