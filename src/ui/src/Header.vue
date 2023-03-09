@@ -53,6 +53,7 @@ let submit = () => {
         align-items: center;
         box-shadow: 0 0 10px 0 var(--shadow);
         z-index: 10;
+        border-bottom: var(--border-container);
     }
 
     .logo {

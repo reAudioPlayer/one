@@ -13,6 +13,7 @@ import PlaylistHeader from "../components/songContainers/PlaylistHeader.vue";
 
 import PlaylistItem from "../components/Catalogue/Items/Playlists/PlaylistItem.vue";
 import Cover from "@/components/image/Cover.vue";
+import Card from "../containers/Card.vue";
 
 const player = usePlayerStore();
 const data = useDataStore();
@@ -76,7 +77,7 @@ const selectedSongId = ref(-1);
                     <div :style="{'animation-delay': '.5s'}" class="block"></div>
                 </div>
             </div>
-            <div v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl relative">
+            <Card v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl relative">
                 <div ref="playlistScroll" class="playlist">
                     <PlaylistHeader />
                     <PlaylistEntry
@@ -90,7 +91,7 @@ const selectedSongId = ref(-1);
                         @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
                     />
                 </div>
-            </div>
+            </Card>
 
             <div class="settings">
             <span class="iconButton material-symbols-rounded"
@@ -289,8 +290,6 @@ const selectedSongId = ref(-1);
     flex: 2;
     height: calc(100% - 220px);
     margin: 100px 0;
-    background: var(--bg-base-lt);
-    border-radius: 20px;
     overflow: hidden;
 }
 

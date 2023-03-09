@@ -4,10 +4,10 @@
   -->
 
 <script setup>
-import {usePlayerStore} from "@/store/player";
-import {useDataStore} from "@/store/data";
-import {computed} from "vue";
-import {useSettingsStore} from "@/store/settings";
+import { usePlayerStore } from "@/store/player";
+import { useDataStore } from "@/store/data";
+import { computed } from "vue";
+import { useSettingsStore } from "@/store/settings";
 
 const player = usePlayerStore();
 const data = useDataStore();
@@ -188,6 +188,7 @@ div.sidebar {
     z-index: 1;
     position: relative;
     overflow: hidden;
+    border: var(--border-container);
 
     @media screen and (max-width: $mobileWidth) {
         flex-direction: row;

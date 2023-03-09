@@ -115,7 +115,7 @@ window.addEventListener("click", () => {
 
     &__selected {
         background: var(--bg-base-lt);
-        border: 1px solid transparent;
+        border: 1px solid var(--border-base);
         border-radius: 1000vmax;
         color: var(--font-colour);
         padding: 10px;

@@ -58,7 +58,7 @@ const onInput = e => {
 <style lang="scss" scoped>
 .text-input-with-icon {
     background: var(--bg-base-lt);
-    border: 1px solid transparent;
+    border: 1px solid var(--border-base);
     color: var(--fg-base-dk);
     width: 100%;
 

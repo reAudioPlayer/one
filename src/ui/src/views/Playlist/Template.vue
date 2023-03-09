@@ -346,6 +346,7 @@ const onObserveVisibility = (isVisible, entry) => {
     padding: .5rem;
     border-radius: 1000em;
     align-items: center;
+    border: var(--border-container);
 
     .multiselect {
         overflow-x: hidden;

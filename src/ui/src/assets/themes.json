@@ -87,6 +87,11 @@
         "dark": "hsla(0,0%,100%,0.1)",
         "light": "#E3E7EB"
     },
+    "border-container": {
+        "dark": "1px solid var(--border-base)",
+        "light": "1px solid var(--border-base)",
+        "dynamic": "none"
+    },
 
     "ff-base": {
         "dark": "Poppins, sans-serif"
