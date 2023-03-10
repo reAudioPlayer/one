@@ -319,6 +319,8 @@ class ArtistModel(IModel):
                                     spotifyArtist.cover)
             else:
                 spotifyArtist = await cls._findArtistBySpotifySearch(artistName, spotify)
+                if not spotifyArtist:
+                    return None
                 artistId = spotifyArtist.id
                 if not artistId:
                     return None
@@ -326,7 +328,7 @@ class ArtistModel(IModel):
                                     "{}",
                                     spotifyArtist.cover)
 
-        assert model is not None
+        assert model is not None and artistId is not None
         metadata: Optional[SpotifyArtistData] = model.spotifyModel
 
         if not metadata or metadata.expired:
@@ -334,6 +336,8 @@ class ArtistModel(IModel):
             if not newMetadata:
                 return None
             metaModel = SpotifyArtistData.fromDict(JDict(newMetadata.toDict()))
+            if not metaModel:
+                return None
             await metaModel.fetchRelated(spotify)
             model.spotifyModel = metaModel
 
