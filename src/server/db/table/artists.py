@@ -4,6 +4,7 @@ from __future__ import annotations
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
 from typing import Type, Tuple, Optional, Any, Dict, List, Union, TYPE_CHECKING
+from datetime import datetime, timedelta
 from pyaddict import JDict, JList
 import aiosqlite
 from helper.asyncThread import asyncRunInThreadWithReturn
@@ -24,7 +25,8 @@ class SpotifyArtistData:
                  "_followers",
                  "_image",
                  "_related",
-                 "_topTracks")
+                 "_topTracks",
+                 "_expire")
 
     def __init__(self,
                  id_: str,
@@ -32,7 +34,8 @@ class SpotifyArtistData:
                  popularity: int,
                  followers: int,
                  image: str,
-                 related: List[BasicSpotifyItem]) -> None:
+                 related: List[BasicSpotifyItem],
+                 expire: datetime) -> None:
         self._id = id_
         self._genres = genres
         self._popularity = popularity
@@ -40,11 +43,17 @@ class SpotifyArtistData:
         self._image = image
         self._related: Union[List[BasicSpotifyItem], List[SpotifyArtist]] = related
         self._topTracks: List[SpotifyTrack] = []
+        self._expire = expire
 
     @property
     def id(self) -> str:
         """return id"""
         return self._id
+
+    @property
+    def expired(self) -> bool:
+        """return expired"""
+        return datetime.now() > self._expire
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SpotifyArtistData):
@@ -75,13 +84,21 @@ class SpotifyArtistData:
         for item in data.ensureCast("related", JList).iterator().ensureCast(JDict):
             related.append(BasicSpotifyItem.fromDict(item))
 
+        expire: datetime = datetime.now() + timedelta(days=7)
+        try:
+            expireString = data.ensure("expire", str)
+            expire = datetime.fromisoformat(expireString)
+        except: # pylint: disable=bare-except
+            pass
+
         return SpotifyArtistData(
              data.ensure("id", str),
              data.ensure("genres", list),
              data.ensure("popularity", int),
              data.ensure("followers", int),
              data.ensure("image", str),
-             related
+             related,
+             expire
         )
 
     @staticmethod
@@ -100,7 +117,8 @@ class SpotifyArtistData:
             "followers": self._followers,
             "image": self._image,
             "related": [item.toDict() for item in self._related],
-            "topTracks": [item.toDict() for item in self._topTracks]
+            "topTracks": [item.toDict() for item in self._topTracks],
+            "expire": self._expire.isoformat()
         })
 
     def toStr(self) -> str:
@@ -245,6 +263,8 @@ class ArtistModel(IModel):
     async def _fetchMetadata(spotifyId: str, spotify: Spotify) -> Optional[SpotifyArtist]:
         if not spotifyId:
             return None
+        if len(spotifyId) < 22:
+            return None
         result = await asyncRunInThreadWithReturn(spotify.artist, spotifyId)
         if not result:
             return None
@@ -265,7 +285,8 @@ class ArtistModel(IModel):
         return None
 
     @staticmethod
-    async def _findArtistBySpotifySearch(artistName: str, spotify: Spotify) -> Optional[str]:
+    async def _findArtistBySpotifySearch(artistName: str,
+                                         spotify: Spotify) -> Optional[SpotifyArtist]:
         result = await asyncRunInThreadWithReturn(spotify.searchArtist, artistName)
         if result:
             artists = result.unwrap()
@@ -274,7 +295,7 @@ class ArtistModel(IModel):
                                     if x.name.lower() == artistName.lower()),
                                 None)
             if firstArtist:
-                return firstArtist.id
+                return firstArtist
         return None
 
     @classmethod
@@ -284,36 +305,50 @@ class ArtistModel(IModel):
                            db: Database,
                            tracks: List[Song]) -> Optional[ArtistModel]:
         model = await db.artists.byName(artistName)
-        if model:
-            return model
-        artistId = await cls._findArtistByTrack(artistName, tracks)
-        if not artistId:
-            artistId = await cls._findArtistBySpotifySearch(artistName, spotify)
-        if not artistId:
-            return None
-        metadata = await cls._fetchMetadata(artistId, spotify)
-        if not metadata:
-            return None
-        artistModel = ArtistModel(metadata.name,
-                                  JDict(metadata.toDict()).toString(),
-                                  metadata.cover)
-        spotifyModel = artistModel.spotifyModel
-        if spotifyModel:
-            await spotifyModel.fetchRelated(spotify)
-            artistModel.spotifyModel = spotifyModel
-        await db.artists.insert(artistModel)
-        return artistModel
+        alreadyExists = model is not None
+        artistId = model.spotifyModel.id if model and model.spotifyModel else None
+
+        if model is None:
+            artistId = await cls._findArtistByTrack(artistName, tracks)
+            if artistId:
+                spotifyArtist = await cls._fetchMetadata(artistId, spotify)
+                if spotifyArtist is None:
+                    return None
+                model = ArtistModel(spotifyArtist.name,
+                                    JDict(spotifyArtist.toDict()).toString(),
+                                    spotifyArtist.cover)
+            else:
+                spotifyArtist = await cls._findArtistBySpotifySearch(artistName, spotify)
+                artistId = spotifyArtist.id
+                if not artistId:
+                    return None
+                model = ArtistModel(spotifyArtist.name,
+                                    "{}",
+                                    spotifyArtist.cover)
+
+        assert model is not None
+        metadata: Optional[SpotifyArtistData] = model.spotifyModel
+
+        if not metadata or metadata.expired:
+            newMetadata = await cls._fetchMetadata(artistId, spotify)
+            if not newMetadata:
+                return None
+            metaModel = SpotifyArtistData.fromDict(JDict(newMetadata.toDict()))
+            await metaModel.fetchRelated(spotify)
+            model.spotifyModel = metaModel
+
+        if not alreadyExists:
+            await db.artists.insert(model)
+        return model
 
     @classmethod
     async def fetch(cls,
                     artistName: str,
                     spotify: Spotify,
                     db: Database,
-                    tracks: List[Song]) -> ArtistModel:
+                    tracks: List[Song]) -> Optional[ArtistModel]:
         """fetch artist"""
-        model = await cls._createModel(artistName, spotify, db, tracks)
-        assert model is not None
-        return model
+        return await cls._createModel(artistName, spotify, db, tracks)
 
 
 class ArtistsTable(ITable[ArtistModel]):
