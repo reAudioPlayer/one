@@ -67,14 +67,14 @@ export const albumOptions = (songs: ISong[]) => {
 }
 
 export const artistOptions = (songs: ISong[]) => {
-    const artists = new Set<object>();
+    const artists = new Set<String>();
     for (const song of songs) {
         for (const artist of song.artist.split(", ")) {
-            artists.add({
-                label: artist,
-                value: artist,
-            });
+            artists.add(artist);
         }
     }
-    return Array.from(artists);
+    return Array.from(artists).sort().map((artist) => ({
+        label: artist,
+        value: artist,
+    }));
 }

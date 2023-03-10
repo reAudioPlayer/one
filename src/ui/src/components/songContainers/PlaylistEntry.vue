@@ -169,6 +169,7 @@ const update = () => {
     gap: 10px;
     padding: 10px 0;
     border-radius: 20px;
+    border: 1px solid transparent;
 
     .artist-title {
         grid-column: 3 / 4;
@@ -208,6 +209,7 @@ const update = () => {
 
     &.hovering {
         background-color: var(--bg-hover-dk);
+        border: var(--border-container);
 
         .index {
             font-size: 1.5rem;

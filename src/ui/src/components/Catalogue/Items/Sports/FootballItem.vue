@@ -4,7 +4,7 @@
   -->
 
 <template>
-    <div class="itemBig">
+    <Card class="itemBig" with-hover>
         <div class="item" @click="redirect">
             <div class="wrapper topalign">
                 <p>{{competition}}</p>
@@ -20,12 +20,15 @@
                 <span class="deleteIcon small material-icons-round" @click="remove">clear</span>
             </div>
         </div>
-    </div>
+    </Card>
 </template>
 
 <script>
-    export default {
+import Card from "@/containers/Card.vue";
+
+export default {
         name: 'FootballItem',
+        components: { Card },
         methods: {
             redirect() {
                 window.open(this.oref)
@@ -98,7 +101,6 @@
 
     .itemBig:hover {
         cursor: pointer;
-        background: var(--bg-hover-lt);
     }
 
     img {

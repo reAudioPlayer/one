@@ -4,23 +4,25 @@
   -->
 
 <template>
-    <Card class="wrapper" with-hover>
-        <add-artist-to-playlist
-            ref="import"
-            :artist="{
-                id,
-                name,
-                href: `https://open.spotify.com/artist/${id}`,
-                image: cover
-            }"
-        />
-        <div class="item" @click="redirect">
-            <img :src="cover" />
-            <h4>{{name}}</h4>
-            <p v-html="description" />
-            <button v-if="showFollowButton" class="followButton" @click="follow">{{following ? "Following" : "Follow"}}</button>
-        </div>
-    </Card>
+    <router-link :to="'/artist/' + name" class="noLink">
+        <Card class="wrapper" with-hover>
+            <add-artist-to-playlist
+                ref="import"
+                :artist="{
+                    id,
+                    name,
+                    href: `https://open.spotify.com/artist/${id}`,
+                    image: cover
+                }"
+            />
+            <div class="item">
+                <img :src="cover" />
+                <h4>{{name}}</h4>
+                <p v-html="description" />
+                <button v-if="showFollowButton" class="followButton" @click="follow">{{following ? "Following" : "Follow"}}</button>
+            </div>
+        </Card>
+    </router-link>
 </template>
 
 <script>
@@ -31,9 +33,6 @@ export default {
         components: { Card, AddArtistToPlaylist },
         name: 'ArtistItem',
         methods: {
-            redirect() {
-                this.$refs.import.show()
-            },
             follow(e)
             {
                 e.stopPropagation();
@@ -82,7 +81,6 @@ export default {
 
     .followButton:hover {
         cursor: pointer;
-        border-color: var(--fg-base);
     }
 
     p.note {
@@ -96,6 +94,8 @@ export default {
         margin: 10px;
         padding: 20px;
         position: relative;
+        text-decoration: none !important;
+        height: calc(100% - 20px);
     }
 
     .wrapper:hover {

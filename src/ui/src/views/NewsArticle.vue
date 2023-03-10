@@ -20,8 +20,8 @@
 </template>
 
 <script>
-import Loader from "@/components/Loader.vue"
-import Error from "@/components/Error.vue"
+import Loader from "@/components/Loader.vue";
+import Error from "@/components/Error.vue";
 
 export default {
         name: 'NewsArticle',
@@ -150,12 +150,12 @@ export default {
     .headline {
         font-size: 3em;
         margin: 10px 0px;
-        font-weight: normal;
+        font-weight: 900;
     }
 
     .standfirst {
         margin: 10px 0px;
-        font-weight: normal;
+        font-weight: bold;
         font-size: 1.7em;
     }
 
@@ -203,6 +203,7 @@ export default {
         background: var(--bg-base-lt);
         padding: 20px;
         border-radius: 10px;
+        border: var(--border-container);
     }
 
     .related li {

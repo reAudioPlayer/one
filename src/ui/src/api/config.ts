@@ -21,8 +21,11 @@ export const setSpotifyConfig = async (id: string, secret: string): Promise<void
 export const authoriseSpotify = async (): Promise<boolean> => {
     const res = await fetch("/api/spotify/authorise");
     if (res.status == 200) {
-        window.location.href = await res.text();
-        return true;
+        if (confirm("Do you want to authorise reAudioPlayer ONE to access your Spotify account?")) {
+            window.location.href = await res.text();
+            return true;
+        }
+        return false;
     }
     return res.status == 204;
 }
