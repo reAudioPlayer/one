@@ -183,6 +183,8 @@ watch(() => route.params.name, () => {
                             v-for="(element, index) in artist.metadata.topTracks"
                             :index="index"
                             :song="element"
+                            can-import
+                            cannot-add
                             with-album
                             with-cover
                             with-more

@@ -36,8 +36,8 @@
 </template>
 
 <script>
-import FullShelf from '../components/Catalogue/FullShelf.vue'
-import FootballItem from '../components/Catalogue/Items/Sports/FootballItem.vue'
+import FullShelf from "../components/Catalogue/FullShelf.vue";
+import FootballItem from "../components/Catalogue/Items/Sports/FootballItem.vue";
 import TextInputWithIcon from "@/components/inputs/TextInputWithIcon.vue";
 
 export default {
@@ -287,6 +287,10 @@ export default {
             &:hover {
                 cursor: pointer;
             }
+        }
+
+        iframe {
+            border: var(--border-container);
         }
     }
 </style>

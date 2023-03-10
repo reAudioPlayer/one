@@ -56,6 +56,8 @@ setCover();
             <Startup />
         </template>
     </div>
+    <div id="popup-target"></div>
+    <div id="dropdown-target"></div>
 </template>
 
 <script>
@@ -204,6 +206,17 @@ h3 {
 </style>
 
 <style lang="scss">
+.noLink {
+    text-decoration: none;
+    color: unset;
+
+    &:hover {
+        text-decoration: none;
+        cursor: default;
+        color: unset;
+    }
+}
+
 .linkOnHover {
     text-decoration: none;
     color: unset;

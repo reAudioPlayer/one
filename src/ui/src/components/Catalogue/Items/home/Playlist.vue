@@ -40,7 +40,8 @@ defineProps({
     flex-direction: column;
     padding: 20px;
     flex: 1;
-    max-width: 150px;
+    max-width: 200px;
+    height: calc(100% - 20px);
 
     &:hover {
         cursor: pointer;

@@ -43,23 +43,30 @@ const selectedLabel = computed(() => {
 });
 
 const trueDropdown = ref(null);
+const container = ref(null);
 watch(expanded, (value) => {
     nextTick(() => {
         if (value) {
             const rect = trueDropdown.value.getBoundingClientRect();
-            const spaceBelow = window.innerHeight - rect.top;
+            const containerRect = container.value.getBoundingClientRect();
 
-            // if there's enough space below, render below
-            // else, render above
+            const top = containerRect.top;
+            const bottom = containerRect.bottom;
+
+            const spaceBelow = window.innerHeight - bottom;
+
+            const containerWidth = containerRect.width;
+            trueDropdown.value.style.width = containerWidth + "px";
+            trueDropdown.value.style.left = containerRect.left + "px";
 
             const enoughSpaceBelow = spaceBelow > rect.height;
 
             if (enoughSpaceBelow) {
-                trueDropdown.value.style.top = "100%";
+                trueDropdown.value.style.top = bottom + "px";
                 trueDropdown.value.style.bottom = "auto";
             } else {
                 trueDropdown.value.style.top = "auto";
-                trueDropdown.value.style.bottom = "100%";
+                trueDropdown.value.style.bottom = top - rect.height + "px";
             }
         }
     })
@@ -70,7 +77,10 @@ window.addEventListener("click", () => {
 });
 </script>
 <template>
-    <div class="dropdown">
+    <div
+        ref="container"
+        class="dropdown"
+    >
         <div
             :class="{ expanded }"
             class="dropdown__selected"
@@ -89,20 +99,22 @@ window.addEventListener("click", () => {
                 {{expanded ? "expand_less" : "expand_more"}}
             </i>
         </div>
-        <div v-if="expanded" ref="trueDropdown" class="dropdown__options">
-            <div
-                v-for="option in options"
-                :key="option.value"
-                class="dropdown__option"
-                @click.stop="select(option.value)"
-            >
-                <span class="material-symbols-rounded">{{option.icon}}</span>
-                <span>
-                    {{option.label}}
-                </span>
-                <span v-if="selectedValue == option.value" class="material-symbols-rounded">check</span>
+        <teleport to="#dropdown-target">
+            <div v-if="expanded" ref="trueDropdown" class="dropdown__options">
+                <div
+                    v-for="option in options"
+                    :key="option.value"
+                    class="dropdown__option"
+                    @click.stop="select(option.value)"
+                >
+                    <span class="material-symbols-rounded">{{option.icon}}</span>
+                    <span>
+                        {{option.label}}
+                    </span>
+                    <span v-if="selectedValue == option.value" class="material-symbols-rounded">check</span>
+                </div>
             </div>
-        </div>
+        </teleport>
     </div>
 </template>
 
@@ -115,7 +127,7 @@ window.addEventListener("click", () => {
 
     &__selected {
         background: var(--bg-base-lt);
-        border: 1px solid var(--border-base);
+        border: var(--border-container);
         border-radius: 1000vmax;
         color: var(--font-colour);
         padding: 10px;
@@ -140,13 +152,14 @@ window.addEventListener("click", () => {
     &__options {
         position: absolute;
         left: 0;
-        z-index: 999;
+        z-index: 1001;
         width: max(100%, 20rem);
         max-height: 20rem;
         overflow-y: auto;
         background: var(--bg-base);
         border-radius: 0 0 1em 1em;
         filter: var(--drop-shadow);
+        border: var(--border-container);
 
         .dropdown__option {
             padding: 0.5rem;

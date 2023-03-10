@@ -12,6 +12,7 @@ import { favouriteSong } from "../../api/song";
 import Cover from "../image/Cover.vue";
 import { playInPicture } from "../../PlayerInPicture.vue";
 import ImportSpotifySong from "../popups/ImportSpotifySong.vue";
+import ArtistMarquee from "../ArtistMarquee.vue";
 
 const props = defineProps({
     song: {
@@ -120,9 +121,7 @@ const addOrImport = () => {
                 </router-link>
             </span>
             <span class="artist">
-                <router-link :to="`/search/artist:${song.artist}`" class="linkOnHover">
-                    <Marquee :text="song.artist" />
-                </router-link>
+                <ArtistMarquee :artist="song.artist" class="text-muted text-xs" />
             </span>
         </div>
         <div
