@@ -3,61 +3,46 @@
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import os
-import sys
-from queue import Empty
-from typing import Awaitable, Callable
+from typing import Optional
+import signal
+import mimetypes
+import asyncio
 
-try:
-    from typing import Optional
+from aiohttp import web
+from aiohttp_index import IndexMiddleware # type: ignore
+import aiohttp_cors # type: ignore
 
-    from db.database import Database
+from db.database import Database
 
-    from downloader.downloader import Downloader
+from downloader.downloader import Downloader
 
-    from handler.download import DownloadHandler
-    from handler.news import NewsHandler
-    from handler.sports import SportsHandler
-    from handler.player import PlayerHandler
-    from handler.playlist import PlaylistHandler
-    from handler.collection import CollectionHandler
-    from handler.meta import MetaHandler
-    from handler.config import ConfigHandler
-    from handler.websocket import Websocket
+from handler.download import DownloadHandler
+from handler.news import NewsHandler
+from handler.sports import SportsHandler
+from handler.player import PlayerHandler
+from handler.playlist import PlaylistHandler
+from handler.collection import CollectionHandler
+from handler.meta import MetaHandler
+from handler.config import ConfigHandler
+from handler.websocket import Websocket
 
-    from meta.spotify import Spotify
+from meta.spotify import Spotify
 
-    from config.runtime import Runtime
-    from config.config import Migrator
+from config.runtime import Runtime
+from config.config import Migrator
 
-    from player.player import Player
-    from player.playlistManager import PlaylistManager
+from player.player import Player
+from player.playlistManager import PlaylistManager
 
-    from router.router import Router
+from router.router import Router
 
-    from helper.nginx import Nginx
+from helper.nginx import Nginx
+from helper.logged import Logged
 
-    from aiohttp import web
-    from aiohttp.web import middleware
+from middleware.exception import exceptionMiddleware
 
-    from aiohttp_index import IndexMiddleware # type: ignore
 
-    import aiohttp_cors # type: ignore
-
-    import logging
-    import time
-    import signal
-
-    import mimetypes
-
-    import asyncio
-
-except Exception as e: # pylint: disable=bare-except, broad-except
-    print(e)
-    print("you need to run setup.bat (or the documented commands) first")
-    import time # pylint: disable=ungrouped-imports, multiple-imports
-    time.sleep(5)
-    sys.exit()
-
+Logged.init()
 mimetypes.init()
 mimetypes.types_map['.js'] = 'application/javascript; charset=utf-8'
 
@@ -66,29 +51,6 @@ downloader = Downloader()
 playlistManager = PlaylistManager()
 player = Player(downloader, playlistManager)
 
-
-@middleware
-async def _exceptionMiddleware(request: web.Request,
-                               handler: Callable[[web.Request],
-                                            Awaitable[web.StreamResponse]]) -> web.StreamResponse:
-    logger = logging.getLogger()
-    start = time.time()
-    resp: Optional[web.StreamResponse] = None
-    try:
-        resp = await handler(request)
-    except Empty as exc:
-        #os.unlink(".cache")
-        logger.exception(exc)
-        resp = web.Response(status = 500, text = str(exc))
-    except web.HTTPException as exc:
-        logger.exception(exc)
-        resp = exc
-    except Exception as exc: # pylint: disable=broad-except
-        logger.exception(exc)
-        resp = web.Response(status = 500, text = str(exc))
-    logger.info("%s %s (%s s)", request.method, request.path, time.time() - start)
-    assert resp is not None
-    return resp
 
 async def _init() -> web.Application: # pylint: disable=too-many-statements
     Nginx.init()
@@ -105,10 +67,7 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     sportsHandler = SportsHandler()
     websocket = Websocket(player)
 
-    pipeHandler = logging.StreamHandler(sys.stdout)
-    logging.basicConfig(handlers = [pipeHandler], level = logging.INFO)
-
-    app = web.Application(middlewares=[IndexMiddleware(), _exceptionMiddleware])
+    app = web.Application(middlewares=[IndexMiddleware(), exceptionMiddleware])
 
     Router.applyRoutes(app,
                        playerHandler,
@@ -139,14 +98,23 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
 
 async def main() -> None:
     """MAIN"""
+    logger = Logged.getLogger("main")
+    Runtime.setEventLoop(asyncio.get_event_loop())
+
     app = await _init()
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, host = Runtime.args.host, port = Runtime.args.port)
     await site.start()
+
+    logger.info("Server started at http://%s:%s", Runtime.args.host, Runtime.args.port)
+
     await Database().init()
+    logger.debug("Database initialised")
     await playlistManager.loadPlaylists()
+    logger.debug("Playlists loaded")
     await Runtime.cache.init()
+    logger.debug("Cache initialised")
 
     while True: # endless loop
         await asyncio.sleep(1)

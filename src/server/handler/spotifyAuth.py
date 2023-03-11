@@ -17,15 +17,17 @@ from spotipy.oauth2 import  SpotifyOAuth # type: ignore
 
 from config.runtime import Runtime
 from helper.cacheDecorator import clearCache
+from helper.logged import Logged
 
 
 SCOPE = "user-library-read user-follow-read user-follow-modify"
 REDIRECT = "http://localhost:1234/api/spotify/callback"
 
 
-class SpotifyAuth:
+class SpotifyAuth(Logged):
     """Handles Spotify Authentication"""
     def __init__(self) -> None:
+        super().__init__(self.__class__.__name__)
         self._attemptedClientAuth = False
 
     async def _refresh(self, token: str) -> bool:
@@ -39,31 +41,40 @@ class SpotifyAuth:
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Authorization": SpotifyAuth._getSpotifyAuthHeader()
             }) as response:
+                self._logger.debug("refresh response: %s", response.status)
                 if response.status != 200:
                     return False
 
                 data = await response.json()
+                data["refresh_token"] = token
+                data["expires_at"] = time() + data["expires_in"]
                 with open(".cache", "w", encoding = "utf8") as file:
                     file.write(json.dumps(data))
                 return True
 
-    async def shouldAuth(self) -> bool:
+    async def shouldAuth(self, forceRefresh: bool = False) -> bool:
         """Returns if the user should be authenticated"""
         if SpotifyAuth.isDisabled():
-            print("Spotify is disabled")
+            self._logger.info("Spotify is disabled")
             return False
 
         if not os.path.isfile(".cache"):
-            print("Spotify is not authenticated")
+            self._logger.info("Spotify is not authenticated (no cache file)")
             return True
 
         with open(".cache", "r", encoding = "utf8") as file:
             data = json.loads(file.read())
 
-        if not JDict(data).ensure("expires_at", int) < time():
+        if not forceRefresh and not JDict(data).ensure("expires_at", int) < time():
+            self._logger.info("Spotify is authenticated")
             return False
 
-        return not await self._refresh(JDict(data).ensure("refresh_token", str))
+        shouldAuth = not await self._refresh(JDict(data).ensure("refresh_token", str))
+        if shouldAuth:
+            self._logger.info("Spotify is not authenticated (refresh failed)")
+        else:
+            self._logger.info("Spotify is authenticated (refreshed)")
+        return shouldAuth
 
     def isAuth(self) -> bool:
         """Returns if the user is authenticated"""
@@ -189,8 +200,18 @@ class SpotifyAuth:
 
     def invalidate(self) -> None:
         """Invalidates the cached Spotify Token"""
-        if os.path.isfile(".cache"):
-            os.remove(".cache")
+        self._logger.info("Invalidating Spotify Token")
+
+        async def _implement() -> None:
+            self._logger.info("Invalidating Spotify Token (refresh)")
+            if not await self.shouldAuth(True):
+                return
+            self._logger.info("Invalidating Spotify Token (delete cache)")
+            if os.path.isfile(".cache"):
+                os.remove(".cache")
+            self._logger.info("Invalidating Spotify Token (done)")
+
+        asyncio.run_coroutine_threadsafe(_implement(), Runtime.eventLoop())
 
     def addExpiresAt(self) -> bool:
         """Adds the expires_at key to the cache"""

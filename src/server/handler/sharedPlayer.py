@@ -6,10 +6,13 @@ __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 from typing import List, Optional, Dict, Any
 from enum import Enum
 import time
+import logging
 
 from aiohttp import web
 import aiohttp
 import hashids # type: ignore
+
+from helper.logged import Logged
 
 
 class ConnectionType(Enum):
@@ -18,7 +21,7 @@ class ConnectionType(Enum):
     Player = 1
 
 
-class Connection:
+class Connection(Logged):
     """A websocket connection"""
     __slots__ = ("_request", "_response", "_type", "_id", "_player")
 
@@ -37,11 +40,12 @@ class Connection:
     def __init__(self,
                  request: web.Request,
                  response: web.WebSocketResponse) -> None:
+        super().__init__(self.__class__.__name__)
         self._request = request
         self._response = response
         self._type = ConnectionType.Player
         self._id: str = Connection._hashids.encode(int(time.time()))
-        print(f"New connection: {self._id}")
+        self._logger.debug("New connection: %s", self._id)
         self._player: Optional[Connection] = None
 
     @classmethod
@@ -194,7 +198,7 @@ class Connection:
                     await self._handleInfo(jdata["data"])
 
             elif message.type == aiohttp.WSMsgType.ERROR:
-                print(f"Connection error: {self._response.exception()}")
+                self._logger.error("Connection error: %s", self._response.exception())
         await self._handleDisconnect()
 
     def removePlayer(self) -> None:

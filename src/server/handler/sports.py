@@ -8,10 +8,13 @@ from aiohttp import web
 
 from meta.scorereader import OneFootballMatch
 from helper.asyncThread import asyncRunInThreadWithReturn
+from helper.logged import Logged
 
-
-class SportsHandler:
+class SportsHandler(Logged):
     """sports handler"""
+    def __init__(self) -> None:
+        super().__init__(self.__class__.__name__)
+
     async def getMatches(self, request: web.Request) -> web.Response:
         """get(/api/sports)"""
         jdata = await request.json()
@@ -22,7 +25,7 @@ class SportsHandler:
                     match = await asyncRunInThreadWithReturn(OneFootballMatch, url)
                     return [ match.toJson() ]
             except Exception as exc:
-                print(exc)
+                self._logger.error("Error: %s", exc)
             return [{
                 "href": url,
                 "result": "N/A",

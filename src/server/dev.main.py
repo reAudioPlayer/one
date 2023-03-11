@@ -25,7 +25,7 @@ def run() -> None:
             line = stdout.readline()
             if not line:
                 break
-            logger.info(line.decode("utf-8").strip())
+            print(line.decode("utf-8").strip())
     logger.info("process exited")
 
 logger.info("restarting nginx...")

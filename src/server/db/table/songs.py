@@ -133,7 +133,6 @@ class SongModel(IModel):
 
     @name.setter
     def name(self, value: str) -> None:
-        print("name setter", value)
         if value == self._name:
             return
         self._name = value

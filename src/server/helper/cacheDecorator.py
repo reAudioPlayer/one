@@ -4,6 +4,7 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from functools import wraps
 import asyncio
+import logging
 from typing import Any, Awaitable, Callable, Dict
 from datetime import datetime, timedelta
 
@@ -28,6 +29,10 @@ class CacheEntry:
         """returns the initial response"""
         return self._response
 
+    def __bool__(self) -> bool:
+        """returns whether the entry is valid"""
+        return self._response.status / 100 != 5
+
     def clone(self) -> web.Response:
         """clones the response"""
         expireStamp = self._date + timedelta(seconds = self._expires)
@@ -44,6 +49,7 @@ class CacheEntry:
 
 _CACHE: Dict[Function, CacheEntry] = { }
 _INVALIDATION_TASKS: Dict[Function, asyncio.Task[None]] = { }
+_CACHE_LOGGER = logging.getLogger("cache")
 
 
 def useCache(expire: int) -> Callable[[
@@ -66,16 +72,20 @@ def useCache(expire: int) -> Callable[[
 
             noCache = request.headers.get("X-Cache-Control") == "no-cache"
             if noCache:
-                print("cache bypassed")
+                _CACHE_LOGGER.debug("cache bypassed")
                 if function in _INVALIDATION_TASKS:
                     _INVALIDATION_TASKS[function].cancel()
                     del _INVALIDATION_TASKS[function]
             elif function in _CACHE:
-                print("cache hit")
+                _CACHE_LOGGER.debug("cache hit")
                 return _CACHE[function].clone()
 
-            print("cache miss")
-            _CACHE[function] = CacheEntry(await function(*args, **kwargs), expire)
+            _CACHE_LOGGER.debug("cache miss")
+            entry = CacheEntry(await function(*args, **kwargs), expire)
+            if not entry:
+                return entry.initialResponse
+
+            _CACHE[function] = entry
 
             async def invalidateCache() -> None:
                 await asyncio.sleep(expire)
@@ -88,7 +98,7 @@ def useCache(expire: int) -> Callable[[
 
 def clearCache() -> None:
     """clears the cache"""
-    print("clearing cache")
+    _CACHE_LOGGER.debug("clearing cache")
     _CACHE.clear()
     for task in _INVALIDATION_TASKS.values():
         task.cancel()

@@ -9,10 +9,12 @@ import aiohttp
 from aiohttp import web
 
 from aiohttp.web_ws import WebSocketResponse
-from dataModel.song import Song
 
+from dataModel.song import Song
 from player.player import Player
 from player.playerPlaylist import PlayerPlaylist
+from helper.logged import Logged
+
 
 class Message(Dict[str, Any]):
     """websocket message"""
@@ -37,9 +39,11 @@ class Message(Dict[str, Any]):
         """return valid"""
         return self.path is not None
 
-class Websocket:
+
+class Websocket(Logged):
     """websocket handler"""
     def __init__(self, player: Player) -> None:
+        super().__init__(self.__class__.__name__)
         self._connections: List[WebSocketResponse] = [ ]
         self._player = player
         self._player._playlistChangeCallback = self._onPlaylistChange # pylint: disable=protected-access
@@ -91,9 +95,9 @@ class Websocket:
                         continue
                     await self._handle(ws, data)
             elif msg.type == aiohttp.WSMsgType.ERROR:
-                print(f"ws connection closed with exception {ws.exception()}")
+                self._logger.error('ws connection closed with exception %s', ws.exception())
 
-        print('websocket connection closed')
+        self._logger.debug('websocket connection closed')
         self._connections.remove(ws)
 
         return ws

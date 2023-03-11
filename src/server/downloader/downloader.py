@@ -131,6 +131,6 @@ class Downloader(metaclass = Singleton):
             DOWNLOADING.remove(filename)
             return isinstance(err, int) and err == 0
         except: # pylint: disable=bare-except
-            print(f"{filename} could not be downloaded ({relName.replace('%(ext)s', 'mp3')})")
+            self._logger.error("%s could not be downloaded (%s / %s)", filename, relName.replace("%(ext)s", "mp3"), link) # pylint: disable=line-too-long
             DOWNLOADING.remove(filename)
             return path.exists(relName.replace("%(ext)s", "mp3"))

@@ -266,9 +266,21 @@ class CacheConfig(metaclass = Singleton):
 
 class Runtime:
     """The runtime class is used to store the runtime configuration of the server."""
+    _eventLoop: Optional[asyncio.AbstractEventLoop] = None
+
     args: Args = Args()
     cache: CacheConfig = CacheConfig()
     github: GithubConfig = GithubConfig()
+
+    @staticmethod
+    def setEventLoop(loop: asyncio.AbstractEventLoop) -> None:
+        """Sets the event loop."""
+        Runtime._eventLoop = loop
+
+    @staticmethod
+    def eventLoop() -> asyncio.AbstractEventLoop:
+        assert Runtime._eventLoop is not None
+        return Runtime._eventLoop
 
     @staticmethod
     def spotifyConfig() -> Optional[JDict]:
