@@ -5,7 +5,13 @@
 
 <script setup>
 import Loader from "@/components/Loader";
-import Logo from '/src/assets/images/logo/logo.svg'
+import Logo from "/src/assets/images/logo/logo.svg";
+import { onMounted } from "vue";
+import { Notifications } from "@/components/notifications/createNotification";
+
+onMounted(() => {
+    Notifications.clear();
+})
 </script>
 <template>
     <div class="startup">
