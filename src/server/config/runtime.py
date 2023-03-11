@@ -279,6 +279,7 @@ class Runtime:
 
     @staticmethod
     def eventLoop() -> asyncio.AbstractEventLoop:
+        """Returns the event loop."""
         assert Runtime._eventLoop is not None
         return Runtime._eventLoop
 

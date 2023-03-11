@@ -55,7 +55,7 @@ exit
 :lint
 cd src/server
 python -m mypy
-python -m pylint dev.main.py main.py ./config ./dataModel ./db ./downloader ./handler ./helper ./meta ./player ./router
+python -m pylint dev.main.py main.py ./config ./dataModel ./db ./downloader ./handler ./helper ./meta ./player ./router ./middleware
 exit
 
 :build

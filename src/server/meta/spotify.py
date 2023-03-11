@@ -6,7 +6,6 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 from functools import wraps
 from enum import Enum
 import logging
-import asyncio
 from typing import Any, Callable, Dict, Generic, List, Optional, ParamSpec, Type, TypeVar
 
 from aiohttp import web
@@ -138,7 +137,7 @@ def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
 
                 if retryCount < 1:
                     retryCount += 1
-                    return wrapper(self, *args, **kwargs) # type: ignore
+                    return wrapper(self, *args, **kwargs)
                 return SpotifyResult.errorResult(SpotifyState.Unauthorised)
 
             if exc.http_status == 429:
@@ -153,7 +152,7 @@ def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
 
                 if retryCount < 1:
                     retryCount += 1
-                    return wrapper(self, *args, **kwargs) # type: ignore
+                    return wrapper(self, *args, **kwargs)
 
                 return SpotifyResult.errorResult(SpotifyState.Unauthorised)
             return SpotifyResult.errorResult(SpotifyState.InternalError)
