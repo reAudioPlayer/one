@@ -39,6 +39,7 @@
 import FullShelf from "../components/Catalogue/FullShelf.vue";
 import FootballItem from "../components/Catalogue/Items/Sports/FootballItem.vue";
 import TextInputWithIcon from "@/components/inputs/TextInputWithIcon.vue";
+import { Notifications } from "@/components/notifications/createNotification";
 
 export default {
         components: {
@@ -106,7 +107,7 @@ export default {
                     }
                 }
 
-                alert("unsupported source")
+                Notifications.addError("unsupported source")
             },
             addSource() {
                 this.watchMatches.push(this.sourceToAdd)

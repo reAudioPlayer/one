@@ -12,6 +12,7 @@ import { ref, watch } from "vue";
 import Startup from "@/views/Startup.vue";
 import { initPictureInPicture } from "@/pictureInPicture";
 import { getCover } from "@/components/image/placeholder";
+import Notifications from "@/components/notifications/Notifications.vue";
 
 initPictureInPicture();
 
@@ -58,6 +59,7 @@ setCover();
     </div>
     <div id="popup-target"></div>
     <div id="dropdown-target"></div>
+    <Notifications />
 </template>
 
 <script>
