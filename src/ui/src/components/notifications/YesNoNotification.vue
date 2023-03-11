@@ -5,7 +5,7 @@
 
 <script lang="ts" setup>
 import { PropType } from "vue";
-import { IYesNoNotification } from "./Notifications.vue";
+import { IYesNoNotification } from "./NotificationHandler.vue";
 import Card from "../../containers/Card.vue";
 
 const props = defineProps({
