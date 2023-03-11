@@ -16,10 +16,12 @@ class Logged:
 
     @staticmethod
     def init() -> None:
+        """Initialise the logger"""
         pipeHandler = logging.StreamHandler(sys.stdout)
         logging.config.fileConfig('logging.ini')
         logging.basicConfig(handlers = [pipeHandler], level = logging.INFO)
 
     @staticmethod
     def getLogger(name: str) -> logging.Logger:
+        """Get a logger"""
         return logging.getLogger(name)

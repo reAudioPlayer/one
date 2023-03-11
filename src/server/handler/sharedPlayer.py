@@ -6,7 +6,6 @@ __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 from typing import List, Optional, Dict, Any
 from enum import Enum
 import time
-import logging
 
 from aiohttp import web
 import aiohttp
