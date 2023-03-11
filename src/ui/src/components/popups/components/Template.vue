@@ -72,52 +72,90 @@ defineExpose({
 })
 </script>
 <template>
-    <vue-final-modal v-model="showModal" classes="modal-container" content-class="modal-content" @click.stop @contextmenu.stop @drag.stop>
-        <div class="wrapper">
-            <div class="header bg-secondary rounded-t-2xl p-3">
-                <h3 class="title font-black">{{name}}</h3>
-                <button class="modal-close" @click="close">
-                    <span class="title material-icons-round">
-                        close
-                    </span>
-                </button>
-            </div>
-            <Loader v-if="loading" />
-            <div v-else-if="error">
-
-            </div>
+    <teleport
+        v-if="showModal"
+        to="#popup-target"
+    >
+        <div
+            class="modal"
+            @click.stop="showModal=false"
+            @contextmenu.stop
+            @drag.stop
+        >
             <div
-                v-else
-                class="p-4 pt-0 flex flex-col overflow-x-hidden overflow-y-auto"
+                class="modal-content"
+                @click.stop
             >
-                <slot />
-                <div v-if="props.submit || props.secondary" class="confirm">
-                    <IconButton
-                        v-if="props.secondary"
-                        :icon="props.secondary.icon"
-                        :label="props.secondary.label"
-                        :type="props.secondary.type"
-                        @click="secondary"
-                    />
-                    <IconButton
-                        v-if="props.submit"
-                        :icon="props.submit.icon"
-                        :label="props.submit.label"
-                        :type="props.submit.type"
-                        @click="submit"
-                    />
+                <div class="header bg-secondary rounded-t-2xl p-3">
+                    <h3 class="title font-black">{{name}}</h3>
+                    <button class="modal-close" @click="close">
+                        <span class="title material-icons-round">
+                            close
+                        </span>
+                    </button>
+                </div>
+                <Loader v-if="loading" />
+                <div v-else-if="error">
+
+                </div>
+                <div
+                    v-else
+                    class="p-4 pt-0 flex flex-col overflow-x-hidden overflow-y-auto"
+                >
+                    <slot />
+                    <div v-if="props.submit || props.secondary" class="confirm">
+                        <IconButton
+                            v-if="props.secondary"
+                            :icon="props.secondary.icon"
+                            :label="props.secondary.label"
+                            :type="props.secondary.type"
+                            @click="secondary"
+                        />
+                        <IconButton
+                            v-if="props.submit"
+                            :icon="props.submit.icon"
+                            :label="props.submit.label"
+                            :type="props.submit.type"
+                            @click="submit"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
-    </vue-final-modal>
+    </teleport>
 </template>
 <style lang="scss" scoped>
-.wrapper {
+.modal {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.7);
+    animation: fadeIn .2s ease-in-out forwards;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
     cursor: default;
-    position: relative;
-    max-height: calc(100vh - var(--h-header) - var(--h-player) - 2em);
     display: flex;
     flex-direction: column;
+    width: 40%;
+    max-height: 80vh;
+    background: var(--fg-contrast);
+    border-radius: 1rem;
+    color: var(--fg-base);
 }
 
 .confirm {

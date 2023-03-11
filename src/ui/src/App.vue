@@ -153,58 +153,6 @@ export default {
     },
 }
 </script>
-
-<!-- Popups -->
-<style lang="scss">
-.modal-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #0000;
-}
-
-.modal-content {
-    position: absolute;
-    width: 40%;
-    max-height: 80vh;
-    /*overflow: hidden;*/
-    background: var(--fg-contrast);
-    border-radius: 1rem;
-    color: var(--fg-base);
-
-    display: flex;
-    flex-direction: column;
-}
-
-.modal-close {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 32px;
-    height: 32px;
-    font-size: 1.5em;
-    cursor: pointer;
-    background: none;
-    border: none;
-    color: var(--font-darker);
-}
-
-h3 {
-    margin: 0;
-}
-
-.modal-close:hover {
-    color: var(--font-colour);
-}
-
-.material-symbols-rounded {
-    font-variation-settings: 'FILL' 0,
-    'wght' 100,
-    'GRAD' -25,
-    'opsz' 48
-}
-</style>
-
 <style lang="scss">
 .noLink {
     text-decoration: none;
