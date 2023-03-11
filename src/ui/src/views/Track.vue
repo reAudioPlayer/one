@@ -28,6 +28,9 @@ import FactCard from "../containers/FactCard.vue";
 import EditSong from "../components/popups/EditSong.vue";
 import ButtonCard from "../containers/ButtonCard.vue";
 import AmbientBackground from "../components/image/AmbientBackground.vue";
+// @ts-ignore
+import spotify from "../assets/images/src/spotify.svg";
+import ArtistMarquee from "../components/ArtistMarquee.vue";
 
 const route = useRoute();
 const player = usePlayerStore();
@@ -40,6 +43,7 @@ const spotifyUrlIcon = ref("url");
 const metadata = ref(null as IMetadata | null);
 const recommendations = ref([] as ISpotifySong[]);
 const circles = ref([] as { key: string; value: number, icon: string }[]);
+const spotifyEnabled = ref(false);
 
 const icons = {
     "acousticness": "piano",
@@ -65,6 +69,7 @@ const load = async (spotifyId: string = null) => {
     metadata.value = await getSongMetadata(song.value.id, !!spotifyId, spotifyId);
     spotifyUrl.value = `https://open.spotify.com/track/${metadata.value.spotify.id}`;
     spotifyUrlIcon.value = "link";
+    spotifyEnabled.value = metadata.value.spotify.id?.length == 22;
     recommendations.value = await getRecommendations(song.value.id)
     circles.value = [];
 
@@ -148,7 +153,15 @@ const onSpotifyUrlClick = () => {
                 >
                     <div class="trac__info__details__normal">
                         <h3 class="text-secondary my-0 text-2xl font-bold">
-                            {{ song.artist }} <span class="text-muted text-base ml-2 font-light">• {{ song.album }}</span>
+                            <ArtistMarquee
+                                :artist="song.artist"
+                                class="inline"
+                            />
+                            <span
+                                class="text-muted text-base ml-4 font-light"
+                            >
+                                {{ song.album }}
+                            </span>
                         </h3>
                         <div class="flex flew-row items-center">
                             <span
@@ -210,7 +223,13 @@ const onSpotifyUrlClick = () => {
                                     <span class="font-bold">{{ metadata.spotify.popularity }}</span>
                                 </span>
                             </div>
+                            <spotify
+                                :class="{ enabled: spotifyEnabled }"
+                                class="spotify-enable"
+                                @click="spotifyEnabled = !spotifyEnabled"
+                            />
                             <TextInputWithIcon
+                                v-if="spotifyEnabled"
                                 v-model="spotifyUrl"
                                 :icon="spotifyUrlIcon"
                                 :onClick="onSpotifyUrlClick"
@@ -267,6 +286,24 @@ const onSpotifyUrlClick = () => {
 </div>
 </template>
 
+<style lang="scss">
+.track__data .spotify-enable {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+
+    path {
+        fill: var(--fg-base) !important;
+    }
+
+    &.enabled {
+        path {
+            fill: var(--fg-secondary) !important;
+        }
+    }
+}
+</style>
+
 <style lang="scss" scoped>
 .track__data .upper {
     display: grid;
@@ -276,8 +313,10 @@ const onSpotifyUrlClick = () => {
 
 .spotify-infos {
     display: grid;
-    grid-template-columns: fit-content(100%) 1fr;
+    grid-template-columns: fit-content(100%) 24px 1fr;
     gap: 1rem;
+    align-items: center;
+    height: 46px;
 
     .meta {
         display: grid;

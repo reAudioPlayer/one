@@ -116,9 +116,14 @@ const addOrImport = () => {
         </div>
         <div class="artist-title">
             <span class="title">
-                <router-link :to="`/track/${song.id}`" class="linkOnHover">
+                <component
+                    :is="song.href.startsWith('http') ? 'a' : 'router-link'"
+                    :href="song.href"
+                    :to="song.href"
+                    class="linkOnHover"
+                >
                     <Marquee :text="song.title" />
-                </router-link>
+                </component>
             </span>
             <span class="artist">
                 <ArtistMarquee :artist="song.artist" class="text-muted text-xs" />
