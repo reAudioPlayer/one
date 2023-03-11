@@ -76,6 +76,7 @@ export interface IMetadata {
 
 export interface ISong {
     source: string;
+    href: string;
     id?: number;
     title: string;
     artist: string;
@@ -105,7 +106,6 @@ export interface ISpotifySong extends ISong {
     added?: boolean;
     artists: string[];
     source: string;
-    href?: string;
 }
 
 export interface ISpotifyAlbum {
@@ -163,7 +163,7 @@ export const getCamelotKey = (meta: IMetadata): string => {
     return `${index + 1}${mode == "Major" ? "B" : "A"}`;
 }
 
-export const parseSpotifyId = (url: string, type: "track" | "album" | "playlist" = null): string | null => {
+export const parseSpotifyId = (url: string, type: "track" | "album" | "playlist" | "artist" = null): string | null => {
     if (!type) {
         if (url.includes("track")) type = "track";
         if (url.includes("album")) type = "album";

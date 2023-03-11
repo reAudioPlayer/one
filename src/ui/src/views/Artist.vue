@@ -17,6 +17,8 @@ import Tag from "../containers/Tag.vue";
 import ExternalEntry from "../components/songContainers/ExternalEntry.vue";
 import Card from "../containers/Card.vue";
 import TextInputWithIcon from "../components/inputs/TextInputWithIcon.vue";
+// @ts-ignore
+import spotify from "../assets/images/src/spotify.svg";
 
 const route = useRoute();
 const router = useRouter();
@@ -41,12 +43,14 @@ const artist = ref<IArtist>(null);
 const selectedSongId = ref(null as number | null);
 const spotifyUrl = ref(null as string | null);
 const spotifyUrlIcon = ref("url");
+const spotifyEnabled = ref(false);
 
 const load = async () => {
     const res = await fetch(`/api/artists/${artistName.value}`);
     artist.value = await res.json();
     selectedSongId.value = null;
     spotifyUrl.value = "https://open.spotify.com/artist/" + artist.value.metadata.id;
+    spotifyEnabled.value = artist.value.metadata.id?.length == 22;
     spotifyUrlIcon.value = "link";
 }
 
@@ -122,11 +126,13 @@ watch(() => route.params.name, () => {
                             class="features flex flex-row gap-4 mt-4 overflow-x-auto"
                         >
                             <FactCard
+                                v-if="artist.metadata.followers"
                                 :primary-text="artist.metadata.followers.toLocaleString()"
                                 class="w-full"
                                 secondary-text="Followers"
                             />
                             <FactCard
+                                v-if="artist.songs.length"
                                 :primary-text="artist.songs.length"
                                 class="w-full"
                                 secondary-text="Tracks in Your Library"
@@ -134,12 +140,18 @@ watch(() => route.params.name, () => {
                         </div>
                         <div class="spotify-infos pt-4 pb-2">
                             <div class="meta items-center ">
-                                <span class="flex flex-row align-items">
+                                <span v-if="artist.metadata.popularity" class="flex flex-row align-items">
                                         <span class="material-symbols-rounded ms-fill mr-2">local_fire_department</span>
                                         <span class="font-bold">{{ artist.metadata.popularity }}</span>
                                     </span>
                             </div>
+                            <spotify
+                                :class="{ enabled: spotifyEnabled }"
+                                class="spotify-enable"
+                                @click="spotifyEnabled = !spotifyEnabled"
+                            />
                             <TextInputWithIcon
+                                v-if="spotifyEnabled"
                                 v-model="spotifyUrl"
                                 :icon="spotifyUrlIcon"
                                 :onClick="onSpotifyUrlClick"
@@ -229,6 +241,24 @@ watch(() => route.params.name, () => {
 </div>
 </template>
 
+<style lang="scss">
+.artist .spotify-enable {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+
+    path {
+        fill: var(--fg-base) !important;
+    }
+
+    &.enabled {
+        path {
+            fill: var(--fg-secondary) !important;
+        }
+    }
+}
+</style>
+
 <style lang="scss" scoped>
 .related {
     max-height: calc(768px + 1rem);
@@ -236,8 +266,10 @@ watch(() => route.params.name, () => {
 
 .spotify-infos {
     display: grid;
-    grid-template-columns: fit-content(100%) 1fr;
+    grid-template-columns: fit-content(100%) 24px 1fr;
     gap: 1rem;
+    align-items: center;
+    height: calc(46px + 1.5rem);
 
     .meta {
         display: grid;
