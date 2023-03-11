@@ -6,6 +6,7 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 from functools import wraps
 from enum import Enum
 import logging
+import asyncio
 from typing import Any, Callable, Dict, Generic, List, Optional, ParamSpec, Type, TypeVar
 
 from aiohttp import web
@@ -120,29 +121,40 @@ def _connectionRequired(func: Callable[P, U]) -> Callable[P, U]:
 
 
 def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
-    logger = logging.getLogger("Spotify._mayFail")
+    retryCount = 0
 
     @wraps(func)
     def wrapper(self: Spotify, *args: Any, **kwargs: Any) -> Any:
+        logger = logging.getLogger("Spotify._mayFail")
+        nonlocal retryCount
+
         try:
             return func(self, *args, **kwargs) # type: ignore
         except SpotifyException as exc:
-            logger.exception("SpotifyException")
+            logger.error("SpotifyException: %s (%d)", exc, exc.http_status)
 
             if exc.http_status == 401:
                 self.auth.invalidate()
+
+                if retryCount < 1:
+                    retryCount += 1
+                    return wrapper(self, *args, **kwargs) # type: ignore
                 return SpotifyResult.errorResult(SpotifyState.Unauthorised)
 
             if exc.http_status == 429:
                 return SpotifyResult.errorResult(SpotifyState.QuoteExceeded)
 
-            logger.exception("SpotifyException")
             return SpotifyResult.errorResult(SpotifyState.InternalError)
         except Exception as exc: # pylint: disable=broad-except
-            logger.exception("Exception")
+            logger.error("Exception: %s", exc)
             # if KeyError 'expires_at'
             if isinstance(exc, KeyError):
                 self.auth.addExpiresAt()
+
+                if retryCount < 1:
+                    retryCount += 1
+                    return wrapper(self, *args, **kwargs) # type: ignore
+
                 return SpotifyResult.errorResult(SpotifyState.Unauthorised)
             return SpotifyResult.errorResult(SpotifyState.InternalError)
     return wrapper # type: ignore
