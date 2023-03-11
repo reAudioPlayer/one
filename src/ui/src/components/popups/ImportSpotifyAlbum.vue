@@ -14,6 +14,7 @@ import { ISpotifyAlbum, ISpotifySong, openInNewTab } from "../../common";
 import { useDataStore } from "../../store/data";
 import { addSong as addSongToPlaylist } from "../../api/song";
 import { createPlaylistWithMetadata } from "../../api/playlist";
+import { Notifications } from "../notifications/createNotification";
 
 const data = useDataStore();
 
@@ -90,6 +91,9 @@ const addAll = async () => {
     songs.value.forEach((_, index) => {
         addSong(index, playlistId);
     })
+
+    Notifications.addSuccess(props.album.title,
+        `Added ${songs.value.length} songs to ${data.playlists[playlistId].name}`);
 }
 
 defineExpose({

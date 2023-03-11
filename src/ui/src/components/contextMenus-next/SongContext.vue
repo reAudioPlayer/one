@@ -10,6 +10,7 @@ import { playInPicture } from "../../api/playerInPicture";
 import { useDataStore } from "../../store/data";
 import { createPlaylistWithMetadata, removeSongFromPlaylist } from "../../api/playlist";
 import { addSong as addSongToPlaylist, downloadSong } from "../../api/song";
+import { Notifications } from "../notifications/createNotification";
 
 const dataStore = useDataStore();
 
@@ -37,6 +38,9 @@ const addTo = async (playlistId: number) => {
     if (playlistId == -1) return;
 
     await addSongToPlaylist(playlistId, props.song);
+    Notifications.addSuccess(props.song.title,
+        `Added to ${playlists.value.find(p => p.id == playlistId)?.name}`,
+        3000);
 };
 
 const addToNew = async () => {

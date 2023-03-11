@@ -8,11 +8,12 @@ import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
 import TrackInfo from "./components/TrackInfo.vue";
 
-import {PropType, Ref, ref} from "vue";
-import {ISong, ISpotifySong, openInNewTab} from "../../common";
-import {useDataStore} from "../../store/data";
-import {addSong as addSongToPlaylist} from "../../api/song";
-import {createPlaylistWithMetadata} from "../../api/playlist";
+import { PropType, Ref, ref } from "vue";
+import { ISong, ISpotifySong, openInNewTab } from "../../common";
+import { useDataStore } from "../../store/data";
+import { addSong as addSongToPlaylist } from "../../api/song";
+import { createPlaylistWithMetadata } from "../../api/playlist";
+import { Notifications } from "../notifications/createNotification";
 
 const data = useDataStore();
 
@@ -86,6 +87,9 @@ const addSong = async (index: number, playlistId: number = null) => {
         playlistId ?? form.value.toObject().playlist,
         track.value);
     props.song.added = true;
+    Notifications.addSuccess(track.value.title,
+        `Added to ${data.playlists.find(p => p.id == playlistId)?.name}`,
+        3000);
 }
 
 defineExpose({

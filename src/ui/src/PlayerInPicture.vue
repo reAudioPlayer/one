@@ -192,7 +192,7 @@ $mobileWidth: 950px;
     top: calc(100% - 300px - 48px);
     left: calc(100% - 30% - 8px);
 
-    z-index: 200;
+    z-index: 2000;
     width: 30%;
 
     @media screen and (max-width: $mobileWidth) {
