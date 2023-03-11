@@ -26,11 +26,10 @@
 </template>
 
 <script>
-import AddArtistToPlaylist from "../../../popups/ImportSpotifyArtist.vue";
 import Card from "@/containers/Card.vue";
 
 export default {
-        components: { Card, AddArtistToPlaylist },
+        components: { Card },
         name: 'ArtistItem',
         methods: {
             follow(e)
