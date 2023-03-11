@@ -77,9 +77,11 @@ defineExpose({
                         type="text"
                         @change="option?.onChange(option.value)"
                     />
-                    <div class="imagePreview">
+                    <div
+                        v-if="option.imagePreview"
+                        class="imagePreview"
+                    >
                         <Cover
-                            v-if="option.imagePreview"
                             :src="parseCover(option.value)"
                             class="cover"
                             @click="openInNewTab(option.value)"
