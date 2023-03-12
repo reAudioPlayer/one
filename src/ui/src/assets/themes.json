@@ -93,7 +93,7 @@
     "border-container": {
         "dark": "1px solid var(--border-base)",
         "light": "1px solid var(--border-base)",
-        "dynamic": "1px solid transparent"
+        "dynamic": "1px solid none"
     },
 
     "ff-base": {

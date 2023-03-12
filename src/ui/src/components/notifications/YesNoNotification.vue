@@ -65,7 +65,7 @@ const yes = () => {
 .notification {
     gap: 2em;
     align-items: center;
-    color: white;
+    color: var(--fg-base);
     overflow: hidden;
 
     --background: #1e1e1e;
