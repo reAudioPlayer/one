@@ -6,12 +6,17 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 from abc import ABC, abstractmethod
 import re
 from functools import wraps
-from typing import Any, Dict, List, Optional, Callable, TypeVar, ParamSpec
+from typing import Any, Dict, List, Optional, Callable, TypeVar, ParamSpec, TYPE_CHECKING
 import requests
 
 from pyaddict import JDict, JList
 from ytmusicapi import YTMusic # type: ignore
 from sclib import SoundcloudAPI, Track # type: ignore
+
+from helper.asyncThread import asyncRunInThreadWithReturn
+
+if TYPE_CHECKING:
+    from meta.spotify import Spotify, SpotifyResult
 
 
 class ITrack(ABC):
@@ -227,6 +232,38 @@ class SpotifyTrack(ITrack):
                 }
             }
         }
+
+    @staticmethod
+    async def _getFromSpotify(spotify: Spotify,
+                              spotifyId: str) -> SpotifyResult[SpotifyTrack]:
+        return await asyncRunInThreadWithReturn(spotify.track, spotifyId)
+
+    @staticmethod
+    async def _searchOnSpotify(spotify: Spotify,
+                               query: str,
+                               limit: int) -> SpotifyResult[List[SpotifyTrack]]:
+        return await asyncRunInThreadWithReturn(spotify.searchTrack, query, limit)
+
+    @classmethod
+    async def fetch(cls,
+                    spotify: Spotify,
+                    spotifyId: Optional[str],
+                    artist: Optional[str],
+                    title: Optional[str],
+                    forceFetch: bool) -> Optional[SpotifyTrack]:
+        """fetch metadata from spotify"""
+        if spotifyId and forceFetch:
+            spotifyResult = await cls._getFromSpotify(spotify, spotifyId)
+            if not spotifyResult:
+                return None
+            return spotifyResult.unwrap()
+        searchResult = await cls._searchOnSpotify(spotify, f"{artist} {title}", 1)
+        if not searchResult:
+            return None
+        value = searchResult.unwrap()
+        if len(value) == 0:
+            return None
+        return value[0]
 
 
 class SpotifyPlaylist:

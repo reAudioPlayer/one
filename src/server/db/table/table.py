@@ -143,8 +143,13 @@ class ITable(ABC, Generic[_T]):
         toAdd = [x for x in modelColumns if x not in columns]
         toRemove = [x for x in columns if x not in modelColumns]
         # add columns
+        columnTypes = {
+            x.strip().split(" ")[0]: x.strip().split(" ")[1].replace(",", "")
+            for x in self.DESCRIPTION.splitlines()
+            if len(x.strip()) >= 3 }
+
         for column in toAdd:
-            await self._db.execute(f"ALTER TABLE {self.NAME} ADD COLUMN {column} TEXT")
+            await self._db.execute(f"ALTER TABLE {self.NAME} ADD COLUMN {column} {columnTypes[column]}") # pylint: disable=line-too-long
         # remove columns
         for column in toRemove:
             await self._db.execute(f"ALTER TABLE {self.NAME} DROP COLUMN {column}")

@@ -4,13 +4,17 @@ from __future__ import annotations
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
 
-from typing import Optional, Tuple, List, Dict, Any
+from typing import Optional, Tuple, List, Dict, Any, TYPE_CHECKING
 
 from pyaddict import JDict
 
 from meta.spotify import SpotifyAudioFeatures
-from dataModel.track import BasicSpotifyItem
+from dataModel.track import BasicSpotifyItem, SpotifyTrack
 from db.table.songs import SongModel
+from helper.asyncThread import asyncRunInThreadWithReturn
+
+if TYPE_CHECKING:
+    from meta.spotify import Spotify
 
 
 SQLRow = Tuple[int, Optional[str], int]
@@ -147,6 +151,11 @@ class SongMetadata:
         """return spotify"""
         return self._spotify
 
+    @spotify.setter
+    def spotify(self, value: Optional[SpotifyMetadata]) -> None:
+        """set spotify"""
+        self._spotify = value
+
     @property
     def plays(self) -> int:
         """return plays"""
@@ -157,19 +166,33 @@ class SongMetadata:
         """set plays"""
         self._plays = value
 
-    @spotify.setter # type: ignore
-    def spotify(self, value: Optional[SpotifyMetadata]) -> None:
-        """set spotify"""
-        self._spotify = value
-
-    @plays.setter # type: ignore
-    def plays(self, value: int) -> None:
-        """set plays"""
-        self._plays = value
-
     def toDict(self) -> Dict[str, Any]:
         """return dict representation"""
         return {
             "spotify": self._spotify.toDict() if self._spotify else None,
             "plays": self._plays
         }
+
+    @classmethod
+    async def fetch(cls,
+                    spotify: Spotify,
+                    track: SpotifyTrack,
+                    oldMetadata: Optional[SongMetadata]) -> Optional[SongMetadata]:
+        """fetch metadata from spotify"""
+        metadata = cls()
+        if oldMetadata:
+            metadata.plays = oldMetadata.plays
+
+        metadata.spotify = SpotifyMetadata(track.id)
+        features = await asyncRunInThreadWithReturn(spotify.audioFeatures, track.id)
+        if not features:
+            return None
+        metadata.spotify.update(
+            features = features.unwrap(),
+            popularity = track.popularity,
+            album = track.albumItem,
+            artists = track.artistItems,
+            explicit = track.explicit,
+            releaseDate = track.releaseDate
+        )
+        return metadata

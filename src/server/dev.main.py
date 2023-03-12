@@ -4,6 +4,7 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import subprocess
 import logging
+import sys
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("main")
@@ -15,7 +16,8 @@ def run() -> None:
     with subprocess.Popen(["python", "-u", "main.py", "--with-docker"],
                             shell = False,
                             stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE) as process:
+                            stderr=subprocess.PIPE,
+                            bufsize=0) as process:
         logger.info("process running")
 
         while True:
@@ -26,6 +28,7 @@ def run() -> None:
             if not line:
                 break
             print(line.decode("utf-8").strip())
+            sys.stdout.flush()
     logger.info("process exited")
 
 logger.info("restarting nginx...")

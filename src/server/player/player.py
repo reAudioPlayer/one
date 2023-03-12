@@ -94,7 +94,6 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
             newSong.model.plays += 1
         self._incrementPlayCountTask = asyncio.create_task(_incrementPlayCount())
 
-
     async def loadPlaylist(self,
                            playlist: Optional[PlayerPlaylist],
                            atIndex: Optional[int] = None) -> bool:
@@ -190,7 +189,7 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         song = song or self._playerPlaylist.current()
         if not song:
             return
-        self._logger.debug("load [%s]", song)
+        self._logger.debug("load src=%s, preloaded=%s", song.model.source, self._preloaded)
         if self._preloaded == song.model.source:
             self._song = song
             await self._onSongChange(self._song)
