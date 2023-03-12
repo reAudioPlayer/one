@@ -104,6 +104,7 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         if self._playerPlaylist and self._playerPlaylist == playlist:
             return False
         self._playerPlaylist = playlist
+        playlist.onLoad()
         await self._onPlaylistChange(self._playerPlaylist)
         if atIndex is not None:
             await self.at(atIndex)

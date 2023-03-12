@@ -234,7 +234,8 @@ const onObserveVisibility = (isVisible, entry) => {
                             secondary-text="Total Duration"
                         />
                         <FactCard
-                            :primary-text="0"
+                            v-if="playlist.plays"
+                            :primary-text="playlist.plays"
                             class="w-full"
                             secondary-text="Plays"
                         />
