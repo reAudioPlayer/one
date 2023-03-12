@@ -49,9 +49,24 @@ const load = async () => {
     const res = await fetch(`/api/artists/${artistName.value}`);
     artist.value = await res.json();
     selectedSongId.value = null;
-    spotifyUrl.value = "https://open.spotify.com/artist/" + artist.value.metadata.id;
-    spotifyEnabled.value = artist.value.metadata.id?.length == 22;
+    spotifyUrl.value = "";
+    spotifyEnabled.value = false;
+    if (artist.value.metadata.id.length == 22) {
+        spotifyUrl.value = "https://open.spotify.com/artist/" + artist.value.metadata.id;
+        spotifyEnabled.value = true;
+    }
     spotifyUrlIcon.value = "link";
+}
+
+const setSpotify = async (value: boolean | string) => {
+    await fetch(`/api/artists/${artistName.value}`, {
+        method: "PUT",
+        body: JSON.stringify({
+            spotifyId: value
+        })
+    });
+    artist.value = null;
+    await load();
 }
 
 watch(spotifyUrl, () => {
@@ -64,7 +79,11 @@ watch(spotifyUrl, () => {
 });
 
 const onSpotifyUrlClick = () => {
-    openInNewTab(spotifyUrl.value);
+    if (spotifyUrlIcon.value == "link") {
+        openInNewTab(spotifyUrl.value);
+        return;
+    }
+    setSpotify(parseSpotifyId(spotifyUrl.value, "artist"));
 }
 
 onMounted(load);
@@ -156,6 +175,12 @@ watch(() => route.params.name, () => {
                                 :icon="spotifyUrlIcon"
                                 :onClick="onSpotifyUrlClick"
                             />
+                            <span
+                                class="material-symbols-rounded cursor-pointer"
+                                @click="spotifyEnabled ? setSpotify(false) : setSpotify(true)"
+                            >
+                                {{ spotifyEnabled ? "delete" : "search" }}
+                            </span>
                         </div>
                     </template>
                 </div>
@@ -266,7 +291,7 @@ watch(() => route.params.name, () => {
 
 .spotify-infos {
     display: grid;
-    grid-template-columns: fit-content(100%) 24px 1fr;
+    grid-template-columns: fit-content(100%) 24px 1fr 24px;
     gap: 1rem;
     align-items: center;
     height: calc(46px + 1.5rem);
