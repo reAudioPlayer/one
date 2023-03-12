@@ -14,6 +14,7 @@ import spotipy # type: ignore
 from spotipy.exceptions import SpotifyException # type: ignore
 
 from handler.spotifyAuth import SpotifyAuth
+from helper.logged import Logged
 from dataModel.track import SpotifyArtist, SpotifyTrack, SpotifyPlaylist, SpotifyAlbum
 
 
@@ -274,9 +275,10 @@ class SpotifyAudioFeatures:
         return JDict(self.toDict()).toString()
 
 
-class Spotify:
+class Spotify(Logged):
     """spotify api wrapper"""
     def __init__(self) -> None:
+        super().__init__(self.__class__.__name__)
         self._connected = False
         self._spotify: Optional[spotipy.Spotify] = None
         self._auth = SpotifyAuth()
@@ -301,6 +303,7 @@ class Spotify:
     @_mayFail
     def track(self, trackId: str) -> SpotifyResult[SpotifyTrack]:
         """Returns a track"""
+        self._logger.debug("Getting track %s", trackId)
         assert self._spotify is not None
         track: Dict[str, Any] = self._spotify.track(trackId)
         return SpotifyResult.successResult(SpotifyTrack(track))
@@ -309,6 +312,7 @@ class Spotify:
     @_mayFail
     def url(self, url: str) -> SpotifyResult[SpotifyTrack]:
         """Returns a track from a url"""
+        self._logger.debug("Getting track from url %s", url)
         assert self._spotify is not None
         track = self._spotify.track(url)
         return SpotifyResult.successResult(SpotifyTrack(track))
@@ -317,6 +321,7 @@ class Spotify:
     @_mayFail
     def searchTrack(self, query: str, limit: int = 10) -> SpotifyResult[List[SpotifyTrack]]:
         """Searches for a track"""
+        self._logger.debug("Searching for track %s", query)
         assert self._spotify is not None
         search = self._spotify.search(query, limit = limit, type = "track")
         tracks = JDict(search).chain().ensure("tracks.items", list)
@@ -326,6 +331,7 @@ class Spotify:
     @_mayFail
     def searchArtist(self, query: str) -> SpotifyResult[List[SpotifyArtist]]:
         """Searches for an artist"""
+        self._logger.debug("Searching for artist %s", query)
         assert self._spotify is not None
         search = self._spotify.search(query, limit = 10, type = "artist")
         artists = JDict(search).chain().ensure("artists.items", list)
@@ -335,6 +341,7 @@ class Spotify:
     @_mayFail
     def relatedArtists(self, artistId: str) -> SpotifyResult[List[SpotifyArtist]]:
         """Returns the related artists"""
+        self._logger.debug("Getting related artists for %s", artistId)
         assert self._spotify is not None
         artists = self._spotify.artist_related_artists(artistId)
         artists = JDict(artists).ensure("artists", list)
@@ -344,6 +351,7 @@ class Spotify:
     @_mayFail
     def playlistTracks(self, playlistId: str) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns the tracks from a playlist"""
+        self._logger.debug("Getting tracks from playlist %s", playlistId)
         assert self._spotify is not None
         items = self._spotify.playlist_items(playlistId)
         tracks = [
@@ -356,6 +364,7 @@ class Spotify:
     @_mayFail
     def albumTracks(self, albumId: str) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns the tracks from an album"""
+        self._logger.debug("Getting tracks from album %s", albumId)
         assert self._spotify is not None
         tracks = self._spotify.album_tracks(albumId)
         tracks = JDict(tracks).ensure("items", list)
@@ -365,6 +374,7 @@ class Spotify:
     @_mayFail
     def artist(self, artistId: str) -> SpotifyResult[SpotifyArtist]:
         """Returns the tracks from an artist"""
+        self._logger.debug("Getting artist %s", artistId)
         assert self._spotify is not None
         artist = self._spotify.artist(artistId)
         return SpotifyResult.successResult(SpotifyArtist(artist))
@@ -373,6 +383,7 @@ class Spotify:
     @_mayFail
     def artistTracks(self, artistId: str) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns the tracks from an artist"""
+        self._logger.debug("Getting tracks from artist %s", artistId)
         assert self._spotify is not None
         tracks = self._spotify.artist_top_tracks(artistId)
         tracks = JDict(tracks).ensure("tracks", list)
@@ -382,6 +393,7 @@ class Spotify:
     @_mayFail
     def artistAlbums(self, artistId: str) -> SpotifyResult[List[SpotifyAlbum]]:
         """Returns the albums from an artist"""
+        self._logger.debug("Getting albums from artist %s", artistId)
         assert self._spotify is not None
         albums = self._spotify.artist_albums(artistId)
         albums = JDict(albums).ensure("items", list)
@@ -394,6 +406,7 @@ class Spotify:
                         seedTracks: List[str],
                         seedGenres: List[str]) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns recommendations"""
+        self._logger.debug("Getting recommendations")
         assert self._spotify is not None
         if len([*seedTracks, *seedArtists, *seedGenres]) < 1:
             return SpotifyResult.successResult([])
@@ -408,6 +421,7 @@ class Spotify:
     @_mayFail
     def userPlaylists(self) -> SpotifyResult[List[SpotifyPlaylist]]:
         """Returns the user's playlists"""
+        self._logger.debug("Getting user playlists")
         assert self._spotify is not None
         playlists = self._spotify.current_user_playlists()
         playlists = JDict(playlists).ensure("items", list)
@@ -417,6 +431,7 @@ class Spotify:
     @_mayFail
     def userArtists(self) -> SpotifyResult[List[SpotifyArtist]]:
         """Returns the user's artists"""
+        self._logger.debug("Getting user artists")
         assert self._spotify is not None
         artists = self._spotify.current_user_top_artists()
         artists = JDict(artists).ensure("items", list)
@@ -426,6 +441,7 @@ class Spotify:
     @_mayFail
     def allUserArtists(self) -> SpotifyResult[List[SpotifyArtist]]:
         """Returns all the user's artists"""
+        self._logger.debug("Getting all user artists")
         got: int = 50
 
         assert self._spotify is not None
@@ -451,6 +467,7 @@ class Spotify:
     @_mayFail
     def follow(self, artistId: str) -> SpotifyResult[None]:
         """Follows an artist"""
+        self._logger.debug("Following artist %s", artistId)
         assert self._spotify is not None
         self._spotify.user_follow_artists([artistId])
         return SpotifyResult.successResult(None)
@@ -459,6 +476,7 @@ class Spotify:
     @_mayFail
     def unfollow(self, artistId: str) -> SpotifyResult[None]:
         """Unfollows an artist"""
+        self._logger.debug("Unfollowing artist %s", artistId)
         assert self._spotify is not None
         self._spotify.user_unfollow_artists([artistId])
         return SpotifyResult.successResult(None)
@@ -467,6 +485,7 @@ class Spotify:
     @_mayFail
     def audioFeatures(self, trackId: str) -> SpotifyResult[SpotifyAudioFeatures]:
         """Returns the audio features of a track"""
+        self._logger.debug("Getting audio features for track %s", trackId)
         assert self._spotify is not None
         features = self._spotify.audio_features([trackId])
         if not features:

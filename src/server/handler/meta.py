@@ -63,15 +63,12 @@ class MetaHandler:
         inputArtist: str = payload["name"]
         tracks = Song.list(await self._dbManager.songs.byArtist(inputArtist))
         artistName = Song.autoCorrectArtist(tracks, inputArtist)
-
         artistModel = await ArtistModel.fetch(artistName, self._spotify, self._dbManager, tracks)
 
         metaDict: Optional[Dict[str, Any]] = None
 
         if artistModel and artistModel.spotifyModel:
-            spModel = artistModel.spotifyModel
-            await spModel.topTracks(self._spotify)
-            metaDict = spModel.toDict()
+            metaDict = artistModel.spotifyModel.toDict()
 
         return web.json_response(data = {
             "name": artistName,

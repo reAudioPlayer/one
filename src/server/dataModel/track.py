@@ -59,11 +59,15 @@ class ITrack(ABC):
 
 class BasicSpotifyItem:
     """basic spotify item model (artist, album, ...)"""
-    __slots__ = ("_id", "_name")
+    __slots__ = ("_id", "_name", "_cover")
 
-    def __init__(self, id_: str, name: str) -> None:
+    def __init__(self,
+                 id_: str,
+                 name: str,
+                 cover: Optional[str] = None) -> None:
         self._id = id_
         self._name = name
+        self._cover = cover
 
     @property
     def id(self) -> str:
@@ -77,12 +81,20 @@ class BasicSpotifyItem:
 
     def toDict(self) -> Dict[str, Any]:
         """return dict"""
-        return {"id": self._id, "name": self._name}
+        return {
+            "id": self._id,
+            "name": self._name,
+            "cover": self._cover
+        }
 
     @staticmethod
     def fromDict(data: JDict) -> BasicSpotifyItem:
         """from dict"""
-        return BasicSpotifyItem(data.ensure("id", str), data.ensure("name", str))
+        return BasicSpotifyItem(
+            data.ensure("id", str),
+            data.ensure("name", str),
+            data.optionalGet("cover", str)
+        )
 
 
 class SpotifyTrack(ITrack):
@@ -94,6 +106,7 @@ class SpotifyTrack(ITrack):
         dex = JDict(track).chain()
         self._title = dex.ensure("name", str)
         album = dex.optionalCast("album", JDict)
+        self._album: Optional[BasicSpotifyItem] = None
         self._cover: Optional[str] = None
         self._releaseDate: Optional[str] = None
 
@@ -110,6 +123,13 @@ class SpotifyTrack(ITrack):
         self._markets = dex.ensureCast("available_markets", JList).iterator().ensure(str)
         self._popularity = dex.ensure("popularity", int)
         self._explicit = dex.ensure("explicit", bool)
+
+    @staticmethod
+    def fromDict(data: Dict[str, Any]) -> SpotifyTrack:
+        """from dict"""
+        assert "spotify" in data, "spotify data not found"
+        assert isinstance(data["spotify"], dict), "spotify data is not dict"
+        return SpotifyTrack(data["spotify"])
 
     @property
     def markets(self) -> List[str]:
@@ -139,11 +159,14 @@ class SpotifyTrack(ITrack):
     @property
     def album(self) -> str:
         """return album"""
+        if not self._album:
+            return ""
         return self._album.name
 
     @property
     def albumItem(self) -> BasicSpotifyItem:
         """return simple album"""
+        assert self._album, "album not found"
         return self._album
 
     @property
@@ -188,6 +211,21 @@ class SpotifyTrack(ITrack):
             "preview": self.preview,
             "markets": self.markets,
             "album": self.album,
+            "spotify": {
+                "id": self._id,
+                "name": self._title,
+                "preview": self._preview,
+                "available_markets": self._markets,
+                "popularity": self._popularity,
+                "explicit": self._explicit,
+                "artists": [x.toDict() for x in self._artists],
+                "album": {
+                    "id": self._album.id if self._album else "",
+                    "name": self._album.name if self._album else "",
+                    "images": [{"url": self._cover}] if self._cover else [],
+                    "release_date": self._releaseDate
+                }
+            }
         }
 
 
@@ -241,6 +279,26 @@ class SpotifyArtist:
     def name(self) -> str:
         """return name"""
         return self._name
+
+    @property
+    def followers(self) -> int:
+        """return followers"""
+        return self._followers
+
+    @property
+    def popularity(self) -> int:
+        """return popularity"""
+        return self._popularity
+
+    @property
+    def genres(self) -> List[str]:
+        """return genres"""
+        return self._genres
+
+    @property
+    def image(self) -> str:
+        """return image"""
+        return self._cover
 
     def toDict(self) -> Dict[str, Any]:
         """return dict of artist"""
