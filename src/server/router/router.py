@@ -100,6 +100,7 @@ class Router:
 
         # /api/artists
         app.router.add_get('/api/artists/{name}', metaHandler.getArtist)
+        app.router.add_put('/api/artists/{name}', metaHandler.putArtist)
 
         # /api/playlists/
         app.router.add_get('/api/playlists/new', playlistHandler.createPlaylist)

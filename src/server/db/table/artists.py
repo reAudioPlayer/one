@@ -5,6 +5,7 @@ __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
 from typing import Type, Tuple, Optional, Any, Dict, List, Union, TYPE_CHECKING
 from datetime import datetime, timedelta
+import asyncio
 from pyaddict import JDict, JList
 import aiosqlite
 from helper.asyncThread import asyncRunInThreadWithReturn
@@ -28,6 +29,7 @@ class SpotifyArtistData:
                  "_related",
                  "_topTracks",
                  "_expire")
+    _DISABLED = datetime(1970, 1, 1)
 
     def __init__(self,
                  id_: str,
@@ -47,14 +49,31 @@ class SpotifyArtistData:
         self._topTracks: List[SpotifyTrack] = topTracks
         self._expire = expire
 
+    @classmethod
+    def disabled(cls) -> SpotifyArtistData:
+        """create from id"""
+        return SpotifyArtistData("", [], 0, 0, "", [], [], cls._DISABLED)
+
+    @staticmethod
+    def fromId(id_: str) -> SpotifyArtistData:
+        """create from id"""
+        return SpotifyArtistData(id_, [], 0, 0, "", [], [], datetime.now())
+
     @property
     def id(self) -> str:
         """return id"""
         return self._id
 
     @property
+    def image(self) -> str:
+        """return image"""
+        return self._image
+
+    @property
     def expired(self) -> bool:
         """return expired"""
+        if self._expire == self._DISABLED:
+            return False
         return datetime.now() > self._expire
 
     def __eq__(self, other: object) -> bool:
@@ -200,7 +219,7 @@ class ArtistModel(IModel):
 
     @property
     def eq(self) -> str:
-        return f"name = {self.name}"
+        return f"name = '{self.name}'"
 
     def toTuple(self) -> _SQLType:
         return (
@@ -363,8 +382,13 @@ class ArtistModel(IModel):
             metaModel = SpotifyArtistData.fromDict(JDict(newMetadata.toDict()))
             if not metaModel:
                 return None
-            await metaModel.fetchRelated(spotify)
+            await asyncio.gather(
+                metaModel.fetchRelated(spotify),
+                metaModel.topTracks(spotify)
+            )
             model.spotifyModel = metaModel
+            if metadata and not metadata.image:
+                model.image = newMetadata.cover
 
         if not alreadyExists:
             await db.artists.insert(model)

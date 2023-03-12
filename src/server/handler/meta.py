@@ -10,7 +10,7 @@ from pyaddict import JDict
 from pyaddict.schema import Object, String, Integer, Array, Boolean
 
 from db.database import Database
-from db.table.artists import ArtistModel
+from db.table.artists import ArtistModel, SpotifyArtistData
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.cacheDecorator import useCache
 from helper.payloadParser import withObjectPayload
@@ -54,6 +54,34 @@ class MetaHandler:
         if not song:
             return web.HTTPNotFound(text = "no track found")
         return web.json_response(data = Song(song).toDict())
+
+    async def putArtist(self, request: web.Request) -> web.Response: # pylint: disable=too-many-locals
+        """put(/api/artists/{name})"""
+        inputArtist = request.match_info["name"]
+        payload = await request.json()
+
+        tracks = Song.list(await self._dbManager.songs.byArtist(inputArtist))
+        artistName = Song.autoCorrectArtist(tracks, inputArtist)
+        artistModel = await ArtistModel.fetch(artistName, self._spotify, self._dbManager, tracks)
+
+        if not artistModel:
+            return web.HTTPNotFound(text = "artist not found")
+
+        spotifyId = payload["spotifyId"]
+
+        if isinstance(spotifyId, str):
+            if not len(spotifyId) == 22:
+                return web.HTTPBadRequest(text = "invalid spotify id")
+            artistModel.spotifyModel = SpotifyArtistData.fromId(spotifyId)
+            return web.Response()
+        if isinstance(spotifyId, bool):
+            if spotifyId:
+                await self._dbManager.artists.delete(artistModel)
+            else:
+                artistModel.image = ""
+                artistModel.spotifyModel = SpotifyArtistData.disabled()
+            return web.Response()
+        return web.HTTPBadRequest(text = "invalid spotify id")
 
     @withObjectPayload(Object({
         "name": String().min(1)
