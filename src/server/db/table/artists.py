@@ -409,7 +409,8 @@ class ArtistsTable(ITable[ArtistModel]):
     NAME = "Artists"
     DESCRIPTION = """
                   name TEXT PRIMARY KEY,
-                  spotify TEXT
+                  spotify TEXT,
+                  image TEXT
                   """
 
     def _model(self) -> Type[ArtistModel]:
