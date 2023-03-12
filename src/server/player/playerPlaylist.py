@@ -71,6 +71,15 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     def __len__(self) -> int:
         return len(self._playlist)
 
+    def onLoad(self) -> None:
+        """called when the playlist is loaded"""
+        if not self._dataPlaylist:
+            return
+        print("playlist loaded", self._dataPlaylist.model.name)
+        print("plays: ", self._dataPlaylist.model.plays)
+        self._dataPlaylist.model.plays += 1
+        print("plays: ", self._dataPlaylist.model.plays)
+
     @staticmethod
     async def liked() -> PlayerPlaylist:
         """liked songs"""
@@ -265,6 +274,13 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         if self._dataPlaylist:
             self._dataPlaylist.model.cover = value
 
+    @property
+    def _plays(self) -> int:
+        """number of times this playlist has been played"""
+        if self._dataPlaylist:
+            return self._dataPlaylist.model.plays
+        return 0
+
     def toDict(self) -> Dict[str, Any]:
         """serialise"""
         return {
@@ -272,7 +288,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
             "index": self._cursor, # currently playing song
             "name": self.name,
             "cover": self.cover,
-            "songs": list(map(lambda x: x.toDict(), self._playlist))
+            "songs": list(map(lambda x: x.toDict(), self._playlist)),
+            "plays": self._plays,
         }
 
     def byId(self, id_: int) -> List[Song]:

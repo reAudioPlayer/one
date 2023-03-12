@@ -82,7 +82,7 @@ class Downloader(metaclass = Singleton):
     async def download(self, link: Optional[str], filename: str) -> bool:
         """downloads a song from a link (low level)"""
 
-        self._logger.warning("downloading %s (%s)", link, filename)
+        self._logger.info("downloading %s (%s)", link, filename)
 
         if link is None:
             return False
@@ -104,11 +104,11 @@ class Downloader(metaclass = Singleton):
 
         if link.startswith("local:"):
             link = LocalTrack.fromDisplayPath(link).absPath
-            self._logger.warning("using local file %s", link)
+            self._logger.debug("using local file %s", link)
 
         # is local file
         if path.exists(link):
-            self._logger.warning("copying %s to %s", link, dest)
+            self._logger.debug("copying %s to %s", link, dest)
             shutil.copy(os.path.normpath(link), os.path.normpath(relName.replace("%(ext)s", "mp3")))
             return True
 

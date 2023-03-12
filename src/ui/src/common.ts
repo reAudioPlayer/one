@@ -92,6 +92,7 @@ export interface IPlaylistMeta {
     name: string;
     cover: string;
     description: string;
+    plays: number;
 }
 
 export interface IPlaylist extends IPlaylistMeta {
