@@ -20,7 +20,7 @@ from meta.search import Search, SearchScope
 from meta.spotify import Spotify, SpotifyResult, SpotifyTrack
 from dataModel.track import SpotifyPlaylist
 from dataModel.song import Song
-from dataModel.metadata import SongMetadata, SpotifyMetadata
+from dataModel.metadata import SongMetadata
 from config.runtime import Runtime
 from config.customData import LocalTrack, LocalCover
 
@@ -272,9 +272,8 @@ class MetaHandler:
         """post(/api/spotify/meta)"""
         id_ = payload["id"]
         forceFetch = payload.get("forceFetch", False)
-        spotifyId: Optional[str] = payload.get("spotifyId", None)
-        model = await self._dbManager.songs.byId(id_)
 
+        model = await self._dbManager.songs.byId(id_)
         if not model:
             return web.HTTPNotFound(text = "song not found")
 
@@ -284,52 +283,24 @@ class MetaHandler:
             if song.metadata and song.metadata.spotify:
                 return web.json_response(song.metadata.toDict())
 
-        onSpotify: Optional[str] = None
-        spotifySong: Optional[SpotifyTrack] = None
-
+        spotifyId: Optional[str] = None
         if song.metadata and song.metadata.spotify:
-            onSpotify = song.metadata.spotify.id
+            spotifyId = song.metadata.spotify.id
+        spotifyId = JDict(payload).optionalGet("spotifyId", str) or spotifyId
 
-        if spotifyId:
-            onSpotify = spotifyId
+        spotifySong = await SpotifyTrack.fetch(self._spotify,
+                                               spotifyId,
+                                               song.model.artist,
+                                               song.model.name,
+                                               forceFetch)
+        if not spotifySong:
+            return web.HTTPNotFound(text = "song not found")
 
-        if onSpotify and (spotifyId or forceFetch):
-            trackResult = self._spotify.track(onSpotify)
-            if not trackResult:
-                return trackResult.httpResponse()
-            spotifySong = trackResult.unwrap()
-
-        if not onSpotify:
-            query = f"{song.model.artist} {song.model.name}"
-            searchResult = await self._searchOnSpotify(query, 1)
-            if not searchResult:
-                return searchResult.httpResponse()
-            spotifySong = searchResult.unwrap()[0]
-            onSpotify = spotifySong.id
-
-        if not onSpotify:
+        metadata = await SongMetadata.fetch(self._spotify,
+                                            spotifySong,
+                                            song.metadata)
+        if not metadata:
             return web.HTTPNotFound(text = "metadata not found")
-
-        metadata = SongMetadata()
-        metadata.spotify = SpotifyMetadata(onSpotify) # type: ignore
-
-        spotifyFeatures = self._spotify.audioFeatures(onSpotify)
-
-        if not spotifyFeatures:
-            return spotifyFeatures.httpResponse()
-
-        metadata.spotify.update(
-            features = spotifyFeatures.unwrap()
-        )
-
-        if spotifySong:
-            metadata.spotify.update(
-                album = spotifySong.albumItem,
-                artists = spotifySong.artistItems,
-                explicit = spotifySong.explicit,
-                popularity = spotifySong.popularity,
-                releaseDate = spotifySong.releaseDate,
-            )
 
         song.metadata = metadata
         return web.json_response(metadata.toDict())
