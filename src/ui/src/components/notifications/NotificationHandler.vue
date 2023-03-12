@@ -59,7 +59,7 @@ window.addEventListener('notification.clear', () => {
             />
             <YesNoNotification
                 v-else-if="notification.type == 'yes-no'"
-                :notification="(notification as IYesNoNotification)"
+                :notification="notification"
                 @remove="remove"
             />
         </template>
