@@ -7,13 +7,16 @@ from typing import Any, Dict, List, Optional
 
 from meta.spotify import Spotify
 from dataModel.track import SpotifyAlbum
+from helper.logged import Logged
 
 
-class Releases:
+class Releases(Logged):
     """Release Radar"""
     def __init__(self, spotify: Spotify) -> None:
+        super().__init__(self.__class__.__name__)
         self._tracks: List[SpotifyAlbum] = [ ]
         self._artists = spotify.allUserArtists().unwrapOr([])
+        self._logger.debug("Found %d artists", len(self._artists))
 
         for artist in self._artists:
             result = spotify.artistAlbums(artist.id)
