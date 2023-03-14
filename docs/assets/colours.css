@@ -1,0 +1,19 @@
+:root {
+    --fg-base: #181c2f;
+    --fg-base-dk: #8b8c91;
+    --fg-secondary: #18a74b;
+    --bg-base: white;
+    --bg-base-lt: #f3f7fb;
+    --border: #E3E7EB;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --fg-base: white;
+        --fg-base-dk: #a7a7a7;
+        --fg-secondary: #1ed760;
+        --bg-base: #121212;
+        --bg-base-lt: #181818;
+        --border: hsla(0,0%,100%,0.1);
+    }
+}

@@ -1,0 +1,220 @@
+@import url("./colours.css");
+@import url("./fonts.css");
+
+body {
+    margin: 0;
+
+    --header-height: 100px;
+}
+
+body {
+    background-color: var(--bg-base);
+    color: var(--fg-base);
+}
+
+h1 {
+    font-weight: 900;
+    font-size: 2rem;
+}
+
+a {
+    color: var(--fg-base);
+    text-decoration: none;
+}
+
+header {
+    background-color: var(--bg-base-lt);
+    border-bottom: 1px solid var(--border);
+    width: calc(100% - 4em);
+    height: var(--header-height);
+
+    padding: 0 2em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header svg[role="logo"] {
+    height: 50px;
+}
+
+header svg[role="github"] {
+    width: 20px;
+    cursor: pointer;
+}
+
+header svg path {
+    fill: var(--fg-base);
+}
+
+section[aria-label="features"] {
+    height: calc(100vh - var(--header-height) - 10vh);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    background-color: var(--bg-base-lt);
+    border: 1px solid var(--border);
+    border-radius: 1em;
+    padding: 2em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2em;
+    min-height: 50vh;
+    box-shadow: 0 0 20px 20px rgba(0 0 0 / 5%);
+}
+
+.card > * {
+    max-width: 600px;
+}
+
+.card > img {
+    box-shadow: 0 0 20px 20px rgba(0 0 0 / 10%);
+    border-radius: 1em;
+}
+
+.card p {
+    color: var(--fg-base-dk);
+}
+
+.card .material-symbols-rounded {
+    font-size: 3rem;
+    cursor: pointer;
+    color: var(--fg-base-dk);
+}
+
+.card .material-symbols-rounded:hover {
+    color: var(--fg-base);
+}
+
+section[aria-label="installation"] {
+    background: var(--bg-base-lt);
+    border-top: 1px solid var(--border);
+    padding-bottom: 2   em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+section[aria-label="installation"] > div.content {
+    min-width: 600px;
+    max-width: 1000px;
+    margin-bottom: 2em;
+}
+
+.OS {
+    display: flex;
+    flex-direction: row;
+}
+
+.OS__type {
+    border: 1px solid var(--border);
+    padding: 1em;
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+}
+
+.OS__type > svg {
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 0.5em;
+}
+
+path {
+    fill: var(--fg-base) !important;
+}
+
+.OS__type > h4 {
+    margin: 0;
+}
+
+.OS__type:first-child {
+    border-radius: .5em 0 0 .5em;
+}
+
+.OS__type:last-child {
+    border-radius: 0 .5em .5em 0;
+}
+
+.OS__type[aria-selected="true"] {
+    background-color: var(--fg-secondary);
+    border-color: var(--fg-secondary);
+    color: white;
+}
+
+.OS__type[aria-selected="true"] > svg path {
+    fill: white !important;
+}
+
+.steps {
+    counter-reset: steps;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin-top: 1em;
+}
+
+.steps__step {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 1em;
+    border: 1px solid var(--border);
+    border-radius: .5em;
+    background: var(--bg-base);
+    padding-right: 1em;
+}
+
+.steps__step > span {
+    border-right: 1px solid var(--border);
+    min-width: 80px;
+    max-width: 80px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.steps__step > span:before {
+    counter-increment: steps;
+    content: counter(steps) ".";
+    font-weight: 900;
+    font-size: 1.5rem;
+}
+
+.steps__step pre {
+    font-size: .8rem;
+    overflow: hidden;
+}
+
+.steps__step__icon {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1em;
+}
+
+.steps__step__icon > svg {
+    width: 1.5em;
+    height: 1.5em;
+}
+
+.steps__step__button {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    cursor: pointer;
+}
+
+.steps__step:has(.steps__step__button):hover {
+    background-color: var(--fg-secondary);
+    color: white;
+}
