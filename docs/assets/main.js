@@ -3,13 +3,13 @@ const setOS = (value) => {
     const steps = document.querySelectorAll(".steps");
 
     for (const option of options) {
-        option.ariaSelected = value === option.ariaLabel;
+        option.setAttribute("selected", value === option.getAttribute("description"));
     }
 
     value = value.replace("linux", "windows");
 
     for (const step of steps) {
-        step.ariaSelected = value === step.ariaLabel;
+        step.setAttribute("selected", value === step.ariaLabel);
     }
 };
 
@@ -47,7 +47,6 @@ const addRotationToImages = () => {
 };
 
 const rotateElement = (event, elements) => {
-    console.log(elements);
     const x = event.clientX;
     const y = event.clientY;
 

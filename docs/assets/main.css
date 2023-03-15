@@ -22,6 +22,10 @@ h1 {
     font-size: 2rem;
 }
 
+h2 {
+    font-size: 1.2rem;
+}
+
 a {
     color: var(--fg-base);
     text-decoration: none;
@@ -40,11 +44,11 @@ header {
     align-items: center;
 }
 
-header svg[role="logo"] {
+header svg#logo {
     height: 50px;
 }
 
-header svg[role="github"] {
+header svg#github {
     width: 20px;
     cursor: pointer;
 }
@@ -192,7 +196,7 @@ path {
     fill: var(--fg-base) !important;
 }
 
-.OS__type > h4 {
+.OS__type > h2 {
     margin: 0;
 }
 
@@ -204,13 +208,13 @@ path {
     border-radius: 0 .5em .5em 0;
 }
 
-.OS__type[aria-selected="true"] {
+.OS__type[selected="true"] {
     background-color: var(--fg-secondary);
     border-color: var(--fg-secondary);
     color: white;
 }
 
-.OS__type[aria-selected="true"] > svg path {
+.OS__type[selected="true"] > svg path {
     fill: white !important;
 }
 
@@ -282,7 +286,7 @@ path {
     color: white;
 }
 
-.steps:not([aria-selected="true"]) {
+.steps:not([selected="true"]) {
     display: none;
 }
 
