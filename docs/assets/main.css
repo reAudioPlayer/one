@@ -1,10 +1,15 @@
 @import url("./colours.css");
 @import url("./fonts.css");
+@import url("./scrollbars.css");
+@import url("./fancyImage.css");
+@import url("./prism/dark.css");
+@import url("./prism/light.css");
 
 body {
     margin: 0;
+    overflow-x: hidden;
 
-    --header-height: 100px;
+    --header-height: 80px;
 }
 
 body {
@@ -25,7 +30,7 @@ a {
 header {
     background-color: var(--bg-base-lt);
     border-bottom: 1px solid var(--border);
-    width: calc(100% - 4em);
+    width: calc(100vw - 4em);
     height: var(--header-height);
 
     padding: 0 2em;
@@ -49,7 +54,7 @@ header svg path {
 }
 
 section[aria-label="features"] {
-    height: calc(100vh - var(--header-height) - 10vh);
+    height: calc(100vh - var(--header-height) - 0vh);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -64,18 +69,74 @@ section[aria-label="features"] {
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: center;
     gap: 2em;
     min-height: 50vh;
     box-shadow: 0 0 20px 20px rgba(0 0 0 / 5%);
 }
 
-.card > * {
+.features__feature__container {
+    position: relative;
+    width: calc(1200px + 2em);
+}
+
+.features__feature {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4em;
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    transition: opacity .3s ease;
+}
+
+.features__feature:not(.features__show) {
+    opacity: 0;
+}
+
+.features__feature:nth-child(even) {
+    flex-direction: row-reverse;
+}
+
+.features__feature > * {
     max-width: 600px;
 }
 
-.card > img {
+.features__feature > img {
     box-shadow: 0 0 20px 20px rgba(0 0 0 / 10%);
     border-radius: 1em;
+    max-width: 600px;
+}
+
+@media screen and (min-width: 2000px) {
+    .features__feature > img {
+        max-width: 1000px;
+    }
+
+    .features__feature__container {
+        position: relative;
+        width: calc(1600px + 2em);
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .card {
+        width: 100%;
+    }
+
+    .features__feature__container {
+        width: calc(100% - 16em);
+    }
+
+    .features__feature {
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .features__feature > *, .features__feature > img {
+        max-width: 100%;
+    }
 }
 
 .card p {
@@ -102,14 +163,15 @@ section[aria-label="installation"] {
 }
 
 section[aria-label="installation"] > div.content {
-    min-width: 600px;
-    max-width: 1000px;
+    min-width: 900px;
+    max-width: 1600px;
     margin-bottom: 2em;
 }
 
 .OS {
     display: flex;
     flex-direction: row;
+    justify-content: center;
 }
 
 .OS__type {
@@ -165,6 +227,7 @@ path {
     flex-direction: row;
     align-items: stretch;
     gap: 1em;
+    position: relative;
     border: 1px solid var(--border);
     border-radius: .5em;
     background: var(--bg-base);
@@ -217,4 +280,26 @@ path {
 .steps__step:has(.steps__step__button):hover {
     background-color: var(--fg-secondary);
     color: white;
+}
+
+.steps:not([aria-selected="true"]) {
+    display: none;
+}
+
+pre:has(code) {
+    position: relative;
+    width: 100%;
+}
+
+.code__copy {
+    position: absolute;
+    top: .25em;
+    right: .25em;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.steps__step:has(code):hover .code__copy {
+    opacity: 1;
 }

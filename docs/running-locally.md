@@ -9,7 +9,7 @@ You'll also need [ffmpeg](https://ffmpeg.org/download.html).
 
 ### Clone or download this project from github
 ```sh
-git clone https://github.com/reAudioPlayer-Apollo/online.git
+git clone https://github.com/reAudioPlayer/one.git
 ```
 
 ### Navigate to the downloaded repository and run the setup

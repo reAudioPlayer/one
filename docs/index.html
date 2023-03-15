@@ -4,6 +4,8 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
         <script type="text/javascript" src="./assets/main.js"></script>
+        <script src="https://unpkg.com/prismjs@v1.x/components/prism-core.min.js"></script>
+	    <script src="https://unpkg.com/prismjs@v1.x/plugins/autoloader/prism-autoloader.min.js"></script>
 
         <title>reAudioPlayer One</title>
     </head>
@@ -23,13 +25,56 @@
         <main>
             <section aria-label="features">
                 <div class="card">
-                    <span class="material-symbols-rounded">navigate_before</span>
-                    <div class="text">
-                        <h1>The Audio Player With the Most Extensive Catalogue</h2>
-                        <p>reAudioPlayer One lets you curate playlists and stream any track from various platforms, including Spotify, YouTube and SoundCloud.</p>
+                    <span onclick="setCard(-1)" class="material-symbols-rounded">navigate_before</span>
+                    <div class="features__feature__container">
+                        <div class="features__feature features__show">
+                            <div class="text">
+                                <h1>The Audio Player With the Most Extensive Catalogue</h1>
+                                <p>reAudioPlayer One lets you curate playlists and stream any track from various platforms, including Spotify, YouTube and SoundCloud.</p>
+                            </div>
+                            <img src="./assets/img/reapOnePlaylist.png">
+                        </div>
+                        <div class="features__feature">
+                            <div class="text">
+                                <h1>Discover New Music</h1>
+                                <p>Use the integrated release radar to track the releases of your favourite artists, get recommendations and much more!</p>
+                            </div>
+                            <img src="./assets/img/reapOneHome.png">
+                        </div>
+                        <div class="features__feature">
+                            <div class="text">
+                                <h1>
+                                    Complete Privacy,
+                                    <br>
+                                    Highly Customisable
+                                </h1>
+                                <p>All your data stays on your device(s). You may optionally synchronise your library via GitHub, or connect with your Spotify account to access all the features. reAudioPlayer One comes in three gorgeous themes.</p>
+                            </div>
+                            <img src="./assets/img/reapOneShowcase.png">
+                        </div>
+                        <div class="features__feature">
+                            <div class="text">
+                                <h1>Listen Anywhere, Anytime</h1>
+                                <p>Full playback control across devices, without compromising any privacy.</p>
+                            </div>
+                            <img src="./assets/img/reapOneBigPlayer.png">
+                        </div>
+                        <div class="features__feature">
+                            <div class="text">
+                                <h1>Seamless Spotify Integration</h1>
+                                <p>Find your next favourite artist or tracks. Or migrate all your playlists from Spotify.</p>
+                            </div>
+                            <img src="./assets/img/reapOneTrack.png">
+                        </div>
+                        <div class="features__feature">
+                            <div class="text">
+                                <h1>Smart Playlists</h1>
+                                <p>reAudioPlayer One features Smart Playlists: Automatically updated, (soon) fully customisable.</p>
+                            </div>
+                            <img src="./assets/img/reapOneSmartPlaylist.png">
+                        </div>
                     </div>
-                    <img src="./assets/img/reapOnePlaylist.png">
-                    <span class="material-symbols-rounded">navigate_next</span>
+                    <span onclick="setCard(+1)" class="material-symbols-rounded">navigate_next</span>
                 </div>
             </section>
             <section aria-label="installation">
@@ -67,7 +112,7 @@
                             <h4>Developer</h4>
                         </div>
                     </div>
-                    <div class="steps">
+                    <div class="steps" aria-label="windows">
                         <div class="steps__step">
                             <span></span>
                             <a
@@ -84,16 +129,81 @@
                         </div>
                         <div class="steps__step">
                             <span></span>
-                            <pre class="mono">
+                            <div>
+                                <pre><code class="mono language-sh" id="windows-snippet-1"># Create a directory for the user data
 mkdir reAudioPlayer-One
-cd reAudioPlayer-One
-
-# Download the docker-compose.yml file
-curl https://raw.githubusercontent.com/reAudioPlayer/one/master/docker-compose.yml -o docker-compose.yml
-
-# Start the container
-docker-compose up -d
-                            </pre>
+cd reAudioPlayer-One</code></pre>
+                                <span onclick="copyElement('windows-snippet-1')" class="code__copy material-symbols-rounded">content_copy</span>
+                            </div>
+                        </div>
+                        <div class="steps__step">
+                            <span></span>
+                            <div><pre><code class="mono language-sh" id="windows-snippet-2"># Download the docker-compose.yml file
+curl https://raw.githubusercontent.com/reAudioPlayer/one/master/docker-compose.yml -o docker-compose.yml</code></pre>
+                                <span onclick="copyElement('windows-snippet-2')" class="code__copy material-symbols-rounded">content_copy</span>
+                            </div>
+                        </div>
+                        <div class="steps__step">
+                            <span></span>
+                            <div><pre><code class="mono language-sh" id="windows-snippet-3"># Start the container
+docker-compose up -d</code></pre>
+                                <span onclick="copyElement('windows-snippet-3')" class="code__copy material-symbols-rounded">content_copy</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="steps steps__hidden" aria-label="developer">
+                        <div class="steps__step">
+                            <span></span>
+                            <a
+                                class="steps__step__button"
+                                href="https://www.docker.com/products/docker-desktop/"
+                                target="_blank"
+                            >
+                                <div class="steps__step__icon">
+                                    <svg aria-hidden="true" xmlns:xlink="http://www.w3.org/1999/xlink" width="62.504" xmlns="http://www.w3.org/2000/svg" height="50" id="screenshot-79d840b8-f6ae-8053-8002-3353b1b3358f" viewBox="0 0 62.504 50" style="-webkit-print-color-adjust: exact;" fill="none" version="1.1"><g id="shape-79d840b8-f6ae-8053-8002-3353b1b3358f" rx="0" ry="0" style="fill: rgb(0, 0, 0);"><g id="shape-79d840b8-f6ae-8053-8002-3353b1b3dbb6"><g class="fills" id="fills-79d840b8-f6ae-8053-8002-3353b1b3dbb6"><path rx="0" ry="0" d="M34.174,23.076L27.719,23.076L27.719,17.275L34.174,17.275L34.174,23.076ZZM34.174,3.125L27.719,3.125L27.719,9.053L34.174,9.053L34.174,3.125ZZM41.811,17.266L35.356,17.266L35.356,23.066L41.811,23.066L41.811,17.266ZZM26.547,10.225L20.092,10.225L20.092,16.094L26.547,16.094L26.547,10.225ZZM34.174,10.225L27.719,10.225L27.719,16.094L34.174,16.094L34.174,10.225ZZM61.205,19.990C59.799,19.043,56.557,18.701,54.067,19.170C53.744,16.826,52.436,14.785,50.053,12.949L48.686,12.041L47.778,13.408C45.981,16.123,45.493,20.596,47.416,23.545C46.567,24.004,44.897,24.629,42.690,24.590L0.239,24.590C-0.611,29.551,0.805,35.996,4.536,40.420C8.159,44.707,13.588,46.885,20.688,46.885C36.059,46.885,47.436,39.805,52.758,26.943C54.848,26.982,59.360,26.953,61.674,22.529C61.821,22.285,62.319,21.240,62.504,20.859L61.205,19.990ZZM11.293,17.266L4.848,17.266L4.848,23.066L11.303,23.066L11.293,17.266ZZM18.920,17.266L12.465,17.266L12.465,23.066L18.920,23.066L18.920,17.266ZZM26.547,17.266L20.092,17.266L20.092,23.066L26.547,23.066L26.547,17.266ZZM18.920,10.225L12.465,10.225L12.465,16.094L18.920,16.094L18.920,10.225ZZ"/></g></g></g></svg>
+                                    <p>Download Docker</p>
+                                </div>
+                                <span class="material-symbols-rounded">file_download</span>
+                            </a>
+                        </div>
+                        <div class="steps__step">
+                            <span></span>
+                            <div>
+                                <pre><code class="mono language-sh" id="developer-snippet-1"># clone the sources
+git clone https://github.com/reAudioPlayer/one.git
+cd one</code></pre>
+                                <span onclick="copyElement('developer-snippet-1')" class="code__copy material-symbols-rounded">content_copy</span>
+                            </div>
+                        </div>
+                        <div class="steps__step">
+                            <span></span>
+                            <div>
+                                <pre><code class="mono language-sh" id="developer-snippet-2"># start the dev container
+docker compose -f docker-compose.dev.yml up</code></pre>
+                                <span onclick="copyElement('developer-snippet-2')" class="code__copy material-symbols-rounded">content_copy</span>
+                            </div>
+                        </div>
+                        <div class="steps__step">
+                            <span></span>
+                            <p>modify any *.py file in the directory</span>
+                        </div>
+                        <div class="steps__step">
+                            <span></span>
+                            <div>
+                                <pre><code class="mono language-sh" id="developer-snippet-3"># restart the server, your changes will immediately take effect
+curl http://localhost:1234/api/system/kill</code></pre>
+                                <span onclick="copyElement('developer-snippet-3')" class="code__copy material-symbols-rounded">content_copy</span>
+                            </div>
+                        </div>
+                        <div class="steps__step">
+                            <span></span>
+                            <div>
+                                <pre><code class="mono language-sh" id="developer-snippet-4"># (UI only)
+cd src/ui
+npm i
+npm run dev # or npm run build</code></pre>
+                                <span onclick="copyElement('developer-snippet-4')" class="code__copy material-symbols-rounded">content_copy</span>
+                            </div>
                         </div>
                     </div>
                 </div>
