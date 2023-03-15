@@ -2,6 +2,8 @@ name: pylint
 
 on:
   push:
+    paths:
+      - 'src/server/**'
   workflow_dispatch:
 
 jobs:
