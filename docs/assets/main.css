@@ -184,13 +184,16 @@ section[aria-label="features"] {
 section[aria-label="installation"] {
     background: var(--bg-base-lt);
     border-top: 1px solid var(--border);
-    padding-bottom: 2   em;
+}
+
+section[aria-label="installation"], section[aria-label="about"] {
+    padding-bottom: 2em;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-section[aria-label="installation"] > div.content {
+:where(section[aria-label="installation"], section[aria-label="about"]) > div.content {
     min-width: 900px;
     max-width: 1600px;
     margin-bottom: 2em;
@@ -333,7 +336,7 @@ pre:has(code) {
 }
 
 @media screen and (max-width: 900px) {
-    section[aria-label="installation"] > div.content {
+    :where(section[aria-label="installation"], section[aria-label="about"]) > div.content {
         min-width: calc(100% - 2em);
         max-width: calc(100% - 2em);
         margin: 0 1em 2em 1em;
@@ -353,5 +356,72 @@ pre:has(code) {
 
     .steps__step pre {
         width: min-content;
+    }
+}
+
+.about__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 1em;
+}
+
+.about__grid__item {
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    align-items: center;
+    gap: 2em;
+    padding: 1em;
+    border: 1px solid var(--border);
+    border-radius: .5em;
+    background: var(--bg-base-lt);
+}
+
+.about__grid__item > .text > p {
+    font-size: .9rem;
+    color: var(--fg-base-dk);
+}
+
+.about__grid__item > .text > p > a {
+    text-decoration: underline;
+
+    &:hover {
+        color: var(--fg-secondary);
+    }
+}
+
+.about__grid__item > span.material-symbols-rounded {
+    font-size: 5rem;
+    color: var(--fg-base);
+}
+
+.about__grid__item > svg {
+    width: 70px;
+}
+
+@media screen and (max-width: 900px) {
+    .about__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .about__grid__item {
+        grid-template-columns: 1fr;
+        gap: 1em;
+        justify-items: center;
+    }
+
+    .about__grid__item > .text {
+        text-align: center;
+    }
+
+    .about__grid__item > .text > p {
+        font-size: .8rem;
+    }
+
+    .about__grid__item > span.material-symbols-rounded {
+        font-size: 3rem;
+    }
+
+    .about__grid__item > svg {
+        width: 50px;
     }
 }
