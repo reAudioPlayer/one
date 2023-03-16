@@ -26,6 +26,20 @@ h2 {
     font-size: 1.2rem;
 }
 
+@media screen and (max-width: 650px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1rem;
+    }
+
+    p {
+        font-size: 0.9rem;
+    }
+}
+
 a {
     color: var(--fg-base);
     text-decoration: none;
@@ -82,6 +96,7 @@ section[aria-label="features"] {
 .features__feature__container {
     position: relative;
     width: calc(1200px + 2em);
+    height: 100%;
 }
 
 .features__feature {
@@ -93,10 +108,13 @@ section[aria-label="features"] {
     inset: 0;
     opacity: 1;
     transition: opacity .3s ease;
+
+    --w-img-base: 600px;
 }
 
 .features__feature:not(.features__show) {
     opacity: 0;
+    pointer-events: none;
 }
 
 .features__feature:nth-child(even) {
@@ -104,13 +122,13 @@ section[aria-label="features"] {
 }
 
 .features__feature > * {
-    max-width: 600px;
+    max-width: var(--w-img-base);
 }
 
 .features__feature > img {
     box-shadow: 0 0 20px 20px rgba(0 0 0 / 10%);
     border-radius: 1em;
-    max-width: 600px;
+    max-width: var(--w-img-base);
 }
 
 @media screen and (min-width: 2000px) {
@@ -124,22 +142,28 @@ section[aria-label="features"] {
     }
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1600px) {
     .card {
-        width: 100%;
-    }
-
-    .features__feature__container {
-        width: calc(100% - 16em);
+        width: calc(100% - 2px);
+        padding: 5em 0;
+        border-radius: 0;
+        gap: 1em;
+        justify-content: space-between;
     }
 
     .features__feature {
-        flex-direction: column;
+        flex-direction: column !important;
         justify-content: center;
+        gap: 1em;
     }
 
-    .features__feature > *, .features__feature > img {
+    .features__feature > * {
         max-width: 100%;
+        text-align: center;
+    }
+
+    .features__feature > img {
+        max-width: clamp(300px, 100%, var(--w-img-base));
     }
 }
 
@@ -306,4 +330,28 @@ pre:has(code) {
 
 .steps__step:has(code):hover .code__copy {
     opacity: 1;
+}
+
+@media screen and (max-width: 900px) {
+    section[aria-label="installation"] > div.content {
+        min-width: calc(100% - 2em);
+        max-width: calc(100% - 2em);
+        margin: 0 1em 2em 1em;
+    }
+
+    .OS__type {
+        padding: .5em;
+    }
+
+    .steps__step {
+        overflow-x: hidden;
+    }
+
+    .steps__step > div {
+        overflow-x: auto;
+    }
+
+    .steps__step pre {
+        width: min-content;
+    }
 }
