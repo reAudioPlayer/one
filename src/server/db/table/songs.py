@@ -254,7 +254,6 @@ class SongModel(IModel):
         """return dict"""
         return {
             "id": self.id,
-            "name": self.name,
             "title": self.name,
             "artist": self.artist,
             "album": self.album,

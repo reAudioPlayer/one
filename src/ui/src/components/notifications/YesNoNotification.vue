@@ -68,13 +68,6 @@ const yes = () => {
     color: var(--fg-base);
     overflow: hidden;
 
-    --background: #1e1e1e;
-    --neutral: #374148;
-    --success: #00c48b;
-    --fail: #e85454;
-    --warning: #c7aa19;
-    --info: #189de4;
-
     &.success {
         background-color: var(--success);
     }

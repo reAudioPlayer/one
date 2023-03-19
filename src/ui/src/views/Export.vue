@@ -55,28 +55,36 @@ export default {
             this.cloudPlaylists = await GistClient.getContent();
         },
         async fetchLocalPlaylists() {
-            console.log("fetching local playlists", this.dataStore?.playlists);
+            if (this.loadingPlaylists) {
+                return;
+            }
+            this.loadingPlaylists = true;
             this.playlists = [ ];
             for (let id = 0; id < this.dataStore?.playlists?.length; id++) {
                 const res = await fetch(`/api/playlists/${id}`)
                 const playlist = await res.json();
                 this.playlists.push(playlist);
             }
+            this.loadingPlaylists = false;
         }
     },
     watch: {
         dataStore: {
-            handler() {
+            handler(newStore, oldStore) {
                 this.fetchLocalPlaylists();
             },
             deep: true
         }
+    },
+    mounted() {
+        this.fetchLocalPlaylists();
     },
     data() {
         this.fetchGists();
 
         return {
             playlists: [],
+            loadingPlaylists: false,
             userData: { },
             cloudPlaylists: [],
             dataStore: useDataStore()

@@ -36,7 +36,10 @@ class PlaylistManager:
 
     async def removefromPlaylist(self, playlistIndex: int, songId: int) -> None:
         """removes a song from a playlist"""
-        await self._playlists[playlistIndex].remove(songId)
+        for playlist in self._playlists:
+            if playlist.id == playlistIndex:
+                await playlist.remove(songId)
+                return
 
     def get(self, playlistIndex: Any) -> Optional[PlayerPlaylist]:
         """gets a playlist at this index (if playlistIndex is an int)"""

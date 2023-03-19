@@ -80,6 +80,7 @@ export interface ISong {
     id?: number;
     title: string;
     artist: string;
+    artists?: string[];
     album: string;
     cover: string;
     favourite?: boolean;

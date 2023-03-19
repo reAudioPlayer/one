@@ -23,6 +23,19 @@ export const updateSong = async (song: ISong) => {
     })
 }
 
+/**
+ * updates a song property
+ * @param song
+ */
+export const updateSongProperty = async (songId: number, key: string, value: any) => {
+    await fetch(`/api/tracks/${songId}`, {
+        method: "PUT",
+        body: JSON.stringify({
+            [key]: value
+        })
+    })
+}
+
 export const fetchMetadata = async (src: string): Promise<ISong> => {
     const res = await fetch("/api/browse/track", {
         method: "POST",

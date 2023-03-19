@@ -6,12 +6,14 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 from random import randint
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
 import asyncio
+from hashids import Hashids # type: ignore
 from dataModel.playlist import Playlist
 from dataModel.song import Song
 from db.database import Database
 from db.table.songs import SongModel
 
 
+hashids = Hashids(salt="reapOne.playlist", min_length=22)
 T = TypeVar('T') # pylint: disable=invalid-name
 
 
@@ -275,11 +277,23 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
             self._dataPlaylist.model.cover = value
 
     @property
+    def id(self) -> int:
+        """playlist id"""
+        if self._dataPlaylist:
+            return self._dataPlaylist.model.id
+        return 0
+
+    @property
     def _plays(self) -> int:
         """number of times this playlist has been played"""
         if self._dataPlaylist:
             return self._dataPlaylist.model.plays
         return 0
+
+    @property
+    def url(self) -> str:
+        """return url"""
+        return f"/track/{hashids.encode(self._playlistIndex)}"
 
     def toDict(self) -> Dict[str, Any]:
         """serialise"""
@@ -290,6 +304,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
             "cover": self.cover,
             "songs": list(map(lambda x: x.toDict(), self._playlist)),
             "plays": self._plays,
+            "id": self._playlistIndex,
+            "href": self.url
         }
 
     def byId(self, id_: int) -> List[Song]:
