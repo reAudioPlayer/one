@@ -8,6 +8,7 @@ import signal
 import mimetypes
 import asyncio
 
+import uvloop # type: ignore
 from aiohttp import web
 from aiohttp_index import IndexMiddleware # type: ignore
 import aiohttp_cors # type: ignore
@@ -136,4 +137,5 @@ def _exitHandler(sig: int, frame: Optional[object]) -> None: # pylint: disable=u
 
 signal.signal(signal.SIGTERM, _exitHandler)
 
-asyncio.run(main())
+with asyncio.Runner(loop_factory=uvloop.new_event_loop) as runner:
+    runner.run(main())
