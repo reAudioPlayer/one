@@ -193,6 +193,10 @@ section[aria-label="installation"], section[aria-label="about"] {
     align-items: center;
 }
 
+section[aria-label="about"] {
+    margin: 0 1em 0 1em;
+}
+
 :where(section[aria-label="installation"], section[aria-label="about"]) > div.content {
     min-width: 900px;
     max-width: 1600px;
