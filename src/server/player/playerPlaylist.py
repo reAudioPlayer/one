@@ -232,7 +232,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     def move(self, songIndex: int, newSongIndex: int) -> None:
         """moves a song in this playlist"""
         self._playlist.changeIndex(songIndex, newSongIndex)
-        self._dataPlaylist.swap(songIndex, newSongIndex)
+        if self._dataPlaylist:
+            self._dataPlaylist.swap(songIndex, newSongIndex)
         assert self._playlistIndex is not None
         if self._cursor == songIndex:
             self._cursor = newSongIndex

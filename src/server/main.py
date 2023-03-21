@@ -8,7 +8,7 @@ import signal
 import mimetypes
 import asyncio
 
-import uvloop # type: ignore
+import uvloop
 from aiohttp import web
 from aiohttp_index import IndexMiddleware # type: ignore
 import aiohttp_cors # type: ignore
