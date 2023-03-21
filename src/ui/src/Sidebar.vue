@@ -37,7 +37,12 @@ const settings = useSettingsStore();
         <hr v-if="playlists.length" class="hideIfMobile">
         <template v-if="!minimised">
             <div class="playlistList expanded hideIfMobile">
-                <router-link v-for="(element, index) in playlists" :key="index" :to="element.href">{{ element.name }}
+                <router-link
+                    v-for="(element, index) in playlists"
+                    :key="index"
+                    :to="element.href"
+                >
+                    {{ element.name }}
                 </router-link>
             </div>
         </template>

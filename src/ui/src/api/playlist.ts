@@ -3,10 +3,18 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import { hashTrack, IFullPlaylist, IPlaylistMeta, unhashPlaylist } from "../common";
+import { IFullPlaylist, IPlaylistMeta, unhashPlaylist } from "../common";
 import { useDataStore } from "../store/data";
 
-const dataStore = useDataStore();
+const updateDataStore = async () => {
+    const dataStore = useDataStore();
+    await dataStore.fetchPlaylists();
+}
+
+const getPlaylistById = (id: number): IFullPlaylist => {
+    const dataStore = useDataStore();
+    return dataStore.getPlaylistById(id);
+}
 
 /**
  * updates a playlist's metadata based on its id
@@ -21,36 +29,31 @@ export const updatePlaylistMetadata = async (playlist: IPlaylistMeta) => {
             cover: playlist.cover,
         })
     })
-    await dataStore.fetchPlaylists();
+    await updateDataStore();
+}
+
+/**
+ * fetches all playlists from the server
+ */
+export const getAllPlaylists = async (): Promise<IFullPlaylist[]> => {
+    const res = await fetch("/api/playlists");
+    return await res.json();
 }
 
 /**
  * fetches a playlist from the server
  * @param id the playlist's id
  */
-export const getPlaylist = async (id: string | number): Promise<IFullPlaylist> => {
-    const res = await fetch(`/api/playlists/${id}`);
-
-    if (res.status === 404) {
-        return null;
-    }
-
-    const playlist = await res.json();
-    for (const song of playlist.songs) {
-        song.href = `/track/${hashTrack(song.id)}`;
-    }
-
-    playlist.id = id;
-
-    return playlist;
+export const getPlaylist = (id: string | number): IFullPlaylist => {
+    return getPlaylistById(id as number);
 }
 
 /**
  * fetches a playlist from the server based on its hash
  * @param hash the playlist's hash
  */
-export const getPlaylistByHash = async (hash: string): Promise<IFullPlaylist> => {
-    return await getPlaylist(unhashPlaylist(hash));
+export const getPlaylistByHash = (hash: string): IFullPlaylist => {
+    return getPlaylist(unhashPlaylist(hash));
 }
 
 /**
@@ -61,7 +64,7 @@ export const deletePlaylist = async (id: number): Promise<void> => {
     await fetch(`/api/playlists/${id}`, {
         method: "DELETE"
     });
-    await dataStore.fetchPlaylists();
+    await updateDataStore();
 }
 
 /**
@@ -71,7 +74,7 @@ export const deletePlaylist = async (id: number): Promise<void> => {
 export const createPlaylist = async (): Promise<number> => {
     const res = await fetch("/api/playlists/new");
     const id = await res.json();
-    await dataStore.fetchPlaylists();
+    await updateDataStore();
     return id;
 }
 
@@ -90,7 +93,8 @@ export const createPlaylistWithMetadata = async (name: string,
         id,
         name,
         description,
-        cover
+        cover,
+        plays: 0
     });
     return id;
 }
@@ -102,5 +106,5 @@ export const removeSongFromPlaylist = async (playlistId: number, songId: number)
             songId: songId
         })
     });
-    await dataStore.fetchPlaylists();
+    await updateDataStore();
 }

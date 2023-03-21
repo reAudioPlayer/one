@@ -8,7 +8,7 @@ import { displayDuration, hashTrack, isMobile, ISong } from "../../common";
 import { computed, PropType, ref } from "vue";
 import Marquee from "../Marquee.vue";
 import EditSong from "../popups/EditSong.vue";
-import SongContext from "../contextMenus-next/SongContext.vue";
+import SongContext from "../contextMenus/SongContext.vue";
 import { usePlayerStore } from "../../store/player";
 import { favouriteSong } from "../../api/song";
 import Cover from "../image/Cover.vue";

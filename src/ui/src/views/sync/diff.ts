@@ -112,7 +112,7 @@ const diffPlaylist = (base: IFullPlaylist, other: IFullPlaylist) => {
         modified: [],
     };
     for (const baseSong of base.songs) {
-        const otherSong = other.songs.find((s) => s.id === baseSong.id);
+        const otherSong = other.songs.find((s) => s.source === baseSong.source);
         if (otherSong) {
             const songDiff = diffSong(baseSong, otherSong);
             if (songDiff) {
@@ -123,7 +123,7 @@ const diffPlaylist = (base: IFullPlaylist, other: IFullPlaylist) => {
         }
     }
     for (const otherSong of other.songs) {
-        const baseSong = base.songs.find((s) => s.id === otherSong.id);
+        const baseSong = base.songs.find((s) => s.source === otherSong.source);
         if (!baseSong) {
             diff.added.push(otherSong);
         }

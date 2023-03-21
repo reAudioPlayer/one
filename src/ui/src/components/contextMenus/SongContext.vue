@@ -41,11 +41,13 @@ const addTo = async (playlistId: number) => {
     Notifications.addSuccess(props.song.title,
         `Added to ${playlists.value.find(p => p.id == playlistId)?.name}`,
         3000);
+    emit("update");
 };
 
 const addToNew = async () => {
     const playlistId = await createPlaylistWithMetadata(props.song.title, props.song.artist, props.song.cover);
-    addTo(playlistId);
+    await addTo(playlistId);
+    emit("update");
 }
 
 const remove = async () => {
@@ -133,11 +135,11 @@ const openSource = (source: string) => {
                 <v-contextmenu-item @click="addToNew">Add to new playlist</v-contextmenu-item>
                 <v-contextmenu-divider />
                 <v-contextmenu-item
-                    v-for="(element, index) in playlists"
-                    :key="index"
-                    @click="addTo(index)"
+                    v-for="playlist in playlists"
+                    :key="playlist.id"
+                    @click="addTo(playlist.id)"
                 >
-                    {{element.name}}
+                    {{playlist.name}}
                 </v-contextmenu-item>
             </v-contextmenu-submenu>
             <v-contextmenu-divider />
