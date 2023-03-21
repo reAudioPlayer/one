@@ -103,9 +103,9 @@ async def main() -> None:
     Runtime.setEventLoop(asyncio.get_event_loop())
 
     app = await _init()
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, host = Runtime.args.host, port = Runtime.args.port)
+    appRunner = web.AppRunner(app)
+    await appRunner.setup()
+    site = web.TCPSite(appRunner, host = Runtime.args.host, port = Runtime.args.port)
     await site.start()
 
     logger.info("Server started at http://%s:%s", Runtime.args.host, Runtime.args.port)

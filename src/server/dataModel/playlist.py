@@ -42,3 +42,12 @@ class Playlist:
         if song not in songs:
             songs.append(song)
         self.songs = songs
+
+    def swap(self, song1: int, song2: int) -> None:
+        """swap songs"""
+        songs = self.songs
+        index1 = songs.index(song1)
+        index2 = songs.index(song2)
+        songs[index1] = song2
+        songs[index2] = song1
+        self.songs = songs

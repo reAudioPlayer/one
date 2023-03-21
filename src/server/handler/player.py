@@ -60,8 +60,12 @@ class PlayerHandler:
             return web.HTTPBadRequest(text = "id is required for types playlist and track")
 
         if type_ == "playlist":
-            asyncio.create_task(self._player.loadPlaylist(self._playlistManager.get(id_)))
-            return web.Response()
+            if id_ is None:
+                return web.HTTPBadRequest(text = "id is required for type playlist")
+            if playlist := self._playlistManager.get(id_):
+                asyncio.create_task(self._player.loadPlaylist(playlist))
+                return web.Response()
+            return web.HTTPNotFound(text = "playlist not found")
 
         if type_ == "collection":
             asyncio.create_task(self._player.loadPlaylist(await PlayerPlaylist.liked()))

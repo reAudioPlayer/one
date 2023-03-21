@@ -232,6 +232,7 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     def move(self, songIndex: int, newSongIndex: int) -> None:
         """moves a song in this playlist"""
         self._playlist.changeIndex(songIndex, newSongIndex)
+        self._dataPlaylist.swap(songIndex, newSongIndex)
         assert self._playlistIndex is not None
         if self._cursor == songIndex:
             self._cursor = newSongIndex
@@ -293,7 +294,7 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     @property
     def url(self) -> str:
         """return url"""
-        return f"/track/{hashids.encode(self._playlistIndex)}"
+        return f"/playlist/{hashids.encode(self._playlistIndex)}"
 
     def toDict(self) -> Dict[str, Any]:
         """serialise"""
