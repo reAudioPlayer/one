@@ -214,6 +214,7 @@ section[aria-label="about"] {
     padding: 1em;
     display: flex;
     flex-direction: row;
+    align-items: center;
     cursor: pointer;
 }
 
