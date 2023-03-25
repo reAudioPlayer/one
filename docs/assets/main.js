@@ -9,7 +9,7 @@ const setOS = (value) => {
     value = value.replace("linux", "windows");
 
     for (const step of steps) {
-        step.setAttribute("selected", value === step.ariaLabel);
+        step.setAttribute("selected", value === step.getAttribute("aria-label"));
     }
 };
 

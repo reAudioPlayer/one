@@ -39,6 +39,8 @@
         z-index: -1;
         border-radius: inherit;
         --colour: var(--fg-secondary);
+        --max-opacity: .5;
+
         opacity: 0;
         transition: all .5s;
         
@@ -53,7 +55,13 @@
         animation: grid-rotate-gradient 7s linear infinite;
     }
 
+    @media (prefers-color-scheme: light) {
+        :where(.card, .about__grid__item)::after {
+            --max-opacity: .3;
+        }        
+    }
+
     :where(.card, .about__grid__item):hover::after {
-        opacity: .5;
+        opacity: var(--max-opacity);
     }
 }
