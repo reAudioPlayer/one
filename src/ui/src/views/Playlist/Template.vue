@@ -398,10 +398,26 @@ const onObserveVisibility = (isVisible, entry) => {
     display: grid;
     grid-template-columns: fit-content(100%) minmax(500px, 1fr);
     gap: 2rem;
-}
 
-.cover {
-    min-width: 384px;
+    .cover {
+        min-width: 384px;
+        aspect-ratio: 1 / 1;
+    }
+
+    @media (max-width: 1000px) {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .cover {
+            min-width: 20vw;
+        }
+
+        .track__info__details {
+            overflow: auto;
+            width: 100%;
+        }
+    }
 }
 
 

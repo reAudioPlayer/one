@@ -22,6 +22,7 @@ const id = computed(() => unhashPlaylist(hash.value));
 const playlist = ref(null as IFullPlaylist | null);
 const loading = ref(false);
 const error = ref(null as string | null);
+let creating = false;
 
 const load = async () => {
     loading.value = true;
@@ -34,10 +35,12 @@ const load = async () => {
     }
 
     if (hash.value === "create") {
-        createPlaylist().then(id => {
-            const link = hashPlaylist(id);
-            router.push(link);
-        })
+        if (creating) return;
+        creating = true;
+        loading.value = true;
+        const id = await createPlaylist();
+        const link = hashPlaylist(id);
+        await router.push(link);
         return;
     }
 
@@ -47,14 +50,15 @@ const load = async () => {
     loading.value = false;
 };
 
-const onPlaylistRearrange = (oldIndex, newIndex) => {
-    fetch(`/api/playlists/${id.value}/tracks`, {
+const onPlaylistRearrange = async (oldIndex, newIndex) => {
+    await fetch(`/api/playlists/${id.value}/tracks`, {
         method: "PUT",
         body: JSON.stringify({
             songOldIndex: oldIndex,
             songNewIndex: newIndex
         })
     })
+    await dataStore.fetchPlaylists();
 }
 
 onMounted(load);

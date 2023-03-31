@@ -144,6 +144,7 @@ const selectedSongId = ref(-1);
     font-size: 2em;
     border-radius: 10px;
     padding: 5px;
+    font-variation-settings: "wght" 200;
 
     &:hover {
         cursor: pointer;

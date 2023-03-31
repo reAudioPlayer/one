@@ -60,11 +60,15 @@ export const getPlaylistByHash = (hash: string): IFullPlaylist => {
  * deletes a playlist based on its id
  * @param id the id of the playlist to delete
  */
-export const deletePlaylist = async (id: number): Promise<void> => {
-    await fetch(`/api/playlists/${id}`, {
+export const deletePlaylist = async (id: number): Promise<boolean> => {
+    const res = await fetch(`/api/playlists/${id}`, {
         method: "DELETE"
     });
+
+    if (!res.ok) return false;
+
     await updateDataStore();
+    return true;
 }
 
 /**
