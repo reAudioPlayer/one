@@ -69,7 +69,7 @@ class PlaylistHandler:
     async def deletePlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """delete(/api/playlists/id/{id})"""
         id_: int = payload["id"]
-        if self._playlistManager.removePlaylist(id_):
+        if await self._playlistManager.removePlaylist(id_):
             return web.Response()
         return web.HTTPNotFound()
 
@@ -81,4 +81,4 @@ class PlaylistHandler:
                                              jdata.get("name"),
                                              jdata.get("description"),
                                              jdata.get("cover"))
-        return web.Response(status = 200, text = "success!")
+        return web.Response()

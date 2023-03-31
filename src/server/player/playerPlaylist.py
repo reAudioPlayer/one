@@ -32,7 +32,7 @@ class OrderedUniqueList(List[T]):
     def changeIndex(self, old: int, new: int) -> None:
         """swaps two elements"""
         elem = self[old]
-        self.remove(self[old])
+        self.remove(elem)
         self.insert(new, elem)
 
 
@@ -137,14 +137,6 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         )
 
         self._loaded = True
-
-    @property
-    def valid(self) -> bool:
-        """valid state"""
-        return len(self._playlist) > 0
-
-    def __bool__(self) -> bool:
-        return self.valid
 
     @property
     def cursor(self) -> int:
@@ -324,3 +316,6 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
 
     def __repr__(self) -> str:
         return f"(Player.PlayerPlaylist) name=[{self.name}] id=[{self._playlistIndex}]"
+
+    def __bool__(self) -> bool:
+        return self.playlistIndex is not None

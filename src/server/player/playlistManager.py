@@ -3,7 +3,7 @@
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import Callable, Optional
-import asyncio
+from helper.logged import Logged
 from dataModel.song import Song
 from db.database import Database
 from db.table.playlists import PlaylistModel
@@ -11,13 +11,14 @@ from player.playerPlaylist import PlayerPlaylist
 from player.playerPlaylist import OrderedUniqueList
 
 
-class PlaylistManager:
+class PlaylistManager(Logged):
     """manages all playlists"""
     __slots__ = ("_dbManager", "_playlists")
 
     def __init__(self) -> None:
         self._dbManager = Database()
         self._playlists: OrderedUniqueList[PlayerPlaylist] = OrderedUniqueList()
+        super().__init__(self.__class__.__name__)
 
     async def loadPlaylists(self) -> None:
         """loads all playlists"""
@@ -61,9 +62,7 @@ class PlaylistManager:
                        description: Optional[str],
                        cover: Optional[str]) -> None:
         """updates a playlist"""
-        if id_ >= self.playlistLength:
-            return
-        playlist = self._playlists[id_]
+        playlist = self.get(id_)
         if name:
             playlist.name = name
         if description:
@@ -87,12 +86,14 @@ class PlaylistManager:
         name = name or f"My Playlist #{plId + 1}"
         await self._dbManager.playlists.insert(PlaylistModel(name))
         await self.loadPlaylists()
-        return plId
+        playlist = self._playlists[-1]
+        return playlist.playlistIndex
 
-    def removePlaylist(self, playlistId: int) -> bool:
+    async def removePlaylist(self, playlistId: int) -> bool:
         """removes a playlist"""
+        self._logger.info("removing playlist %s, %s, %s", playlistId, self.get(playlistId), bool(self.get(playlistId)))
         if playlist := self.get(playlistId):
             self._playlists.remove(playlist)
-            asyncio.create_task(self._dbManager.playlists.deleteById(playlistId))
+            await self._dbManager.playlists.deleteById(playlistId)
             return True
         return False
