@@ -20,7 +20,7 @@
                     :key="element.url"
                     :artist="element.artists.join(', ')"
                     :cover="element.cover"
-                    :href="element.url"
+                    :href="element.href"
                     :title="element.title"
                 />
             </Shelf>
