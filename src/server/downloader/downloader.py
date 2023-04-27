@@ -8,9 +8,10 @@ import os
 from typing import Any, Dict, Optional
 import logging
 import shutil
-from queue import Queue
+from queue import Queue, Empty
 
 import aiohttp
+from aiohttp import web
 import eyed3 # type: ignore
 from eyed3.id3.frames import ImageFrame # type: ignore
 from eyed3.id3 import Tag # type: ignore
@@ -32,21 +33,50 @@ class DownloadStatus:
                  "_songId", "_eta", "_status")
 
     def __init__(self, data: Dict[str, Any]) -> None:
-        self._total = data['total_bytes']
-        self._downloaded = data['downloaded_bytes']
-        self._percent = self._downloaded / self._total * 100
-        self._speed = data['_speed_str'].strip()
-        self._elapsed = data['_elapsed_str'].strip()
+        self._status = data['status']
+        self._total = 0
+        self._downloaded = 0
+        self._percent = 0
+        self._speed = "0"
+        self._elapsed = "0"
+        self._eta = "0"
         filename = data['filename']
         # './_cache/159.dl.mp3' -> 159
+        # consider chunks!
         self._songId = int(filename.split("/")[-1].split(".")[0])
-        self._eta = data['eta']
-        self._status = data['status']
+
+        if self._status == "downloading":
+            self._total = data['total_bytes']
+            self._downloaded = data['downloaded_bytes']
+            self._percent = self._downloaded / self._total * 100
+            self._speed = data['_speed_str'].strip()
+            self._elapsed = data['_elapsed_str'].strip()
+            self._eta = data['eta']
+
+    def toDict(self) -> Dict[str, Any]:
+        """to dict"""
+        if self._status == "finished":
+            return {
+                "songId": self._songId,
+                "status": self._status
+            }
+
+        return {
+            "songId": self._songId,
+            "status": self._status,
+            "total": self._total,
+            "downloaded": self._downloaded,
+            "percent": round(self._percent, 2),
+            "speed": self._speed,
+            "elapsed": self._elapsed,
+            "eta": self._eta,
+        }
 
 
 class Downloader(metaclass = Singleton):
     """downloader"""
-    __slots__ = ("_opts", "_ydl", "_statusQueue", "_logger")
+    __slots__ = ("_opts", "_ydl", "_statusQueue", "_logger", "_websocketClients",
+                 "_downloadStatusTask")
 
     def __init__(self) -> None:
         self._opts = {
@@ -58,8 +88,38 @@ class Downloader(metaclass = Singleton):
             }]
         }
         self._ydl = YoutubeDL(self._opts)
+        self._ydl.add_progress_hook(self._hook)
         self._logger = logging.getLogger("downloader")
         self._statusQueue: Queue[DownloadStatus] = Queue()
+        self._websocketClients: set[web.WebSocketResponse] = set()
+        self._downloadStatusTask: Optional[asyncio.Task] = None
+
+    async def _downloadStatusLoop(self) -> None:
+        while True:
+            try:
+                status = self._statusQueue.get(False)
+                for client in self._websocketClients:
+                    await client.send_json(status.toDict())
+                self._statusQueue.task_done()
+            except Empty:
+                pass
+            await asyncio.sleep(0.1)
+
+    async def websocketEndpoint(self, request: web.Request) -> web.WebSocketResponse:
+        """websocket status"""
+        ws = web.WebSocketResponse(heartbeat = 10)
+        await ws.prepare(request)
+        self._websocketClients.add(ws)
+        async for message in ws:
+            if message.type == web.WSMsgType.TEXT:
+                if message.data == "close":
+                    await ws.close()
+            elif message.type == web.WSMsgType.ERROR:
+                self._logger.error("ws connection closed with exception %s",
+                                   ws.exception())
+        self._logger.info("websocket connection closed")
+        self._websocketClients.remove(ws)
+        return ws
 
     async def _getCover(self, song: SongModel) -> bytes:
         async with aiohttp.ClientSession() as session:
@@ -98,6 +158,9 @@ class Downloader(metaclass = Singleton):
         if withMetadata:
             await self._applyMetadata(filename, song)
         return True
+
+    def _hook(self, data: Dict[str, Any]) -> None:
+        self._statusQueue.put(DownloadStatus(data))
 
     async def download(self, link: Optional[str], filename: str) -> bool:
         """downloads a song from a link (low level)"""
@@ -140,8 +203,8 @@ class Downloader(metaclass = Singleton):
         if not isLink:
             return False
 
-        def hook(data: Dict[str, Any]) -> None:
-            self._statusQueue.put(DownloadStatus(data))
+        if self._downloadStatusTask is None:
+            self._downloadStatusTask = asyncio.create_task(self._downloadStatusLoop())
 
         # download
         DOWNLOADING.append(filename)
@@ -152,7 +215,6 @@ class Downloader(metaclass = Singleton):
         }
 
         try:
-            self._ydl.add_progress_hook(hook)
             err = await asyncRunInThreadWithReturn(self._ydl.download, [ link ])
             DOWNLOADING.remove(filename)
             return isinstance(err, int) and err == 0

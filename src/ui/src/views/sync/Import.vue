@@ -149,7 +149,9 @@ const uploadFile = async () => {
 const importGist = async () => {
     compareWith.value = await GistClient.getContent();
     other.value = "gist";
-}
+};
+
+const ws = ref(null as WebSocket | null);
 </script>
 
 <template>

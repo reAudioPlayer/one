@@ -10,6 +10,7 @@ from config.runtime import Runtime
 
 from helper.nginx import Nginx
 
+from downloader.downloader import Downloader
 from handler.download import DownloadHandler
 from handler.meta import MetaHandler
 from handler.player import PlayerHandler
@@ -141,6 +142,7 @@ class Router:
         app.router.add_get('/api/system/kill', Router._exitHandler)
         app.router.add_get('/api/system/nginx/restart', Router._restartNginx)
 
+        app.router.add_get("/download/ws", Downloader().websocketEndpoint)
         app.router.add_get("/player/ws", Connection.websocketEndpoint)
         app.router.add_get('/ws', websocket.wsHandler)
 
