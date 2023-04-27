@@ -31,17 +31,17 @@ const props = defineProps({
 });
 
 const state = computed(() => {
-    if (props.diff.removed.some(x => x.id === props.song.id)) {
+    if (props.diff.removed.some(x => x.source === props.song.source)) {
         return "removed";
     }
 
-    if (props.diff.modified.some(x => x.id === props.song.id)) {
+    if (props.diff.modified.some(x => x.source === props.song.source)) {
         return "modified";
     }
 
     if (props.isBase) return "base";
 
-    if (props.diff.added.some(x => x.id === props.song.id)) {
+    if (props.diff.added.some(x => x.source === props.song.source)) {
         return "added";
     }
 
@@ -65,7 +65,7 @@ const infoToShow = [
 ];
 
 const displayKey = (key: string) => {
-    const modified = props.diff.modified.find(x => x.id === props.song.id)?.changed?.[key];
+    const modified = props.diff.modified.find(x => x.source === props.song.source)?.changed?.[key];
 
     const toOrFrom = props.isBase ? "from" : "to";
     const value = modified?.[toOrFrom] ?? props.song[key];
@@ -103,17 +103,17 @@ const displayKey = (key: string) => {
             class="material-symbols-rounded cursor-pointer"
             @click="toggleExpanded"
         >
-            {{ expanded?.id == song.id ? "expand_less" : "expand_more" }}
+            {{ expanded?.source == song.source ? "expand_less" : "expand_more" }}
         </span>
         <div
-            v-if="expanded?.id == song.id"
+            v-if="expanded?.source == song.source"
             class="info"
         >
             <div
                 v-for="key in infoToShow"
                 :key="key"
                 :class="{
-                    'modified': diff.modified.find(x => x.id === song.id)?.changed?.[key]
+                    'modified': diff.modified.find(x => x.source === song.source)?.changed?.[key]
                 }"
                 class="info__table"
             >

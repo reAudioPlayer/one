@@ -48,7 +48,7 @@ export default {
             dlAnchorElem.click();
         },
         async upload() {
-            console.log(await GistClient.save(this.playlists));
+            console.log(await GistClient.saveOrUpdate(this.playlists));
             this.fetchGists();
         },
         async fetchGists() {
@@ -60,10 +60,14 @@ export default {
             }
             this.loadingPlaylists = true;
             this.playlists = [ ];
-            for (let id = 0; id < this.dataStore?.playlists?.length; id++) {
-                const res = await fetch(`/api/playlists/${id}`)
-                const playlist = await res.json();
-                this.playlists.push(playlist);
+            for (const availablePlaylist of this.dataStore?.playlists) {
+                try {
+                    const res = await fetch(`/api/playlists/${availablePlaylist.id}`)
+                    const playlist = await res.json();
+                    this.playlists.push(playlist);
+                } catch (e) {
+                    console.error(e);
+                }
             }
             this.loadingPlaylists = false;
         }

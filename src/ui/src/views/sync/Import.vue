@@ -4,40 +4,50 @@
   -->
 
 <script lang="ts" setup>
-import less from "../../assets/lib.one.less.json";
-import more from "../../assets/lib.one.more.json";
-import other from "../../assets/lib.one.other.json";
-import shuffled from "../../assets/lib.one.shuffled.json";
+import Loader from "@/components/Loader.vue";
+import GistClient from "../../api/gistClient";
 import { diffLib, IPlaylistDiff } from "./diff";
 import PlaylistDiff from "./PlaylistDiff.vue";
 import { IFullPlaylist, ISong } from "../../common";
-import { computed, ref, watch } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 import IconButton from "../../components/inputs/IconButton.vue";
 import { createPlaylistWithMetadata, deletePlaylist, removeSongFromPlaylist } from "../../api/playlist";
 import { addSong, updateSongProperty } from "../../api/song";
 import { useDataStore } from "../../store/data";
+import Card from "../../containers/Card.vue";
+import gistClient from "../../api/gistClient";
 
-console.log(less, more, other, shuffled);
 
+const merging = ref(false);
+const other = ref(null as "file" | "gist" | null);
 const base = ref([] as IFullPlaylist[]);
 // @ts-ignore
-const compareWith = ref(other as IFullPlaylist[]);
+const compareWith = ref([] as IFullPlaylist[]);
 
 const diff = computed(() => diffLib(base.value, compareWith.value));
 
 const dataStore = useDataStore();
 let loadingPlaylists = false;
-watch(() => dataStore.playlists, async playlists => {
+const loadBase = async () => {
+    if (merging.value) return;
     if (loadingPlaylists) return;
     loadingPlaylists = true;
-    base.value = [];
-    for (let id = 0; id < playlists?.length; id++) {
-        const res = await fetch(`/api/playlists/${id}`)
-        const playlist = await res.json();
-        base.value.push(playlist);
+    const newBase = [] as IFullPlaylist[];
+    for (const availablePlaylist of dataStore.playlists) {
+        try {
+            const res = await fetch(`/api/playlists/${availablePlaylist.id}`)
+            const playlist = await res.json();
+            newBase.push(playlist);
+        } catch (e) {
+            console.error(e);
+        }
     }
+    base.value = newBase;
     loadingPlaylists = false;
-});
+};
+
+watch(() => dataStore.playlists, loadBase);
+onMounted(loadBase);
 
 const exclude = (playlist: IFullPlaylist) => {
     // NOTE perhaps an exclude list and computed base/compareWith?
@@ -66,26 +76,29 @@ const toggleExpandedSong = (song: ISong) => {
     }
 };
 
-const merge = () => {
+const merge = async () => {
+    merging.value = true;
+    const promises = [] as Promise<any>[];
+
     const modifyPlaylist = (diff: IPlaylistDiff) => {
         for (const song of diff.added) {
-            addSong(diff.id, song);
+            promises.push(addSong(diff.id, song));
         }
 
         for (const song of diff.removed) {
-            removeSongFromPlaylist(diff.id, song.id);
+            promises.push(removeSongFromPlaylist(diff.id, song.id));
         }
 
         for (const song of diff.modified) {
             for (const key of Object.keys(song.changed)) {
-                updateSongProperty(song.id, key, song.changed[key].to);
+                promises.push(updateSongProperty(song.id, key, song.changed[key].to));
             }
         }
     };
 
     for (const playlist of diff.value.added) {
         base.value.push(playlist);
-        createPlaylistWithMetadata(playlist.name, playlist.description, playlist.cover).then(id => {
+        promises.push(createPlaylistWithMetadata(playlist.name, playlist.description, playlist.cover).then(id => {
             playlist.id = id;
             modifyPlaylist({
                 id: playlist.id,
@@ -94,7 +107,7 @@ const merge = () => {
                 removed: [],
                 modified: []
             });
-        });
+        }));
     }
 
     for (const playlist of diff.value.modified) {
@@ -102,13 +115,45 @@ const merge = () => {
     }
 
     for (const playlist of diff.value.removed) {
-        deletePlaylist(playlist.id);
+        promises.push(deletePlaylist(playlist.id));
     }
+
+    await Promise.all(promises);
+    window.setTimeout(async () => {
+        await dataStore.fetchPlaylists();
+        merging.value = false;
+        await loadBase();
+    }, 1000);
 };
+
+const gistConnected = ref(false);
+gistClient.connected().then(x => gistConnected.value = x);
+
+const uploadFile = async () => {
+    // create input element and load 
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.name = "lib.one.json";
+    input.onchange = async () => {
+        if (!input.files) return;
+        const file = input.files[0];
+        const text = await file.text();
+        const json = JSON.parse(text);
+        compareWith.value = json;
+        other.value = "file";
+    };
+    input.click();
+};
+
+const importGist = async () => {
+    compareWith.value = await GistClient.getContent();
+    other.value = "gist";
+}
 </script>
 
 <template>
-    <div class="flex flex-col gap-4 pb-4 pr-4">
+    <div class="pb-4 pr-4 flex flex-col gap-4 h-full">
         <div class="flex flex-row justify-end">
             <IconButton
                 icon="merge"
@@ -116,55 +161,83 @@ const merge = () => {
                 @click="merge"
             />
         </div>
-        <div class="grid grid-cols-2 gap-4">
-            <h1>Base</h1>
-            <h1>Incoming</h1>
-        </div>
-        <div
-            v-for="playlist in base"
-            :key="playlist.name"
-            class="grid grid-cols-2 gap-4"
+        <template
+            v-if="other"
         >
-            <PlaylistDiff
-                v-if="base.some(x => x.name === playlist.name)"
-                :diff="diff"
-                :expanded="expanded?.name === playlist.name"
-                :expanded-song="expandedSong"
-                :playlist="playlist"
-                class="grid-1"
-                is-base
-                @exclude="exclude"
-                @toggle-expanded="toggleExpanded"
-                @toggle-expanded-song="toggleExpandedSong"
-            />
-            <PlaylistDiff
-                v-if="compareWith.some(x => x.name === playlist.name)"
-                :diff="diff"
-                :expanded="expanded?.name === playlist.name"
-                :expanded-song="expandedSong"
-                :playlist="compareWith.find(x => x.name === playlist.name)"
-                class="grid-2"
-                @exclude="exclude"
-                @toggle-expanded="toggleExpanded"
-                @toggle-expanded-song="toggleExpandedSong"
-            />
-        </div>
+            <template
+                v-if="!merging"
+            >
+                <div class="grid grid-cols-2 gap-4">
+                    <h1>Local</h1>
+                    <h1>Incoming</h1>
+                </div>
+                <div
+                    v-for="playlist in base"
+                    :key="playlist.name"
+                    class="grid grid-cols-2 gap-4"
+                >
+                    <PlaylistDiff
+                        v-if="base.some(x => x.name === playlist.name)"
+                        :diff="diff"
+                        :expanded="expanded?.name === playlist.name"
+                        :expanded-song="expandedSong"
+                        :playlist="playlist"
+                        class="grid-1"
+                        is-base
+                        @exclude="exclude"
+                        @toggle-expanded="toggleExpanded"
+                        @toggle-expanded-song="toggleExpandedSong"
+                    />
+                    <PlaylistDiff
+                        v-if="compareWith.some(x => x.name === playlist.name)"
+                        :diff="diff"
+                        :expanded="expanded?.name === playlist.name"
+                        :expanded-song="expandedSong"
+                        :playlist="compareWith.find(x => x.name === playlist.name)"
+                        class="grid-2"
+                        @exclude="exclude"
+                        @toggle-expanded="toggleExpanded"
+                        @toggle-expanded-song="toggleExpandedSong"
+                    />
+                </div>
+                <div
+                    v-for="playlist in diff.added"
+                    :key="playlist.name"
+                    class="grid grid-cols-2 gap-4"
+                >
+                    <PlaylistDiff
+                        v-if="compareWith.some(x => x.name === playlist.name)"
+                        :diff="diff"
+                        :expanded="expanded?.name === playlist.name"
+                        :expanded-song="expandedSong"
+                        :playlist="playlist"
+                        class="grid-2"
+                        @exclude="exclude"
+                        @toggle-expanded="toggleExpanded"
+                        @toggle-expanded-song="toggleExpandedSong"
+                    />
+                </div>
+            </template>
+            <div class="fill-page" v-else>
+                <Loader />
+            </div>
+        </template>
         <div
-            v-for="playlist in diff.added"
-            :key="playlist.name"
-            class="grid grid-cols-2 gap-4"
+            v-else
+            class="fill-page !grid !grid-cols-2 gap-4"
         >
-            <PlaylistDiff
-                v-if="compareWith.some(x => x.name === playlist.name)"
-                :diff="diff"
-                :expanded="expanded?.name === playlist.name"
-                :expanded-song="expandedSong"
-                :playlist="playlist"
-                class="grid-2"
-                @exclude="exclude"
-                @toggle-expanded="toggleExpanded"
-                @toggle-expanded-song="toggleExpandedSong"
-            />
+            <Card with-hover class="cursor-pointer" @click="uploadFile">
+                <h2>
+                    <span class="material-symbols-rounded">file_upload</span>
+                    From File
+                </h2>
+            </Card>
+            <Card :disabled="!gistConnected" with-hover class="cursor-pointer" @click="importGist">
+                <h2>
+                    <span class="material-symbols-rounded">cloud_download</span>
+                    GitHub Gist
+                </h2>
+            </Card>
         </div>
     </div>
 </template>
@@ -176,5 +249,16 @@ const merge = () => {
 
 .grid-2 {
     grid-column: 2;
+}
+
+h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5em;
+
+    .material-symbols-rounded {
+        font-size: 2rem;
+    }
 }
 </style>

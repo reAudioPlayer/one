@@ -107,7 +107,7 @@ const getPlaylistDiff = (playlist: IFullPlaylist): IPlaylistDiff => {
         >
             <SongDiff
                 v-for="song in playlist.songs"
-                :key="song.id"
+                :key="song.source"
                 :diff="getPlaylistDiff(playlist)"
                 :expanded="expandedSong"
                 :is-base="isBase"

@@ -67,7 +67,8 @@ export const addSong = async (playlistId: number | string, song: ISong) => {
             title: song.title,
             artist: song.artist,
             album: song.album,
-            cover: song.cover
+            cover: song.cover,
+            spotify: song.metadata ? JSON.stringify(song.metadata.spotify) : ""
         })
     })
 }

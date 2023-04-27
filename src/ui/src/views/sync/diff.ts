@@ -11,7 +11,7 @@ export interface IChangedProperty<E> {
 }
 
 export interface ISongDiff {
-    id: number;
+    source: string;
     changed: {
         title?: IChangedProperty<string>;
         artist?: IChangedProperty<string>;
@@ -20,15 +20,16 @@ export interface ISongDiff {
         cover?: IChangedProperty<string>;
         favorite?: IChangedProperty<boolean>;
         metadata?: IChangedProperty<IMetadata>;
-    }
+    };
+    id?: number;
 }
 
 export interface IPlaylistDiff {
-    id?: number;
     name: string;
     added: ISong[];
     removed: ISong[];
     modified: ISongDiff[];
+    id?: number;
 }
 
 export interface IDiff {
@@ -37,10 +38,15 @@ export interface IDiff {
     modified: IPlaylistDiff[];
 }
 
+/**
+ * 
+ * @param a base
+ * @param b other
+ * @returns 
+ */
 const diffSong = (a: ISong, b: ISong) => {
-    console.log("diffing", a, b);
-
     const diff: ISongDiff = {
+        source: a.source,
         id: a.id,
         changed: {},
     }
@@ -86,6 +92,10 @@ const diffSong = (a: ISong, b: ISong) => {
                     to: bMeta,
                 };
             }
+            continue;
+        }
+
+        if (key === "id") {
             continue;
         }
 
