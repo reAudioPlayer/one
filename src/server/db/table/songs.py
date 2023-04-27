@@ -279,9 +279,9 @@ class SongsTable(ITable[SongModel]):
                   cover TEXT,
                   favourite INTEGER,
                   duration INTEGER,
+                  spotify TEXT,
                   source TEXT,
-                  plays INTEGER,
-                  spotify TEXT
+                  plays INTEGER
                   """
 
     def _model(self) -> Type[SongModel]:

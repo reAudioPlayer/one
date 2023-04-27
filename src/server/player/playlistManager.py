@@ -63,6 +63,8 @@ class PlaylistManager(Logged):
                        cover: Optional[str]) -> None:
         """updates a playlist"""
         playlist = self.get(id_)
+        if not playlist:
+            return
         if name:
             playlist.name = name
         if description:
@@ -87,11 +89,15 @@ class PlaylistManager(Logged):
         await self._dbManager.playlists.insert(PlaylistModel(name))
         await self.loadPlaylists()
         playlist = self._playlists[-1]
+        assert playlist.playlistIndex is not None
         return playlist.playlistIndex
 
     async def removePlaylist(self, playlistId: int) -> bool:
         """removes a playlist"""
-        self._logger.info("removing playlist %s, %s, %s", playlistId, self.get(playlistId), bool(self.get(playlistId)))
+        self._logger.info("removing playlist %s, %s, %s",
+                          playlistId,
+                          self.get(playlistId),
+                          bool(self.get(playlistId)))
         if playlist := self.get(playlistId):
             self._playlists.remove(playlist)
             await self._dbManager.playlists.deleteById(playlistId)

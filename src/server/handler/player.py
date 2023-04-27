@@ -127,7 +127,7 @@ class PlayerHandler:
         return web.Response()
 
     async def updateSong(self, request: web.Request) -> web.Response:
-        """post(/api/tracks/{id})"""
+        """put(/api/tracks/{id})"""
         id_ = int(request.match_info['id'])
         jdata = JDict(await request.json())
         song = await self._dbManager.songs.byId(id_)
@@ -141,6 +141,7 @@ class PlayerHandler:
         song.duration = jdata.ensureCast("duration", int, song.duration)
         song.favourite = jdata.ensure("favourite", bool, song.favourite)
         song.source = jdata.ensure("source", str, song.source)
+        song.spotify = jdata.ensure("spotify", str, song.spotify)
         return web.Response(status = 200)
 
     async def postShuffle(self, request: web.Request) -> web.Response:

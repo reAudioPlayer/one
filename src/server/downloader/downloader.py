@@ -5,9 +5,10 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 import asyncio
 from os import path
 import os
-from typing import Optional
+from typing import Any, Dict, Optional
 import logging
 import shutil
+from queue import Queue
 
 import aiohttp
 import eyed3 # type: ignore
@@ -25,9 +26,27 @@ from dataModel.song import Song
 DOWNLOADING = [ ]
 
 
+class DownloadStatus:
+    """download status"""
+    __slots__ = ("_total", "_downloaded", "_percent", "_speed", "_elapsed",
+                 "_songId", "_eta", "_status")
+
+    def __init__(self, data: Dict[str, Any]) -> None:
+        self._total = data['total_bytes']
+        self._downloaded = data['downloaded_bytes']
+        self._percent = self._downloaded / self._total * 100
+        self._speed = data['_speed_str'].strip()
+        self._elapsed = data['_elapsed_str'].strip()
+        filename = data['filename']
+        # './_cache/159.dl.mp3' -> 159
+        self._songId = int(filename.split("/")[-1].split(".")[0])
+        self._eta = data['eta']
+        self._status = data['status']
+
+
 class Downloader(metaclass = Singleton):
     """downloader"""
-    __slots__ = ("_opts", "_ydl", "_logger")
+    __slots__ = ("_opts", "_ydl", "_statusQueue", "_logger")
 
     def __init__(self) -> None:
         self._opts = {
@@ -40,6 +59,7 @@ class Downloader(metaclass = Singleton):
         }
         self._ydl = YoutubeDL(self._opts)
         self._logger = logging.getLogger("downloader")
+        self._statusQueue: Queue[DownloadStatus] = Queue()
 
     async def _getCover(self, song: SongModel) -> bytes:
         async with aiohttp.ClientSession() as session:
@@ -120,13 +140,19 @@ class Downloader(metaclass = Singleton):
         if not isLink:
             return False
 
+        def hook(data: Dict[str, Any]) -> None:
+            self._statusQueue.put(DownloadStatus(data))
+
         # download
         DOWNLOADING.append(filename)
         self._ydl.params["outtmpl"] = {
             "default": relName,
+            "noplaylist": True,
+            "quiet": True
         }
 
         try:
+            self._ydl.add_progress_hook(hook)
             err = await asyncRunInThreadWithReturn(self._ydl.download, [ link ])
             DOWNLOADING.remove(filename)
             return isinstance(err, int) and err == 0
