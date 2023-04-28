@@ -123,6 +123,13 @@ const routes = [{
         }
     },
     {
+        path: '/download',
+        component: () => import("@/views/Downloader/index.vue"),
+        meta: {
+            title: "Download - reAudioPlayer One"
+        }
+    },
+    {
         path: '/welcome',
         component: () => import("@/views/Welcome.vue"),
         meta: {

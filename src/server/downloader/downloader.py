@@ -10,6 +10,7 @@ import logging
 import shutil
 from queue import Queue, Empty
 
+from pyaddict import JDict
 import aiohttp
 from aiohttp import web
 import eyed3 # type: ignore
@@ -30,39 +31,34 @@ DOWNLOADING = [ ]
 class DownloadStatus:
     """download status"""
     __slots__ = ("_total", "_downloaded", "_percent", "_speed", "_elapsed",
-                 "_songId", "_eta", "_status")
+                 "_songId", "_eta", "_status", "_filename", "_chunk")
 
     def __init__(self, data: Dict[str, Any]) -> None:
-        self._status = data['status']
-        self._total = 0
-        self._downloaded = 0
-        self._percent = 0
-        self._speed = "0"
-        self._elapsed = "0"
-        self._eta = "0"
-        filename = data['filename']
+        dex = JDict(data)
+        self._status = dex.ensure("status", str)
+        self._downloaded = dex.ensure("downloaded_bytes", int, 0)
+        self._total = dex.ensure("total_bytes", int, self._downloaded)
+        self._percent = float(
+            dex.ensure("_percent_str", str, "0%").replace("%", "").replace(" ", "")
+        )
+        self._speed = dex.ensure("_speed_str", str, "0")
+        self._elapsed = dex.ensure("_elapsed_str", str, "0")
+        self._eta = dex.ensure("eta", int, 0)
+        self._filename = dex.ensure("filename", str, "")
         # './_cache/159.dl.mp3' -> 159
         # consider chunks!
-        self._songId = int(filename.split("/")[-1].split(".")[0])
 
-        if self._status == "downloading":
-            self._total = data['total_bytes']
-            self._downloaded = data['downloaded_bytes']
-            self._percent = self._downloaded / self._total * 100
-            self._speed = data['_speed_str'].strip()
-            self._elapsed = data['_elapsed_str'].strip()
-            self._eta = data['eta']
+        nameNoPath = self._filename.split("/")[-1]
+        self._songId = int(nameNoPath.split(".")[0])
+        self._chunk: Optional[str] = None
+        if len(nameNoPath.split(".")) > 3:
+            self._chunk = nameNoPath.split(".")[2]
 
     def toDict(self) -> Dict[str, Any]:
         """to dict"""
-        if self._status == "finished":
-            return {
-                "songId": self._songId,
-                "status": self._status
-            }
-
         return {
             "songId": self._songId,
+            "filename": self._filename,
             "status": self._status,
             "total": self._total,
             "downloaded": self._downloaded,
@@ -70,6 +66,7 @@ class DownloadStatus:
             "speed": self._speed,
             "elapsed": self._elapsed,
             "eta": self._eta,
+            "chunk": self._chunk
         }
 
 
@@ -92,7 +89,7 @@ class Downloader(metaclass = Singleton):
         self._logger = logging.getLogger("downloader")
         self._statusQueue: Queue[DownloadStatus] = Queue()
         self._websocketClients: set[web.WebSocketResponse] = set()
-        self._downloadStatusTask: Optional[asyncio.Task] = None
+        self._downloadStatusTask: Optional[asyncio.Task[None]] = None
 
     async def _downloadStatusLoop(self) -> None:
         while True:
@@ -210,15 +207,15 @@ class Downloader(metaclass = Singleton):
         DOWNLOADING.append(filename)
         self._ydl.params["outtmpl"] = {
             "default": relName,
-            "noplaylist": True,
-            "quiet": True
+            "noplaylist": True
         }
 
         try:
             err = await asyncRunInThreadWithReturn(self._ydl.download, [ link ])
             DOWNLOADING.remove(filename)
             return isinstance(err, int) and err == 0
-        except: # pylint: disable=bare-except
+        except Exception as err: # pylint: disable=broad-except
+            self._logger.exception(err)
             self._logger.error("%s could not be downloaded (%s / %s)", filename, relName.replace("%(ext)s", "mp3"), link) # pylint: disable=line-too-long
             DOWNLOADING.remove(filename)
             return path.exists(relName.replace("%(ext)s", "mp3"))
