@@ -19,12 +19,16 @@ const emit = defineEmits(["remove"]);
 
 const no = () => {
     emit("remove", props.notification.id);
-    props.notification.onNo();
+    if (props.notification.onNo) {
+        props.notification.onNo();
+    }
 }
 
 const yes = () => {
     emit("remove", props.notification.id);
-    props.notification.onYes();
+    if (props.notification.onYes) {
+        props.notification.onYes();
+    }
 }
 </script>
 

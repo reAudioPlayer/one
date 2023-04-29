@@ -25,15 +25,15 @@ class DownloadHandler:
     async def downloadTrack(self, request: web.Request) -> web.Response:
         """get(/api/tracks/{id}/download)"""
         id_ = int(request.match_info['id'])
-        song = await self._dbManager.songs.byId(id_)
+        song = self._downloader.getSongById(id_)
 
         if not song:
-            return web.HTTPNotFound(text = "song not found")
+            return web.HTTPExpectationFailed(text = "not downloaded")
 
         pathAndName = f"./_cache/{song.id}.dl.mp3"
 
-        if not await self._downloader.downloadSong(song, True, True):
-            return web.HTTPExpectationFailed(text = "not downloadable")
+        if not self._downloader.pop(id_):
+            return web.HTTPExpectationFailed(text = "not downloaded")
 
         filename = f"{song.artist} - {song.name}".replace(",", "%2C") # header
 

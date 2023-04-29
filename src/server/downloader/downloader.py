@@ -5,7 +5,7 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 import asyncio
 from os import path
 import os
-from typing import Any, Dict, Optional
+from typing import List, Any, Dict, Optional
 import logging
 import shutil
 from queue import Queue, Empty
@@ -21,6 +21,7 @@ from yt_dlp import YoutubeDL # type: ignore
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.singleton import Singleton
 from config.customData import LocalTrack
+from db.database import Database
 from db.table.songs import SongModel
 from dataModel.song import Song
 
@@ -54,9 +55,9 @@ class DownloadStatus:
         if len(nameNoPath.split(".")) > 3:
             self._chunk = nameNoPath.split(".")[2]
 
-    def toDict(self) -> Dict[str, Any]:
+    def toDict(self, downloaded: Dict[int, SongModel]) -> Dict[str, Any]:
         """to dict"""
-        return {
+        res = {
             "songId": self._songId,
             "filename": self._filename,
             "status": self._status,
@@ -68,12 +69,15 @@ class DownloadStatus:
             "eta": self._eta,
             "chunk": self._chunk
         }
+        if self._songId in downloaded:
+            res["song"] = downloaded[self._songId].toDict()
+        return res
 
 
 class Downloader(metaclass = Singleton):
     """downloader"""
     __slots__ = ("_opts", "_ydl", "_statusQueue", "_logger", "_websocketClients",
-                 "_downloadStatusTask")
+                 "_downloadStatusTask", "_db", "_downloaded")
 
     def __init__(self) -> None:
         self._opts = {
@@ -90,13 +94,15 @@ class Downloader(metaclass = Singleton):
         self._statusQueue: Queue[DownloadStatus] = Queue()
         self._websocketClients: set[web.WebSocketResponse] = set()
         self._downloadStatusTask: Optional[asyncio.Task[None]] = None
+        self._db = Database()
+        self._downloaded: Dict[int, SongModel] = { }
 
     async def _downloadStatusLoop(self) -> None:
         while True:
             try:
                 status = self._statusQueue.get(False)
                 for client in self._websocketClients:
-                    await client.send_json(status.toDict())
+                    await client.send_json(status.toDict(self._downloaded))
                 self._statusQueue.task_done()
             except Empty:
                 pass
@@ -107,10 +113,34 @@ class Downloader(metaclass = Singleton):
         ws = web.WebSocketResponse(heartbeat = 10)
         await ws.prepare(request)
         self._websocketClients.add(ws)
+
+        async def _handleMessage(data: JDict) -> Optional[Dict[str, Any]]:
+            if data.ensure("action", str) == "download":
+                if data.ensure("source", str) == "db":
+                    songId = data.ensure("songId", int, -1)
+                    song = await self._db.songs.byId(songId)
+                    if not song:
+                        return {
+                            "action": "download",
+                            "status": "error",
+                            "message": "song not found"
+                        }
+                else:
+                    song = Song.fromDict(data).model
+                asyncio.create_task(self.downloadSong(song, True, True))
+                return {
+                    "action": "download",
+                    "status": "ok"
+                }
+
         async for message in ws:
             if message.type == web.WSMsgType.TEXT:
                 if message.data == "close":
                     await ws.close()
+                jdata = JDict(message.json())
+                response = await _handleMessage(jdata)
+                if response:
+                    await ws.send_json(response)
             elif message.type == web.WSMsgType.ERROR:
                 self._logger.error("ws connection closed with exception %s",
                                    ws.exception())
@@ -149,6 +179,7 @@ class Downloader(metaclass = Singleton):
                            withMetadata: bool = False) -> bool:
         """downloads a song"""
         filename = Song(song).downloadPath(forExport)
+        self._downloaded[song.id] = song
         result = await self.download(song.source, filename)
         if not result:
             return False
@@ -157,14 +188,40 @@ class Downloader(metaclass = Singleton):
         return True
 
     def _hook(self, data: Dict[str, Any]) -> None:
+        self._logger.debug("hook: %s", data)
         self._statusQueue.put(DownloadStatus(data))
+
+    def _emulateHook(self,
+                     status: str,
+                     filename: str) -> None:
+        self._hook({
+            "status": status,
+            "filename": filename
+        })
+
+    def getSongById(self, songId: int) -> Optional[SongModel]:
+        """gets a song by id"""
+        return self._downloaded.get(songId)
+
+    def pop(self, songId: int) -> bool:
+        """checks if a song is ready"""
+        if songId not in self._downloaded:
+            return False
+        if not path.exists(f"./_cache/{songId}.dl.mp3"):
+            return False
+        self._downloaded.pop(songId)
+        return True
 
     async def download(self, link: Optional[str], filename: str) -> bool:
         """downloads a song from a link (low level)"""
 
+        if self._downloadStatusTask is None:
+            self._downloadStatusTask = asyncio.create_task(self._downloadStatusLoop())
+
         self._logger.info("downloading %s (%s)", link, filename)
 
         if link is None:
+            self._logger.warning("link is None")
             return False
 
         # relative dest path
@@ -180,6 +237,7 @@ class Downloader(metaclass = Singleton):
         if filename in DOWNLOADING:
             while filename in DOWNLOADING:
                 await asyncio.sleep(1)
+            self._logger.debug("already downloading %s", filename)
             return path.exists(dest)
 
         if link.startswith("local:"):
@@ -190,18 +248,19 @@ class Downloader(metaclass = Singleton):
         if path.exists(link):
             self._logger.debug("copying %s to %s", link, dest)
             shutil.copy(os.path.normpath(link), os.path.normpath(relName.replace("%(ext)s", "mp3")))
+            self._emulateHook("finished", filename)
             return True
 
         # already at dest
         if path.exists(dest):
+            self._logger.debug("already at dest %s", dest)
+            self._emulateHook("finished", filename)
             return True
 
         # copy failed, can't download
         if not isLink:
+            self._logger.error("can't download %s", link)
             return False
-
-        if self._downloadStatusTask is None:
-            self._downloadStatusTask = asyncio.create_task(self._downloadStatusLoop())
 
         # download
         DOWNLOADING.append(filename)
@@ -215,6 +274,7 @@ class Downloader(metaclass = Singleton):
             DOWNLOADING.remove(filename)
             return isinstance(err, int) and err == 0
         except Exception as err: # pylint: disable=broad-except
+            self._emulateHook("error", filename)
             self._logger.exception(err)
             self._logger.error("%s could not be downloaded (%s / %s)", filename, relName.replace("%(ext)s", "mp3"), link) # pylint: disable=line-too-long
             DOWNLOADING.remove(filename)

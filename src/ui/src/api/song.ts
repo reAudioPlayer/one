@@ -116,7 +116,7 @@ export const saveDuration = async(songId: number, duration: number) => {
  * downloads a song
  * @param songId the id of the song to download, not the hash
  */
-export const downloadSong = async (songId: number) => {
+export const downloadSong = (songId: number) => {
     window.open(`/api/tracks/${songId}/download`)
 }
 
