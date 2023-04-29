@@ -5,7 +5,7 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 import asyncio
 from os import path
 import os
-from typing import List, Any, Dict, Optional
+from typing import Any, Dict, Optional
 import logging
 import shutil
 from queue import Queue, Empty
@@ -123,15 +123,23 @@ class Downloader(metaclass = Singleton):
                         return {
                             "action": "download",
                             "status": "error",
-                            "message": "song not found"
+                            "message": "song not found",
+                            "songId": songId
                         }
                 else:
                     song = Song.fromDict(data).model
+                    self._logger.info("download custom song %s", song)
                 asyncio.create_task(self.downloadSong(song, True, True))
                 return {
                     "action": "download",
-                    "status": "ok"
+                    "status": "ok",
+                    "songId": song.id
                 }
+            return {
+                "action": data.optionalGet("action", str),
+                "status": "error",
+                "message": "unknown action"
+            }
 
         async for message in ws:
             if message.type == web.WSMsgType.TEXT:
@@ -185,10 +193,12 @@ class Downloader(metaclass = Singleton):
             return False
         if withMetadata:
             await self._applyMetadata(filename, song)
+        self._emulateHook("finished", filename)
         return True
 
     def _hook(self, data: Dict[str, Any]) -> None:
-        self._logger.debug("hook: %s", data)
+        if not data.get("emulated") and data["status"] != "downloading":
+            return
         self._statusQueue.put(DownloadStatus(data))
 
     def _emulateHook(self,
@@ -196,7 +206,8 @@ class Downloader(metaclass = Singleton):
                      filename: str) -> None:
         self._hook({
             "status": status,
-            "filename": filename
+            "filename": filename,
+            "emulated": True
         })
 
     def getSongById(self, songId: int) -> Optional[SongModel]:
