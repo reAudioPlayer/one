@@ -5,8 +5,10 @@
 
 import {usePlayerStore} from "./player";
 import {useDataStore} from "./data";
+import {useDownloaderStore} from "./downloader";
 
 export const initialiseStores = () => {
     usePlayerStore().initialise();
     useDataStore().fetchPlaylists();
+    useDownloaderStore().initialise();
 }

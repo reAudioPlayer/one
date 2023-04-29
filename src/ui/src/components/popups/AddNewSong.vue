@@ -19,7 +19,8 @@ const song: ISong = {
     artist: "",
     album: "",
     cover: "",
-    source: ""
+    source: "",
+    href: "",
 }
 
 const upload = async (endpoint: string, file: File) => {
@@ -85,7 +86,6 @@ const options = ref([{
     }
 }]);
 
-
 const modal = ref(null);
 const form = ref(null);
 
@@ -110,7 +110,8 @@ const onSubmit = async _ => {
 }
 
 defineExpose({
-    show
+    show,
+    options
 })
 </script>
 <template>
