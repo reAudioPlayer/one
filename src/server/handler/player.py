@@ -76,10 +76,13 @@ class PlayerHandler:
             return web.Response()
 
         if type_ == "track":
-            songs = await self._dbManager.songs.select("*", f"WHERE id={id_}")
-            asyncio.create_task(self._player
-                .loadPlaylist(PlayerPlaylist(songs = Song.list(songs),
-                                             name = str(id_))))
+            assert id_ is not None
+            if not (song := await self._dbManager.songs.byId(id_)):
+                return web.HTTPNotFound(text = "song not found")
+            asyncio.create_task(
+                self._player.loadPlaylist(
+                    PlayerPlaylist(songs = Song.list([song]),
+                                   name = str(id_))))
 
         return web.Response()
 

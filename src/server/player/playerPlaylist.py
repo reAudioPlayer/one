@@ -318,4 +318,6 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         return f"(Player.PlayerPlaylist) name=[{self.name}] id=[{self._playlistIndex}]"
 
     def __bool__(self) -> bool:
-        return self.playlistIndex is not None
+        if self._name is None and self._playlistIndex is None:
+            return False
+        return True
