@@ -34,20 +34,52 @@
             </InputWithAutoComplete>
         </div>
         <div class="mr-2 flex flex-row gap-2">
-            <nav-entry href="/download" icon="download" minimised name="Preferences" />
+            <div class="download" ref="downloadIcon">
+                <nav-entry href="/download" icon="download" minimised name="Download" />
+                <Teleport
+                    to="#popup-target"
+                >
+                    <span
+                        class="download-anim absolute top-0 left-0 z-[1000] material-symbols-rounded"
+                        :style="downloadAnimationPosition"
+                        v-if="showDownloadAnim"
+                    >download</span>
+                </Teleport>
+            </div>
             <nav-entry href="/preferences" icon="settings" minimised name="Preferences" />
         </div>
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Cover from "@/components/image/Cover.vue";
 import Marquee from "@/components/Marquee.vue";
 import Logo from "/src/assets/images/logo/logo.svg";
 import NavEntry from "@/components/Sidebar/NavEntry.vue";
 import router from "@/router";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import InputWithAutoComplete from "@/components/inputs/InputWithAutoComplete.vue";
+import { useDownloaderStore } from "@/store/downloader";
+
+const downloadIcon = ref(null);
+const showDownloadAnim = ref(false);
+const downloadAnimationPosition = computed(() => {
+    if (!downloadIcon.value) return {};
+    const top = `calc(${downloadIcon.value.offsetTop}px + 10px)`;
+    const left = `calc(${downloadIcon.value.offsetLeft}px + 10px)`;
+    return {
+        top,
+        left
+    };
+});
+const downloaderStore = useDownloaderStore();
+downloaderStore.onDownload.push((songId: number) => {
+    showDownloadAnim.value = true;
+    setTimeout(() => {
+        showDownloadAnim.value = false;
+    }, 500);
+});
+
 
 const clickSuggestion = (value) => {
     router.push(value.href);
@@ -84,6 +116,23 @@ let submit = () => {
 </script>
 
 <style lang="scss" scoped>
+    .download-anim {
+        @keyframes anim {
+            /* bottom to top, fading out */
+            0% {
+                opacity: 1;
+                transform: translateY(500px);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(0%);
+            }
+        }
+
+        color: var(--fg-base-dk);
+        animation: anim .5s ease-out forwards;
+    }
+
     .suggestion {
         display: grid;
         grid-template-columns: 48px 1fr;

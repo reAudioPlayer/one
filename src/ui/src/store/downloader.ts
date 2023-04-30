@@ -33,6 +33,7 @@ export const useDownloaderStore = defineStore({
     state: () => ({
         ws: null as WebSocket | null,
         states: {} as States,
+        onDownload: [] as ((songId: number) => void)[],
     }),
     getters: {
         empty() {
@@ -40,6 +41,9 @@ export const useDownloaderStore = defineStore({
         },
     },
     actions: {
+        _fireDownload(songId: number) {
+            this.onDownload.forEach(cb => cb(songId));
+        },
         initialise() {
             const connect = () => {
                 console.log("[downloader] attempting reconnect")
@@ -92,6 +96,7 @@ export const useDownloaderStore = defineStore({
                 songId,
                 status: "pending",
             }
+            this._fireDownload(songId);
         },
         downloadOther(song: ISong) {
             this.send({
@@ -103,9 +108,10 @@ export const useDownloaderStore = defineStore({
                 songId: song.id,
                 status: "pending",
             }
+            this._fireDownload(song.id);
         },
         download(songId) {
-            window.open(`/api/tracks/${songId}/download`);
+            window.open(`/api/tracks/${songId}/download`, "_blank", "noopener noreferrer");
             this.states[songId].status = "downloaded";
         }
     }
