@@ -49,10 +49,9 @@ const props = defineProps({
 })
 
 const value = ref(props.modelValue);
-
 watch(() => props.modelValue, (nValue) => {
     value.value = nValue
-})
+});
 
 const emits = defineEmits(['update:modelValue', 'change', 'submit']);
 

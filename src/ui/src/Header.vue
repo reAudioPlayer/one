@@ -14,7 +14,6 @@
                 icon="search"
                 placeholder="Search..."
                 @submit="submit"
-                @change="searchInput"
                 :clickSuggest="clickSuggestion"
                 :suggest="suggest"
             >
@@ -52,14 +51,15 @@
 </template>
 
 <script setup lang="ts">
+/// <reference types="vite-svg-loader" />
 import Cover from "@/components/image/Cover.vue";
 import Marquee from "@/components/Marquee.vue";
-import Logo from "/src/assets/images/logo/logo.svg";
+import Logo from "./assets/images/logo/logo.svg?component";
 import NavEntry from "@/components/Sidebar/NavEntry.vue";
-import router from "@/router";
+import router from "./router";
 import { onMounted, ref, computed } from "vue";
 import InputWithAutoComplete from "@/components/inputs/InputWithAutoComplete.vue";
-import { useDownloaderStore } from "@/store/downloader";
+import { useDownloaderStore } from "./store/downloader";
 
 const downloadIcon = ref(null);
 const showDownloadAnim = ref(false);

@@ -8,7 +8,7 @@
         ref="inputElement"
     >
         <TextInputWithIcon
-            v-model="modelValue"
+            v-model="value"
             class="md:!w-96"
             :icon="icon"
             :placeholder="placeholder"
@@ -78,6 +78,7 @@ const onKeyUp = e => {
 document.addEventListener('click', e => {
     if (!inputElement.value?.contains(e.target as Node)) {
         suggestions.value = [];
+        selectedAutoCompleteItem.value = -1;
     }
 });
 
@@ -99,6 +100,11 @@ const props = defineProps({
     },
 });
 
+const value = ref(props.modelValue);
+watch(() => props.modelValue, (nValue) => {
+    value.value = nValue
+});
+
 const inputElement = ref<HTMLInputElement | null>(null);
 const suggestOffset = computed(() => ({
     top: inputElement.value.offsetTop + inputElement.value.offsetHeight + 'px',
@@ -106,16 +112,10 @@ const suggestOffset = computed(() => ({
     width: inputElement.value?.offsetWidth + 'px',
 }));
 
-const value = ref(props.modelValue);
 const suggestions = ref<string[]>([]);
 const onInput = debounce(async () => {
     suggestions.value = (await props.suggest(value.value)).slice(0, 5);
 }, 300);
-
-
-watch(() => props.modelValue, (nValue) => {
-    value.value = nValue
-});
 
 const emits = defineEmits(['update:modelValue', 'change', 'submit']);
 
