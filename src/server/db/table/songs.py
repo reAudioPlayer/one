@@ -6,13 +6,15 @@ __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 from typing import Type, Tuple, Optional, Union, List, Any, Dict
 from hashids import Hashids # type: ignore
 import aiosqlite
+from Levenshtein import distance as lev
+from dataModel.track import ITrack
 from db.table.table import ITable, IModel
 
 
 hashids = Hashids(salt="reapOne.track", min_length=22)
 
 
-class SongModel(IModel):
+class SongModel(IModel, ITrack):
     """song model"""
     __slots__ = ("_id",
                  "_name",
@@ -125,6 +127,11 @@ class SongModel(IModel):
         """return id"""
         assert self._id is not None
         return self._id
+
+    @property
+    def title(self) -> str:
+        """return title"""
+        return self._name
 
     @property
     def name(self) -> str:
@@ -297,6 +304,31 @@ class SongsTable(ITable[SongModel]):
         where = f"id IN ({', '.join([ str(x) for x in ids ])})"
         return await self.select(append = f"WHERE {where}")
 
+    def _sortByRelevance(self, query: str, songs: List[SongModel]) -> List[SongModel]:
+        """sort songs by relevance"""
+        class SongRelevance:
+            song: SongModel
+            minScore: int
+            avgScore: float
+
+        def relevance(song: SongModel) -> int:
+            """get relevance of song"""
+            rel = SongRelevance()
+            rel.song = song
+            distances = [ ]
+            # break by spaces, compare each word
+            for iter in [ song.title, song.album, song.artist ]:
+                words = iter.split(" ")
+                for word in words:
+                    queryWords = query.split(" ")
+                    for queryWord in queryWords:
+                        distances.append(lev(word, queryWord))
+            rel.minScore = min(distances)
+            rel.avgScore = sum(distances) / len(distances)
+            return rel.minScore
+
+        return sorted(songs, key = relevance)
+
     async def search(self, query: str) -> List[SongModel]:
         """get songs by (non-sql) query (for the search function)"""
 
@@ -314,7 +346,8 @@ class SongsTable(ITable[SongModel]):
             else:
                 ands.append(f"{tagAndQuery[0]} LIKE '%{tagAndQuery[1]}%'")
         filter_ = " AND ".join(ands)
-        return await self.select(append = f"WHERE {filter_}")
+        songs = await self.select(append = f"WHERE {filter_}")
+        return self._sortByRelevance(query, songs)
 
     async def byArtist(self, artist: str) -> List[SongModel]:
         """get songs by artist"""

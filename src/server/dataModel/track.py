@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from meta.spotify import Spotify, SpotifyResult
 
 
-class ITrack(ABC):
+class ISimpleTrack(ABC):
     """track model"""
     @property
     @abstractmethod
@@ -36,6 +36,8 @@ class ITrack(ABC):
     def artist(self) -> str:
         """return artist (formatted artists)"""
 
+
+class ITrack(ISimpleTrack):
     @property
     @abstractmethod
     def artists(self) -> List[str]:
