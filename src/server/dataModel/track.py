@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class ISimpleTrack(ABC):
-    """track model"""
+    """very simple track model"""
     @property
     @abstractmethod
     def title(self) -> str:
@@ -38,6 +38,7 @@ class ISimpleTrack(ABC):
 
 
 class ITrack(ISimpleTrack):
+    """track model"""
     @property
     @abstractmethod
     def artists(self) -> List[str]:
