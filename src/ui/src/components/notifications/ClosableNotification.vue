@@ -53,6 +53,7 @@ const remove = (id: string) => {
     align-items: center;
     justify-content: space-between;
     color: white;
+    filter: var(--drop-shadow);
 
     &.success {
         background-color: var(--success);

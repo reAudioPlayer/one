@@ -86,11 +86,11 @@ export default {
 
 <style lang="scss" scoped>
 .item {
-    &:not(:first-child) {
-        border-top: 5px solid var(--font-darker);
-    }
-
     height: 40vh;
+    color: white;
+    :hover {
+        color: white;
+    }
 
     .info {
         width: calc(100% - 40px - 64px);

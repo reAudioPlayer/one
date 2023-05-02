@@ -7,6 +7,7 @@ import { Notifications } from "../components/notifications/createNotification";
 
 export const isFirstRun = async (): Promise<boolean> => {
     const res = await fetch("/api/config/first-time")
+    Notifications.addYesNo("qweqweqw")
     return await res.json();
 }
 
