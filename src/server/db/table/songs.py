@@ -309,23 +309,38 @@ class SongsTable(ITable[SongModel]):
         class SongRelevance:
             song: SongModel
             minScore: int
+            minKeyScore: int
             avgScore: float
+
+            @property
+            def score(self) -> float:
+                """return score"""
+                minWeight = 2
+                minKeyWeight = 1.2
+                avgWeight = 0.7
+                return (self.minScore * minWeight) + \
+                       (self.minKeyScore * minKeyWeight) + \
+                       (self.avgScore * avgWeight)
 
         def relevance(song: SongModel) -> int:
             """get relevance of song"""
             rel = SongRelevance()
             rel.song = song
             distances = [ ]
+            keyDistances = [ ]
             # break by spaces, compare each word
             for iter in [ song.title, song.album, song.artist ]:
                 words = iter.split(" ")
                 for word in words:
                     queryWords = query.split(" ")
                     for queryWord in queryWords:
+                        keyDistances.append(lev(iter, queryWord))
                         distances.append(lev(word, queryWord))
             rel.minScore = min(distances)
+            rel.minKeyScore = min(keyDistances)
             rel.avgScore = sum(distances) / len(distances)
-            return rel.minScore
+
+            return rel.score
 
         return sorted(songs, key = relevance)
 
