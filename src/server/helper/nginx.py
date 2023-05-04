@@ -52,3 +52,10 @@ class Nginx:
                        stderr=subprocess.PIPE,
                        check = True)
         Nginx._logger.info("nginx stopped")
+
+    @classmethod
+    @_requiresDocker
+    def restart(cls) -> None:
+        """Restarts the nginx server"""
+        cls.stop()
+        cls.init()

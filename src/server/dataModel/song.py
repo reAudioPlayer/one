@@ -104,7 +104,9 @@ class Song:
         favourite = dex.ensure("favourite", bool)
         duration = _castDuration(dex.get("duration"))
         source = dex.ensure("source", str)
-        model = SongModel(name, artist, album, cover, favourite, duration, "", source, 0)
+        spotify = dex.ensure("spotify", str)
+        id_ = dex.optionalGet("id", int)
+        model = SongModel(name, artist, album, cover, favourite, duration, spotify, source, 0, id_)
         return cls(model)
 
     @staticmethod

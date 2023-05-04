@@ -6,12 +6,14 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 from random import randint
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
 import asyncio
+from hashids import Hashids # type: ignore
 from dataModel.playlist import Playlist
 from dataModel.song import Song
 from db.database import Database
 from db.table.songs import SongModel
 
 
+hashids = Hashids(salt="reapOne.playlist", min_length=22)
 T = TypeVar('T') # pylint: disable=invalid-name
 
 
@@ -30,7 +32,7 @@ class OrderedUniqueList(List[T]):
     def changeIndex(self, old: int, new: int) -> None:
         """swaps two elements"""
         elem = self[old]
-        self.remove(self[old])
+        self.remove(elem)
         self.insert(new, elem)
 
 
@@ -137,14 +139,6 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
         self._loaded = True
 
     @property
-    def valid(self) -> bool:
-        """valid state"""
-        return len(self._playlist) > 0
-
-    def __bool__(self) -> bool:
-        return self.valid
-
-    @property
     def cursor(self) -> int:
         """current cursor"""
         return self._cursor
@@ -230,6 +224,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
     def move(self, songIndex: int, newSongIndex: int) -> None:
         """moves a song in this playlist"""
         self._playlist.changeIndex(songIndex, newSongIndex)
+        if self._dataPlaylist:
+            self._dataPlaylist.swap(songIndex, newSongIndex)
         assert self._playlistIndex is not None
         if self._cursor == songIndex:
             self._cursor = newSongIndex
@@ -275,11 +271,23 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
             self._dataPlaylist.model.cover = value
 
     @property
+    def id(self) -> int:
+        """playlist id"""
+        if self._dataPlaylist:
+            return self._dataPlaylist.model.id
+        return 0
+
+    @property
     def _plays(self) -> int:
         """number of times this playlist has been played"""
         if self._dataPlaylist:
             return self._dataPlaylist.model.plays
         return 0
+
+    @property
+    def url(self) -> str:
+        """return url"""
+        return f"/playlist/{hashids.encode(self._playlistIndex)}"
 
     def toDict(self) -> Dict[str, Any]:
         """serialise"""
@@ -290,6 +298,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
             "cover": self.cover,
             "songs": list(map(lambda x: x.toDict(), self._playlist)),
             "plays": self._plays,
+            "id": self._playlistIndex,
+            "href": self.url
         }
 
     def byId(self, id_: int) -> List[Song]:
@@ -306,3 +316,8 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
 
     def __repr__(self) -> str:
         return f"(Player.PlayerPlaylist) name=[{self.name}] id=[{self._playlistIndex}]"
+
+    def __bool__(self) -> bool:
+        if self._name is None and self._playlistIndex is None:
+            return False
+        return True

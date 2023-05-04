@@ -8,6 +8,7 @@ import signal
 import mimetypes
 import asyncio
 
+import uvloop
 from aiohttp import web
 from aiohttp_index import IndexMiddleware # type: ignore
 import aiohttp_cors # type: ignore
@@ -102,9 +103,9 @@ async def main() -> None:
     Runtime.setEventLoop(asyncio.get_event_loop())
 
     app = await _init()
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, host = Runtime.args.host, port = Runtime.args.port)
+    appRunner = web.AppRunner(app)
+    await appRunner.setup()
+    site = web.TCPSite(appRunner, host = Runtime.args.host, port = Runtime.args.port)
     await site.start()
 
     logger.info("Server started at http://%s:%s", Runtime.args.host, Runtime.args.port)
@@ -136,4 +137,5 @@ def _exitHandler(sig: int, frame: Optional[object]) -> None: # pylint: disable=u
 
 signal.signal(signal.SIGTERM, _exitHandler)
 
-asyncio.run(main())
+with asyncio.Runner(loop_factory=uvloop.new_event_loop) as runner:
+    runner.run(main())

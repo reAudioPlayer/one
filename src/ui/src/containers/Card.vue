@@ -8,11 +8,15 @@ defineProps({
     withHover: {
         type: Boolean,
         default: false
+    },
+    disabled: {
+        type: Boolean,
+        default: false
     }
 })
 </script>
 <template>
-    <div :class="{ withHover }" class="card">
+    <div :class="{ withHover, disabled }" class="card">
         <slot />
     </div>
 </template>
@@ -34,6 +38,11 @@ defineProps({
 
         &.withHover:hover {
             background: var(--bg-hover-dk);
+        }
+
+        &.disabled {
+            opacity: 0.5;
+            cursor: not-allowed !important;
         }
     }
 </style>

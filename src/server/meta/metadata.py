@@ -12,9 +12,12 @@ from dataModel.track import ITrack, SoundcloudTrack, YoutubeTrack
 
 class Metadata:
     """metadata finder"""
+    __slots__ = ("_track", "_source", "_href")
+
     def __init__(self, spotify: Spotify, url: str) -> None:
         self._track: Optional[ITrack] = None
         self._source = None
+        self._href = url
         if not validators.url(url):
             return
         if "youtu" in url:
@@ -47,5 +50,6 @@ class Metadata:
             "cover": self._track.cover,
             "source": self._source,
             "preview": self._track.preview,
-            "markets": self._track.markets
+            "markets": self._track.markets,
+            "href": self._href,
         }

@@ -110,14 +110,7 @@ const routes = [{
     },
     {
         path: '/import',
-        component: () => import("@/views/Import.vue"),
-        meta: {
-            title: "Import - reAudioPlayer One"
-        }
-    },
-    {
-        path: '/import/:data',
-        component: () => import("@/views/Import.vue"),
+        component: () => import("@/views/sync/Import.vue"),
         meta: {
             title: "Import - reAudioPlayer One"
         }
@@ -130,10 +123,10 @@ const routes = [{
         }
     },
     {
-        path: '/export/:data',
-        component: () => import("@/views/Export.vue"),
+        path: '/download',
+        component: () => import("@/views/Downloader/index.vue"),
         meta: {
-            title: "Export - reAudioPlayer One"
+            title: "Download - reAudioPlayer One"
         }
     },
     {

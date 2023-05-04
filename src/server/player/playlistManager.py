@@ -2,8 +2,8 @@
 """reAudioPlayer ONE"""
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
-from typing import Any, Callable, Optional
-import asyncio
+from typing import Callable, Optional
+from helper.logged import Logged
 from dataModel.song import Song
 from db.database import Database
 from db.table.playlists import PlaylistModel
@@ -11,13 +11,14 @@ from player.playerPlaylist import PlayerPlaylist
 from player.playerPlaylist import OrderedUniqueList
 
 
-class PlaylistManager:
+class PlaylistManager(Logged):
     """manages all playlists"""
     __slots__ = ("_dbManager", "_playlists")
 
     def __init__(self) -> None:
         self._dbManager = Database()
         self._playlists: OrderedUniqueList[PlayerPlaylist] = OrderedUniqueList()
+        super().__init__(self.__class__.__name__)
 
     async def loadPlaylists(self) -> None:
         """loads all playlists"""
@@ -25,28 +26,28 @@ class PlaylistManager:
         for playlist in playlists:
             self._playlists.append(PlayerPlaylist(playlist.id))
 
-    async def addToPlaylist(self, playlistIndex: int, song: Song) -> None:
+    async def addToPlaylist(self, playlistId: int, song: Song) -> None:
         """adds a song to a playlist"""
         songsInDb = await self._dbManager.songs.select("*", f"WHERE source='{song.model.source}'")
-        await self._playlists[playlistIndex].add(song, len(songsInDb) > 0)
+        if playlist := self.get(playlistId):
+            await playlist.add(song, len(songsInDb) > 0)
 
-    def moveInPlaylist(self, playlistIndex: int, songIndex: int, newSongIndex: int) -> None:
+    def moveInPlaylist(self, playlistId: int, songIndex: int, newSongIndex: int) -> None:
         """moves a song in a playlist"""
-        self._playlists[playlistIndex].move(songIndex, newSongIndex)
+        if playlist := self.get(playlistId):
+            playlist.move(songIndex, newSongIndex)
 
-    async def removefromPlaylist(self, playlistIndex: int, songId: int) -> None:
+    async def removefromPlaylist(self, playlistId: int, songId: int) -> None:
         """removes a song from a playlist"""
-        await self._playlists[playlistIndex].remove(songId)
+        if playlist := self.get(playlistId):
+            await playlist.remove(songId)
 
-    def get(self, playlistIndex: Any) -> Optional[PlayerPlaylist]:
-        """gets a playlist at this index (if playlistIndex is an int)"""
-        if not isinstance(playlistIndex, int):
-            return None
-        return self._playlists[playlistIndex]
-
-    def ensure(self, playlistIndex: int) -> PlayerPlaylist:
+    def get(self, id_: int) -> Optional[PlayerPlaylist]:
         """gets a playlist at this index"""
-        return self._playlists[playlistIndex]
+        for playlist in self._playlists:
+            if playlist.id == id_:
+                return playlist
+        return None
 
     def updateSong(self, id_: int, updateFunction: Callable[[Song], Song]) -> None:
         """updates all songs with this id"""
@@ -61,9 +62,9 @@ class PlaylistManager:
                        description: Optional[str],
                        cover: Optional[str]) -> None:
         """updates a playlist"""
-        if id_ >= self.playlistLength:
+        playlist = self.get(id_)
+        if not playlist:
             return
-        playlist = self._playlists[id_]
         if name:
             playlist.name = name
         if description:
@@ -87,13 +88,18 @@ class PlaylistManager:
         name = name or f"My Playlist #{plId + 1}"
         await self._dbManager.playlists.insert(PlaylistModel(name))
         await self.loadPlaylists()
-        return plId
+        playlist = self._playlists[-1]
+        assert playlist.playlistIndex is not None
+        return playlist.playlistIndex
 
-    def removePlaylist(self, playlistIndex: int) -> None:
+    async def removePlaylist(self, playlistId: int) -> bool:
         """removes a playlist"""
-        if playlistIndex >= self.playlistLength:
-            return
-        playlistId = self._playlists[playlistIndex].playlistIndex
-        self._playlists.remove(self._playlists[playlistIndex])
-        assert playlistId is not None
-        asyncio.create_task(self._dbManager.playlists.deleteById(playlistId))
+        self._logger.info("removing playlist %s, %s, %s",
+                          playlistId,
+                          self.get(playlistId),
+                          bool(self.get(playlistId)))
+        if playlist := self.get(playlistId):
+            self._playlists.remove(playlist)
+            await self._dbManager.playlists.deleteById(playlistId)
+            return True
+        return False

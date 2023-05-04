@@ -98,14 +98,16 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
                            playlist: Optional[PlayerPlaylist],
                            atIndex: Optional[int] = None) -> bool:
         """loads a playlist"""
-        self._logger.debug("loadPlaylist [%s] (at %d)", playlist, atIndex)
+        self._logger.debug("loadPlaylist [%s] (at %s)", playlist, atIndex)
         if not playlist:
             return False
         if self._playerPlaylist and self._playerPlaylist == playlist:
             return False
+
         self._playerPlaylist = playlist
         playlist.onLoad()
-        await self._onPlaylistChange(self._playerPlaylist)
+        asyncio.create_task(self._onPlaylistChange(self._playerPlaylist))
+
         if atIndex is not None:
             await self.at(atIndex)
         else:

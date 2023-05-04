@@ -78,8 +78,8 @@ try:
         logger.info(res.status_code)
         playlists = JList(res.json())
         logger.info(playlists)
-        newPlaylist = playlists.ensure(0, str) # pylint: disable=invalid-name
-        assert newPlaylist == playlist["name"], f"{newPlaylist} != {playlist['name']}"
+        newPlaylist = playlists.assertGet(0, dict)
+        assert newPlaylist["name"] == playlist["name"], f"{newPlaylist['name']} != {playlist['name']}" # pylint: disable=line-too-long
 
     # get our playlist
     with requests.get(f"http://localhost:1234/api/playlists/{id_}", timeout = 10) as res:

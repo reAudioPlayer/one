@@ -12,10 +12,10 @@
             <div
                 class="items grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"
             >
-                <div
-                    class="cover-wrapper"
+                <Card
                     v-for="(cover, index) in covers"
                     :key="index"
+                    class="cover-wrapper"
                 >
                     <Cover
                         :src="cover.name"
@@ -29,23 +29,23 @@
                     </div>
                     <TrackCompact
                         v-for="(song, index) in cover.songs"
+                        :id="song.id"
                         :key="index"
                         :artist="song.artist"
-                        :title="song.title"
                         :cover="song.cover"
-                        :id="song.id"
+                        :title="song.title"
                         @play="play(song.id)"
                     />
-                </div>
+                </Card>
             </div>
         </div>
         <div class="tracks">
             <h2>Local tracks</h2>
             <div class="items grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div
-                    class="track"
+                <Card
                     v-for="(track, index) in tracks"
                     :key="index"
+                    class="track"
                 >
                     <div class="flex justify-between w-full mb-4">
                         <p class="overflow-hidden">
@@ -55,31 +55,32 @@
                     </div>
                     <div class="flex justify-center w-full mb-4">
                         <audio
-                            controls
                             :src="'/api/' + track.name.replace('local:', '/src/tracks/')"
+                            controls
                         />
                     </div>
                     <TrackCompact
                         v-for="(song, index) in track.songs"
+                        :id="song.id"
                         :key="index"
                         :artist="song.artist"
-                        :title="song.title"
                         :cover="song.cover"
-                        :id="song.id"
+                        :title="song.title"
                         @play="play(song.id)"
                     />
-                </div>
+                </Card>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import {ref} from "vue";
+import { ref } from "vue";
 import TrackCompact from "@/components/Catalogue/Items/home/TrackCompact";
 import Cover from "@/components/image/Cover.vue";
 import Marquee from "@/components/Marquee.vue";
-import {usePlayerStore} from "@/store/player";
+import { usePlayerStore } from "@/store/player";
+import Card from "@/containers/Card.vue";
 
 const covers = ref([]);
 const tracks = ref([]);
@@ -113,18 +114,12 @@ update();
 </script>
 
 <style lang="scss" scoped>
-.muted {
-    color: var(--font-darker);
-}
-
 .wrap {
     margin-right: 10px;
     margin-bottom: 10px;
 }
 
 .cover-wrapper, .track {
-    background: var(--background-light);
-    border-radius: 20px;
     padding: 20px;
 }
 </style>

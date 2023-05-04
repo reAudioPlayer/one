@@ -80,6 +80,7 @@ export interface ISong {
     id?: number;
     title: string;
     artist: string;
+    artists?: string[];
     album: string;
     cover: string;
     favourite?: boolean;
@@ -186,3 +187,15 @@ export const displayDuration = (duration: number): string => {
     const sec = zeroPad(Math.floor(duration % 60), 2);
     return `${min}:${sec}`;
 }
+
+export const bytesToDisplay = (bytes: number) => {
+    const sizes = ["B", "KB", "MB", "GB", "TB"];
+    let i = 0;
+    while (bytes > 1000 && i < sizes.length)
+    {
+        bytes /= 1000;
+        i++;
+    }
+
+    return `${bytes.toFixed(0)} ${sizes[i]}`;
+};

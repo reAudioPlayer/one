@@ -4,7 +4,7 @@
   -->
 
 <template>
-    <div class="cloudPlaylist">
+    <Card class="cloudPlaylist">
         <span class="close material-symbols-rounded" @click="() => $emit('remove')">close</span>
         <Cover :src="cover" />
         <div class="data">
@@ -17,17 +17,18 @@
                 <div v-if="statusText" class="lead"><i>{{statusText}}</i></div>
             </div>
         </div>
-    </div>
+    </Card>
 </template>
 
 <script lang="ts">
 import { IFullPlaylist, ISong, parseCover } from "../../common";
 import Cover from "@/components/image/Cover.vue";
 import { addSong } from "../../api/song";
+import Card from "../../containers/Card.vue";
 
 export default {
     name: "cloudPlaylist",
-    components: { Cover },
+    components: { Cover, Card },
     props: {
         playlist: Object,
         localPlaylists: Array,

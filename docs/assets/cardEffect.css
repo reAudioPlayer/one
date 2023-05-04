@@ -1,0 +1,67 @@
+@property --grid-gradient-angle {
+    syntax: "<angle>";
+    initial-value: 30deg;
+    inherits: false;
+}
+
+/* !prefers reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+    .about__grid__item, .card {
+        position: relative;
+    }
+
+    :where(.card, .about__grid__item):hover::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--fg-secondary);
+        transition: all .2s ease-in-out;
+        z-index: -2;
+        border-radius: inherit;
+        filter: blur(7px);
+        opacity: .2;
+    }
+
+    @keyframes grid-rotate-gradient {
+        0% {
+            --grid-gradient-angle: 0deg;
+        }
+        100% {
+            --grid-gradient-angle: 360deg;
+        }
+    }
+
+    :where(.card, .about__grid__item)::after {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        transition: all .2s ease-in-out;
+        z-index: -1;
+        border-radius: inherit;
+        --colour: var(--fg-secondary);
+        --max-opacity: .5;
+
+        opacity: 0;
+        transition: all .5s;
+        
+        background: conic-gradient(
+            from var(--grid-gradient-angle),
+            transparent 0deg,
+            var(--colour) 30deg 60deg,
+            transparent 120deg 150deg,
+            var(--colour) 210deg 240deg,
+            transparent 300deg 330deg
+        );
+        animation: grid-rotate-gradient 7s linear infinite;
+    }
+
+    @media (prefers-color-scheme: light) {
+        :where(.card, .about__grid__item)::after {
+            --max-opacity: .3;
+        }        
+    }
+
+    :where(.card, .about__grid__item):hover::after {
+        opacity: var(--max-opacity);
+    }
+}

@@ -6,10 +6,11 @@
 <script lang="ts" setup>
 import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
-import {PropType, ref, watch} from "vue";
-import {IPlaylist} from "../../common";
-import {deletePlaylist, updatePlaylistMetadata} from "../../api/playlist";
-import {useRouter} from "vue-router";
+import { PropType, ref, watch } from "vue";
+import { IPlaylist } from "../../common";
+import { deletePlaylist, updatePlaylistMetadata } from "../../api/playlist";
+import { useRouter } from "vue-router";
+import { Notifications } from "../notifications/createNotification";
 
 const props = defineProps({
     playlist: {
@@ -77,15 +78,21 @@ const show = () => {
 }
 
 const onSubmit = async () => {
+    const values = form.value.toObject()
     await updatePlaylistMetadata({
         ...props.playlist,
-        ...form.value.toObject()
+        ...values
     });
+    Notifications.addSuccess(values.name, "Updated", 3000);
 }
 
 const onDelete = async () => {
-    await deletePlaylist(props.playlist.id);
-    await router.push("/collection/playlists");
+    if (await deletePlaylist(props.playlist.id)) {
+        await router.push("/collection/playlists");
+        Notifications.addSuccess(props.playlist.name, "Deleted", 3000);
+    } else {
+        Notifications.addError(props.playlist.name, "Failed to delete", 3000);
+    }
 }
 
 defineExpose({

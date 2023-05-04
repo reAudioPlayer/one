@@ -60,8 +60,12 @@ class PlayerHandler:
             return web.HTTPBadRequest(text = "id is required for types playlist and track")
 
         if type_ == "playlist":
-            asyncio.create_task(self._player.loadPlaylist(self._playlistManager.get(id_)))
-            return web.Response()
+            if id_ is None:
+                return web.HTTPBadRequest(text = "id is required for type playlist")
+            if playlist := self._playlistManager.get(id_):
+                asyncio.create_task(self._player.loadPlaylist(playlist))
+                return web.Response()
+            return web.HTTPNotFound(text = "playlist not found")
 
         if type_ == "collection":
             asyncio.create_task(self._player.loadPlaylist(await PlayerPlaylist.liked()))
@@ -72,10 +76,13 @@ class PlayerHandler:
             return web.Response()
 
         if type_ == "track":
-            songs = await self._dbManager.songs.select("*", f"WHERE id={id_}")
-            asyncio.create_task(self._player
-                .loadPlaylist(PlayerPlaylist(songs = Song.list(songs),
-                                             name = str(id_))))
+            assert id_ is not None
+            if not (song := await self._dbManager.songs.byId(id_)):
+                return web.HTTPNotFound(text = "song not found")
+            asyncio.create_task(
+                self._player.loadPlaylist(
+                    PlayerPlaylist(songs = Song.list([song]),
+                                   name = str(id_))))
 
         return web.Response()
 
@@ -123,7 +130,7 @@ class PlayerHandler:
         return web.Response()
 
     async def updateSong(self, request: web.Request) -> web.Response:
-        """post(/api/tracks/{id})"""
+        """put(/api/tracks/{id})"""
         id_ = int(request.match_info['id'])
         jdata = JDict(await request.json())
         song = await self._dbManager.songs.byId(id_)
@@ -137,6 +144,7 @@ class PlayerHandler:
         song.duration = jdata.ensureCast("duration", int, song.duration)
         song.favourite = jdata.ensure("favourite", bool, song.favourite)
         song.source = jdata.ensure("source", str, song.source)
+        song.spotify = jdata.ensure("spotify", str, song.spotify)
         return web.Response(status = 200)
 
     async def postShuffle(self, request: web.Request) -> web.Response:

@@ -10,3 +10,4 @@ src/ui/dist/assets/img/covers/*.png
 src/usr
 src/cache
 .idea
+.vscode

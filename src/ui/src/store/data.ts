@@ -3,19 +3,23 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-import {hashPlaylist, IDropdownOption, IPlaylist} from "../common";
+import { IDropdownOption, IFullPlaylist } from "../common";
+import { getAllPlaylists } from "../api/playlist";
 
 // Create a new store instance.
 export const useDataStore = defineStore({
     id: 'data',
     state: () => ({
-        playlists: [ ] as IPlaylist[],
+        playlists: [ ] as IFullPlaylist[],
     }),
     getters: {
         notEmpty() {
-            return this.playlists.length > 0;
+            return !this.empty;
+        },
+        empty() {
+            return this.playlists.length === 0;
         },
         playlistsAsDropdown(allowCreateNew = true): IDropdownOption[] {
             const options = this.playlists.map((playlist) => ({
@@ -29,6 +33,11 @@ export const useDataStore = defineStore({
                 });
             }
             return options;
+        },
+        getPlaylistById(): (id: number) => IFullPlaylist {
+            return (id: number) => {
+                return this.playlists.find((playlist) => playlist.id === id);
+            }
         }
     },
     actions: {
@@ -39,23 +48,7 @@ export const useDataStore = defineStore({
             this.fetchPlaylists();
         },
         async fetchPlaylists() {
-            const res = await fetch("/api/playlists");
-            const availablePlaylists = await res.json();
-            const playlists: IPlaylist[] = [ ];
-
-            for (let i = 0; i < availablePlaylists.length; i++) {
-                const resp = await fetch(`/api/playlists/${i}`)
-                const playlist = await resp.json();
-
-                playlists.push({
-                    name: playlist.name,
-                    description: playlist.description,
-                    cover: playlist.cover || playlist.songs[0]?.cover,
-                    href: `/playlist/${hashPlaylist( String(i) )}`,
-                    id: i
-                })
-            }
-
+            const playlists = await getAllPlaylists();
             this.setPlaylists(playlists);
         }
     }

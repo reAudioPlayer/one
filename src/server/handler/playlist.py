@@ -48,13 +48,16 @@ class PlaylistHandler:
     async def getPlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/playlists/{id})"""
         id_: int = payload["id"]
-        if id_ >= self._playlistManager.playlistLength:
-            return web.Response(status = 404)
-        return web.json_response(self._playlistManager.ensure(id_).toDict())
+        if playlist := self._playlistManager.get(id_):
+            return web.json_response(playlist.toDict())
+        return web.HTTPNotFound()
 
     async def getPlaylists(self, _: web.Request) -> web.Response:
         """get(/api/playlists)"""
-        return web.json_response(list(map(lambda x: x.name, self._playlistManager.playlists)))
+        return web.json_response([
+            playlist.toDict()
+            for playlist in self._playlistManager.playlists
+        ])
 
     async def createPlaylist(self, _: web.Request) -> web.Response:
         """get(/api/playlists/new)"""
@@ -65,11 +68,10 @@ class PlaylistHandler:
     }), inPath = True)
     async def deletePlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """delete(/api/playlists/id/{id})"""
-        index: int = payload["id"]
-        if index >= self._playlistManager.playlistLength:
-            return web.Response(status = 404)
-        self._playlistManager.removePlaylist(index)
-        return web.Response(status = 200)
+        id_: int = payload["id"]
+        if await self._playlistManager.removePlaylist(id_):
+            return web.Response()
+        return web.HTTPNotFound()
 
     async def updatePlaylist(self, request: web.Request) -> web.Response:
         """post(/api/playlists/{id})"""
@@ -79,4 +81,4 @@ class PlaylistHandler:
                                              jdata.get("name"),
                                              jdata.get("description"),
                                              jdata.get("cover"))
-        return web.Response(status = 200, text = "success!")
+        return web.Response()

@@ -309,6 +309,26 @@ const onSpotifyUrlClick = () => {
     display: grid;
     grid-template-columns: fit-content(100%) minmax(500px, 1fr);
     gap: 2rem;
+
+    .cover {
+        min-width: 384px;
+        aspect-ratio: 1 / 1;
+    }
+
+    @media (max-width: 1000px) {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        overflow: hidden;
+
+        .cover {
+            min-width: 20vw;
+        }
+
+        .track__info__details {
+            overflow: auto;
+            width: 100%;
+        }
+    }
 }
 
 .spotify-infos {

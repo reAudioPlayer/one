@@ -5,6 +5,9 @@
 
 import { IMetadata, ISong, ISpotifySong, unhashTrack } from "../common";
 import { createPlaylist } from "./playlist";
+import { useDownloaderStore } from "../store/downloader";
+
+const downloaderStore = useDownloaderStore();
 
 /**
  * updates a song based on its id
@@ -19,6 +22,19 @@ export const updateSong = async (song: ISong) => {
             artist: song.artist,
             album: song.album,
             cover: song.cover
+        })
+    })
+}
+
+/**
+ * updates a song property
+ * @param song
+ */
+export const updateSongProperty = async (songId: number, key: string, value: any) => {
+    await fetch(`/api/tracks/${songId}`, {
+        method: "PUT",
+        body: JSON.stringify({
+            [key]: value
         })
     })
 }
@@ -54,7 +70,8 @@ export const addSong = async (playlistId: number | string, song: ISong) => {
             title: song.title,
             artist: song.artist,
             album: song.album,
-            cover: song.cover
+            cover: song.cover,
+            spotify: song.metadata ? JSON.stringify(song.metadata.spotify) : ""
         })
     })
 }
@@ -102,8 +119,8 @@ export const saveDuration = async(songId: number, duration: number) => {
  * downloads a song
  * @param songId the id of the song to download, not the hash
  */
-export const downloadSong = async (songId: number) => {
-    window.open(`/api/tracks/${songId}/download`)
+export const downloadSong = (songId: number) => {
+    downloaderStore.downloadFromDb(songId);
 }
 
 /**

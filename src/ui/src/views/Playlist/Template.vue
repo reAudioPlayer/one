@@ -12,6 +12,7 @@ import Card from "../../containers/Card.vue";
 import FactCard from "../../containers/FactCard.vue";
 import TextInputWithIcon from "../../components/inputs/TextInputWithIcon.vue";
 import PlaylistEntry from "../../components/songContainers/PlaylistEntry.vue";
+// @ts-ignore
 import draggable from "vuedraggable";
 import IconDropdown from "../../components/inputs/IconDropdown.vue";
 import {
@@ -31,12 +32,20 @@ import EditPlaylist from "../../components/popups/EditPlaylist.vue";
 import { usePlayerStore } from "../../store/player";
 import AmbientBackground from "../../components/image/AmbientBackground.vue";
 
-console.log(draggable);
-
 const props = defineProps({
     playlist: {
         type: Object as () => IFullPlaylist,
         required: true,
+    },
+    loading: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
+    error: {
+        type: String,
+        required: false,
+        default: "",
     },
     canRearrange: {
         type: Boolean,
@@ -150,10 +159,10 @@ watch(filters, () => {
     if (!props.playlist) {
         return;
     }
-    songs.value = applyFilters(props.playlist.songs, filters.value);
+    songs.value = applyFilters(props.playlist?.songs ?? [], filters.value);
 }, { deep: true });
 watch(props, () => {
-    songs.value = applyFilters(props.playlist.songs, filters.value);
+    songs.value = applyFilters(props.playlist?.songs ?? [], filters.value);
 }, { deep: true });
 
 const onObserveVisibility = (isVisible, entry) => {
@@ -187,7 +196,28 @@ const onObserveVisibility = (isVisible, entry) => {
         @loadPlaylist="player.loadPlaylist(playlistId)"
     />
 
-    <Loader v-if="!playlist" />
+    <div
+        v-if="loading"
+        class="fill-page"
+    >
+        <Loader />
+    </div>
+    <div
+        v-else-if="error"
+        class="fill-page"
+    >
+        <h2 class="text-2xl text-center error">
+            {{ error }}
+        </h2>
+    </div>
+    <div
+        v-else-if="!playlist"
+        class="fill-page"
+    >
+        <h2 class="text-2xl text-center error">
+            Playlist not found
+        </h2>
+    </div>
     <div v-else class="wrap">
         <div
             class="track__data"
@@ -368,10 +398,26 @@ const onObserveVisibility = (isVisible, entry) => {
     display: grid;
     grid-template-columns: fit-content(100%) minmax(500px, 1fr);
     gap: 2rem;
-}
 
-.cover {
-    min-width: 384px;
+    .cover {
+        min-width: 384px;
+        aspect-ratio: 1 / 1;
+    }
+
+    @media (max-width: 1000px) {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .cover {
+            min-width: 20vw;
+        }
+
+        .track__info__details {
+            overflow: auto;
+            width: 100%;
+        }
+    }
 }
 
 
@@ -403,6 +449,14 @@ const onObserveVisibility = (isVisible, entry) => {
 .card {
     p, h2 {
         text-align: center;
+    }
+}
+
+.playlist {
+    height: 100%;
+
+    h2.error {
+        color: var(--fail);
     }
 }
 </style>

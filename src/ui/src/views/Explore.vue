@@ -5,24 +5,23 @@
 
 <script setup>
 import ImgCard from "@/components/explore/ImgCard.vue";
-import Marquee from "@/components/Marquee.vue";
-</script>
+import Marquee from "@/components/Marquee.vue";</script>
 
 <template>
-    <div class="explore" ref="container" @scroll="onScroll">
-        <div class="item" v-for="song in picks" :key="song.name">
+    <div ref="container" class="explore" @scroll="onScroll">
+        <div v-for="song in picks" :key="song.name" class="item">
             <ImgCard :src="parseCover(song.cover)">
                 <div class="songContent">
                     <div class="play">
-                        <span id="loadPlaylist" @click="() => loadPlaylist(song.id)" class="material-symbols-rounded play">play_circle</span>
+                        <span id="loadPlaylist" class="material-symbols-rounded play" @click="() => loadPlaylist(song.id)">play_circle</span>
                     </div>
                     <div class="info">
-                        <router-link class="linkOnHover" :to="href(song)">
+                        <router-link :to="href(song)" class="linkOnHover">
                             <h1>
                                 <marquee :text="song.title"></marquee>
                             </h1>
                         </router-link>
-                        <router-link class="linkOnHover" :to="`/search/${song.artist}`">
+                        <router-link :to="`/search/${song.artist}`" class="linkOnHover">
                             <p>
                                 <marquee :text="song.artist"></marquee>
                             </p>
@@ -40,11 +39,7 @@ import {hashTrack, parseCover} from "@/common";
 export default {
     data() {
         fetch("/api/playlists").then(async (inRes) => {
-            const playlists = await inRes.json();
-            for (let id = 0; id < playlists.length; id++) {
-                const res = await fetch(`/api/playlists/${id}`);
-                this.playlists.push(await res.json());
-            }
+            this.playlists = await inRes.json();
             this.pick();
         });
         return {
@@ -91,11 +86,11 @@ export default {
 
 <style lang="scss" scoped>
 .item {
-    &:not(:first-child) {
-        border-top: 5px solid var(--font-darker);
-    }
-
     height: 40vh;
+    color: white;
+    :hover {
+        color: white;
+    }
 
     .info {
         width: calc(100% - 40px - 64px);

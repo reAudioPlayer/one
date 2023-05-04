@@ -19,8 +19,8 @@ if TYPE_CHECKING:
     from meta.spotify import Spotify, SpotifyResult
 
 
-class ITrack(ABC):
-    """track model"""
+class ISimpleTrack(ABC):
+    """very simple track model"""
     @property
     @abstractmethod
     def title(self) -> str:
@@ -36,6 +36,9 @@ class ITrack(ABC):
     def artist(self) -> str:
         """return artist (formatted artists)"""
 
+
+class ITrack(ISimpleTrack):
+    """track model"""
     @property
     @abstractmethod
     def artists(self) -> List[str]:

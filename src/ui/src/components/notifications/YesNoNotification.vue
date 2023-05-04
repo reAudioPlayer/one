@@ -19,12 +19,16 @@ const emit = defineEmits(["remove"]);
 
 const no = () => {
     emit("remove", props.notification.id);
-    props.notification.onNo();
+    if (props.notification.onNo) {
+        props.notification.onNo();
+    }
 }
 
 const yes = () => {
     emit("remove", props.notification.id);
-    props.notification.onYes();
+    if (props.notification.onYes) {
+        props.notification.onYes();
+    }
 }
 </script>
 
@@ -67,29 +71,8 @@ const yes = () => {
     align-items: center;
     color: var(--fg-base);
     overflow: hidden;
-
-    --background: #1e1e1e;
-    --neutral: #374148;
-    --success: #00c48b;
-    --fail: #e85454;
-    --warning: #c7aa19;
-    --info: #189de4;
-
-    &.success {
-        background-color: var(--success);
-    }
-
-    &.error {
-        background-color: var(--fail);
-    }
-
-    &.info {
-        background-color: var(--info);
-    }
-
-    &.warning {
-        background-color: var(--warning);
-    }
+    filter: var(--drop-shadow);
+    background: var(--fg-contrast);
 
     .message {
         padding: .5em 1em;

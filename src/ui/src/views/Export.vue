@@ -48,35 +48,47 @@ export default {
             dlAnchorElem.click();
         },
         async upload() {
-            console.log(await GistClient.save(this.playlists));
+            console.log(await GistClient.saveOrUpdate(this.playlists));
             this.fetchGists();
         },
         async fetchGists() {
             this.cloudPlaylists = await GistClient.getContent();
         },
         async fetchLocalPlaylists() {
-            console.log("fetching local playlists", this.dataStore?.playlists);
-            this.playlists = [ ];
-            for (let id = 0; id < this.dataStore?.playlists?.length; id++) {
-                const res = await fetch(`/api/playlists/${id}`)
-                const playlist = await res.json();
-                this.playlists.push(playlist);
+            if (this.loadingPlaylists) {
+                return;
             }
+            this.loadingPlaylists = true;
+            this.playlists = [ ];
+            for (const availablePlaylist of this.dataStore?.playlists) {
+                try {
+                    const res = await fetch(`/api/playlists/${availablePlaylist.id}`)
+                    const playlist = await res.json();
+                    this.playlists.push(playlist);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+            this.loadingPlaylists = false;
         }
     },
     watch: {
         dataStore: {
-            handler() {
+            handler(newStore, oldStore) {
                 this.fetchLocalPlaylists();
             },
             deep: true
         }
+    },
+    mounted() {
+        this.fetchLocalPlaylists();
     },
     data() {
         this.fetchGists();
 
         return {
             playlists: [],
+            loadingPlaylists: false,
             userData: { },
             cloudPlaylists: [],
             dataStore: useDataStore()

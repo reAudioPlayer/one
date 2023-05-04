@@ -9,6 +9,7 @@ import Form from "./components/Form.vue";
 import { PropType, ref, watch } from "vue";
 import { ISong } from "../../common";
 import { updateSong } from "../../api/song";
+import { Notifications } from "../notifications/createNotification";
 
 const props = defineProps({
     song: {
@@ -75,11 +76,13 @@ const options = ref([{
 }]);
 
 const onSubmit = async () => {
+    const values = form.value.toObject();
     await updateSong({
         ...props.song,
-        ...form.value.toObject()
+        ...values
     });
     emit("update");
+    Notifications.addSuccess(values.title, "Updated", 3000);
 }
 
 const modal = ref(null);

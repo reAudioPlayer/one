@@ -8,6 +8,9 @@ from aiohttp import web
 
 from config.runtime import Runtime
 
+from helper.nginx import Nginx
+
+from downloader.downloader import Downloader
 from handler.download import DownloadHandler
 from handler.meta import MetaHandler
 from handler.player import PlayerHandler
@@ -29,6 +32,12 @@ class Router:
         logger = logging.getLogger()
         logger.info("quitting")
         os._exit(0) # pylint: disable=protected-access
+
+    @staticmethod
+    async def _restartNginx(_: web.Request) -> web.Response:
+        """force quits the application"""
+        Nginx.restart()
+        return web.Response()
 
     @staticmethod
     def applyRoutes(app: web.Application, # pylint: disable=too-many-statements, too-many-arguments
@@ -131,7 +140,9 @@ class Router:
 
         # /api/system
         app.router.add_get('/api/system/kill', Router._exitHandler)
+        app.router.add_get('/api/system/nginx/restart', Router._restartNginx)
 
+        app.router.add_get("/download/ws", Downloader().websocketEndpoint)
         app.router.add_get("/player/ws", Connection.websocketEndpoint)
         app.router.add_get('/ws', websocket.wsHandler)
 

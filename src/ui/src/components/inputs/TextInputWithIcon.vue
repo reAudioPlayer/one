@@ -4,7 +4,10 @@
   -->
 
 <template>
-    <div class="text-input-with-icon rounded-3xl flex items-center px-4">
+    <div
+        class="text-input-with-icon rounded-3xl flex items-center px-4"
+        :class="{ expanded }"
+    >
         <span
             :class="{ 'cursor-pointer': onClick }"
             class="material-symbols-rounded ms-wght-200"
@@ -17,7 +20,8 @@
             :placeholder="placeholder"
             type="text"
             @input="onChange"
-            @keyup="onInput"
+            @keyup="onKeyUp"
+            @focusout="$emit('focusout')"
         />
     </div>
 </template>
@@ -32,14 +36,22 @@ const props = defineProps({
     onClick: {
         type: Function as PropType<() => void>,
         required: false,
-    }
+    },
+    expanded: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
+    onKeyUp: {
+        type: Function as PropType<(e: KeyboardEvent) => boolean>,
+        required: false,
+    },
 })
 
 const value = ref(props.modelValue);
-
 watch(() => props.modelValue, (nValue) => {
     value.value = nValue
-})
+});
 
 const emits = defineEmits(['update:modelValue', 'change', 'submit']);
 
@@ -48,7 +60,13 @@ const onChange = () => {
     emits('change', value.value);
 }
 
-const onInput = e => {
+const onKeyUp = e => {
+    if (props.onKeyUp) {
+        if (props.onKeyUp(e)) {
+            return;
+        }
+    }
+
     if (e.key === 'Enter') {
         emits('submit', value);
     }
@@ -73,6 +91,10 @@ const onInput = e => {
         input {
             color: var(--fg-base);
         }
+    }
+
+    &.expanded {
+        border-radius: 1em 1em 0 0;
     }
 }
 
