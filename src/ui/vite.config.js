@@ -25,6 +25,9 @@ export default defineConfig({
                 start_url: '/',
                 display: "standalone",
                 description: "reAudioPlayer One is a free, open-source, and cross-platform audio player.",
+            },
+            workbox: {
+                navigateFallbackDenylist: [/^\/api/]
             }
         })],
     resolve: {
