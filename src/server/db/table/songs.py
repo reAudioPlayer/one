@@ -322,7 +322,7 @@ class SongsTable(ITable[SongModel]):
                        (self.minKeyScore * minKeyWeight) + \
                        (self.avgScore * avgWeight)
 
-        def relevance(song: SongModel) -> int:
+        def relevance(song: SongModel) -> float:
             """get relevance of song"""
             rel = SongRelevance()
             rel.song = song
