@@ -5,6 +5,7 @@ interface ILine {
     startTimeMs: string;
     syllables: string[];
     words: string;
+    originalWorlds?: string;
 };
 
 interface IReturn {

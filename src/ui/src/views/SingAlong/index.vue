@@ -1,5 +1,10 @@
 <script setup lang=ts>
+import AmbientBackground from '../../components/image/AmbientBackground.vue';
+import IconButton from '../../components/inputs/IconButton.vue';
 import { usePlayerStore } from '../../store/player';
+import { setCORS } from "google-translate-api-browser";
+
+const translate = setCORS("http://localhost:1234/api/cors/");
 
 const playerStore = usePlayerStore();
 
@@ -39,20 +44,86 @@ const displayLine = (index: number) => {
 
     return "future";
 };
+
+const toggleTranslation = (index: number) => {
+    const line = playerStore.lyrics!.lyrics[index];
+    if (line.originalWorlds) {
+        untranslateLine(index);
+    } else {
+        translateLine(index);
+    }
+};
+
+const translateLine = async (index: number) => {
+    const line = playerStore.lyrics!.lyrics[index];
+    if (line.originalWorlds) {
+        return;
+    }
+    const res = await translate(line.words, { to: "en" });
+    line.originalWorlds = line.words;
+    line.words = res.text;
+};
+
+const untranslateLine = (index: number) => {
+    const line = playerStore.lyrics!.lyrics[index];
+    if (line.originalWorlds) {
+        line.words = line.originalWorlds;
+        line.originalWorlds = null;
+    }
+};
+
+const translateAll = () => {
+    playerStore.lyrics?.lyrics?.forEach((line, index) => {
+        translateLine(index);
+    });
+};
+
+const untranslateAll = () => {
+    playerStore.lyrics?.lyrics?.forEach((line, index) => {
+        untranslateLine(index);
+    });
+};
+
+const showUntranslateAll = () => {
+    const nTranslated = playerStore.lyrics?.lyrics?.filter(line => line.originalWorlds).length;
+    // > 50%
+    return nTranslated && nTranslated > playerStore.lyrics?.lyrics?.length / 2;
+};
 </script>
 <template>
+    <AmbientBackground
+        :src="playerStore.song.cover"
+    />
     <div v-if="playerStore.lyrics?.error" class="fill-page">
         <h1>
             {{ playerStore.lyrics?.error }}
         </h1>
+    </div>
+    <div class="w-full flex flex-row justify-end">
+        <IconButton
+            v-if="!playerStore.lyrics?.error"
+            icon="translate"
+            :label="showUntranslateAll() ? 'Show original' : 'Translate all'"
+            class="mr-2"
+            @click="showUntranslateAll() ? untranslateAll() : translateAll()"
+        />
     </div>
     <div class="lyrics" v-if="playerStore.lyrics?.lyrics">
         <div
             v-for="(line, index) in playerStore.lyrics?.lyrics"
             class="line"
             :class="displayLine(index)"
+            @click="playerStore.seek(parseInt(line.startTimeMs) / 1000)"
         >
             {{ line.words }}
+
+            <span
+                class="material-symbols-rounded translate"
+                :class="{ translated: line.originalWorlds }"
+                @click.stop="toggleTranslation(index)"
+            >
+                translate
+            </span>
         </div>
     </div>
 </template>
@@ -69,7 +140,9 @@ const displayLine = (index: number) => {
         font-size: 2rem;
         font-weight: 500;
         line-height: 2;
-        width: min(100%, 60ch);
+        width: min(100%, 50ch);
+        cursor: pointer;
+        position: relative;
 
         &.current {
             --color: var(--fg-secondary);
@@ -77,6 +150,25 @@ const displayLine = (index: number) => {
 
         &.past {
             --color: var(--fg-base-dk);
+        }
+
+        .translate {
+            position: absolute;
+            right: 1em;
+            top: 50%;
+            transform: translateY(-50%);
+            
+            &:not(.translated) {
+                display: none;
+            }
+        }
+
+        &:hover {
+            --color: var(--fg-secondary);
+
+            .translate {
+                display: inherit;
+            }
         }
     }
 }
