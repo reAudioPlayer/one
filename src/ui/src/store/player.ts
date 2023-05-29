@@ -9,6 +9,7 @@ import { useDataStore } from "./data";
 import { SharedPlayer } from "../api/sharedPlayer";
 import { getShuffle, nextSong, prevSong, setShuffle } from "../api/player";
 import { computed } from "vue";
+import { type ILyrics, findLyrics } from "../views/SingAlong/lyrics";
 
 
 type PlaylistType = "playlist" | "collection" | "collection/breaking" | "track";
@@ -40,6 +41,12 @@ export const usePlayerStore = defineStore({
             duration: null,
             favourite: false,
             id: -1,
+            metadata: {
+                plays: 0,
+                spotify: {
+                    id: null,
+                }
+            }
         },
         playlist: {
             cover: null,
@@ -48,6 +55,7 @@ export const usePlayerStore = defineStore({
             id: -1,
             songs: [],
         },
+        lyrics: null as ILyrics | null,
         volume: 50,
         repeat: "repeat" as RepeatType,
         sharedPlayer: null as InstanceType<typeof SharedPlayer> | null,
@@ -122,11 +130,13 @@ export const usePlayerStore = defineStore({
 
             this.player = player;
         },
-        setSong(song) {
+        async setSong(song) {
             if (song.id == this.song.id) return;
             this.song = song;
             this.song.cover = parseCover(song.cover);
             this.progress = 0;
+
+            this.lyrics = await findLyrics();
         },
         setReady(ready) {
             if (this.ready === ready) return;
@@ -236,6 +246,9 @@ export const usePlayerStore = defineStore({
         }
     },
     getters: {
+        hasLyrics(state) {
+            return !state.lyrics?.error;
+        },
         durationSeconds(state) {
             return state.song.duration;
         },

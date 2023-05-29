@@ -42,7 +42,8 @@ class MetaHandler:
         metadata = await asyncRunInThreadWithReturn(Metadata, self._spotify, payload["url"])
         if not metadata:
             return web.HTTPNotFound(text = "no metadata found")
-        return web.json_response(data = metadata.toDict())
+        response = await metadata.toExtendedDict()
+        return web.json_response(data = response)
 
     @withObjectPayload(Object({
         "id": Integer().coerce()
@@ -137,7 +138,7 @@ class MetaHandler:
 
             tracks = result.unwrap()
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
-            return result.transform([ metadata.toDict() for metadata in metadatas ])
+            return result.transform([ (metadata.toDict()) for metadata in metadatas ])
 
         data = await asyncRunInThreadWithReturn(_implement)
 
@@ -175,7 +176,8 @@ class MetaHandler:
 
             tracks = result.unwrap()
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
-            return result.transform([ metadata.toDict() for metadata in metadatas ])
+            # TODO add metadata in UI for playlists, albums
+            return result.transform([ (metadata.toDict()) for metadata in metadatas ])
         data = await asyncRunInThreadWithReturn(_implement)
 
         if not data:

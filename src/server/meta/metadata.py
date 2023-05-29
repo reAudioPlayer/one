@@ -7,14 +7,16 @@ from typing import Any, Dict, Optional
 import validators # type: ignore
 
 from meta.spotify import Spotify
-from dataModel.track import ITrack, SoundcloudTrack, YoutubeTrack
+from dataModel.track import ITrack, SoundcloudTrack, YoutubeTrack, SpotifyTrack
+from dataModel.metadata import SongMetadata
 
 
 class Metadata:
     """metadata finder"""
-    __slots__ = ("_track", "_source", "_href")
+    __slots__ = ("_track", "_source", "_href", "_spotify")
 
     def __init__(self, spotify: Spotify, url: str) -> None:
+        self._spotify = spotify
         self._track: Optional[ITrack] = None
         self._source = None
         self._href = url
@@ -39,6 +41,13 @@ class Metadata:
         """return bool"""
         return bool(self._track)
 
+    async def toExtendedDict(self) -> Dict[str, Any]: # extend with spotify
+        """serialise"""
+        if isinstance(self._track, SpotifyTrack):
+            data = await SongMetadata.fetch(self._spotify, self._track)
+            self._track.addMetadata(data)
+        return self.toDict()
+
     def toDict(self) -> Dict[str, Any]: # extend with spotify
         """serialise"""
         assert self._track
@@ -52,4 +61,5 @@ class Metadata:
             "preview": self._track.preview,
             "markets": self._track.markets,
             "href": self._href,
+            "track": self._track.toDict()
         }

@@ -123,6 +123,13 @@ const routes = [{
         }
     },
     {
+        path: '/sing-along',
+        component: () => import("@/views/SingAlong/index.vue"),
+        meta: {
+            title: "Sing Along - reAudioPlayer One"
+        }
+    },
+    {
         path: '/download',
         component: () => import("@/views/Downloader/index.vue"),
         meta: {

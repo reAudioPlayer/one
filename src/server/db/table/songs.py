@@ -307,6 +307,7 @@ class SongsTable(ITable[SongModel]):
     def _sortByRelevance(self, query: str, songs: List[SongModel]) -> List[SongModel]:
         """sort songs by relevance"""
         class SongRelevance:
+            """song relevance"""
             song: SongModel
             minScore: int
             minKeyScore: int
@@ -329,12 +330,12 @@ class SongsTable(ITable[SongModel]):
             distances = [ ]
             keyDistances = [ ]
             # break by spaces, compare each word
-            for iter in [ song.title, song.album, song.artist ]:
-                words = iter.split(" ")
+            for i in [ song.title, song.album, song.artist ]:
+                words = i.split(" ")
                 for word in words:
                     queryWords = query.split(" ")
                     for queryWord in queryWords:
-                        keyDistances.append(lev(iter, queryWord))
+                        keyDistances.append(lev(i, queryWord))
                         distances.append(lev(word, queryWord))
             rel.minScore = min(distances)
             rel.minKeyScore = min(keyDistances)

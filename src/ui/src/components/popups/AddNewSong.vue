@@ -7,7 +7,7 @@
 import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
 import { ref } from "vue";
-import { hashTrack, isLink, ISong, unhashPlaylist } from "../../common";
+import { hashTrack, IBrowseSong, IMetadata, isLink, ISong, unhashPlaylist } from "../../common";
 import { addSong, fetchMetadata } from "../../api/song";
 import { useRoute } from "vue-router";
 
@@ -39,7 +39,9 @@ const upload = async (endpoint: string, file: File) => {
         body: data
     });
     return await res.text();
-}
+};
+
+const fetchedMetadata = ref(null as IMetadata | null);
 
 const options = ref([{
     name: "source",
@@ -50,12 +52,13 @@ const options = ref([{
         upload('/api/config/tracks', file).then(url => options.value.find(x => x.name == "source").value = url);
     },
     onChange: async (src: string) => {
-        const metadata = await fetchMetadata(src);
+        const metadata = await fetchMetadata(src) as IBrowseSong;
         options.value.find(x => x.name === "title").value = metadata.title;
         options.value.find(x => x.name === "artist").value = metadata.artist;
         options.value.find(x => x.name === "album").value = metadata.album;
         options.value.find(x => x.name === "cover").value = metadata.cover;
         options.value.find(x => x.name === "source").value = metadata.source;
+        fetchedMetadata.value = metadata.track.metadata;
     },
     value: song.source
 }, {
@@ -105,7 +108,10 @@ const show = async () => {
 
 const onSubmit = async _ => {
     const id = Number(unhashPlaylist(String(route.params.hash)));
-    await addSong(id, form.value.toObject());
+    await addSong(id, {
+        ...form.value.toObject(),
+        metadata: fetchedMetadata.value
+    });
     emit("update");
 }
 

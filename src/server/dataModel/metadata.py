@@ -177,7 +177,7 @@ class SongMetadata:
     async def fetch(cls,
                     spotify: Spotify,
                     track: SpotifyTrack,
-                    oldMetadata: Optional[SongMetadata]) -> Optional[SongMetadata]:
+                    oldMetadata: Optional[SongMetadata] = None) -> Optional[SongMetadata]:
         """fetch metadata from spotify"""
         metadata = cls()
         if oldMetadata:

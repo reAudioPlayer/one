@@ -20,10 +20,10 @@ async def exceptionMiddleware(request: web.Request,
     try:
         resp = await handler(request)
     except web.HTTPException as exc:
-        logger.error("%s %s -> (%s)", request.method, request.path, exc.status)
+        logger.exception("%s %s -> (%s)", request.method, request.path, exc.status)
         resp = exc
     except Exception as exc: # pylint: disable=broad-except
-        logger.error("%s %s -> (%s)", request.method, request.path, exc)
+        logger.exception("%s %s -> (%s)", request.method, request.path, exc)
         resp = web.Response(status = 500, text = str(exc))
     logger.debug("%s %s (%s s) -> %d",
                  request.method,

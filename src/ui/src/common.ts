@@ -88,6 +88,10 @@ export interface ISong {
     metadata?: IMetadata;
 }
 
+export interface IBrowseSong extends ISong {
+    track: ISong;
+}
+
 export interface IPlaylistMeta {
     id: number;
     name: string;
