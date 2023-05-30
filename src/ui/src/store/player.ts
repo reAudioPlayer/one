@@ -188,6 +188,7 @@ export const usePlayerStore = defineStore({
             this.playlist.cover = parseCover(playlist.cover);
             this.playlist.description = playlist.description;
             this.playlist.name = playlist.name;
+            this.playlist.id = playlist.id;
         },
         setVolume(volume) {
             if (volume == this.volume) return;

@@ -22,7 +22,8 @@ const playing = computed(() => player.playing);
 const cover = computed(() => player.song.cover);
 const songId = computed(() => player.song.id);
 const playlist = computed(() => player.playlist);
-const title = computed(() => `${player.song.title} • ${player.song.artist}`);
+const playlistId = computed(() => player.playlist.id);
+const title = computed(() => player.loaded ? `${player.song.title} • ${player.song.artist}` : "reAudioPlayer One");
 const playlists = computed(() => data.playlists);
 
 const playlistScroll = ref(null);
@@ -77,11 +78,11 @@ const selectedSongId = ref(-1);
                     <div :style="{'animation-delay': '.5s'}" class="block"></div>
                 </div>
             </div>
-            <Card v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl relative">
+            <Card v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl relative" :key="player.playlist.id">
                 <div ref="playlistScroll" class="playlist">
                     <PlaylistHeader />
                     <PlaylistEntry
-                        v-for="(element, index) in playlist.songs"
+                        v-for="(element, index) in player.playlist.songs"
                         :id="'bplayer-entry-' + element.id"
                         :key="element.source"
                         :index="index"
