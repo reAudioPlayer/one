@@ -12,7 +12,10 @@
         </div>
         <div class="action">
             <h1>Save to Github Gists</h1>
-            <IconButton icon="cloud_upload" label="Synchronise" @click="upload" />
+            <div class="flex flex-row gap-2">
+                <IconButton icon="cloud_upload" label="Synchronise" @click="upload" />
+                <IconButton icon="link" label="Browse" @click="openGist" />
+            </div>
         </div>
         <div class="data">
             <CloudPlaylist
@@ -46,6 +49,9 @@ export default {
             dlAnchorElem.setAttribute("href",     dataStr     );
             dlAnchorElem.setAttribute("download", "lib.one.json");
             dlAnchorElem.click();
+        },
+        async openGist() {
+            window.open(await GistClient.gistUrl(), "_blank");
         },
         async upload() {
             console.log(await GistClient.saveOrUpdate(this.playlists));

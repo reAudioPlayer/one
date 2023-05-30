@@ -5,7 +5,7 @@
 
 <script lang="ts" setup>
 import Checkbox from "../../components/inputs/Checkbox.vue";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import Card from "../../containers/Card.vue";
 import PasswordInputWithIcon from "../../components/inputs/PasswordInputWithIcon.vue";
 import { useSettingsStore } from "../../store/settings";
@@ -14,6 +14,7 @@ import IconButton from "../../components/inputs/IconButton.vue";
 import Dropdown from "../../components/inputs/Dropdown.vue";
 import { getConfig, IConfig, setConfig } from "../../api/config";
 import TextInputWithIcon from "../../components/inputs/TextInputWithIcon.vue";
+import gistClient from "../../api/gistClient";
 
 const spotifyEnabled = ref(false);
 const spotifyClient = ref({
@@ -119,7 +120,15 @@ const clearBrowser = () => {
 };
 
 const host = window.location.host
-const spotifyRedirect = `http://${host}/api/spotify/callback`
+const spotifyRedirect = `http://${host}/api/spotify/callback`;
+
+watch(() => config.value?.github?.githubPat, async () => {
+    if (!config.value?.github?.githubPat) return;
+    if (config.value.github.gistId) return;
+
+    config.value.github.gistId = await gistClient.search(config.value.github.githubPat);
+    console.log(config.value.github.gistId);
+});
 </script>
 <template>
     <div class="p-[10px] preferences">
