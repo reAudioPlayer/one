@@ -82,6 +82,8 @@ class Router:
         app.router.add_get('/api/player/stream/{id}', downloadHandler.streamFromCache)
 
         # UNGROUPED
+        app.router.add_get("/api/cors/{url:.*}", Router._corsAnywhere)
+
         app.router.add_post('/api/browse/track', metaHandler.getMetadata)
 
         app.router.add_post('/api/search', metaHandler.search)
@@ -156,9 +158,6 @@ class Router:
         # /api/system
         app.router.add_get('/api/system/kill', Router._exitHandler)
         app.router.add_get('/api/system/nginx/restart', Router._restartNginx)
-
-        # cors
-        app.router.add_get("/api/cors/{url:.*}", Router._corsAnywhere)
 
         # websockets
         app.router.add_get("/download/ws", Downloader().websocketEndpoint)

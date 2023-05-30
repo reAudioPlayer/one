@@ -45,15 +45,29 @@ class PlayerHandler:
         return web.Response(status = 200, text = "success!")
 
     @withObjectPayload(Object({
-        "type": String().enum("playlist", "collection", "collection/breaking", "track"),
-        "id": Integer().min(MIN_PLAYLIST_ID).optional()
+        "type": String().enum("playlist", "collection", "collection/breaking", "track", "smart"),
+        "id": Integer().min(MIN_PLAYLIST_ID).optional(),
+        "smart": Object({
+            "limit": Integer().min(1).optional(),
+            "direction": String().enum("asc", "desc").optional(),
+            "sort": String().enum("title", "artist", "album", "duration", "id").optional(),
+            "filter": Object({
+                "title": String().optional(),
+                "artist": String().optional(),
+                "album": String().optional(),
+                "duration": Object({
+                    "from": Integer().min(0).optional(),
+                    "to": Integer().min(0).optional()
+                }).optional()
+            }).optional()
+        }).optional()
     }), inBody = True)
     async def loadPlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/player/load)"""
         type_: str = payload["type"]
         id_: Optional[int] = payload.get("id")
 
-        if id_ in SPECIAL_PLAYLISTS:
+        if id_ is not None and id_ in SPECIAL_PLAYLISTS:
             type_ = SPECIAL_PLAYLISTS.get(id_, type_)
 
         if type_ in ("playlist", "track") and id_ == -1:
@@ -83,8 +97,16 @@ class PlayerHandler:
                 self._player.loadPlaylist(
                     PlayerPlaylist(songs = Song.list([song]),
                                    name = str(id_))))
+            return web.Response()
 
-        return web.Response()
+        if type_ == "smart":
+            if "smart" not in payload:
+                return web.HTTPBadRequest(text = "smart definition is required for type smart")
+            definition: Dict[str, Any] = payload["smart"]
+            asyncio.create_task(self._player.loadPlaylist(await PlayerPlaylist.smart(definition)))
+            return web.Response()
+
+        return web.HTTPBadRequest(text = "invalid type")
 
     @withObjectPayload(Object({
         "index": Integer().min(0), # index of song in playlist
