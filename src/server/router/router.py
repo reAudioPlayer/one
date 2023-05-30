@@ -41,18 +41,22 @@ class Router:
         return web.Response()
 
     @staticmethod
-    async def _corsAnyWhere(request: web.Request) -> web.Response:
+    async def _corsAnywhere(request: web.Request) -> web.Response:
         """proxies any request to the given url"""
-        url = request.match_info.get('url', None)
+        url = request.match_info.get('url', "")
         url += "?" + request.query_string if request.query_string else ""
         logging.getLogger().info("cors-anywhere: %s", url)
 
-        if url is None:
+        if not url:
             return web.Response(status = 400)
         async with aiohttp.ClientSession() as session:
             response = await session.get(url)
-            logging.getLogger().info("cors-anywhere: %s", response.status)
-            return web.Response(body = await response.read(), status = response.status)
+            return web.Response(body = await response.read(),
+                                status = response.status,
+                                headers=response.headers,
+                                content_type=response.content_type,
+                                charset=response.charset,
+                                reason=response.reason)
 
     @staticmethod
     def applyRoutes(app: web.Application, # pylint: disable=too-many-statements, too-many-arguments
@@ -156,9 +160,9 @@ class Router:
         # /api/system
         app.router.add_get('/api/system/kill', Router._exitHandler)
         app.router.add_get('/api/system/nginx/restart', Router._restartNginx)
-        
+
         # cors
-        app.router.add_get("/api/cors/{url:.*}", Router._corsAnyWhere)
+        app.router.add_get("/api/cors/{url:.*}", Router._corsAnywhere)
 
         # websockets
         app.router.add_get("/download/ws", Downloader().websocketEndpoint)
