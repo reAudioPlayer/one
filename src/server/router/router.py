@@ -52,11 +52,7 @@ class Router:
         async with aiohttp.ClientSession() as session:
             response = await session.get(url)
             return web.Response(body = await response.read(),
-                                status = response.status,
-                                headers=response.headers,
-                                content_type=response.content_type,
-                                charset=response.charset,
-                                reason=response.reason)
+                                status = response.status)
 
     @staticmethod
     def applyRoutes(app: web.Application, # pylint: disable=too-many-statements, too-many-arguments
