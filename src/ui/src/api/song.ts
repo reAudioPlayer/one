@@ -7,8 +7,6 @@ import { IMetadata, ISong, ISpotifySong, unhashTrack } from "../common";
 import { createPlaylist } from "./playlist";
 import { useDownloaderStore } from "../store/downloader";
 
-const downloaderStore = useDownloaderStore();
-
 /**
  * updates a song based on its id
  * @param song
@@ -120,6 +118,7 @@ export const saveDuration = async(songId: number, duration: number) => {
  * @param songId the id of the song to download, not the hash
  */
 export const downloadSong = (songId: number) => {
+    const downloaderStore = useDownloaderStore();
     downloaderStore.downloadFromDb(songId);
 }
 
