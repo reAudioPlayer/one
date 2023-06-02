@@ -102,4 +102,24 @@ input[type=text] {
     background: none !important;
     border: none !important;
 }
+
+input[type="text"], input[type="password"] {
+    background: var(--hover-2);
+    border: 1px solid var(--hover-3);
+    border-radius: 5px;
+    color: var(--font-colour);
+    padding: 10px;
+    width: auto;
+    flex-grow: 1;
+    font-family: var(--font-family);
+
+    &:focus {
+        outline: none;
+    }
+
+    &:hover {
+        background: var(--hover-1);
+        border: 1px solid var(--font-colour);
+    }
+}
 </style>
