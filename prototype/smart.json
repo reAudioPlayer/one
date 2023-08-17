@@ -1,0 +1,9 @@
+{
+    "type": "smart",
+    "smart": {
+        "direction": "asc",
+        "sort": "duration",
+        "filter": {
+        }
+    }
+}

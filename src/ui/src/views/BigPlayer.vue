@@ -21,9 +21,11 @@ const data = useDataStore();
 const playing = computed(() => player.playing);
 const cover = computed(() => player.song.cover);
 const songId = computed(() => player.song.id);
-const playlist = computed(() => player.playlist);
-const playlistId = computed(() => player.playlist.id);
-const title = computed(() => player.loaded ? `${player.song.title} • ${player.song.artist}` : "reAudioPlayer One");
+const title = computed(() =>
+    player.loaded
+        ? `${player.song.title} • ${player.song.artist}`
+        : "reAudioPlayer One"
+);
 const playlists = computed(() => data.playlists);
 
 const playlistScroll = ref(null);
@@ -42,13 +44,15 @@ onMounted(() => {
             return;
         }
 
-        const scroll = document.getElementById(`bplayer-entry-${songId.value}`)?.offsetTop;
+        const scroll = document.getElementById(
+            `bplayer-entry-${songId.value}`
+        )?.offsetTop;
 
         if (scroll >= 354) {
             playlistScroll.value.scrollTop = scroll - 354;
         }
     }, 1000);
-})
+});
 
 let maximised = ref(false);
 const toggleMaximise = () => {
@@ -73,12 +77,25 @@ const selectedSongId = ref(-1);
                     with-ambient
                 />
                 <div :class="{ playing, animate }" class="blocks">
-                    <div :style="{'animation-delay': '0s'}" class="block"></div>
-                    <div :style="{'animation-delay': '.25s'}" class="block"></div>
-                    <div :style="{'animation-delay': '.5s'}" class="block"></div>
+                    <div
+                        :style="{ 'animation-delay': '0s' }"
+                        class="block"
+                    ></div>
+                    <div
+                        :style="{ 'animation-delay': '.25s' }"
+                        class="block"
+                    ></div>
+                    <div
+                        :style="{ 'animation-delay': '.5s' }"
+                        class="block"
+                    ></div>
                 </div>
             </div>
-            <Card v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl relative" :key="player.playlist.id">
+            <Card
+                v-if="!noPlaylist"
+                class="playlistOverflow drop-shadow-2xl relative"
+                :key="player.playlist.id"
+            >
                 <div ref="playlistScroll" class="playlist">
                     <PlaylistHeader />
                     <PlaylistEntry
@@ -89,20 +106,32 @@ const selectedSongId = ref(-1);
                         :selected="selectedSongId == element.id"
                         :song="element"
                         with-cover
-                        @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
+                        @click="
+                            selectedSongId == element.id
+                                ? (selectedSongId = -1)
+                                : (selectedSongId = element.id)
+                        "
                     />
                 </div>
             </Card>
 
             <div class="settings">
-            <span class="iconButton material-symbols-rounded"
-                  @click="toggleMaximise">{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span>
-                <span :style="{ transform: `rotate(${ noPlaylist ? 0 : 180 }deg)` }" class="iconButton material-symbols-rounded"
-                      @click="() => noPlaylist = !noPlaylist">menu_open</span>
-                <span class="iconButton material-symbols-rounded"
-                      @click="() => animate = !animate">{{
-                        !animate ? "animation" : "motion_photos_off"
-                    }}</span>
+                <span
+                    class="iconButton material-symbols-rounded"
+                    @click="toggleMaximise"
+                    >{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span
+                >
+                <span
+                    :style="{ transform: `rotate(${noPlaylist ? 0 : 180}deg)` }"
+                    class="iconButton material-symbols-rounded"
+                    @click="() => (noPlaylist = !noPlaylist)"
+                    >menu_open</span
+                >
+                <span
+                    class="iconButton material-symbols-rounded"
+                    @click="() => (animate = !animate)"
+                    >{{ !animate ? "animation" : "motion_photos_off" }}</span
+                >
             </div>
         </template>
         <template v-else>
@@ -207,7 +236,7 @@ const selectedSongId = ref(-1);
     }
 
     img {
-        transition: transform .5s;
+        transition: transform 0.5s;
         animation: pump 20s infinite ease-in-out;
 
         &:not(.playing) {
@@ -274,7 +303,8 @@ const selectedSongId = ref(-1);
             }
         }
 
-        &:not(.animate) .block, &:not(.playing) .block {
+        &:not(.animate) .block,
+        &:not(.playing) .block {
             animation: none;
             opacity: 0;
         }
