@@ -1,4 +1,6 @@
+import { getSongMetadata } from '../../api/song';
 import { usePlayerStore } from '../../store/player';
+import { useSettingsStore } from '../../store/settings';
 
 interface ILine {
     endTimeMs: string;
@@ -38,11 +40,17 @@ const getLyrics = async (id: string) => {
     }
 };
 
-export const findLyrics = async () => {
+export const findLyrics = async (fetchSpotify = false) => {
     const playerStore = usePlayerStore();
     const track = playerStore.song;
-    if (track.metadata.spotify?.id) {
-        return await getLyrics(track.metadata.spotify?.id);
+    let spotifyId = track.metadata.spotify?.id;
+
+    if (!spotifyId && fetchSpotify) {
+        const res = await getSongMetadata(track.id);
+        spotifyId = res.spotify?.id;
+    }
+    if (spotifyId) {
+        return await getLyrics(spotifyId);
     }
 
     return {

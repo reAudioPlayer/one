@@ -132,11 +132,13 @@ export const usePlayerStore = defineStore({
         },
         async setSong(song) {
             if (song.id == this.song.id) return;
+
             this.song = song;
             this.song.cover = parseCover(song.cover);
             this.progress = 0;
 
-            this.lyrics = await findLyrics();
+            this.lyrics = null;
+            this.lyrics = await findLyrics(true);
         },
         setReady(ready) {
             if (this.ready === ready) return;
@@ -188,6 +190,7 @@ export const usePlayerStore = defineStore({
             this.playlist.cover = parseCover(playlist.cover);
             this.playlist.description = playlist.description;
             this.playlist.name = playlist.name;
+            this.playlist.id = playlist.id;
         },
         setVolume(volume) {
             if (volume == this.volume) return;
@@ -247,7 +250,7 @@ export const usePlayerStore = defineStore({
     },
     getters: {
         hasLyrics(state) {
-            return !state.lyrics?.error;
+            return state.lyrics?.lyrics;
         },
         durationSeconds(state) {
             return state.song.duration;

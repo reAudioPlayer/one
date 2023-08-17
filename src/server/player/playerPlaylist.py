@@ -4,6 +4,7 @@ from __future__ import annotations
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from random import randint
+import time
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
 import asyncio
 from hashids import Hashids # type: ignore
@@ -100,6 +101,64 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
                                   description = f"your {len(songs)} newest songs, automatically updated", # pylint: disable=line-too-long
                                   playlistIndex = -2)
         await playlist.load(-2, Song.list(songs))
+        return playlist
+
+    # pylint: disable=too-many-locals
+    @classmethod
+    async def smart(cls, data: Dict[str, Any]) -> PlayerPlaylist:
+        """
+        smart playlist
+
+        {
+            "limit": Integer().min(1).optional(),
+            "direction": String().enum("asc", "desc").optional(),
+            "sort": String().enum("title", "artist", "album", "duration", "id").optional(),
+            "filter": Object({
+                "title": String().optional(),
+                "artist": String().optional(),
+                "album": String().optional(),
+                "duration": Object({
+                    "from": Integer().min(0).optional(),
+                    "to": Integer().min(0).optional()
+                }).optional()
+            }
+        }
+        """
+        limit = data.get("limit", None)
+        direction = data.get("direction", "asc")
+        sort = data.get("sort", "id").replace("title", "name")
+        filter_ = data.get("filter", { })
+
+        filterTitle = filter_.get("title", None)
+        filterArtist = filter_.get("artist", None)
+        filterAlbum = filter_.get("album", None)
+        filterDuration = filter_.get("duration", { })
+        filterDurationFrom = filterDuration.get("from", None)
+        filterDurationTo = filterDuration.get("to", None)
+
+        query = "WHERE 1=1"
+        if filterTitle is not None:
+            query += f" AND title LIKE '%{filterTitle}%'"
+        if filterArtist is not None:
+            query += f" AND artist LIKE '%{filterArtist}%'"
+        if filterAlbum is not None:
+            query += f" AND album LIKE '%{filterAlbum}%'"
+        if filterDurationFrom is not None:
+            query += f" AND duration >= {filterDurationFrom}"
+        if filterDurationTo is not None:
+            query += f" AND duration <= {filterDurationTo}"
+
+        query += f" ORDER BY {sort} {direction}"
+        if limit is not None:
+            query += f" LIMIT {limit}"
+
+        songs = await Database().songs.select("*", query)
+        playlistIndex = -int(time.time())
+
+        playlist = PlayerPlaylist(name="Smart Playlist",
+                                  description = "your custom playlist, automatically updated", # pylint: disable=line-too-long
+                                  playlistIndex = playlistIndex)
+        await playlist.load(playlistIndex, Song.list(songs))
         return playlist
 
     def _updateCover(self, cover: Optional[str]) -> None:

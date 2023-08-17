@@ -2,6 +2,7 @@
 import AmbientBackground from '../../components/image/AmbientBackground.vue';
 import IconButton from '../../components/inputs/IconButton.vue';
 import { usePlayerStore } from '../../store/player';
+import Loader from '../../components/Loader.vue';
 import { setCORS } from "google-translate-api-browser";
 
 const translate = setCORS("http://localhost:1234/api/cors/");
@@ -94,14 +95,15 @@ const showUntranslateAll = () => {
     <AmbientBackground
         :src="playerStore.song.cover"
     />
-    <div v-if="playerStore.lyrics?.error" class="fill-page">
-        <h1>
+    <div v-if="!playerStore.lyrics || playerStore.lyrics?.error" class="fill-page">
+        <h1 v-if="playerStore.lyrics?.error">
             {{ playerStore.lyrics?.error }}
         </h1>
+        <Loader v-else />
     </div>
     <div class="w-full flex flex-row justify-end">
         <IconButton
-            v-if="!playerStore.lyrics?.error"
+            v-if="playerStore.lyrics?.lyrics"
             icon="translate"
             :label="showUntranslateAll() ? 'Show original' : 'Translate all'"
             class="mr-2"
