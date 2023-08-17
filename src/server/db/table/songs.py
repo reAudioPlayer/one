@@ -68,6 +68,10 @@ class SongModel(IModel, ITrack):
         id_, others = row[0], row[1:]
         return cls(*others, id_) # type: ignore
 
+    @classmethod
+    def empty(cls) -> SongModel:
+        return cls("", "", "", "", False, 0, "", "", 0, None)
+
     @property
     def insertStatement(self) -> str:
         items = [*self.COLUMNS]

@@ -11,6 +11,7 @@ from pyaddict.schema import Object, String, Integer, Array, Boolean
 
 from db.database import Database
 from db.table.artists import ArtistModel, SpotifyArtistData
+from db.table.songs import SongModel
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.cacheDecorator import useCache
 from helper.payloadParser import withObjectPayload
@@ -266,18 +267,21 @@ class MetaHandler:
         return web.Response(status = 400)
 
     @withObjectPayload(Object({
-        "id": Integer().min(1),
+        "id": Integer().min(1).optional(),
         "forceFetch": Boolean().optional(),
         "spotifyId": String().optional().min(22).max(22)
     }), inBody = True)
     async def fetchSongMeta(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/meta)"""
-        id_ = payload["id"]
+        id_: Optional[int] = payload.get("id")
         forceFetch = payload.get("forceFetch", False)
 
-        model = await self._dbManager.songs.byId(id_)
-        if not model:
-            return web.HTTPNotFound(text = "song not found")
+        if id_:
+            model = await self._dbManager.songs.byId(id_)
+            if not model:
+                return web.HTTPNotFound(text = "song not found")
+        else:
+            model = SongModel.empty()
 
         song = Song(model)
 
