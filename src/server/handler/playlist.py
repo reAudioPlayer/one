@@ -4,11 +4,30 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import Any, Dict
 from aiohttp import web
-from pyaddict.schema import Object, Integer
+from pyaddict.schema import Object, Integer, Array, String, Integer
 from helper.payloadParser import withObjectPayload
 from dataModel.song import Song
 from player.player import Player
+from player.playerPlaylist import PlayerPlaylist
 from player.playlistManager import PlaylistManager
+
+
+SMART_DEFINITION = Object({
+    "limit": Integer().min(1).optional(),
+    "direction": String().enum("asc", "desc").optional(),
+    "sort": String().enum("title", "artist", "album", "duration", "id").optional(),
+    "name": String().optional(),
+    "description": String().optional(),
+    "filter": Object({
+        "title": Array(String()).optional(),
+        "artist": Array(String()).optional(),
+        "album": Array(String()).optional(),
+        "duration": Object({
+            "from": Integer().min(0).optional(),
+            "to": Integer().min(0).optional()
+        }).optional()
+    }).optional()
+})
 
 
 class PlaylistHandler:
@@ -81,4 +100,23 @@ class PlaylistHandler:
                                              jdata.get("name"),
                                              jdata.get("description"),
                                              jdata.get("cover"))
+        return web.Response()
+
+    @withObjectPayload(SMART_DEFINITION, inBody = True)
+    async def updateSmartPlaylist(self, payload: Dict[str, Any]) -> web.Response:
+        """post(/api/playlists/smart/{id})"""
+        return web.Response()
+
+    @withObjectPayload(SMART_DEFINITION, inBody = True)
+    async def peekSmartPlaylist(self, payload: Dict[str, Any]) -> web.Response:
+        """post(/api/playlists/smart/preview)"""
+        playlist = await PlayerPlaylist.smart(payload)
+        return web.json_response(playlist.toDict())
+
+    @withObjectPayload(Object({
+        "id": Integer().min(0).coerce(),
+    }), inPath = True)
+    async def getSmartPlaylist(self, payload: Dict[str, int]) -> web.Response:
+        """get(/api/playlists/smart/{id})"""
+        id_: int = payload["id"]
         return web.Response()

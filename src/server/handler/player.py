@@ -47,20 +47,7 @@ class PlayerHandler:
     @withObjectPayload(Object({
         "type": String().enum("playlist", "collection", "collection/breaking", "track", "smart"),
         "id": Integer().min(MIN_PLAYLIST_ID).optional(),
-        "smart": Object({
-            "limit": Integer().min(1).optional(),
-            "direction": String().enum("asc", "desc").optional(),
-            "sort": String().enum("title", "artist", "album", "duration", "id").optional(),
-            "filter": Object({
-                "title": String().optional(),
-                "artist": String().optional(),
-                "album": String().optional(),
-                "duration": Object({
-                    "from": Integer().min(0).optional(),
-                    "to": Integer().min(0).optional()
-                }).optional()
-            }).optional()
-        }).optional()
+        "smart": String().optional()
     }), inBody = True)
     async def loadPlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/player/load)"""

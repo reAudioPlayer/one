@@ -6,10 +6,6 @@
 <script lang="ts" setup>
 
 defineProps({
-    index: {
-        type: Number,
-        required: true
-    },
     withAlbum: {
         type: Boolean,
         required: false,

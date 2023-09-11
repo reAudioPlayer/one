@@ -1,9 +1,10 @@
 //import { useSettingsStore } from "./store/settings";
 import themes from "./assets/themes.json";
+import { ref } from "vue";
 
-const settings = {
+const settings = ref({
     theme: "dynamic"
-};
+});
 
 
 interface CustomWindow extends Window {
@@ -29,7 +30,7 @@ window.getThemes = () => { // returns a string array of all available themes
 }
 
 window.getCurrentTheme = () => {
-    return settings.theme;
+    return settings.value.theme;
 }
 
 window.setTheme = (theme) => { // accepts a string (theme name)

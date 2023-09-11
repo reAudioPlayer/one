@@ -140,6 +140,9 @@ class Router:
         app.router.add_put('/api/playlists/{id}/tracks', playlistHandler.moveSong)
         app.router.add_delete('/api/playlists/{id}/tracks', playlistHandler.removeSong)
 
+        # /api/playlists/smart
+        app.router.add_post('/api/playlists/smart/peek', playlistHandler.peekSmartPlaylist)
+
         # /api/config
         app.router.add_get('/api/config/first-time', configHandler.firstTime)
         app.router.add_put('/api/config', configHandler.updateConfig)

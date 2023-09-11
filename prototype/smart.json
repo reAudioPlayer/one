@@ -1,9 +1,13 @@
 {
     "type": "smart",
     "smart": {
+        "name": "Smart Playlist",
+        "description": "The smartest playlist ever!",
         "direction": "asc",
         "sort": "duration",
+        "limit": 5,
         "filter": {
+            "title": [ "Aman", "You're Not Mine" ]
         }
     }
 }

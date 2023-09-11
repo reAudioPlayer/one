@@ -8,6 +8,7 @@ import { computed, PropType, ref, watch } from "vue";
 import { generatePlaceholder, getCover } from "./placeholder";
 import { parseAnyCover } from "../../common";
 import { applyBoxShadow } from "../../helpers/accent";
+import window from "@/themes";
 
 const props = defineProps({
     src: {
@@ -71,7 +72,6 @@ const onLoad = async () => {
     if (!props.withAmbient) return;
     if (!element.value) return;
 
-    // @ts-ignore
     if (!window.getCurrentThemeProperty("supportsAmbient")) return;
 
     const src = await getCover(imgSrc.value, placeholderIcon.value);

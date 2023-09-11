@@ -8,6 +8,7 @@ import time
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
 import asyncio
 from hashids import Hashids # type: ignore
+from pyaddict import JDict, JList
 from dataModel.playlist import Playlist
 from dataModel.song import Song
 from db.database import Database
@@ -124,25 +125,36 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
             }
         }
         """
-        limit = data.get("limit", None)
-        direction = data.get("direction", "asc")
-        sort = data.get("sort", "id").replace("title", "name")
-        filter_ = data.get("filter", { })
+        dex = JDict(data)
+        limit = dex.optionalGet("limit", int)
+        direction = dex.ensure("direction", str, "asc")
+        sort = dex.ensure("sort", str, "id").replace("title", "name")
+        filter_ = dex.ensureCast("filter", JDict)
 
-        filterTitle = filter_.get("title", None)
-        filterArtist = filter_.get("artist", None)
-        filterAlbum = filter_.get("album", None)
+        query = "WHERE 1=1"
+
+        def _addList(key: str) -> str:
+            value = filter_.optionalCast(key, JList)
+            if not value:
+                return ""
+            query = " AND "
+            items = value.iterator().optionalGet(str)
+            for i, item in enumerate(items):
+                if not item:
+                    continue
+                if i > 0:
+                    query += " OR "
+                encodedItem = item.replace("'", "''")
+                query += f"{key} LIKE '%{encodedItem}%'"
+            return query
+
+        query += _addList("title").replace("title LIKE", "name LIKE")
+        query += _addList("artist")
+        query += _addList("album")
         filterDuration = filter_.get("duration", { })
         filterDurationFrom = filterDuration.get("from", None)
         filterDurationTo = filterDuration.get("to", None)
 
-        query = "WHERE 1=1"
-        if filterTitle is not None:
-            query += f" AND title LIKE '%{filterTitle}%'"
-        if filterArtist is not None:
-            query += f" AND artist LIKE '%{filterArtist}%'"
-        if filterAlbum is not None:
-            query += f" AND album LIKE '%{filterAlbum}%'"
         if filterDurationFrom is not None:
             query += f" AND duration >= {filterDurationFrom}"
         if filterDurationTo is not None:
@@ -154,7 +166,6 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
 
         songs = await Database().songs.select("*", query)
         playlistIndex = -int(time.time())
-
         playlist = PlayerPlaylist(name="Smart Playlist",
                                   description = "your custom playlist, automatically updated", # pylint: disable=line-too-long
                                   playlistIndex = playlistIndex)

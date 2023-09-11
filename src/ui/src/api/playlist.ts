@@ -112,3 +112,15 @@ export const removeSongFromPlaylist = async (playlistId: number, songId: number)
     });
     await updateDataStore();
 }
+
+/**
+ * peeks into the songs in a smart playlist
+ */
+export const peekSmartPlaylist = async (definition: any): Promise<IFullPlaylist> => {
+    const res = await fetch("/api/playlists/smart/peek", {
+        method: "POST",
+        body: JSON.stringify(definition)
+    });
+    const jdata = await res.json();
+    return jdata;
+}

@@ -7,13 +7,9 @@
 import { usePlayerStore } from "../store/player";
 import { useDataStore } from "../store/data";
 import { computed, onMounted, ref, watch } from "vue";
-
-import PlaylistEntry from "../components/songContainers/PlaylistEntry.vue";
-import PlaylistHeader from "../components/songContainers/PlaylistHeader.vue";
-
+import Playlist from "../components/Playlist/Playlist.vue";
 import PlaylistItem from "../components/Catalogue/Items/Playlists/PlaylistItem.vue";
 import Cover from "@/components/image/Cover.vue";
-import Card from "../containers/Card.vue";
 
 const player = usePlayerStore();
 const data = useDataStore();
@@ -61,8 +57,6 @@ const toggleMaximise = () => {
 };
 const noPlaylist = ref(false); // hide playlist
 const animate = ref(false); // animations
-
-const selectedSongId = ref(-1);
 </script>
 
 <template>
@@ -91,30 +85,14 @@ const selectedSongId = ref(-1);
                     ></div>
                 </div>
             </div>
+            
             <Card
-                v-if="!noPlaylist"
-                class="playlistOverflow drop-shadow-2xl relative"
+                v-if="player.playlist"
+                class="playlist-overflow drop-shadow-2xl relative"
                 :key="player.playlist.id"
             >
-                <div ref="playlistScroll" class="playlist">
-                    <PlaylistHeader />
-                    <PlaylistEntry
-                        v-for="(element, index) in player.playlist.songs"
-                        :id="'bplayer-entry-' + element.id"
-                        :key="element.source"
-                        :index="index"
-                        :selected="selectedSongId == element.id"
-                        :song="element"
-                        with-cover
-                        @click="
-                            selectedSongId == element.id
-                                ? (selectedSongId = -1)
-                                : (selectedSongId = element.id)
-                        "
-                    />
-                </div>
+                <Playlist :playlist="player.playlist" />
             </Card>
-
             <div class="settings">
                 <span
                     class="iconButton material-symbols-rounded"
@@ -168,6 +146,19 @@ const selectedSongId = ref(-1);
 
 .bigPlayer {
     overflow: hidden;
+}
+
+.playlist-overflow {
+    flex: 2;
+    height: calc(100% - 220px);
+    margin: 100px 0;
+    overflow: hidden;
+
+    .playlist {
+        overflow-y: auto;
+        height: 100%;
+        padding: 10px 20px;
+    }
 }
 
 .iconButton {
@@ -316,19 +307,6 @@ const selectedSongId = ref(-1);
     height: auto;
     max-width: 600px;
     border-radius: 20px;
-}
-
-.bigPlayer .playlistOverflow {
-    flex: 2;
-    height: calc(100% - 220px);
-    margin: 100px 0;
-    overflow: hidden;
-}
-
-.bigPlayer .playlistOverflow .playlist {
-    overflow-y: auto;
-    height: 100%;
-    padding: 10px 20px;
 }
 
 .no-playlist-selected {

@@ -74,6 +74,20 @@ const routes = [{
         }
     },
     {
+        path: '/playlist/smart/editor',
+        component: () => import("@/views/Collection/SmartPlaylist/Editor.vue"),
+        meta: {
+            title: "Smart Playlist Editor - reAudioPlayer One"
+        }
+    },
+    {
+        path: '/playlist/smart/:hash',
+        component: () => import("@/views/Playlist/Smart.vue"),
+        meta: {
+            title: "Smart Playlist - reAudioPlayer One"
+        }
+    },
+    {
         path: '/playlist/:hash',
         component: () => import("@/views/Playlist/index.vue"),
         meta: {

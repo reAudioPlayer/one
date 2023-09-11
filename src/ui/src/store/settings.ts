@@ -114,7 +114,7 @@ export const useSettingsStore = defineStore("settings", () => {
     watch(() => ambient, update, {deep: true});
 
     // @ts-ignore
-    const themeSupportsAmbient = computed(() => window.getCurrentThemeProperty("supportsAmbient"));
+    const themeSupportsAmbient = computed(() => window.getCurrentThemeProperty && window.getCurrentThemeProperty("supportsAmbient"));
 
     return { player: playerState, sidebar: sidebarState, theme, ambient, themeSupportsAmbient };
 });
