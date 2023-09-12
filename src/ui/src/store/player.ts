@@ -11,7 +11,6 @@ import { getShuffle, nextSong, prevSong, setShuffle } from "../api/player";
 import { computed } from "vue";
 import { type ILyrics, findLyrics } from "../views/SingAlong/lyrics";
 
-
 type PlaylistType = "playlist" | "collection" | "collection/breaking" | "track";
 export type RepeatType = "repeat" | "repeat_one_on" | "repeat_on";
 export interface Playable {
@@ -23,9 +22,8 @@ export interface Playable {
     setMute: (mute: boolean) => void;
 }
 
-
 export const usePlayerStore = defineStore({
-    id: 'player',
+    id: "player",
     state: () => ({
         playing: false,
         progress: 0,
@@ -45,8 +43,8 @@ export const usePlayerStore = defineStore({
                 plays: 0,
                 spotify: {
                     id: null,
-                }
-            }
+                },
+            },
         },
         playlist: {
             cover: null,
@@ -105,7 +103,10 @@ export const usePlayerStore = defineStore({
             if (this.repeat === "repeat_one_on") {
                 this.play();
             } else {
-                if (this.repeat === "repeat" && this.playlist.index.value === this.playlist.songs.length - 1) {
+                if (
+                    this.repeat === "repeat" &&
+                    this.playlist.index.value === this.playlist.songs.length - 1
+                ) {
                     return;
                 }
 
@@ -158,9 +159,9 @@ export const usePlayerStore = defineStore({
             fetch(`/api/tracks/${this.song.id}`, {
                 method: "PUT",
                 body: JSON.stringify({
-                    duration
-                })
-            })
+                    duration,
+                }),
+            });
 
             //saveDuration(this.song.id, duration);
         },
@@ -171,7 +172,7 @@ export const usePlayerStore = defineStore({
             this.player.seek(time);
         },
         seekPercent(percent) {
-            this.seek(this.durationSeconds * percent / 100);
+            this.seek((this.durationSeconds * percent) / 100);
         },
         setProgress(progress) {
             this.progress = Math.round(progress);
@@ -181,9 +182,9 @@ export const usePlayerStore = defineStore({
             fetch(`/api/tracks/${this.song.id}`, {
                 method: "PUT",
                 body: JSON.stringify({
-                    favourite
-                })
-            })
+                    favourite,
+                }),
+            });
         },
         setPlaylist(playlist) {
             this.playlist.songs = playlist.songs;
@@ -217,22 +218,22 @@ export const usePlayerStore = defineStore({
             const body = {
                 type: "playlist",
                 id: playlistId,
-            }
+            };
 
-            if (typeof playlistId === "string") {
+            if (playlistId === "track") {
                 body.type = playlistId;
                 body.id = id;
             }
 
             fetch("/api/player/load", {
                 method: "POST",
-                body: JSON.stringify(body)
-            })
+                body: JSON.stringify(body),
+            });
         },
         loadSong(playlist: number | PlaylistType, index: number) {
             const body = {
-                index
-            }
+                index,
+            };
 
             if (typeof playlist === "number") {
                 if (!isNaN(playlist)) {
@@ -244,9 +245,9 @@ export const usePlayerStore = defineStore({
 
             fetch("/api/player/at", {
                 method: "POST",
-                body: JSON.stringify(body)
+                body: JSON.stringify(body),
             });
-        }
+        },
     },
     getters: {
         hasLyrics(state) {
@@ -258,7 +259,10 @@ export const usePlayerStore = defineStore({
         displayDuration(state) {
             const duration = state.song.duration;
             if (isNaN(duration)) return "0:00";
-            return `${Math.floor(duration / 60)}:${zeroPad(Math.floor(duration % 60), 2)}`
+            return `${Math.floor(duration / 60)}:${zeroPad(
+                Math.floor(duration % 60),
+                2
+            )}`;
         },
         stream(state) {
             return `/api/player/stream/${state.song.id}`;
@@ -267,12 +271,15 @@ export const usePlayerStore = defineStore({
             return state.song.cover;
         },
         progressPercent(state) {
-            return state.progress / this.durationSeconds * 1000;
+            return (state.progress / this.durationSeconds) * 1000;
         },
         displayProgress(state) {
             const progress = state.progress;
             if (isNaN(progress)) return "0:00";
-            return `${Math.floor(progress / 60)}:${zeroPad(Math.floor(progress % 60), 2)}`
+            return `${Math.floor(progress / 60)}:${zeroPad(
+                Math.floor(progress % 60),
+                2
+            )}`;
         },
         loaded(state) {
             return state.song.id != -1;
@@ -298,8 +305,13 @@ export const usePlayerStore = defineStore({
         playlist(state) {
             return {
                 ...state.playlist,
-                index: computed(() => state.playlist?.songs?.findIndex(song => song.id === state.song.id) ?? -1)
+                index: computed(
+                    () =>
+                        state.playlist?.songs?.findIndex(
+                            (song) => song.id === state.song.id
+                        ) ?? -1
+                ),
             };
-        }
-    }
+        },
+    },
 });

@@ -14,11 +14,10 @@ import { useDataStore } from "../../store/data";
 
 const route = useRoute();
 const router = useRouter();
-const player = usePlayerStore();
 const dataStore = useDataStore();
 
 const hash = computed(() => route.params.hash as string);
-const id = computed(() => unhashPlaylist(hash.value));
+const id = computed(() => hash.value);
 const playlist = ref(null as IFullPlaylist | null);
 const loading = ref(false);
 const error = ref(null as string | null);
@@ -55,15 +54,19 @@ const onPlaylistRearrange = async (oldIndex, newIndex) => {
         method: "PUT",
         body: JSON.stringify({
             songOldIndex: oldIndex,
-            songNewIndex: newIndex
-        })
-    })
+            songNewIndex: newIndex,
+        }),
+    });
     await dataStore.fetchPlaylists();
-}
+};
 
 onMounted(load);
 watch(route, () => load(), { deep: true });
-watch(() => dataStore.playlists, () => load(), { deep: true });
+watch(
+    () => dataStore.playlists,
+    () => load(),
+    { deep: true }
+);
 </script>
 
 <template>

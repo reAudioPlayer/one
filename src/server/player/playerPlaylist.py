@@ -106,7 +106,11 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
 
     # pylint: disable=too-many-locals
     @classmethod
-    async def smart(cls, data: Dict[str, Any]) -> PlayerPlaylist:
+    async def smart(cls,
+                    definition: Dict[str, Any],
+                    name: str = "Smart Playlist",
+                    description: str = "your custom playlist, automatically updated"
+                    ) -> PlayerPlaylist:
         """
         smart playlist
 
@@ -125,7 +129,7 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
             }
         }
         """
-        dex = JDict(data)
+        dex = JDict(definition)
         limit = dex.optionalGet("limit", int)
         direction = dex.ensure("direction", str, "asc")
         sort = dex.ensure("sort", str, "id").replace("title", "name")
@@ -166,9 +170,9 @@ class PlayerPlaylist: # pylint: disable=too-many-public-methods
 
         songs = await Database().songs.select("*", query)
         playlistIndex = -int(time.time())
-        playlist = PlayerPlaylist(name="Smart Playlist",
-                                  description = "your custom playlist, automatically updated", # pylint: disable=line-too-long
-                                  playlistIndex = playlistIndex)
+        playlist = PlayerPlaylist(name=name,
+                                  description=description, # pylint: disable=line-too-long
+                                  playlistIndex=playlistIndex)
         await playlist.load(playlistIndex, Song.list(songs))
         return playlist
 
