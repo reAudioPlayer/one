@@ -9,8 +9,8 @@ import random
 import asyncio
 from hashids import Hashids  # type: ignore
 from dataModel.song import Song
-from dataModel.playlist import Playlist
 from db.table.iPlaylistModel import IPlaylistModel
+from db.database import Database
 
 
 class PlaylistType(Enum):
@@ -33,15 +33,23 @@ class PlaylistType(Enum):
 
 
 class IPlayerPlaylist(ABC):
-    __slots__ = ("_songs", "_queue", "_type", "_cursor", "_model")
+    __slots__ = ("_songs", "_queue", "_cursor", "_model", "_loadTask")
 
-    def __init__(self, type_: PlaylistType, model: Optional[IPlaylistModel]) -> None:
+    def __init__(self, model: Optional[IPlaylistModel]) -> None:
         self._songs: List[Song] = []
         self._queue: List[int] = []
         self._cursor = -1
-        self._type: PlaylistType = type_
         self._model: Optional[IPlaylistModel] = model
-        asyncio.create_task(self._load())
+        self._loadTask = asyncio.create_task(self._load())
+
+        async def callback(_: Any) -> None:
+            self._loadTask = asyncio.create_task(self._load())
+
+        Database().songs.onChanged.add(callback)
+
+    async def waitForLoad(self) -> None:
+        """initial playlist load"""
+        await self._loadTask
 
     @abstractmethod
     async def _load(self) -> None:
@@ -89,7 +97,12 @@ class IPlayerPlaylist(ABC):
         return song
 
     def at(self, index: int) -> Optional[Song]:
+        """return song at index"""
         return self._queueAt(index)
+
+    def jumpTo(self, index: int) -> None:
+        """jump to index"""
+        self._cursor = index
 
     def shuffle(self) -> None:
         prevIndex = self._queue[self._cursor]
@@ -100,10 +113,15 @@ class IPlayerPlaylist(ABC):
                 return
 
     @property
+    @abstractmethod
+    def type(self) -> PlaylistType:
+        """playlist type"""
+
+    @property
     def id(self) -> str:
         """return id"""
         assert self._model is not None
-        return self._type.generateId(self._model.id)
+        return self.type.generateId(self._model.id)
 
     @property
     def href(self) -> str:
@@ -122,7 +140,7 @@ class IPlayerPlaylist(ABC):
             "name": self._model.name,
             "description": self._model.description,
             "cover": self._model.cover,
-            "type": self._type.value,
+            "type": self.type.value,
             "cursor": self.cursor,
             "songs": [song.toDict() for song in self._songs],
             "queue": [song.toDict() for song in self.queue],
@@ -145,3 +163,30 @@ class IPlayerPlaylist(ABC):
 
     def __len__(self) -> int:
         return len(self._songs)
+
+    async def delete(self) -> bool:
+        """deletes this playlist if possible"""
+        if self.type == PlaylistType.Classic:
+            assert self._model
+            await Database().playlists.deleteById(self._model.id)
+            return True
+        if self.type == PlaylistType.Smart:
+            assert self._model
+            await Database().smartPlaylists.deleteById(self._model.id)
+            return True
+        return False
+
+    def updateMeta(
+        self, name: Optional[str], description: Optional[str], cover: Optional[str]
+    ) -> bool:
+        if self.type in (PlaylistType.Classic, PlaylistType.Smart):
+            if not self._model:
+                return False
+            if name:
+                self._model.name = name
+            if description:
+                self._model.description = description
+            if cover:
+                self._model.cover = cover
+            return True
+        return False

@@ -115,7 +115,7 @@ class PlaylistModel(IModel, IPlaylistModel):
 
     @songsList.setter
     def songsList(self, songs: List[int]) -> None:
-        self._songs = json.dumps(songs)
+        self.songs = json.dumps(songs)
 
     @property
     def plays(self) -> int:
@@ -134,6 +134,10 @@ class PlaylistModel(IModel, IPlaylistModel):
         """id of the playlist"""
         assert self._id is not None
         return self._id
+
+    @id.setter
+    def id(self, value: int) -> None:
+        self._id = value
 
     def toDict(self) -> Dict[str, Any]:
         """return dict"""

@@ -102,6 +102,9 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
         if not playlist:
             return False
         if self._playerPlaylist and self._playerPlaylist == playlist:
+            if atIndex is not None:
+                await self.at(atIndex)
+                return True
             return False
 
         self._playerPlaylist = playlist
@@ -148,6 +151,7 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
             return True
         await self.unload()
         await self._preloadSong(self._playerPlaylist.at(index))
+        self._playerPlaylist.jumpTo(index)
         await self._loadSong()
         return True
 
@@ -176,10 +180,6 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
         self._shuffle = value
         if self._playerPlaylist:
             self._playerPlaylist.shuffle()
-
-    def updateSongMetadata(self, id_: int, song: Song) -> None:
-        """updates the metadata"""
-        self._playlistManager.updateSong(id_, lambda _: song)
 
     async def _loadSong(self, song: Optional[Song] = None) -> None:
         if not self._playerPlaylist:

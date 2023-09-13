@@ -214,11 +214,9 @@ class SmartPlaylistTable(ITable[SmartPlaylistModel]):
         return SmartPlaylistModel
 
     async def byId(self, id_: int) -> Optional[SmartPlaylistModel]:
-        """get song by id"""
-        where = f"id = {id_}"
-        return await self.selectOne(append=f"WHERE {where}")
+        """get playlist by id"""
+        return await self.selectOne(append=f"WHERE id = {id_}")
 
-    async def allByIds(self, ids: List[int]) -> List[SmartPlaylistModel]:
-        """get songs by ids"""
-        where = f"id IN ({', '.join([ str(x) for x in ids ])})"
-        return await self.select(append=f"WHERE {where}")
+    async def deleteById(self, id_: int) -> None:
+        """delete playlist by id"""
+        await self._db.execute(f"DELETE FROM {self.NAME} WHERE id={id_}")

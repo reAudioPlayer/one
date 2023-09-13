@@ -97,10 +97,12 @@ class ITable(ABC, Generic[_T]):
         async with self._db.execute(f"SELECT * FROM {self.NAME}") as cursor:
             return [self.cast(row) for row in await cursor.fetchall()]
 
-    async def insert(self, item: _T) -> None:
+    async def insert(self, item: _T) -> Optional[int]:
         """insert item"""
-        await self._db.execute(f"INSERT INTO {self.NAME} {item.insertStatement}", item.toTuple())
         item.onChanged.add(self.update)
+        async with self._db.execute(f"INSERT INTO {self.NAME} {item.insertStatement}",
+                                    item.toTuple()) as cursor:
+            return cursor.lastrowid
 
     async def delete(self, item: _T) -> None:
         """delete item"""

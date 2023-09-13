@@ -342,6 +342,7 @@ const onObserveVisibility = (isVisible, entry) => {
                     v-model="songs"
                     :class="filters.order == 'asc' ? 'flex-col' : 'flex-col-reverse'"
                     :disabled="filterApplied(filters)"
+                    item-key="id"
                     class="flex"
                     @change="onPlaylistRearrange"
                 >

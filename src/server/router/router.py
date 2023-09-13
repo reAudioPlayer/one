@@ -15,7 +15,6 @@ from downloader.downloader import Downloader
 from handler.download import DownloadHandler
 from handler.meta import MetaHandler
 from handler.player import PlayerHandler
-from handler.collection import CollectionHandler
 from handler.config import ConfigHandler
 from handler.news import NewsHandler
 from handler.playlist import PlaylistHandler
@@ -60,7 +59,6 @@ class Router:
                     downloadHandler: DownloadHandler,
                     metaHandler: MetaHandler,
                     sportsHandler: SportsHandler,
-                    collectionHandler: CollectionHandler,
                     newsHandler: NewsHandler,
                     playlistHandler: PlaylistHandler,
                     configHandler: ConfigHandler,
@@ -105,10 +103,6 @@ class Router:
         app.router.add_get('/api/spotify/recommendations/{id}', metaHandler.spotifyRecommendSong)
         app.router.add_get('/api/spotify/callback', spotify.callbackHandler)
         app.router.add_get('/api/spotify/authorise', spotify.clientSideAuthHandler)
-
-        # /api/me/
-        app.router.add_get('/api/me/liked', collectionHandler.tracks)
-        app.router.add_get('/api/me/new', collectionHandler.breaking)
 
         # /api/me/player
         app.router.add_get('/api/me/player/current-track', playerHandler.getCurrentTrack)

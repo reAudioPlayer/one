@@ -22,7 +22,6 @@ from handler.news import NewsHandler
 from handler.sports import SportsHandler
 from handler.player import PlayerHandler
 from handler.playlist import PlaylistHandler
-from handler.collection import CollectionHandler
 from handler.meta import MetaHandler
 from handler.config import ConfigHandler
 from handler.websocket import Websocket
@@ -43,7 +42,7 @@ from helper.logged import Logged
 from middleware.exception import exceptionMiddleware
 
 
-Logged.init()
+Logged.initLogger()
 mimetypes.init()
 mimetypes.types_map['.js'] = 'application/javascript; charset=utf-8'
 
@@ -60,7 +59,6 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
 
     playerHandler = PlayerHandler(player, playlistManager)
     playlistHandler = PlaylistHandler(player, playlistManager)
-    collectionHandler = CollectionHandler()
     metaHandler = MetaHandler(spotify)
     downloadHandler = DownloadHandler(downloader, player)
     configHandler = ConfigHandler()
@@ -75,7 +73,6 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
                        downloadHandler,
                        metaHandler,
                        sportsHandler,
-                       collectionHandler,
                        newsHandler,
                        playlistHandler,
                        configHandler,
@@ -112,7 +109,7 @@ async def main() -> None:
 
     await Database().init()
     logger.debug("Database initialised")
-    await playlistManager.loadPlaylists()
+    await playlistManager.init()
     logger.debug("Playlists loaded")
     await Runtime.cache.init()
     logger.debug("Cache initialised")

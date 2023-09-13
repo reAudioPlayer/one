@@ -7,7 +7,6 @@
 import Index from "@/views/Collection/SmartPlaylist/index.vue";</script>
 <template>
     <index
-        :id="-1"
-        src="/api/me/liked"
+        id="liked"
     />
 </template>

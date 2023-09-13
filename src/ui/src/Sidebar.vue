@@ -3,7 +3,7 @@
   - Licenced under the GNU General Public License v3.0
   -->
 
-<script setup>
+<script setup lang="ts">
 import { usePlayerStore } from "@/store/player";
 import { useDataStore } from "@/store/data";
 import { computed } from "vue";
@@ -20,38 +20,65 @@ const settings = useSettingsStore();
 <template>
     <div class="sidebar drop-shadow-xl">
         <div class="static">
-            <nav-entry :hasChildSites="true" :minimised="minimised" href="/collection/playlists" icon="library_music"
-                       name="Your Library" parentHref="/collection"/>
-            <nav-entry :minimised="minimised" href="/discover" icon="explore" name="Discover"/>
-            <br v-if="settings.sidebar.news || settings.sidebar.sports">
-            <nav-entry v-if="settings.sidebar.news" :hasChildSites="true" :minimised="minimised" href="/news" icon="newspaper"
-                       name="News"/>
-            <nav-entry v-if="settings.sidebar.sports" :hasChildSites="true" :minimised="minimised" href="/sports"
-                       icon="sports_soccer"
-                       name="Sports"/>
-            <br class="hideIfMobile">
-            <nav-entry :minimised="minimised" class="hideIfMobile" href="/playlist/create" icon="add_circle"
-                       name="Create Playlist"/>
-            <nav-entry :minimised="minimised" href="/collection/tracks" icon="favorite" name="Liked Songs"/>
+            <nav-entry
+                :hasChildSites="true"
+                :minimised="minimised"
+                href="/collection/playlists"
+                icon="library_music"
+                name="Your Library"
+                parentHref="/collection"
+            />
+            <nav-entry
+                :minimised="minimised"
+                href="/discover"
+                icon="explore"
+                name="Discover"
+            />
+            <br v-if="settings.sidebar.news || settings.sidebar.sports" />
+            <nav-entry
+                v-if="settings.sidebar.news"
+                :hasChildSites="true"
+                :minimised="minimised"
+                href="/news"
+                icon="newspaper"
+                name="News"
+            />
+            <nav-entry
+                v-if="settings.sidebar.sports"
+                :hasChildSites="true"
+                :minimised="minimised"
+                href="/sports"
+                icon="sports_soccer"
+                name="Sports"
+            />
+            <br class="hideIfMobile" />
+            <nav-entry
+                :minimised="minimised"
+                class="hideIfMobile"
+                href="/playlist/create"
+                icon="add_circle"
+                name="Create Playlist"
+            />
+            <nav-entry
+                :minimised="minimised"
+                href="/collection/tracks"
+                icon="favorite"
+                name="Liked Songs"
+            />
         </div>
-        <hr v-if="playlists.length" class="hideIfMobile">
-        <template v-if="!minimised">
-            <div class="playlistList expanded hideIfMobile">
-                <router-link
-                    v-for="(element, index) in playlists"
-                    :key="index"
-                    :to="element.href"
-                >
-                    {{ element.name }}
-                </router-link>
-            </div>
-        </template>
-        <template v-else>
-            <div class="playlistList hideIfMobile">
-                <nav-entry v-for="(element, index) in playlists" :key="index" :href="element.href"
-                           :img="element.cover" :minimised="minimised" :name="element.name"/>
-            </div>
-        </template>
+        <hr v-if="playlists.length" class="hideIfMobile" />
+        <div class="playlistList hideIfMobile">
+            <nav-entry
+                v-for="(element, index) in playlists.filter(
+                    (x) => x.type != 'special'
+                )"
+                :key="index"
+                :href="element.href"
+                :img="element.cover"
+                :minimised="minimised"
+                :name="element.name"
+            />
+        </div>
         <img
             v-if="settings.player.expandedCover"
             :src="cover"
@@ -61,38 +88,41 @@ const settings = useSettingsStore();
     </div>
 </template>
 
-<script>
-import NavEntry from '@/components/Sidebar/NavEntry.vue'
-import {computed} from "vue";
-import {useSettingsStore} from "@/store/settings";
+<script lang="ts">
+import NavEntry from "@/components/Sidebar/NavEntry.vue";
+import { computed } from "vue";
+import { useSettingsStore } from "@/store/settings";
 
 export default {
-    name: 'Sidebar',
+    name: "Sidebar",
     components: {
-        NavEntry
+        NavEntry,
     },
     watch: {
         minimised() {
             this.collapseSidebar();
-        }
+        },
     },
     mounted() {
         this.collapseSidebar();
     },
     computed: {
         minimised() {
-            return true
-        }
+            return true;
+        },
     },
     methods: {
         hideCover() {
-            this.$emit("expandCover", false)
+            this.$emit("expandCover", false);
         },
         collapseSidebar() {
-            document.documentElement.style.setProperty("--w-sidebar", this.minimised ? "44px" : "200px");
-        }
-    }
-}
+            document.documentElement.style.setProperty(
+                "--w-sidebar",
+                this.minimised ? "44px" : "200px"
+            );
+        },
+    },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -172,7 +202,7 @@ h2 {
 }
 
 .playlistList > a:hover {
-    color: var(--font-colour)
+    color: var(--font-colour);
 }
 
 hr {

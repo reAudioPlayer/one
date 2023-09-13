@@ -19,6 +19,7 @@ import { usePlayerStore } from "@/store/player";
 import { parseCover } from "@/common";
 import Index from "@/views/Playlist/index.vue";
 import Template from "@/views/Playlist/Template.vue";
+import { getPlaylistByHash } from "@/api/playlist";
 
 
 export default {
@@ -30,12 +31,8 @@ export default {
         PlaylistHeader
     },
     props: {
-        src: {
-            type: String,
-            required: true
-        },
         id: {
-            type: Number,
+            type: String,
             required: true
         },
         icon: {
@@ -59,19 +56,11 @@ export default {
             const data = this.playlist?.[index]
             window.open(`/api/tracks/${data.id}/download`)
         },
-        updateTracks() {
-            fetch(this.src)
-                .then(x => x.json()).then(jdata => {
-                this.playlist = jdata;
-            })
+        async updateTracks() {
+            this.playlist = await getPlaylistByHash(this.id);
         },
         loadPlaylist() {
-            fetch("/api/player/load", {
-                method: "POST",
-                body: JSON.stringify({
-                    type: "collection"
-                })
-            })
+            this.store.loadPlaylist(playlistId)
         }
     }
 }

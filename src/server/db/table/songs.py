@@ -132,6 +132,10 @@ class SongModel(IModel, ITrack):
         assert self._id is not None
         return self._id
 
+    @id.setter
+    def id(self, value: int) -> None:
+        self._id = value
+
     @property
     def title(self) -> str:
         """return title"""

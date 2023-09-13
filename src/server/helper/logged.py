@@ -15,7 +15,7 @@ class Logged:
         self._logger = logging.getLogger(name)
 
     @staticmethod
-    def init() -> None:
+    def initLogger() -> None:
         """Initialise the logger"""
         pipeHandler = logging.StreamHandler(sys.stdout)
         logging.config.fileConfig('logging.ini')

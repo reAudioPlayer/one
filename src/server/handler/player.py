@@ -3,19 +3,18 @@
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import asyncio
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Union, Optional
 import json
 
 from aiohttp import web
-from pyaddict.schema import Object, String, Integer
+from pyaddict.schema import Object, String, Integer, OneOf
 from pyaddict import JDict
 
 from db.database import Database
 from helper.payloadParser import withObjectPayload
 from player.player import Player
-from player.playerPlaylist import PlayerPlaylist
 from player.playlistManager import PlaylistManager
-from dataModel.song import Song
+from player.smartPlayerPlaylist import SpecialPlayerPlaylist
 
 
 MIN_PLAYLIST_ID = -2
@@ -41,48 +40,29 @@ class PlayerHandler:
         return web.Response(status=200, text="success!")
 
     @withObjectPayload(
-        Object(
-            {
-                "type": String().enum(
-                    "playlist", "collection", "collection/breaking", "track", "smart"
-                ),
-                "id": String().coerce().optional(),
-                "smart": String().optional(),
-            }
+        OneOf(
+            Object({"type": String().enum("playlist"), "id": String()}),
+            Object({"type": String().enum("track"), "id": Integer()}),
         ),
         inBody=True,
     )
-    async def loadPlaylist(self, payload: Dict[str, Any]) -> web.Response:
+    async def loadPlaylist(self, payload: Dict[str, str]) -> web.Response:
         """post(/api/player/load)"""
         type_: str = payload["type"]
-        id_: Optional[str] = payload.get("id")
-
-        if type_ in ("playlist", "track") and not id_:
-            return web.HTTPBadRequest(text="id is required for types playlist and track")
+        id_: Union[str, int] = payload["id"]
 
         if type_ == "playlist":
-            if id_ is None:
-                return web.HTTPBadRequest(text="id is required for type playlist")
+            assert isinstance(id_, str)
             if playlist := self._playlistManager.get(id_):
                 asyncio.create_task(self._player.loadPlaylist(playlist))
                 return web.Response()
             return web.HTTPNotFound(text="playlist not found")
 
-        # if type_ == "collection":
-        #   asyncio.create_task(self._player.loadPlaylist(await PlayerPlaylist.liked()))
-        #   return web.Response()
-
-        # if type_ == "collection/breaking":
-        # asyncio.create_task(self._player.loadPlaylist(await PlayerPlaylist.breaking()))
-        # return web.Response()
-
         if type_ == "track":
-            assert id_ is not None
-            if not (song := await self._dbManager.songs.byId(int(id_))):
-                return web.HTTPNotFound(text="song not found")
-            # asyncio.create_task(
-            #    self._player.loadPlaylist(PlayerPlaylist(songs=Song.list([song]), name=str(id_)))
-            # )
+            assert isinstance(id_, int)
+            playlist = SpecialPlayerPlaylist.track(int(id_))
+            await playlist.waitForLoad()
+            asyncio.create_task(self._player.loadPlaylist(playlist))
             return web.Response()
 
         return web.HTTPBadRequest(text="invalid type")
@@ -91,35 +71,27 @@ class PlayerHandler:
         Object(
             {
                 "index": Integer().min(0),  # index of song in playlist
-                "playlistIndex": Integer().min(MIN_PLAYLIST_ID).optional(),  # playlist id
-                "type": String().enum("collection", "collection/breaking").optional(),
+                "playlist": String().optional(),  # playlist id
             }
         ),
         inBody=True,
     )
-    async def loadSongAt(self, payload: web.Request) -> web.Response:
+    async def loadSongAt(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/player/at)"""
-        songId: int = payload.get("index", -1)
-        type_: Optional[str] = payload.get("type", None)
-        found = False
+        index: int = payload["index"]
+        playlistId: Optional[str] = payload.get("playlist")
 
-        if payload.get("playlistIndex", 0) in SPECIAL_PLAYLISTS:
-            type_ = SPECIAL_PLAYLISTS[payload.get("playlistIndex", 0)]
-            del payload["playlistIndex"]
+        if not playlistId:
+            await self._player.at(index)
+            return web.Response()
 
-        if "playlistIndex" in payload:  # other playlist
-            if await self._player.loadPlaylist(
-                self._playlistManager.get(payload["playlistIndex"]), songId
-            ):
-                found = True
-            else:
-                found = await self._player.at(songId)
-
-        else:
-            found = await self._player.at(songId)
-
-        if not found:
+        playlist = self._playlistManager.get(playlistId)
+        if not playlist:
             return web.HTTPNotFound()
+
+        success = await self._player.loadPlaylist(playlist, index)
+        if not success:
+            return web.HTTPInternalServerError()
         return web.Response()
 
     async def updateSong(self, request: web.Request) -> web.Response:

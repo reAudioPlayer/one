@@ -11,7 +11,7 @@ import { getShuffle, nextSong, prevSong, setShuffle } from "../api/player";
 import { computed } from "vue";
 import { type ILyrics, findLyrics } from "../views/SingAlong/lyrics";
 
-type PlaylistType = "playlist" | "collection" | "collection/breaking" | "track";
+type PlaylistType = "playlist" | "track";
 export type RepeatType = "repeat" | "repeat_one_on" | "repeat_on";
 export interface Playable {
     play: () => void;
@@ -212,12 +212,10 @@ export const usePlayerStore = defineStore({
 
             this.setShuffle(await getShuffle());
         },
-        // TODO
-        // loadPlaylist( ??? )
-        loadPlaylist(playlistId: number | PlaylistType, id: number = null) {
+        loadPlaylist(playlistId: string | PlaylistType, id: number = null) {
             const body = {
                 type: "playlist",
-                id: playlistId,
+                id: playlistId as any,
             };
 
             if (playlistId === "track") {
@@ -230,17 +228,15 @@ export const usePlayerStore = defineStore({
                 body: JSON.stringify(body),
             });
         },
-        loadSong(playlist: number | PlaylistType, index: number) {
+        loadSong(playlist: string | PlaylistType, index: number) {
             const body = {
                 index,
             };
 
-            if (typeof playlist === "number") {
-                if (!isNaN(playlist)) {
-                    body["playlistIndex"] = playlist;
-                }
-            } else {
+            if (playlist === "track") {
                 body["type"] = playlist;
+            } else {
+                body["playlist"] = playlist;
             }
 
             fetch("/api/player/at", {

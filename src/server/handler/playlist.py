@@ -8,8 +8,8 @@ from pyaddict.schema import Object, Integer, Array, String, Integer
 from helper.payloadParser import withObjectPayload
 from dataModel.song import Song
 from player.player import Player
-from player.playerPlaylist import PlayerPlaylist
 from player.playlistManager import PlaylistManager
+from player.smartPlayerPlaylist import SmartPlayerPlaylist, SpecialPlayerPlaylist
 
 
 SMART_DEFINITION = Object(
@@ -32,6 +32,15 @@ SMART_DEFINITION = Object(
     }
 )
 
+SMART_PLAYLIST = Object(
+    {
+        "name": String().min(1),
+        "description": String().coerce(),
+        "cover": String().min(1),
+        "definition": SMART_DEFINITION,
+    }
+)
+
 
 class PlaylistHandler:
     """playlist handler"""
@@ -42,26 +51,34 @@ class PlaylistHandler:
 
     async def addSong(self, request: web.Request) -> web.Response:
         """post(/api/playlists/{id}/tracks)"""
-        id_ = int(request.match_info["id"])
+        id_ = str(request.match_info["id"])
         jdata = await request.json()
-        await self._playlistManager.addToPlaylist(id_, Song.fromDict(jdata))
-        return web.Response()
+        success = await self._playlistManager.addToPlaylist(id_, Song.fromDict(jdata))
+        if success:
+            return web.Response()
+        return web.HTTPBadRequest
 
     async def moveSong(self, request: web.Request) -> web.Response:
         """put(/api/playlists/{id}/tracks)"""
-        id_ = int(request.match_info["id"])
+        id_ = str(request.match_info["id"])
         jdata = await request.json()
-        self._playlistManager.moveInPlaylist(id_, jdata["songOldIndex"], jdata["songNewIndex"])
-        return web.Response()
+        success = await self._playlistManager.moveInPlaylist(
+            id_, jdata["songOldIndex"], jdata["songNewIndex"]
+        )
+        if success:
+            return web.Response()
+        return web.HTTPBadRequest
 
     async def removeSong(self, request: web.Request) -> web.Response:
         """/api/playlists/{id}/tracks"""
-        id_ = int(request.match_info["id"])
+        id_ = str(request.match_info["id"])
         jdata = await request.json()
         if not "songId" in jdata:
             return web.Response(status=400, text="no songId")
-        await self._playlistManager.removefromPlaylist(id_, jdata["songId"])
-        return web.Response(status=200, text="success!")
+        success = await self._playlistManager.removefromPlaylist(id_, jdata["songId"])
+        if success:
+            return web.Response()
+        return web.HTTPBadRequest
 
     @withObjectPayload(Object({"id": String().coerce()}), inPath=True)
     async def getPlaylist(self, payload: Dict[str, Any]) -> web.Response:
@@ -105,26 +122,39 @@ class PlaylistHandler:
         )
         return web.Response()
 
-    @withObjectPayload(SMART_DEFINITION, inBody=True)
+    @withObjectPayload(SMART_PLAYLIST, inBody=True)
+    async def addSmartPlaylist(self, payload: Dict[str, Any]) -> web.Response:
+        """post(/api/playlists/smart)"""
+        return web.Response()
+
+    @withObjectPayload(SMART_PLAYLIST, inBody=True)
     async def updateSmartPlaylist(self, payload: Dict[str, Any]) -> web.Response:
-        """post(/api/playlists/smart/{id})"""
+        """put(/api/playlists/smart/{id})"""
+        playlist = self._playlistManager.get(payload["id"])
+        if not isinstance(playlist, SmartPlayerPlaylist):
+            return web.HTTPNotFound()
+        playlist.updateMeta(payload["name"], payload["description"], payload["cover"])
+        playlist.definition = payload["definition"]
         return web.Response()
 
     @withObjectPayload(SMART_DEFINITION, inBody=True)
     async def peekSmartPlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/playlists/smart/preview)"""
-        playlist = await PlayerPlaylist.smart(payload)
-        return web.json_response(playlist.toDict())
+        playlist = SpecialPlayerPlaylist("Peek", "", payload, "peek", "")
+        await playlist.waitForLoad()
+        return web.json_response({})
 
     @withObjectPayload(
         Object(
             {
-                "id": Integer().min(0).coerce(),
+                "id": String().coerce(),
             }
         ),
         inPath=True,
     )
-    async def getSmartPlaylist(self, payload: Dict[str, int]) -> web.Response:
+    async def getSmartPlaylist(self, payload: Dict[str, str]) -> web.Response:
         """get(/api/playlists/smart/{id})"""
-        id_: int = payload["id"]
-        return web.Response()
+        playlist = self._playlistManager.get(payload["id"])
+        if not isinstance(playlist, SmartPlayerPlaylist):
+            return web.HTTPNotFound()
+        return web.json_response(playlist.definition)

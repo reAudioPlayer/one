@@ -2,6 +2,8 @@
 """reAudioPlayer ONE"""
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
+from typing import Any
+import asyncio
 from db.database import Database
 from db.table.playlists import PlaylistModel
 from player.iPlayerPlaylist import IPlayerPlaylist, PlaylistType
@@ -10,13 +12,58 @@ from dataModel.song import Song
 
 class ClassicPlayerPlaylist(IPlayerPlaylist):
     def __init__(self, model: PlaylistModel) -> None:
-        super().__init__(PlaylistType.Classic, model)
+        super().__init__(model)
+
+        async def callback(_: Any) -> None:
+            self._loadTask = asyncio.create_task(self._load())
+
+        Database().playlists.onChanged.add(callback)
 
     @property
     def _playlistModel(self) -> PlaylistModel:
         assert isinstance(self._model, PlaylistModel)
         return self._model
 
+    @property
+    def type(self) -> PlaylistType:
+        return PlaylistType.Classic
+
     async def _load(self) -> None:
-        self._songs = Song.list(await Database().songs.allByIds(self._playlistModel.songsList))
+        songIdList = self._playlistModel.songsList
+        songs = Song.list(await Database().songs.allByIds(songIdList))
+        songs.sort(key=lambda s: songIdList.index(s.model.id))
+        self._songs = songs
         self._resetQueue()
+
+    async def add(self, song: Song) -> None:
+        """add a song"""
+        songsInDb = await Database().songs.select("*", f"WHERE source='{song.model.source}'")
+        if len(songsInDb) == 0:
+            id_ = await Database().songs.insert(song.model)
+            if id_:
+                song.model.id = id_
+
+        songs = self._playlistModel.songsList
+        songs.append(song.model.id)
+        self._songs.append(song)
+        self._playlistModel.songsList = songs
+
+    async def remove(self, songId: int) -> None:
+        """removes a song"""
+        songs = self._playlistModel.songsList
+        if songId not in songs:
+            return
+        songs.remove(songId)
+        self._songs = [s for s in self._songs if s.model.id != songId]
+        self._playlistModel.songsList = songs
+
+    async def move(self, old: int, new: int) -> None:
+        """moves a song"""
+        songs = self._playlistModel.songsList
+        if not 0 <= old < len(songs):
+            return
+        if not 0 <= new < len(songs):
+            return
+        songs.insert(new, songs.pop(old))
+        self._songs.insert(new, self._songs.pop(old))
+        self._playlistModel.songsList = songs
