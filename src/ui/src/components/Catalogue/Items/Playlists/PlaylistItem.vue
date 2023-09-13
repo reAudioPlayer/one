@@ -19,8 +19,8 @@
         <div class="item" @click="redirect">
             <Cover :src="parseCover(cover)" type="playlist" />
             <div class="title">
-                <span v-if="type == 'special'" class="material-symbols-rounded">
-                    neurology
+                <span v-if="type != 'classic'" class="material-symbols-rounded">
+                    {{ type == "smart" ? "neurology" : "bolt" }}
                 </span>
                 <h4>{{ title }}</h4>
             </div>
@@ -55,7 +55,10 @@ export default {
         href: String,
         spotify: Boolean,
         id: String,
-        type: String,
+        type: {
+            type: String,
+            default: "classic",
+        },
     },
 };
 </script>
