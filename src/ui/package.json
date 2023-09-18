@@ -1,6 +1,6 @@
 {
   "name": "reAudioPlayer",
-  "version": "0.10.66",
+  "version": "0.10.67",
   "scripts": {
     "dev": "vite",
     "preview": "vite preview --port 8080",
