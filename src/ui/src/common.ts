@@ -98,7 +98,7 @@ export interface IBrowseSong extends ISong {
 }
 
 export interface IPlaylistMeta {
-    id: number;
+    id: string;
     name: string;
     cover: string;
     description: string;

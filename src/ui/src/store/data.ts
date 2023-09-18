@@ -23,7 +23,7 @@ export const useDataStore = defineStore({
         },
         playlistsAsDropdown(allowCreateNew = true): IDropdownOption[] {
             const options = this.playlists.map((playlist) => ({
-                value: playlist.id.toString(),
+                value: playlist.id,
                 label: playlist.name,
             }));
             if (allowCreateNew) {

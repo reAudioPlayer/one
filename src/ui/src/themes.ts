@@ -1,10 +1,7 @@
-//import { useSettingsStore } from "./store/settings";
 import themes from "./assets/themes.json";
-import { ref } from "vue";
+import { useSettingsStore } from "./store/settings";
 
-const settings = ref({
-    theme: "dynamic"
-});
+const settings = () => useSettingsStore();
 
 
 interface CustomWindow extends Window {
@@ -13,6 +10,7 @@ interface CustomWindow extends Window {
     setTheme: (theme: string) => void;
     getCurrentThemeProperty: (property: string) => string;
     themes: string[];
+    restoreTheme: () => void;
 }
 
 declare const window: CustomWindow;
@@ -30,7 +28,7 @@ window.getThemes = () => { // returns a string array of all available themes
 }
 
 window.getCurrentTheme = () => {
-    return settings.value.theme;
+    return settings().theme;
 }
 
 window.setTheme = (theme) => { // accepts a string (theme name)
@@ -38,7 +36,7 @@ window.setTheme = (theme) => { // accepts a string (theme name)
         return;
     }
 
-    settings.theme = theme;
+    settings().theme = theme;
 
     for (const key of Object.keys(themes)) {
         const value = themes[key]
@@ -49,11 +47,11 @@ window.setTheme = (theme) => { // accepts a string (theme name)
     }
 }
 
-window.setTheme(settings.theme || "dynamic") // optional, loads the default theme
+window.restoreTheme = () => window.setTheme(settings().theme || "dynamic") // optional, loads the default theme
 
 window.getCurrentThemeProperty = (property) => {
     const value = themes[property]
-    return value[settings.theme] ?? value.dark;
+    return value[settings().theme] ?? value.dark;
 }
 
 export default window;

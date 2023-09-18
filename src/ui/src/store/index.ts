@@ -7,8 +7,12 @@ import {usePlayerStore} from "./player";
 import {useDataStore} from "./data";
 import {useDownloaderStore} from "./downloader";
 
+import window from "../themes";
+
 export const initialiseStores = () => {
     usePlayerStore().initialise();
     useDataStore().fetchPlaylists();
     useDownloaderStore().initialise();
+
+    window.restoreTheme();
 }

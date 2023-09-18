@@ -8,7 +8,7 @@ import PlayerInPicture from "./PlayerInPicture.vue";
 import Header from "./Header.vue";
 
 import { usePlayerStore } from "@/store/player";
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import Startup from "@/views/Startup.vue";
 import { initPictureInPicture } from "@/pictureInPicture";
 import { getCover } from "@/components/image/placeholder";
@@ -27,6 +27,10 @@ const setCover = async () => {
     cover.value = await getCover(playerStore.song.cover, "graphic_eq")
 }
 setCover();
+
+const coverAsBackground = computed(() => {
+    return window.getCurrentThemeProperty("coverAsBackground");
+})
 </script>
 
 <template>
@@ -103,8 +107,7 @@ export default {
     },
     data() {
         return {
-            maximised: false,
-            coverAsBackground: false
+            maximised: false
         }
     },
     watch: {

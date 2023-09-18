@@ -6,6 +6,12 @@
 import { IMetadata, ISong, ISpotifySong, unhashTrack } from "../common";
 import { createPlaylist } from "./playlist";
 import { useDownloaderStore } from "../store/downloader";
+import { useDataStore } from "../store/data";
+
+const updateDataStore = async () => {
+    const dataStore = useDataStore();
+    await dataStore.fetchPlaylists();
+};
 
 /**
  * updates a song based on its id
@@ -21,7 +27,8 @@ export const updateSong = async (song: ISong) => {
             album: song.album,
             cover: song.cover
         })
-    })
+    });
+    await updateDataStore();
 }
 
 /**
@@ -35,6 +42,7 @@ export const updateSongProperty = async (songId: number, key: string, value: any
             [key]: value
         })
     })
+    await updateDataStore();
 }
 
 export const fetchMetadata = async (src: string): Promise<ISong> => {
@@ -52,13 +60,9 @@ export const fetchMetadata = async (src: string): Promise<ISong> => {
  * @param playlistId the id of the playlist to add the song to
  * @param song the song to add
  */
-export const addSong = async (playlistId: number | string, song: ISong) => {
+export const addSong = async (playlistId: string, song: ISong) => {
     if (playlistId === "new") {
         playlistId = await createPlaylist();
-    }
-
-    if (typeof playlistId === "string") {
-        console.error("playlistId cannot be a string", playlistId);
     }
 
     await fetch(`/api/playlists/${playlistId}/tracks`, {
@@ -72,6 +76,8 @@ export const addSong = async (playlistId: number | string, song: ISong) => {
             spotify: song.metadata ? JSON.stringify(song.metadata.spotify) : ""
         })
     })
+
+    await updateDataStore();
 }
 
 /**
@@ -82,7 +88,9 @@ export const addSong = async (playlistId: number | string, song: ISong) => {
 export const addExistingSong = async (playlistId: number, songId: number) => {
     await fetch(`/api/playlists/${playlistId}/tracks/${songId}`, {
         method: "POST"
-    })
+    });
+
+    await updateDataStore();
 }
 
 /**
@@ -96,7 +104,9 @@ export const favouriteSong = async (songId: number, favourite: boolean = true) =
         body: JSON.stringify({
             favourite
         })
-    })
+    });
+
+    await updateDataStore();
 }
 
 /**
@@ -110,7 +120,9 @@ export const saveDuration = async(songId: number, duration: number) => {
         body: JSON.stringify({
             duration
         })
-    })
+    });
+
+    await updateDataStore();
 }
 
 /**

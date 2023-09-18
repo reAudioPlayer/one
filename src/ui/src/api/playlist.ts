@@ -75,7 +75,7 @@ export const deletePlaylist = async (id: number): Promise<boolean> => {
  * creates a new playlist
  * @returns the id of the new playlist
  */
-export const createPlaylist = async (): Promise<number> => {
+export const createPlaylist = async (): Promise<string> => {
     const res = await fetch("/api/playlists/new");
     const id = await res.json();
     await updateDataStore();
@@ -93,7 +93,7 @@ export const createPlaylistWithMetadata = async (
     name: string,
     description: string = "",
     cover: string = ""
-): Promise<number> => {
+): Promise<string> => {
     const id = await createPlaylist();
     await updatePlaylistMetadata({
         id,

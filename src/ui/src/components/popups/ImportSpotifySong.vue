@@ -68,23 +68,25 @@ const preview = () => {
     window.dispatchEvent(event);
 }
 
-const createPlaylist = async (playlistId: string | number): Promise<number> => {
+const createPlaylist = async (playlistId: string): Promise<string> => {
     if (playlistId === "new") {
         const newPlaylist = await createPlaylistWithMetadata(props.song.title, props.song.artist, props.song.cover);
         options.value[0].options = data.playlistsAsDropdown;
         options.value[0].value = newPlaylist;
         return newPlaylist;
     }
-    return Number(playlistId);
+    return playlistId;
 }
 
-const addSong = async (index: number, playlistId: number = null) => {
+const addSong = async (index: number, playlistId: string = null) => {
     playlistId ??= form.value.toObject().playlist;
+
+    console.log(playlistId);
 
     playlistId = await createPlaylist(playlistId);
 
     await addSongToPlaylist(
-        playlistId ?? form.value.toObject().playlist,
+        playlistId,
         track.value);
     props.song.added = true;
     Notifications.addSuccess(track.value.title,
