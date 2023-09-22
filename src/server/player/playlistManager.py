@@ -10,6 +10,7 @@ from db.table.playlists import PlaylistModel
 from player.iPlayerPlaylist import IPlayerPlaylist
 from player.smartPlayerPlaylist import SmartPlayerPlaylist, SpecialPlayerPlaylist
 from player.classicPlayerPlaylist import ClassicPlayerPlaylist
+from db.table.smartPlaylists import SmartPlaylistModel
 
 
 T = TypeVar("T")  # pylint: disable=invalid-name
@@ -117,7 +118,7 @@ class PlaylistManager(Logged):
         """return number of playlists"""
         return len(self._playlists)
 
-    async def addPlaylist(self, name: Optional[str] = None) -> str:
+    async def addClassicPlaylist(self, name: Optional[str] = None) -> str:
         """creates a playlist"""
         plId = self.playlistLength
         name = name or f"My Playlist #{plId + 1}"
@@ -126,6 +127,16 @@ class PlaylistManager(Logged):
         if id_:
             playlist.id = id_
         return ClassicPlayerPlaylist(playlist).href
+
+    async def addSmartPlaylist(self, name: Optional[str] = None) -> str:
+        """creates a playlist"""
+        plId = self.playlistLength
+        name = name or f"My Smart Playlist #{plId + 1}"
+        playlist = SmartPlaylistModel(name)
+        id_ = await self._dbManager.smartPlaylists.insert(playlist)
+        if id_:
+            playlist.id = id_
+        return SmartPlayerPlaylist(playlist).href
 
     async def removePlaylist(self, playlistId: str) -> bool:
         """removes a playlist"""

@@ -94,9 +94,22 @@ class PlaylistHandler:
             [playlist.toDict() for playlist in self._playlistManager.playlists]
         )
 
-    async def createPlaylist(self, _: web.Request) -> web.Response:
+    @withObjectPayload(
+        Object(
+            {
+                "type": String().enum("classic", "smart").default("classic"),
+            }
+        ),
+        inQuery=True,
+    )
+    async def createPlaylist(self, payload: Dict[str, str]) -> web.Response:
         """get(/api/playlists/new)"""
-        return web.Response(status=200, text=str(await self._playlistManager.addPlaylist()))
+        href = ""
+        if payload["type"] == "classic":
+            href = self._playlistManager.addClassicPlaylist()
+        elif payload["type"] == "smart":
+            href = self._playlistManager.addSmartPlaylist()
+        return web.Response(text=href)
 
     @withObjectPayload(
         Object(
@@ -142,7 +155,7 @@ class PlaylistHandler:
         """post(/api/playlists/smart/preview)"""
         playlist = SpecialPlayerPlaylist("Peek", "", payload, "peek", "")
         await playlist.waitForLoad()
-        return web.json_response({})
+        return web.json_response(playlist.toDict())
 
     @withObjectPayload(
         Object(

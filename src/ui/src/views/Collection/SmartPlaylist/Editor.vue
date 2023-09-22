@@ -1,14 +1,14 @@
-<script setup lang=ts>
-import { reactive, ref, watch } from 'vue';
-import Dropdown from '../../../components/inputs/Dropdown.vue';
-import IconButton from '../../../components/inputs/IconButton.vue';
-import IconDropdown from '../../../components/inputs/IconDropdown.vue';
-import TextInputWithIcon from '../../../components/inputs/TextInputWithIcon.vue';
+<script setup lang="ts">
+import { reactive, ref, watch } from "vue";
+import Dropdown from "../../../components/inputs/Dropdown.vue";
+import IconButton from "../../../components/inputs/IconButton.vue";
+import IconDropdown from "../../../components/inputs/IconDropdown.vue";
+import TextInputWithIcon from "../../../components/inputs/TextInputWithIcon.vue";
 import { debounce } from "lodash";
-import { IPlaylist } from '../../../common';
-import { peekSmartPlaylist } from '../../../api/playlist';
-import Playlist from '../../../components/Playlist/Playlist.vue';
-import Card from '../../../containers/Card.vue';
+import { IPlaylist } from "../../../common";
+import { peekSmartPlaylist } from "../../../api/playlist";
+import Playlist from "../../../components/Playlist/Playlist.vue";
+import Card from "../../../containers/Card.vue";
 
 interface IDuration {
     from?: number; // s
@@ -39,47 +39,59 @@ const smartPlaylist = reactive<ISmartPlaylist>({
         title: [],
         artist: [],
         album: [],
-        duration: { }
-    }
+        duration: {},
+    },
 });
 
 const playlist = ref<IPlaylist | null>();
-watch([ () => smartPlaylist.sort,
+watch(
+    [
+        () => smartPlaylist.sort,
         () => smartPlaylist.filter,
-        () => smartPlaylist.direction ], debounce(async () => {
-    playlist.value = await peekSmartPlaylist(smartPlaylist);
-}, 3 * 1000), {
-    deep: true
-});
+        () => smartPlaylist.direction,
+    ],
+    debounce(async () => {
+        playlist.value = await peekSmartPlaylist(smartPlaylist);
+    }, 3 * 1000),
+    {
+        deep: true,
+    }
+);
 
-const sortOptions = [{
-    value: "title",
-    label: "Title",
-    icon: "title",
-}, {
-    value: "artist",
-    label: "Artist",
-    icon: "person",
-}, {
-    value: "album",
-    label: "Album",
-    icon: "album",
-}, {
-    value: "duration",
-    label: "Duration",
-    icon: "timer",
-}, {
-    value: "index",
-    label: "Added",
-    icon: "date_range",
-}];
+const sortOptions = [
+    {
+        value: "title",
+        label: "Title",
+        icon: "title",
+    },
+    {
+        value: "artist",
+        label: "Artist",
+        icon: "person",
+    },
+    {
+        value: "album",
+        label: "Album",
+        icon: "album",
+    },
+    {
+        value: "duration",
+        label: "Duration",
+        icon: "timer",
+    },
+    {
+        value: "id",
+        label: "Added",
+        icon: "date_range",
+    },
+];
 
-const filters = [ "title", "artist", "album" ];
+const filters = ["title", "artist", "album"];
 const icons = {
     title: "title",
     artist: "person",
-    album: "album"
-}
+    album: "album",
+};
 </script>
 
 <template>
@@ -98,7 +110,7 @@ const icons = {
                     placeholder="Playlist description..."
                 />
             </p>
-            <hr>
+            <hr />
             <div class="sort">
                 <IconDropdown
                     v-model="smartPlaylist.sort"
@@ -107,21 +119,39 @@ const icons = {
                 />
                 <span
                     class="cursor-pointer material-symbols-rounded ms-wght-100 text-5xl"
-                    @click="smartPlaylist.direction = smartPlaylist.direction == 'asc' ? 'desc' : 'asc'"
+                    @click="
+                        smartPlaylist.direction =
+                            smartPlaylist.direction == 'asc' ? 'desc' : 'asc'
+                    "
                 >
-                    {{ smartPlaylist.direction == 'asc' ? 'arrow_drop_up' : 'arrow_drop_down' }}
+                    {{
+                        smartPlaylist.direction == "asc"
+                            ? "arrow_drop_up"
+                            : "arrow_drop_down"
+                    }}
                 </span>
             </div>
             <div class="filters">
-                <Card class=filter v-for="filter in filters">
-                    <h3>{{ filter }}</h3>
+                <Card class="filter" v-for="filter in filters">
+                    <h4 class="uppercase mt-0">{{ filter }}</h4>
                     <div class="items">
-                        <div class="item" v-for="(_, index) in smartPlaylist.filter[filter]">
+                        <div
+                            class="item"
+                            v-for="(_, index) in smartPlaylist.filter[filter]"
+                        >
                             <TextInputWithIcon
                                 v-model="smartPlaylist.filter[filter][index]"
                                 :icon="icons[filter]"
                             />
-                            <span class="material-symbols-rounded" @click="smartPlaylist.filter[filter].splice(index, 1)">
+                            <span
+                                class="material-symbols-rounded"
+                                @click="
+                                    smartPlaylist.filter[filter].splice(
+                                        index,
+                                        1
+                                    )
+                                "
+                            >
                                 delete
                             </span>
                         </div>
@@ -140,15 +170,16 @@ const icons = {
     </div>
 </template>
 
-<style scoped lang=scss>
+<style scoped lang="scss">
 .playlist-editor {
     .sort {
         display: flex;
         align-items: center;
-        gap: .5em;
+        gap: 0.5em;
     }
 
     display: grid;
+    align-items: start;
     grid-template-columns: 1fr 1fr;
     gap: 1em;
     padding: 1em;
@@ -186,6 +217,11 @@ const icons = {
 
     .material-symbols-rounded {
         cursor: pointer;
+    }
+
+    .editor {
+        position: sticky;
+        top: 0;
     }
 }
 </style>

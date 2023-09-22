@@ -33,10 +33,10 @@ class SmartPlaylistModel(IModel, IPlaylistModel):
     def __init__(
         self,
         name: str,
-        description: str,
-        cover: str,
-        definition: str,
-        plays: int,
+        description: Optional[str] = None,
+        cover: Optional[str] = None,
+        definition: Optional[str] = None,
+        plays: Optional[int] = None,
         id_: Optional[int] = None,
     ) -> None:
         self._id = id_

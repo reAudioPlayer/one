@@ -3,13 +3,23 @@
   - Licenced under the GNU General Public License v3.0
   -->
 
-<script setup>
-import { useDataStore } from "@/store/data";
-import { computed } from "vue";
+<script setup lang="ts">
+import FullShelf from "@/components/Catalogue/FullShelf.vue";
+import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem.vue";
+import PlaylistItemBig from "@/components/Catalogue/Items/Playlists/PlaylistItemBig.vue";
+import CollectionHeader from "@/components/CollectionHeader.vue";
+import { useDataStore } from "../../store/data";
+import { ref, computed } from "vue";
 
 const dataStore = useDataStore();
-
 const playlists = computed(() => dataStore.playlists);
+const spotifyPlaylists = ref([]);
+
+fetch("/api/spotify/playlists")
+    .then((x) => x.json())
+    .then((jdata) => {
+        spotifyPlaylists.value = jdata;
+    });
 </script>
 
 <template>
@@ -46,46 +56,6 @@ const playlists = computed(() => dataStore.playlists);
         </div>
     </div>
 </template>
-
-<script>
-import FullShelf from "@/components/Catalogue/FullShelf.vue";
-import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem.vue";
-import PlaylistItemBig from "@/components/Catalogue/Items/Playlists/PlaylistItemBig.vue";
-import CollectionHeader from "@/components/CollectionHeader.vue";
-
-export default {
-    components: {
-        CollectionHeader,
-        PlaylistItem,
-        FullShelf,
-        PlaylistItemBig,
-    },
-    data() {
-        fetch("/api/me/liked")
-            .then((x) => x.json())
-            .then((jdata) => {
-                this.likedTracks = jdata;
-            });
-        fetch("/api/me/new")
-            .then((x) => x.json())
-            .then((jdata) => {
-                this.breakingTracks = jdata;
-            });
-        fetch("/api/spotify/playlists")
-            .then((x) => x.json())
-            .then((jdata) => {
-                this.spotifyPlaylists = jdata;
-            });
-
-        return {
-            likedTracks: null,
-            breakingTracks: null,
-            spotifyPlaylists: [],
-        };
-    },
-};
-</script>
-
 <style scoped>
 .padding-20 {
     padding: 20px;
