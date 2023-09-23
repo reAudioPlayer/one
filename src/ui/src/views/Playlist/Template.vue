@@ -1,12 +1,12 @@
 <!--
   - Copyright (c) 2023, reAudioPlayer ONE.
   - Licenced under the GNU General Public License v3.0
+
+    This component renders ALL playlists
   -->
 
 <script lang="ts" setup>
 import { computed, ref, watch } from "vue";
-import { IFullPlaylist } from "../../common";
-import Loader from "../../components/Loader.vue";
 import Cover from "../../components/image/Cover.vue";
 import Card from "../../containers/Card.vue";
 import FactCard from "../../containers/FactCard.vue";
@@ -15,6 +15,7 @@ import PlaylistEntry from "../../components/songContainers/PlaylistEntry.vue";
 // @ts-ignore
 import draggable from "vuedraggable";
 import IconDropdown from "../../components/inputs/IconDropdown.vue";
+import EditableText from "../../components/EditableText.vue";
 import {
     albumOptions,
     applyFilters,
@@ -31,33 +32,13 @@ import PlaylistHeader from "../../components/songContainers/PlaylistHeader.vue";
 import EditPlaylist from "../../components/popups/EditPlaylist.vue";
 import { usePlayerStore } from "../../store/player";
 import AmbientBackground from "../../components/image/AmbientBackground.vue";
+import { useDataStore } from "../../store/data";
+import { updatePlaylistMetadata } from "../../api/playlist";
 
 const props = defineProps({
-    playlist: {
-        type: Object as () => IFullPlaylist,
-        required: true,
-    },
-    loading: {
-        type: Boolean,
-        required: false,
-        default: false,
-    },
-    error: {
-        type: String,
-        required: false,
-        default: "",
-    },
-    canRearrange: {
-        type: Boolean,
-        default: false,
-    },
-    playlistId: {
+    id: {
         type: String,
         required: true,
-    },
-    canEdit: {
-        type: Boolean,
-        default: false,
     },
     coverIcon: {
         type: String,
@@ -65,13 +46,13 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits<{
-    (event: "update"): void;
-    (event: "rearrange", ...args: [number, number]): void;
-}>();
-
 const player = usePlayerStore();
-const songs = ref(props.playlist?.songs ?? ([] as IFilteredSong[]));
+const data = useDataStore();
+const playlist = computed(() => data.getPlaylistById(props.id));
+
+const songs = ref(playlist.value?.songs ?? ([] as IFilteredSong[]));
+const title = ref(playlist.value?.name.trim() ?? "");
+const description = ref(playlist.value?.description.trim() ?? "");
 const fixedHeaderHidden = ref(true);
 const selectedSongId = ref(null as number | null);
 const defaultFilters = () =>
@@ -121,11 +102,11 @@ const estimatedDuration = computed(() => {
     let duration = 0;
     let isEstimate = false;
 
-    if (!props.playlist.songs?.length) {
+    if (!playlist.value.songs.length) {
         return "";
     }
 
-    for (const song of props.playlist.songs) {
+    for (const song of playlist.value.songs) {
         isEstimate = isEstimate || song.duration <= 0;
         const seconds = song.duration <= 0 ? 3 * 60 : song.duration; // estimate 3:00 if unknown
         duration += seconds;
@@ -148,6 +129,8 @@ const estimatedDuration = computed(() => {
     return prefix + duration + " sec";
 });
 
+const emit = defineEmits(["rearrange"]);
+
 const onPlaylistRearrange = (type) => {
     const moved = type.moved;
 
@@ -159,29 +142,58 @@ const onPlaylistRearrange = (type) => {
 };
 
 watch(
-    filters,
+    [filters, playlist],
     () => {
-        if (!props.playlist) {
+        if (!playlist.value) {
             return;
         }
-        songs.value = applyFilters(props.playlist?.songs ?? [], filters.value);
-    },
-    { deep: true }
-);
-watch(
-    props,
-    () => {
-        songs.value = applyFilters(props.playlist?.songs ?? [], filters.value);
+        applyFiltersToSongs();
     },
     { deep: true }
 );
 
-const onObserveVisibility = (isVisible, entry) => {
+const applyFiltersToSongs = () => {
+    songs.value = applyFilters(playlist.value.songs ?? [], filters.value);
+};
+applyFiltersToSongs();
+
+watch(playlist, () => {
+    title.value = playlist.value?.name.trim() ?? "";
+    description.value = playlist.value?.description.trim() ?? "";
+    applyFiltersToSongs();
+});
+
+watch([title, description], () => {
+    if (
+        title.value === playlist.value?.name &&
+        description.value === playlist.value?.description
+    ) {
+        return;
+    }
+    const newPlaylist = {
+        ...playlist.value,
+        name: title.value,
+        description: description.value,
+    };
+
+    updatePlaylistMetadata(newPlaylist);
+    data.fetchPlaylists();
+});
+
+const onObserveVisibility = (isVisible, _) => {
     fixedHeaderHidden.value = isVisible;
 };
 
 const canAdd = computed(() => {
-    return props.playlist?.type === "classic";
+    return playlist.value.type === "classic";
+});
+
+const canEdit = computed(() => {
+    return ["classic", "smart"].includes(playlist.value.type);
+});
+
+const canRearrange = computed(() => {
+    return playlist.value.type === "classic";
 });
 </script>
 
@@ -192,30 +204,22 @@ const canAdd = computed(() => {
         :src="playlist.cover"
     />
     <div class="playlist p-4">
-        <AddNewSong ref="addSongPopup" @update="$emit('update')" />
+        <AddNewSong ref="addSongPopup" @update="data.fetchPlaylists()" />
         <EditPlaylist
             v-if="playlist"
             ref="editPlaylistPopup"
             :playlist="playlist"
-            @close="$emit('update')"
+            @close="data.fetchPlaylists()"
         />
         <FixedPlaylistHeader
             v-if="playlist"
             ref="fixedHeading"
             :class="{ hidden: fixedHeaderHidden }"
             :title="playlist.name"
-            @loadPlaylist="player.loadPlaylist(playlistId)"
+            @loadPlaylist="player.loadPlaylist(id)"
         />
 
-        <div v-if="loading" class="fill-page">
-            <Loader />
-        </div>
-        <div v-else-if="error" class="fill-page">
-            <h2 class="text-2xl text-center error">
-                {{ error }}
-            </h2>
-        </div>
-        <div v-else-if="!playlist" class="fill-page">
+        <div v-if="!playlist" class="fill-page">
             <h2 class="text-2xl text-center error">Playlist not found</h2>
         </div>
         <div v-else class="wrap">
@@ -248,16 +252,25 @@ const canAdd = computed(() => {
                             <div class="flex flew-row items-center">
                                 <span
                                     class="text-5xl cursor-pointer material-symbols-rounded ms-fill my-auto"
-                                    @click="player.loadPlaylist(playlistId)"
+                                    @click="player.loadPlaylist(id)"
                                 >
                                     play_circle
                                 </span>
-                                <h1 class="font-black text-5xl ml-4">
-                                    {{ playlist.name }}
+                                <h1
+                                    class="font-black text-5xl ml-4 w-full flex-1"
+                                >
+                                    <EditableText v-model="title">
+                                        {{ playlist.name }}
+                                    </EditableText>
                                 </h1>
                             </div>
-                            <p v-if="playlist.description" class="text-muted">
-                                {{ playlist.description }}
+                            <p class="text-muted">
+                                <EditableText
+                                    v-model="description"
+                                    placeholder="No description"
+                                >
+                                    {{ playlist.description }}
+                                </EditableText>
                             </p>
                         </div>
                         <div
@@ -368,17 +381,20 @@ const canAdd = computed(() => {
                     class="hideIfMobile mt-8"
                     with-album
                     with-more
+                    v-if="songs.length"
                 />
                 <hr class="mb-4" />
-                <div class="items">
+                <div class="items" v-if="songs.length">
                     <draggable
+                        v-if="songs.length"
+                        :key="id"
                         v-model="songs"
                         :class="
                             filters.order == 'asc'
                                 ? 'flex-col'
                                 : 'flex-col-reverse'
                         "
-                        :disabled="filterApplied(filters)"
+                        :disabled="filterApplied(filters) || !canRearrange"
                         item-key="id"
                         class="flex"
                         @change="onPlaylistRearrange"
@@ -391,7 +407,7 @@ const canAdd = computed(() => {
                                         (x) => x.source == element.source
                                     )
                                 "
-                                :playlist-id="playlistId"
+                                :playlist-id="id"
                                 :selected="selectedSongId == element.id"
                                 :song="element"
                                 with-album
@@ -402,7 +418,7 @@ const canAdd = computed(() => {
                                         ? (selectedSongId = -1)
                                         : (selectedSongId = element.id)
                                 "
-                                @update="$emit('update')"
+                                @update="data.fetchPlaylists()"
                             />
                         </template>
                     </draggable>

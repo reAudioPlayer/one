@@ -178,8 +178,11 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
     @shuffle.setter
     def shuffle(self, value: bool) -> None:
         self._shuffle = value
-        if self._playerPlaylist:
+        assert self._playerPlaylist
+        if value:
             self._playerPlaylist.shuffle()
+        else:
+            self._playerPlaylist.unshuffle()
 
     async def _loadSong(self, song: Optional[Song] = None) -> None:
         if not self._playerPlaylist:

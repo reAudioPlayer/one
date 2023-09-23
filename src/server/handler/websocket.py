@@ -54,7 +54,7 @@ class Websocket(Logged):
         self._player._songChangeCallback = self._onSongChange  # pylint: disable=protected-access
 
     async def _onPlaylistChange(self, playlist: IPlayerPlaylist) -> None:
-        await self.publish(Message({"path": "player.playlist", "data": playlist.toDict()}))
+        await self.publish(Message({"path": "player.playlist", "data": playlist.id}))
 
     async def _onSongChange(self, song: Song) -> None:
         await self.publish(Message({"path": "player.song", "data": song.toDict()}))

@@ -11,7 +11,7 @@ const updateDataStore = async () => {
     await dataStore.fetchPlaylists();
 };
 
-const getPlaylistById = (id: number): IFullPlaylist => {
+const getPlaylistById = (id: string): IFullPlaylist => {
     const dataStore = useDataStore();
     return dataStore.getPlaylistById(id);
 };
@@ -44,16 +44,8 @@ export const getAllPlaylists = async (): Promise<IFullPlaylist[]> => {
  * fetches a playlist from the server
  * @param id the playlist's id
  */
-export const getPlaylist = (id: string | number): IFullPlaylist => {
-    return getPlaylistById(id as number);
-};
-
-/**
- * fetches a playlist from the server based on its hash
- * @param hash the playlist's hash
- */
-export const getPlaylistByHash = (hash: string): IFullPlaylist => {
-    return getPlaylist(hash);
+export const getPlaylist = (id: string): IFullPlaylist => {
+    return getPlaylistById(id);
 };
 
 /**

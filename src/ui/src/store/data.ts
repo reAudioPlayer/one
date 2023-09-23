@@ -10,9 +10,9 @@ import { getAllPlaylists } from "../api/playlist";
 
 // Create a new store instance.
 export const useDataStore = defineStore({
-    id: 'data',
+    id: "data",
     state: () => ({
-        playlists: [ ] as IFullPlaylist[],
+        playlists: [] as IFullPlaylist[],
     }),
     getters: {
         notEmpty() {
@@ -34,11 +34,11 @@ export const useDataStore = defineStore({
             }
             return options;
         },
-        getPlaylistById(): (id: number) => IFullPlaylist {
-            return (id: number) => {
+        getPlaylistById(): (id: string) => IFullPlaylist {
+            return (id: string) => {
                 return this.playlists.find((playlist) => playlist.id === id);
-            }
-        }
+            };
+        },
     },
     actions: {
         setPlaylists(playlists) {
@@ -50,6 +50,6 @@ export const useDataStore = defineStore({
         async fetchPlaylists() {
             const playlists = await getAllPlaylists();
             this.setPlaylists(playlists);
-        }
-    }
+        },
+    },
 });

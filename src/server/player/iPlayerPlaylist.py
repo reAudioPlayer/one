@@ -127,7 +127,12 @@ class IPlayerPlaylist(ABC):
 
     def unshuffle(self) -> None:
         """unshuffles the playlist"""
+        prevIndex = self._queue[self._cursor]
         self._resetQueue()
+        for index, songIndex in enumerate(self._queue):
+            if songIndex == prevIndex:
+                self._cursor = index
+                return
 
     @property
     @abstractmethod

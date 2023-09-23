@@ -4,11 +4,7 @@
   -->
 
 <template>
-    <Template
-        :cover-icon="icon"
-        :playlist="playlist"
-        :playlist-id="id"
-    />
+    <Template :cover-icon="icon" :playlist="playlist" :playlist-id="id" />
 </template>
 
 <script>
@@ -19,8 +15,7 @@ import { usePlayerStore } from "@/store/player";
 import { parseCover } from "@/common";
 import Index from "@/views/Playlist/index.vue";
 import Template from "@/views/Playlist/Template.vue";
-import { getPlaylistByHash } from "@/api/playlist";
-
+import { getPlaylist } from "@/api/playlist";
 
 export default {
     components: {
@@ -28,42 +23,42 @@ export default {
         Index,
         PlaylistEntry,
         FixedPlaylistHeader,
-        PlaylistHeader
+        PlaylistHeader,
     },
     props: {
         id: {
             type: String,
-            required: true
+            required: true,
         },
         icon: {
             type: String,
             required: false,
-            default: "favorite"
+            default: "favorite",
         },
     },
     data() {
-        this.updateTracks()
+        this.updateTracks();
         return {
             fixedHeaderHidden: true,
             playlist: {},
             store: usePlayerStore(),
-            selectedSongId: -1
-        }
+            selectedSongId: -1,
+        };
     },
     methods: {
         parseCover,
         download(index) {
-            const data = this.playlist?.[index]
-            window.open(`/api/tracks/${data.id}/download`)
+            const data = this.playlist?.[index];
+            window.open(`/api/tracks/${data.id}/download`);
         },
         async updateTracks() {
-            this.playlist = await getPlaylistByHash(this.id);
+            this.playlist = getPlaylist(this.id);
         },
         loadPlaylist() {
-            this.store.loadPlaylist(playlistId)
-        }
-    }
-}
+            this.store.loadPlaylist(playlistId);
+        },
+    },
+};
 </script>
 
 <style scoped>
@@ -83,7 +78,8 @@ export default {
     vertical-align: middle;
 }
 
-#loadPlaylist:hover, #addToPlaylist:hover {
+#loadPlaylist:hover,
+#addToPlaylist:hover {
     cursor: pointer;
     font-size: 62px;
 }

@@ -46,13 +46,7 @@ export const usePlayerStore = defineStore({
                 },
             },
         },
-        playlist: {
-            cover: null,
-            description: null,
-            name: null,
-            id: -1,
-            songs: [],
-        },
+        playlistId: null as string | null,
         lyrics: null as ILyrics | null,
         volume: 50,
         repeat: "repeat" as RepeatType,
@@ -95,6 +89,7 @@ export const usePlayerStore = defineStore({
         setShuffle(shuffle: boolean) {
             this.shuffle = shuffle;
             setShuffle(shuffle);
+            useDataStore().fetchPlaylists();
         },
         toggleShuffle() {
             this.setShuffle(!this.shuffle);
@@ -186,12 +181,8 @@ export const usePlayerStore = defineStore({
                 }),
             });
         },
-        setPlaylist(playlist) {
-            this.playlist.songs = playlist.songs;
-            this.playlist.cover = parseCover(playlist.cover);
-            this.playlist.description = playlist.description;
-            this.playlist.name = playlist.name;
-            this.playlist.id = playlist.id;
+        setPlaylist(playlistId) {
+            this.playlistId = playlistId;
         },
         setVolume(volume) {
             if (volume == this.volume) return;
@@ -210,7 +201,7 @@ export const usePlayerStore = defineStore({
             this.repeat = localStorage.getItem("reap.repeat") || "repeat_on";
             this.sharedPlayer = new SharedPlayer();
 
-            this.setShuffle(await getShuffle());
+            this.shuffle = await getShuffle();
         },
         loadPlaylist(playlistId: string | PlaylistType, id: number = null) {
             const body = {
@@ -246,6 +237,11 @@ export const usePlayerStore = defineStore({
         },
     },
     getters: {
+        playlist(state) {
+            return useDataStore().playlists.find(
+                (playlist) => playlist.id === state.playlistId
+            );
+        },
         hasLyrics(state) {
             return state.lyrics?.lyrics;
         },
@@ -297,17 +293,6 @@ export const usePlayerStore = defineStore({
                 return "volume_down";
             }
             return "volume_mute";
-        },
-        playlist(state) {
-            return {
-                ...state.playlist,
-                index: computed(
-                    () =>
-                        state.playlist?.songs?.findIndex(
-                            (song) => song.id === state.song.id
-                        ) ?? -1
-                ),
-            };
         },
     },
 });

@@ -85,13 +85,13 @@ const animate = ref(false); // animations
                     ></div>
                 </div>
             </div>
-            
+
             <Card
                 v-if="player.playlist"
                 class="playlist-overflow drop-shadow-2xl relative"
                 :key="player.playlist.id"
             >
-                <Playlist :playlist="player.playlist" />
+                <Playlist :playlist="player.playlist" use-queue />
             </Card>
             <div class="settings">
                 <span

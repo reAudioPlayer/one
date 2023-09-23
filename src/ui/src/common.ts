@@ -112,6 +112,7 @@ export interface IPlaylist extends IPlaylistMeta {
 
 export interface IFullPlaylist extends IPlaylist {
     songs: ISong[];
+    queue: ISong[];
 }
 
 export interface ISpotifySong extends ISong {

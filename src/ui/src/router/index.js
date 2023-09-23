@@ -61,14 +61,14 @@ const routes = [{
 },
 {
     path: '/collection/tracks',
-    component: () => import("@/views/Collection/SmartPlaylist/Tracks.vue"),
+    component: () => import("@/views/playlist/special/Liked.vue"),
     meta: {
         title: "Liked Songs - reAudioPlayer One"
     }
 },
 {
     path: '/collection/tracks/breaking',
-    component: () => import("@/views/Collection/SmartPlaylist/Breaking.vue"),
+    component: () => import("@/views/playlist/special/Breaking.vue"),
     meta: {
         title: "Breaking Songs - reAudioPlayer One"
     }
@@ -81,8 +81,8 @@ const routes = [{
     }
 },
 {
-    path: '/playlist/:hash',
-    component: () => import("@/views/Playlist/index.vue"),
+    path: '/playlist/:id',
+    component: () => import("@/views/Playlist/Normal.vue"),
     meta: {
         title: "Playlist - reAudioPlayer One"
     }

@@ -1,15 +1,20 @@
-<script setup lang=ts>
-import { ref } from 'vue';
-import { IFullPlaylist } from '../../common';
-import PlaylistEntry from '../songContainers/PlaylistEntry.vue';
-import PlaylistHeader from '../songContainers/PlaylistHeader.vue';
-import Card from '../../containers/Card.vue';
+<script setup lang="ts">
+import { ref } from "vue";
+import { IFullPlaylist } from "../../common";
+import PlaylistEntry from "../songContainers/PlaylistEntry.vue";
+import PlaylistHeader from "../songContainers/PlaylistHeader.vue";
+import Card from "../../containers/Card.vue";
 
 defineProps({
     playlist: {
         type: Object as () => IFullPlaylist,
-        required: false
-    }
+        required: false,
+    },
+    useQueue: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
 });
 
 const selectedSongId = ref(-1);
@@ -18,7 +23,9 @@ const selectedSongId = ref(-1);
     <div ref="playlist-scroll" class="playlist" v-if="playlist">
         <PlaylistHeader />
         <PlaylistEntry
-            v-for="(element, index) in playlist.songs"
+            v-for="(element, index) in useQueue
+                ? playlist.queue
+                : playlist.songs"
             :id="'bplayer-entry-' + element.id"
             :key="element.source"
             :index="index"
