@@ -147,6 +147,27 @@ export interface IDropdownOption {
     icon?: string;
 }
 
+export interface IDuration {
+    from?: number; // s
+    to?: number; // s
+}
+
+export interface IFilter {
+    title: string[];
+    artist: string[];
+    album: string[];
+    duration: IDuration;
+}
+
+export interface ISmartPlaylist {
+    name: string;
+    description: string;
+    direction: "asc" | "desc";
+    sort: "duration" | "title" | "artist" | "album" | "id";
+    limit: number;
+    filter: IFilter;
+}
+
 export const toTitleCase = (str: string) => {
     return str.replace(/\w\S*/g, (txt) => {
         return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();

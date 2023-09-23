@@ -17,8 +17,6 @@ SMART_DEFINITION = Object(
         "limit": Integer().min(1).optional(),
         "direction": String().enum("asc", "desc").optional(),
         "sort": String().enum("title", "artist", "album", "duration", "id").optional(),
-        "name": String().optional(),
-        "description": String().optional(),
         "filter": Object(
             {
                 "title": Array(String()).optional(),
@@ -34,10 +32,10 @@ SMART_DEFINITION = Object(
 
 SMART_PLAYLIST = Object(
     {
-        "name": String().min(1),
-        "description": String().coerce(),
-        "cover": String().min(1),
-        "definition": SMART_DEFINITION,
+        "name": String().min(1).optional(),
+        "description": String().coerce().optional(),
+        "cover": String().min(1).optional(),
+        "definition": SMART_DEFINITION.optional(),
     }
 )
 
@@ -174,6 +172,8 @@ class PlaylistHandler:
         playlist = self._playlistManager.get(path["id"])
         if not isinstance(playlist, SmartPlayerPlaylist):
             return web.HTTPNotFound()
-        playlist.updateMeta(payload["name"], payload["description"], payload["cover"])
+        playlist.updateMeta(
+            payload.get("name", ""), payload.get("description", ""), payload.get("cover", "")
+        )
         playlist.definition = payload["definition"]
         return web.Response()

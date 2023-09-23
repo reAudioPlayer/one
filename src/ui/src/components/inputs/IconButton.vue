@@ -6,7 +6,7 @@
 <script lang="ts" setup>
 import { PropType } from "vue";
 
-export type IButtonType = "negative" | "positive" | "danger";
+export type IButtonType = "negative" | "positive" | "danger" | "success";
 
 export interface IButton {
     icon?: string;
@@ -18,23 +18,23 @@ export interface IButton {
 defineProps({
     icon: {
         type: String,
-        required: false
+        required: false,
     },
     label: {
         type: String,
-        required: true
+        required: true,
     },
     disabled: {
         type: Boolean,
         required: false,
-        default: false
+        default: false,
     },
     type: {
         type: String as PropType<IButtonType>,
         required: false,
-        default: 'negative'
-    }
-})
+        default: "negative",
+    },
+});
 </script>
 
 <template>
@@ -46,8 +46,9 @@ defineProps({
             v-if="icon"
             :class="{ 'mr-2': label }"
             class="material-symbols-rounded"
-        >{{icon}}</span>
-        <span v-if="label">{{label}}</span>
+            >{{ icon }}</span
+        >
+        <span v-if="label">{{ label }}</span>
     </button>
 </template>
 
@@ -55,7 +56,7 @@ defineProps({
 @import "@/assets/scss/tailwind-extended.scss";
 
 button span.material-symbols-rounded {
-    font-variation-settings: 'wght' 400;
+    font-variation-settings: "wght" 400;
 }
 
 button.disabled {
@@ -73,7 +74,7 @@ button.positive {
 }
 
 button.negative {
-    background-color: var(--bg-contrast );
+    background-color: var(--bg-contrast);
     color: var(--fg-contrast);
 
     &.disabled {
@@ -93,5 +94,18 @@ button.danger {
         color: darkgrey;
     }
 }
-</style>
 
+button.success {
+    color: whitesmoke;
+    background-color: var(--fg-secondary);
+
+    &:hover {
+        background-color: var(--fg-secondary-dk);
+    }
+
+    &.disabled {
+        background-color: darkgrey;
+        color: var(--fg-base);
+    }
+}
+</style>

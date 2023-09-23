@@ -74,7 +74,7 @@ const routes = [{
     }
 },
 {
-    path: '/playlist/smart/editor',
+    path: '/playlist/:id/edit',
     component: () => import("@/views/Collection/SmartPlaylist/Editor.vue"),
     meta: {
         title: "Smart Playlist Editor - reAudioPlayer One"

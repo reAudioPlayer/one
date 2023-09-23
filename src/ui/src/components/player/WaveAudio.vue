@@ -23,7 +23,9 @@ onMounted(() => {
         container: "#waveform",
         waveColor,
         progressColor,
-        barWidth: 2,
+        cursorWidth: 0,
+        barWidth: 1,
+        barGap: 3,
         responsive: true,
         backend: "MediaElement",
     });

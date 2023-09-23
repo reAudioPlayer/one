@@ -1,36 +1,25 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
-import Dropdown from "../../../components/inputs/Dropdown.vue";
+import { computed, onMounted, ref, watch } from "vue";
 import IconButton from "../../../components/inputs/IconButton.vue";
 import IconDropdown from "../../../components/inputs/IconDropdown.vue";
 import TextInputWithIcon from "../../../components/inputs/TextInputWithIcon.vue";
 import { debounce } from "lodash";
-import { IPlaylist } from "../../../common";
-import { peekSmartPlaylist } from "../../../api/playlist";
+import { IPlaylist, ISmartPlaylist } from "../../../common";
+import {
+    peekSmartPlaylist,
+    getSmartPlaylistDefinition,
+    updateSmartPlaylistDefinition,
+} from "../../../api/playlist";
 import Playlist from "../../../components/Playlist/Playlist.vue";
 import Card from "../../../containers/Card.vue";
+import { useRoute } from "vue-router";
+import { useDataStore } from "../../../store/data";
 
-interface IDuration {
-    from?: number; // s
-    to?: number; // s
-}
+const route = useRoute();
+const playlistId = computed(() => route.params.id as string);
+const dataStore = useDataStore();
 
-interface IFilter {
-    title: string[];
-    artist: string[];
-    album: string[];
-    duration: IDuration;
-}
-
-interface ISmartPlaylist {
-    name: string;
-    description: string;
-    direction: "asc" | "desc";
-    sort: "duration" | "title" | "artist" | "album" | "id";
-    filter: IFilter;
-}
-
-const smartPlaylist = reactive<ISmartPlaylist>({
+const smartPlaylist = ref<ISmartPlaylist>({
     name: "",
     description: "",
     direction: "asc",
@@ -46,12 +35,12 @@ const smartPlaylist = reactive<ISmartPlaylist>({
 const playlist = ref<IPlaylist | null>();
 watch(
     [
-        () => smartPlaylist.sort,
-        () => smartPlaylist.filter,
-        () => smartPlaylist.direction,
+        () => smartPlaylist.value.sort,
+        () => smartPlaylist.value.filter,
+        () => smartPlaylist.value.direction,
     ],
     debounce(async () => {
-        playlist.value = await peekSmartPlaylist(smartPlaylist);
+        playlist.value = await peekSmartPlaylist(smartPlaylist.value);
     }, 3 * 1000),
     {
         deep: true,
@@ -92,26 +81,41 @@ const icons = {
     artist: "person",
     album: "album",
 };
+
+onMounted(async () => {
+    smartPlaylist.value = await getSmartPlaylistDefinition(playlistId.value);
+    if (!smartPlaylist.value.filter) {
+        smartPlaylist.value.filter = {};
+    }
+
+    const plFilter = smartPlaylist.value.filter;
+
+    for (const filter of filters) {
+        if (!plFilter[filter]) {
+            plFilter[filter] = [];
+        }
+    }
+
+    smartPlaylist.value.filter = plFilter;
+});
+
+const updateSmartPlaylist = async () => {
+    await updateSmartPlaylistDefinition(playlistId.value, smartPlaylist.value);
+    dataStore.fetchPlaylists();
+};
 </script>
 
 <template>
     <div class="playlist-editor">
-        <h1>Smart Playlist Editor</h1>
         <div class="editor">
-            <h2>
-                <TextInputWithIcon
-                    v-model="smartPlaylist.name"
-                    placeholder="Playlist title..."
+            <div class="sort my-2">
+                <IconButton
+                    label="Save"
+                    icon="save"
+                    type="success"
+                    class="!mt-0"
+                    @click="updateSmartPlaylist"
                 />
-            </h2>
-            <p>
-                <TextInputWithIcon
-                    v-model="smartPlaylist.description"
-                    placeholder="Playlist description..."
-                />
-            </p>
-            <hr />
-            <div class="sort">
                 <IconDropdown
                     v-model="smartPlaylist.sort"
                     :options="sortOptions"
@@ -130,6 +134,12 @@ const icons = {
                             : "arrow_drop_down"
                     }}
                 </span>
+                <TextInputWithIcon
+                    v-model="smartPlaylist.limit"
+                    type="number"
+                    placeholder="Limit..."
+                    icon="123"
+                />
             </div>
             <div class="filters">
                 <Card class="filter" v-for="filter in filters">

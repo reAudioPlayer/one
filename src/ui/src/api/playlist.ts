@@ -114,7 +114,7 @@ export const removeSongFromPlaylist = async (
  * peeks into the songs in a smart playlist
  */
 export const peekSmartPlaylist = async (
-    definition: any
+    definition: ISmartPlaylist
 ): Promise<IFullPlaylist> => {
     const res = await fetch("/api/playlists/smart/peek", {
         method: "POST",
@@ -122,4 +122,29 @@ export const peekSmartPlaylist = async (
     });
     const jdata = await res.json();
     return jdata;
+};
+
+/**
+ * gets the definition of a smart playlist
+ */
+export const getSmartPlaylistDefinition = async (
+    id: string
+): Promise<ISmartPlaylist> => {
+    const res = await fetch(`/api/playlists/smart/${id}`);
+    const jdata = await res.json();
+    return jdata;
+};
+
+/**
+ * updates the definition of a smart playlist
+ */
+export const updateSmartPlaylistDefinition = async (
+    id: string,
+    definition: ISmartPlaylist
+): Promise<void> => {
+    await fetch(`/api/playlists/smart/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({ definition }),
+    });
+    await updateDataStore();
 };

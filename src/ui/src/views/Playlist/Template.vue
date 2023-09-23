@@ -34,6 +34,7 @@ import { usePlayerStore } from "../../store/player";
 import AmbientBackground from "../../components/image/AmbientBackground.vue";
 import { useDataStore } from "../../store/data";
 import { updatePlaylistMetadata } from "../../api/playlist";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
     id: {
@@ -48,6 +49,7 @@ const props = defineProps({
 
 const player = usePlayerStore();
 const data = useDataStore();
+const router = useRouter();
 const playlist = computed(() => data.getPlaylistById(props.id));
 
 const songs = ref(playlist.value?.songs ?? ([] as IFilteredSong[]));
@@ -189,28 +191,26 @@ const canAdd = computed(() => {
 });
 
 const canEdit = computed(() => {
-    return ["classic", "smart"].includes(playlist.value.type);
+    return ["smart"].includes(playlist.value.type);
 });
 
 const canRearrange = computed(() => {
     return playlist.value.type === "classic";
 });
+
+const editPlaylist = () => {
+    router.push(`/playlist/${playlist.value.id}/edit`);
+};
 </script>
 
 <template>
     <AmbientBackground
-        v-if="playlist"
+        v-if="playlist?.cover"
         :placeholder="coverIcon"
         :src="playlist.cover"
     />
     <div class="playlist p-4">
         <AddNewSong ref="addSongPopup" @update="data.fetchPlaylists()" />
-        <EditPlaylist
-            v-if="playlist"
-            ref="editPlaylistPopup"
-            :playlist="playlist"
-            @close="data.fetchPlaylists()"
-        />
         <FixedPlaylistHeader
             v-if="playlist"
             ref="fixedHeading"
@@ -315,7 +315,7 @@ const canRearrange = computed(() => {
                                 <span
                                     id="addToPlaylist"
                                     class="material-symbols-rounded ms-fill"
-                                    @click="$refs.editPlaylistPopup.show()"
+                                    @click="editPlaylist"
                                     >edit</span
                                 >
                                 <span class="text-muted"
