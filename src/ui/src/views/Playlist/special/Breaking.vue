@@ -4,8 +4,8 @@
   -->
 
 <script setup>
-import Index from "@/views/Collection/SmartPlaylist/index.vue";
+import Template from "../Template.vue";
 </script>
 <template>
-    <index id="breaking" icon="trending_up" />
+    <Template id="breaking" cover-icon="trending_up" />
 </template>
