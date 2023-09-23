@@ -27,12 +27,15 @@ class PlaylistType(Enum):
     }
 
     def generateId(self, index: int) -> str:
+        """generates the playlist id"""
         assert self != PlaylistType.Unknown
         hashids = PlaylistType._HASHIDS.value[self.value]
         return hashids.encode(index)  # type: ignore
 
 
 class IPlayerPlaylist(ABC):
+    """interface for player playlists"""
+
     __slots__ = ("_songs", "_queue", "_cursor", "_model", "_loadTask")
 
     def __init__(self, model: Optional[IPlaylistModel]) -> None:
@@ -75,12 +78,17 @@ class IPlayerPlaylist(ABC):
 
     @property
     def current(self) -> Song:
-        assert len(self._songs)
+        """returns the song currently selected"""
+        assert len(self._songs) > 0
         song = self._queueAt(self._cursor)
         assert song
         return song
 
     def next(self, peek: bool = False) -> Song:
+        """
+        returns the next song
+        :param peek: if true, the cursor will not be moved
+        """
         nextPosition = self._cursorPeek()
         if not peek:
             self._cursor = nextPosition
@@ -89,6 +97,10 @@ class IPlayerPlaylist(ABC):
         return song
 
     def last(self, peek: bool = False) -> Song:
+        """
+        returns the last song
+        :param peek: if true, the cursor will not be moved
+        """
         lastPosition = self._cursorPeek(-1)
         if not peek:
             self._cursor = lastPosition
@@ -105,12 +117,17 @@ class IPlayerPlaylist(ABC):
         self._cursor = index
 
     def shuffle(self) -> None:
+        """shuffles the playlist"""
         prevIndex = self._queue[self._cursor]
         random.shuffle(self._queue)
         for index, songIndex in enumerate(self._queue):
             if songIndex == prevIndex:
                 self._cursor = index
                 return
+
+    def unshuffle(self) -> None:
+        """unshuffles the playlist"""
+        self._resetQueue()
 
     @property
     @abstractmethod
@@ -130,6 +147,7 @@ class IPlayerPlaylist(ABC):
 
     @property
     def queue(self) -> Generator[Song, None, None]:
+        """return queue generator"""
         for index in self._queue:
             yield self._songs[index]
 
@@ -179,6 +197,7 @@ class IPlayerPlaylist(ABC):
     def updateMeta(
         self, name: Optional[str], description: Optional[str], cover: Optional[str]
     ) -> bool:
+        """attempts to update the metadata"""
         if self.type in (PlaylistType.Classic, PlaylistType.Smart):
             if not self._model:
                 return False

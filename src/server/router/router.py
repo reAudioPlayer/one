@@ -54,8 +54,8 @@ class Router:
             return web.Response(body=await response.read(), status=response.status)
 
     @staticmethod
-    def applyRoutes(
-        app: web.Application,  # pylint: disable=too-many-statements, too-many-arguments
+    def applyRoutes(  # pylint: disable=too-many-statements, too-many-arguments
+        app: web.Application,
         playerHandler: PlayerHandler,
         downloadHandler: DownloadHandler,
         metaHandler: MetaHandler,
@@ -138,7 +138,8 @@ class Router:
 
         # /api/playlists/smart
         app.router.add_post("/api/playlists/smart/peek", playlistHandler.peekSmartPlaylist)
-        app.router.add_get("/api/playlists/smart/{id}", playlistHandler.getSmartPlaylist)
+        app.router.add_get("/api/playlists/smart/{id}", playlistHandler.getSmartPlaylistDefinition)
+        app.router.add_put("/api/playlists/smart/{id}", playlistHandler.updateSmartPlaylist)
 
         # /api/config
         app.router.add_get("/api/config/first-time", configHandler.firstTime)

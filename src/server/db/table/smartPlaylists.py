@@ -4,7 +4,7 @@ from __future__ import annotations
 
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
-from typing import Type, Tuple, Optional, List, Any, Dict
+from typing import Type, Tuple, Optional, Any, Dict
 import json
 from hashids import Hashids  # type: ignore
 import aiosqlite
@@ -54,6 +54,7 @@ class SmartPlaylistModel(IModel, IPlaylistModel):
 
     @classmethod
     def empty(cls) -> SmartPlaylistModel:
+        """return empty model"""
         return cls("", "", "", "", 0)
 
     @property
@@ -104,6 +105,10 @@ class SmartPlaylistModel(IModel, IPlaylistModel):
         assert self._id is not None
         return self._id
 
+    @id.setter
+    def id(self, value: int) -> None:
+        self._id = value
+
     @property
     def name(self) -> str:
         """return name"""
@@ -133,7 +138,7 @@ class SmartPlaylistModel(IModel, IPlaylistModel):
         """return artists"""
         try:
             return json.loads(self.definition)  # type: ignore
-        except:
+        except json.JSONDecodeError:
             return {}
 
     @definitionDict.setter

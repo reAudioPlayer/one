@@ -11,6 +11,8 @@ from dataModel.song import Song
 
 
 class ClassicPlayerPlaylist(IPlayerPlaylist):
+    """classic playlist"""
+
     def __init__(self, model: PlaylistModel) -> None:
         super().__init__(model)
 

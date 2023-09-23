@@ -4,7 +4,10 @@ __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
 from abc import ABC, abstractmethod
 
+
 class IPlaylistModel(ABC):
+    """interface for playlist models"""
+
     @property
     @abstractmethod
     def name(self) -> str:

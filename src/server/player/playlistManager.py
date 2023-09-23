@@ -7,10 +7,10 @@ from helper.logged import Logged
 from dataModel.song import Song
 from db.database import Database
 from db.table.playlists import PlaylistModel
+from db.table.smartPlaylists import SmartPlaylistModel
 from player.iPlayerPlaylist import IPlayerPlaylist
 from player.smartPlayerPlaylist import SmartPlayerPlaylist, SpecialPlayerPlaylist
 from player.classicPlayerPlaylist import ClassicPlayerPlaylist
-from db.table.smartPlaylists import SmartPlaylistModel
 
 
 T = TypeVar("T")  # pylint: disable=invalid-name

@@ -4,8 +4,8 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import Any, Dict
 from aiohttp import web
-from pyaddict.schema import Object, Integer, Array, String, Integer
-from helper.payloadParser import withObjectPayload
+from pyaddict.schema import Object, Integer, Array, String
+from helper.payloadParser import withObjectPayload, PayloadParser
 from dataModel.song import Song
 from player.player import Player
 from player.playlistManager import PlaylistManager
@@ -56,7 +56,7 @@ class PlaylistHandler:
         success = await self._playlistManager.addToPlaylist(id_, Song.fromDict(jdata))
         if success:
             return web.Response()
-        return web.HTTPBadRequest
+        return web.HTTPInternalServerError()
 
     async def moveSong(self, request: web.Request) -> web.Response:
         """put(/api/playlists/{id}/tracks)"""
@@ -67,7 +67,7 @@ class PlaylistHandler:
         )
         if success:
             return web.Response()
-        return web.HTTPBadRequest
+        return web.HTTPInternalServerError()
 
     async def removeSong(self, request: web.Request) -> web.Response:
         """/api/playlists/{id}/tracks"""
@@ -78,7 +78,7 @@ class PlaylistHandler:
         success = await self._playlistManager.removefromPlaylist(id_, jdata["songId"])
         if success:
             return web.Response()
-        return web.HTTPBadRequest
+        return web.HTTPInternalServerError()
 
     @withObjectPayload(Object({"id": String().coerce()}), inPath=True)
     async def getPlaylist(self, payload: Dict[str, Any]) -> web.Response:
@@ -106,9 +106,9 @@ class PlaylistHandler:
         """get(/api/playlists/new)"""
         href = ""
         if payload["type"] == "classic":
-            href = self._playlistManager.addClassicPlaylist()
+            href = await self._playlistManager.addClassicPlaylist()
         elif payload["type"] == "smart":
-            href = self._playlistManager.addSmartPlaylist()
+            href = await self._playlistManager.addSmartPlaylist()
         return web.Response(text=href)
 
     @withObjectPayload(
@@ -135,21 +135,6 @@ class PlaylistHandler:
         )
         return web.Response()
 
-    @withObjectPayload(SMART_PLAYLIST, inBody=True)
-    async def addSmartPlaylist(self, payload: Dict[str, Any]) -> web.Response:
-        """post(/api/playlists/smart)"""
-        return web.Response()
-
-    @withObjectPayload(SMART_PLAYLIST, inBody=True)
-    async def updateSmartPlaylist(self, payload: Dict[str, Any]) -> web.Response:
-        """put(/api/playlists/smart/{id})"""
-        playlist = self._playlistManager.get(payload["id"])
-        if not isinstance(playlist, SmartPlayerPlaylist):
-            return web.HTTPNotFound()
-        playlist.updateMeta(payload["name"], payload["description"], payload["cover"])
-        playlist.definition = payload["definition"]
-        return web.Response()
-
     @withObjectPayload(SMART_DEFINITION, inBody=True)
     async def peekSmartPlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/playlists/smart/preview)"""
@@ -165,9 +150,30 @@ class PlaylistHandler:
         ),
         inPath=True,
     )
-    async def getSmartPlaylist(self, payload: Dict[str, str]) -> web.Response:
+    async def getSmartPlaylistDefinition(self, payload: Dict[str, str]) -> web.Response:
         """get(/api/playlists/smart/{id})"""
         playlist = self._playlistManager.get(payload["id"])
         if not isinstance(playlist, SmartPlayerPlaylist):
             return web.HTTPNotFound()
         return web.json_response(playlist.definition)
+
+    async def updateSmartPlaylist(self, request: web.Request) -> web.Response:
+        """put(/api/playlists/smart/{id})"""
+        parsedPayload = await PayloadParser.fromBody(request, SMART_PLAYLIST, dict)
+        path = PayloadParser.fromPath(
+            request,
+            Object(
+                {
+                    "id": String().coerce(),
+                }
+            ),
+        ).unwrap()
+        if not parsedPayload:
+            return web.HTTPBadRequest(text=str(parsedPayload.error))
+        payload = parsedPayload.unwrap()
+        playlist = self._playlistManager.get(path["id"])
+        if not isinstance(playlist, SmartPlayerPlaylist):
+            return web.HTTPNotFound()
+        playlist.updateMeta(payload["name"], payload["description"], payload["cover"])
+        playlist.definition = payload["definition"]
+        return web.Response()
