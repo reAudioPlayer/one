@@ -74,6 +74,13 @@ const routes = [{
     }
 },
 {
+    path: '/playlist/create',
+    component: () => import("@/views/playlist/Create.vue"),
+    meta: {
+        title: "Create Playlist - reAudioPlayer One"
+    }
+},
+{
     path: '/playlist/:id/edit',
     component: () => import("@/views/Collection/SmartPlaylist/Editor.vue"),
     meta: {

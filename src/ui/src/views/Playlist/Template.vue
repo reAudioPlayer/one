@@ -155,7 +155,7 @@ watch(
 );
 
 const applyFiltersToSongs = () => {
-    songs.value = applyFilters(playlist.value.songs ?? [], filters.value);
+    songs.value = applyFilters(playlist.value?.songs ?? [], filters.value);
 };
 applyFiltersToSongs();
 

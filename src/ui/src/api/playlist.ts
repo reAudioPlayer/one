@@ -65,11 +65,14 @@ export const deletePlaylist = async (id: number): Promise<boolean> => {
 
 /**
  * creates a new playlist
+ * @param type the type of the playlist
  * @returns the id of the new playlist
  */
-export const createPlaylist = async (): Promise<string> => {
-    const res = await fetch("/api/playlists/new");
-    const id = await res.json();
+export const createPlaylist = async (
+    type: string = "classic"
+): Promise<string> => {
+    const res = await fetch(`/api/playlists/new?type=${type}`);
+    const id = await res.text();
     await updateDataStore();
     return id;
 };

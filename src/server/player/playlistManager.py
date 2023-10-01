@@ -126,6 +126,7 @@ class PlaylistManager(Logged):
         id_ = await self._dbManager.playlists.insert(playlist)
         if id_:
             playlist.id = id_
+            await self.reloadPlaylists()
         return ClassicPlayerPlaylist(playlist).href
 
     async def addSmartPlaylist(self, name: Optional[str] = None) -> str:
@@ -136,6 +137,7 @@ class PlaylistManager(Logged):
         id_ = await self._dbManager.smartPlaylists.insert(playlist)
         if id_:
             playlist.id = id_
+            await self.reloadPlaylists()
         return SmartPlayerPlaylist(playlist).href
 
     async def removePlaylist(self, playlistId: str) -> bool:

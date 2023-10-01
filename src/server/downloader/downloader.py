@@ -13,10 +13,10 @@ from queue import Queue, Empty
 from pyaddict import JDict
 import aiohttp
 from aiohttp import web
-import eyed3 # type: ignore
-from eyed3.id3.frames import ImageFrame # type: ignore
-from eyed3.id3 import Tag # type: ignore
-from yt_dlp import YoutubeDL # type: ignore
+import eyed3  # type: ignore
+from eyed3.id3.frames import ImageFrame  # type: ignore
+from eyed3.id3 import Tag  # type: ignore
+from yt_dlp import YoutubeDL  # type: ignore
 
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.singleton import Singleton
@@ -26,13 +26,24 @@ from db.table.songs import SongModel
 from dataModel.song import Song
 
 
-DOWNLOADING = [ ]
+DOWNLOADING = []
 
 
 class DownloadStatus:
     """download status"""
-    __slots__ = ("_total", "_downloaded", "_percent", "_speed", "_elapsed",
-                 "_songId", "_eta", "_status", "_filename", "_chunk")
+
+    __slots__ = (
+        "_total",
+        "_downloaded",
+        "_percent",
+        "_speed",
+        "_elapsed",
+        "_songId",
+        "_eta",
+        "_status",
+        "_filename",
+        "_chunk",
+    )
 
     def __init__(self, data: Dict[str, Any]) -> None:
         dex = JDict(data)
@@ -55,6 +66,10 @@ class DownloadStatus:
         if len(nameNoPath.split(".")) > 3:
             self._chunk = nameNoPath.split(".")[2]
 
+    def showInUI(self) -> bool:
+        """show in ui"""
+        return ".dl" in self._filename
+
     def toDict(self, downloaded: Dict[int, SongModel]) -> Dict[str, Any]:
         """to dict"""
         res = {
@@ -67,26 +82,32 @@ class DownloadStatus:
             "speed": self._speed,
             "elapsed": self._elapsed,
             "eta": self._eta,
-            "chunk": self._chunk
+            "chunk": self._chunk,
         }
         if self._songId in downloaded:
             res["song"] = downloaded[self._songId].toDict()
         return res
 
 
-class Downloader(metaclass = Singleton):
+class Downloader(metaclass=Singleton):
     """downloader"""
-    __slots__ = ("_opts", "_ydl", "_statusQueue", "_logger", "_websocketClients",
-                 "_downloadStatusTask", "_db", "_downloaded")
+
+    __slots__ = (
+        "_opts",
+        "_ydl",
+        "_statusQueue",
+        "_logger",
+        "_websocketClients",
+        "_downloadStatusTask",
+        "_db",
+        "_downloaded",
+    )
 
     def __init__(self) -> None:
         self._opts = {
-            'noplaylist': True,
+            "noplaylist": True,
             "outtmpl": "./_cache/upNow.%(ext)s",
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3"
-            }]
+            "postprocessors": [{"key": "FFmpegExtractAudio", "preferredcodec": "mp3"}],
         }
         self._ydl = YoutubeDL(self._opts)
         self._ydl.add_progress_hook(self._hook)
@@ -95,12 +116,14 @@ class Downloader(metaclass = Singleton):
         self._websocketClients: set[web.WebSocketResponse] = set()
         self._downloadStatusTask: Optional[asyncio.Task[None]] = None
         self._db = Database()
-        self._downloaded: Dict[int, SongModel] = { }
+        self._downloaded: Dict[int, SongModel] = {}
 
     async def _downloadStatusLoop(self) -> None:
         while True:
             try:
                 status = self._statusQueue.get(False)
+                if not status.showInUI():
+                    continue
                 for client in self._websocketClients:
                     await client.send_json(status.toDict(self._downloaded))
                 self._statusQueue.task_done()
@@ -110,7 +133,7 @@ class Downloader(metaclass = Singleton):
 
     async def websocketEndpoint(self, request: web.Request) -> web.WebSocketResponse:
         """websocket status"""
-        ws = web.WebSocketResponse(heartbeat = 10)
+        ws = web.WebSocketResponse(heartbeat=10)
         await ws.prepare(request)
         self._websocketClients.add(ws)
 
@@ -124,21 +147,17 @@ class Downloader(metaclass = Singleton):
                             "action": "download",
                             "status": "error",
                             "message": "song not found",
-                            "songId": songId
+                            "songId": songId,
                         }
                 else:
                     song = Song.fromDict(data).model
                     self._logger.info("download custom song %s", song)
                 asyncio.create_task(self.downloadSong(song, True, True))
-                return {
-                    "action": "download",
-                    "status": "ok",
-                    "songId": song.id
-                }
+                return {"action": "download", "status": "ok", "songId": song.id}
             return {
                 "action": data.optionalGet("action", str),
                 "status": "error",
-                "message": "unknown action"
+                "message": "unknown action",
             }
 
         async for message in ws:
@@ -150,8 +169,7 @@ class Downloader(metaclass = Singleton):
                 if response:
                     await ws.send_json(response)
             elif message.type == web.WSMsgType.ERROR:
-                self._logger.error("ws connection closed with exception %s",
-                                   ws.exception())
+                self._logger.error("ws connection closed with exception %s", ws.exception())
         self._logger.info("websocket connection closed")
         self._websocketClients.remove(ws)
         return ws
@@ -173,18 +191,14 @@ class Downloader(metaclass = Singleton):
         tag.title = song.name
         tag.album = song.album
 
-        tag.images.set(ImageFrame.FRONT_COVER,
-                                   await self._getCover(song),
-                                   'image/jpeg',
-                                   "Cover")
+        tag.images.set(ImageFrame.FRONT_COVER, await self._getCover(song), "image/jpeg", "Cover")
 
         file.tag = tag
         tag.save(version=eyed3.id3.ID3_V2_3)
 
-    async def downloadSong(self,
-                           song: SongModel,
-                           forExport: bool = False,
-                           withMetadata: bool = False) -> bool:
+    async def downloadSong(
+        self, song: SongModel, forExport: bool = False, withMetadata: bool = False
+    ) -> bool:
         """downloads a song"""
         filename = Song(song).downloadPath(forExport)
         self._downloaded[song.id] = song
@@ -201,14 +215,8 @@ class Downloader(metaclass = Singleton):
             return
         self._statusQueue.put(DownloadStatus(data))
 
-    def _emulateHook(self,
-                     status: str,
-                     filename: str) -> None:
-        self._hook({
-            "status": status,
-            "filename": filename,
-            "emulated": True
-        })
+    def _emulateHook(self, status: str, filename: str) -> None:
+        self._hook({"status": status, "filename": filename, "emulated": True})
 
     def getSongById(self, songId: int) -> Optional[SongModel]:
         """gets a song by id"""
@@ -275,18 +283,20 @@ class Downloader(metaclass = Singleton):
 
         # download
         DOWNLOADING.append(filename)
-        self._ydl.params["outtmpl"] = {
-            "default": relName,
-            "noplaylist": True
-        }
+        self._ydl.params["outtmpl"] = {"default": relName, "noplaylist": True}
 
         try:
-            err = await asyncRunInThreadWithReturn(self._ydl.download, [ link ])
+            err = await asyncRunInThreadWithReturn(self._ydl.download, [link])
             DOWNLOADING.remove(filename)
             return isinstance(err, int) and err == 0
-        except Exception as err: # pylint: disable=broad-except
+        except Exception as err:  # pylint: disable=broad-except
             self._emulateHook("error", filename)
             self._logger.exception(err)
-            self._logger.error("%s could not be downloaded (%s / %s)", filename, relName.replace("%(ext)s", "mp3"), link) # pylint: disable=line-too-long
+            self._logger.error(
+                "%s could not be downloaded (%s / %s)",
+                filename,
+                relName.replace("%(ext)s", "mp3"),
+                link,
+            )  # pylint: disable=line-too-long
             DOWNLOADING.remove(filename)
             return path.exists(relName.replace("%(ext)s", "mp3"))
