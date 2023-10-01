@@ -131,7 +131,7 @@ const show = async () => {
 };
 
 const onSubmit = async (_) => {
-    const id = route.params.hash as string;
+    const id = route.params.id as string;
     await addSong(id, {
         ...form.value.toObject(),
         metadata: fetchedMetadata.value,
