@@ -6,7 +6,7 @@
 import { defineStore } from "pinia";
 
 import { IDropdownOption, IFullPlaylist } from "../common";
-import { getAllPlaylists } from "../api/playlist";
+import { getAllPlaylists, getSinglePlaylist } from "../api/playlist";
 
 // Create a new store instance.
 export const useDataStore = defineStore({
@@ -47,7 +47,20 @@ export const useDataStore = defineStore({
         initialise() {
             this.fetchPlaylists();
         },
-        async fetchPlaylists() {
+        async fetchPlaylists(...params: string[]) {
+            if (params) {
+                console.log("fetching playlists", params);
+                for (const param of params) {
+                    const i = this.playlists.findIndex(
+                        (playlist) => playlist.id === param
+                    );
+                    if (i === -1) {
+                        return;
+                    }
+                    this.playlists[i] = await getSinglePlaylist(param);
+                }
+            }
+
             const playlists = await getAllPlaylists();
             this.setPlaylists(playlists);
         },

@@ -22,6 +22,7 @@
             @input="onChange"
             @keyup="onKeyUp"
             @focusout="$emit('focusout')"
+            ref="element"
         />
     </div>
 </template>
@@ -61,7 +62,12 @@ watch(
     }
 );
 
-const emits = defineEmits(["update:modelValue", "change", "submit"]);
+const emits = defineEmits([
+    "update:modelValue",
+    "change",
+    "submit",
+    "focusout",
+]);
 
 const onChange = () => {
     emits("update:modelValue", value.value);
@@ -79,6 +85,14 @@ const onKeyUp = (e) => {
         emits("submit", value);
     }
 };
+
+const element = ref<HTMLElement>();
+
+defineExpose({
+    focus: () => {
+        element.value.focus();
+    },
+});
 </script>
 
 <style lang="scss" scoped>

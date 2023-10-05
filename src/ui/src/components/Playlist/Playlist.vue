@@ -3,7 +3,6 @@ import { ref } from "vue";
 import { IFullPlaylist } from "../../common";
 import PlaylistEntry from "../songContainers/PlaylistEntry.vue";
 import PlaylistHeader from "../songContainers/PlaylistHeader.vue";
-import Card from "../../containers/Card.vue";
 
 defineProps({
     playlist: {

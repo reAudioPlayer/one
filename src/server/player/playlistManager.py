@@ -143,6 +143,10 @@ class PlaylistManager(Logged):
     async def removePlaylist(self, playlistId: str) -> bool:
         """removes a playlist"""
         self._logger.info("removing playlist %s", playlistId)
-        if playlist := self.get(playlistId):
-            return await playlist.delete()
-        return False
+        playlist = self.get(playlistId)
+        if playlist is None:
+            return False
+        if not await playlist.delete():
+            return False
+        del self._playlists[playlistId]
+        return True

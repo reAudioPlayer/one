@@ -4,24 +4,19 @@
   -->
 
 <template>
-    <div
-        ref="inputElement"
-    >
+    <div ref="inputElement" class="input-with-autocomplete">
         <TextInputWithIcon
             v-model="value"
-            class="md:!w-96"
             :icon="icon"
             :placeholder="placeholder"
             @submit="submit"
             @change="onChange"
             :onKeyUp="onKeyUp"
             :expanded="suggestions.length > 0"
+            ref="input"
         />
     </div>
-    <Teleport
-        to="#autocomplete-target"
-        v-if="suggestions.length > 0"
-    >
+    <Teleport to="#autocomplete-target" v-if="suggestions.length > 0">
         <div
             class="suggestions absolute w-full z-10"
             :style="suggestOffset"
@@ -44,15 +39,15 @@ import TextInputWithIcon from "./TextInputWithIcon.vue";
 import { debounce } from "lodash";
 
 const selectedAutoCompleteItem = ref(-1);
-const onKeyUp = e => {
-    if (e.key === 'ArrowDown') {
+const onKeyUp = (e) => {
+    if (e.key === "ArrowDown") {
         selectedAutoCompleteItem.value++;
         if (selectedAutoCompleteItem.value >= suggestions.value.length) {
             selectedAutoCompleteItem.value = -1;
         }
         return true;
     }
-    if (e.key === 'ArrowUp') {
+    if (e.key === "ArrowUp") {
         if (selectedAutoCompleteItem.value === -1) {
             selectedAutoCompleteItem.value = suggestions.value.length;
         }
@@ -62,10 +57,12 @@ const onKeyUp = e => {
         }
         return true;
     }
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
         console.log(selectedAutoCompleteItem.value);
         if (selectedAutoCompleteItem.value >= 0) {
-            props.clickSuggest(suggestions.value[selectedAutoCompleteItem.value]);
+            props.clickSuggest(
+                suggestions.value[selectedAutoCompleteItem.value]
+            );
             selectedAutoCompleteItem.value = -1;
             suggestions.value = [];
             return true;
@@ -73,9 +70,9 @@ const onKeyUp = e => {
     }
 
     return false;
-}
+};
 
-document.addEventListener('click', e => {
+document.addEventListener("click", (e) => {
     if (!inputElement.value?.contains(e.target as Node)) {
         suggestions.value = [];
         selectedAutoCompleteItem.value = -1;
@@ -101,15 +98,19 @@ const props = defineProps({
 });
 
 const value = ref(props.modelValue);
-watch(() => props.modelValue, (nValue) => {
-    value.value = nValue
-});
+const input = ref<HTMLInputElement | null>(null);
+watch(
+    () => props.modelValue,
+    (nValue) => {
+        value.value = nValue;
+    }
+);
 
 const inputElement = ref<HTMLInputElement | null>(null);
 const suggestOffset = computed(() => ({
-    top: inputElement.value.offsetTop + inputElement.value.offsetHeight + 'px',
-    left: inputElement.value?.offsetLeft + 'px',
-    width: inputElement.value?.offsetWidth + 'px',
+    top: inputElement.value.offsetTop + inputElement.value.offsetHeight + "px",
+    left: inputElement.value?.offsetLeft + "px",
+    width: inputElement.value?.offsetWidth + "px",
 }));
 
 const suggestions = ref<string[]>([]);
@@ -117,18 +118,24 @@ const onInput = debounce(async () => {
     suggestions.value = (await props.suggest(value.value)).slice(0, 5);
 }, 300);
 
-const emits = defineEmits(['update:modelValue', 'change', 'submit']);
+const emits = defineEmits(["update:modelValue", "change", "submit"]);
 
 const onChange = () => {
-    emits('update:modelValue', value.value);
-    emits('change', value.value);
+    emits("update:modelValue", value.value);
+    emits("change", value.value);
     onInput();
-}
+};
 
-const submit = e => {
-    emits('submit', e);
+const submit = (e) => {
+    emits("submit", e);
     suggestions.value = [];
-}
+};
+
+defineExpose({
+    focus: () => {
+        input.value?.focus();
+    },
+});
 </script>
 
 <style lang="scss" scoped>

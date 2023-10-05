@@ -3,7 +3,7 @@
   - Licenced under the GNU General Public License v3.0
   -->
 
-<script setup>
+<script setup lang="ts">
 import FlexShelf from "/src/components/Catalogue/FlexShelf.vue";
 import Playlist from "/src/components/Catalogue/Items/home/Playlist.vue";
 import TrackCompact from "/src/components/Catalogue/Items/home/TrackCompact.vue";
@@ -125,9 +125,9 @@ import { parseCover } from "@/common";
     </div>
 </template>
 
-<script>
-import { useDataStore } from "@/store/data";
-import { getPlaylist } from "@/api/playlist";
+<script lang="ts">
+import { useDataStore } from "../../store/data";
+import { getPlaylist } from "../../api/playlist";
 
 export default {
     name: "Home",
@@ -144,8 +144,6 @@ export default {
             releases: [],
             picks: [],
             songs: [],
-            liked: [],
-            breaking: [],
             recommendations: [],
             data: useDataStore(),
         };
@@ -156,21 +154,17 @@ export default {
             .then((jdata) => {
                 this.releases = jdata.slice(0, 3);
             });
-        fetch("/api/me/liked")
-            .then((x) => x.json())
-            .then((jdata) => {
-                this.liked = jdata.songs.slice(0, 3);
-            });
-        fetch("/api/me/new")
-            .then((x) => x.json())
-            .then((jdata) => {
-                this.breaking = jdata.songs.slice(0, 3);
-            });
         this.pick();
     },
     computed: {
         playlists() {
             return this.data.playlists;
+        },
+        liked() {
+            return getPlaylist("liked").songs.slice(0, 3);
+        },
+        breaking() {
+            return getPlaylist("breaking").songs.slice(0, 3);
         },
     },
     methods: {

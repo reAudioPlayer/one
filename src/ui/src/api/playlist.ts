@@ -44,6 +44,15 @@ export const getAllPlaylists = async (): Promise<IFullPlaylist[]> => {
  * fetches a playlist from the server
  * @param id the playlist's id
  */
+export const getSinglePlaylist = async (id: string): Promise<IFullPlaylist> => {
+    const res = await fetch(`/api/playlists/${id}`);
+    return await res.json();
+};
+
+/**
+ * fetches a playlist from cache
+ * @param id the playlist's id
+ */
 export const getPlaylist = (id: string): IFullPlaylist => {
     return getPlaylistById(id);
 };
@@ -52,7 +61,7 @@ export const getPlaylist = (id: string): IFullPlaylist => {
  * deletes a playlist based on its id
  * @param id the id of the playlist to delete
  */
-export const deletePlaylist = async (id: number): Promise<boolean> => {
+export const deletePlaylist = async (id: string): Promise<boolean> => {
     const res = await fetch(`/api/playlists/${id}`, {
         method: "DELETE",
     });

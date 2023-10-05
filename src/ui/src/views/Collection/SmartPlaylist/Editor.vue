@@ -9,13 +9,16 @@ import {
     peekSmartPlaylist,
     getSmartPlaylistDefinition,
     updateSmartPlaylistDefinition,
+    deletePlaylist,
 } from "../../../api/playlist";
 import Playlist from "../../../components/Playlist/Playlist.vue";
 import Card from "../../../containers/Card.vue";
 import { useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { useDataStore } from "../../../store/data";
 
 const route = useRoute();
+const router = useRouter();
 const playlistId = computed(() => route.params.id as string);
 const dataStore = useDataStore();
 
@@ -103,6 +106,12 @@ const updateSmartPlaylist = async () => {
     await updateSmartPlaylistDefinition(playlistId.value, smartPlaylist.value);
     dataStore.fetchPlaylists();
 };
+
+const deleteMe = async () => {
+    await deletePlaylist(playlistId.value);
+    dataStore.fetchPlaylists();
+    router.push("/");
+};
 </script>
 
 <template>
@@ -115,6 +124,13 @@ const updateSmartPlaylist = async () => {
                     type="success"
                     class="!mt-0"
                     @click="updateSmartPlaylist"
+                />
+                <IconButton
+                    label="Delete"
+                    icon="delete"
+                    type="danger"
+                    class="!mt-0"
+                    @click="deleteMe"
                 />
                 <IconDropdown
                     v-model="smartPlaylist.sort"
