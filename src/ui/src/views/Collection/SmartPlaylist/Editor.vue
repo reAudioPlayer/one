@@ -4,7 +4,7 @@ import IconButton from "../../../components/inputs/IconButton.vue";
 import IconDropdown from "../../../components/inputs/IconDropdown.vue";
 import TextInputWithIcon from "../../../components/inputs/TextInputWithIcon.vue";
 import { debounce } from "lodash";
-import { IPlaylist, ISmartPlaylist } from "../../../common";
+import { IPlaylist, ISmartPlaylistDefinition } from "../../../common";
 import {
     peekSmartPlaylist,
     getSmartPlaylistDefinition,
@@ -22,7 +22,7 @@ const router = useRouter();
 const playlistId = computed(() => route.params.id as string);
 const dataStore = useDataStore();
 
-const smartPlaylist = ref<ISmartPlaylist>({
+const smartPlaylist = ref<ISmartPlaylistDefinition>({
     name: "",
     description: "",
     direction: "asc",

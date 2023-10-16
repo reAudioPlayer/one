@@ -29,25 +29,26 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { Buffer } from "buffer";
-import CloudPlaylist from "../components/cloudSync/CloudPlaylist.vue";
+import CloudPlaylist from "../../components/cloudSync/CloudPlaylist.vue";
 import Hashids from "hashids";
 import GistClient from "@/api/gistClient";
 import IconButton from "@/components/inputs/IconButton.vue";
 import { useDataStore } from "@/store/data";
+import { asSyncableCollection } from "./collection"
 
 window.Buffer = Buffer;
-const hashids = new Hashids("reapApollo")
 
 export default {
     name: "import",
     methods: {
-        downloadFile() {
-            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.playlists));
+        async downloadFile() {
+            const collection = await asSyncableCollection(this.playlists);
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(collection));
             var dlAnchorElem = document.getElementById('downloadAnchorElem');
             dlAnchorElem.setAttribute("href",     dataStr     );
-            dlAnchorElem.setAttribute("download", "lib.one.json");
+            dlAnchorElem.setAttribute("download", "my.one.collection");
             dlAnchorElem.click();
         },
         async openGist() {
@@ -66,14 +67,9 @@ export default {
             }
             this.loadingPlaylists = true;
             this.playlists = [ ];
-            for (const availablePlaylist of this.dataStore?.playlists) {
-                try {
-                    const res = await fetch(`/api/playlists/${availablePlaylist.id}`)
-                    const playlist = await res.json();
-                    this.playlists.push(playlist);
-                } catch (e) {
-                    console.error(e);
-                }
+            for (const availablePlaylist of this.dataStore?.playlists?.filter(x => x.type != "special")) {
+                const playlist = Object.assign({}, availablePlaylist);
+                this.playlists.push(playlist);
             }
             this.loadingPlaylists = false;
         }

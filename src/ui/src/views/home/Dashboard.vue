@@ -23,12 +23,23 @@ import { parseCover } from "@/common";
                     >
                 </h2>
                 <FlexShelf>
+                    <playlist-item
+                        v-for="(element, index) in playlists"
+                        :key="index"
+                        :href="element.href"
+                        :cover="element.cover"
+                        :description="element.description"
+                        :title="element.name"
+                        :type="element.type"
+                        :spotify="false"
+                    />
                     <Playlist
                         v-for="(playlist, index) in playlists"
                         :key="index"
                         :cover="playlist.cover"
                         :href="playlist?.href"
                         :name="playlist.name"
+                        :type="playlist.type"
                     />
                 </FlexShelf>
             </div>

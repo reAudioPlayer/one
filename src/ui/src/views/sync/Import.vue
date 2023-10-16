@@ -16,13 +16,14 @@ import { addSong, updateSongProperty } from "../../api/song";
 import { useDataStore } from "../../store/data";
 import Card from "../../containers/Card.vue";
 import gistClient from "../../api/gistClient";
+import { asSyncableCollection, ISyncableCollection } from "./collection";
 
 
 const merging = ref(false);
 const other = ref(null as "file" | "gist" | null);
-const base = ref([] as IFullPlaylist[]);
+const base = ref({} as ISyncableCollection);
 // @ts-ignore
-const compareWith = ref([] as IFullPlaylist[]);
+const compareWith = ref({} as ISyncableCollection);
 
 const diff = computed(() => diffLib(base.value, compareWith.value));
 
@@ -32,17 +33,12 @@ const loadBase = async () => {
     if (merging.value) return;
     if (loadingPlaylists) return;
     loadingPlaylists = true;
-    const newBase = [] as IFullPlaylist[];
-    for (const availablePlaylist of dataStore.playlists) {
-        try {
-            const res = await fetch(`/api/playlists/${availablePlaylist.id}`)
-            const playlist = await res.json();
-            newBase.push(playlist);
-        } catch (e) {
-            console.error(e);
-        }
+    const playlists = [] as IFullPlaylist[];
+    for (const availablePlaylist of dataStore.playlists?.filter(x => x.type != "special")) {
+        const playlist = Object.assign({}, availablePlaylist);
+        playlists.push(playlist);
     }
-    base.value = newBase;
+    base.value = await asSyncableCollection(playlists);
     loadingPlaylists = false;
 };
 
@@ -53,8 +49,8 @@ const exclude = (playlist: IFullPlaylist) => {
     // NOTE perhaps an exclude list and computed base/compareWith?
     // because like this, a diff for added/modded playlists will be wrong
 
-    base.value = base.value.filter(x => x.name !== playlist.name);
-    compareWith.value = compareWith.value.filter(x => x.name !== playlist.name);
+    base.value.collection = base.value.collection.filter(x => x.playlist.name !== playlist.name);
+    compareWith.value.collection = compareWith.value.collection.filter(x => x.playlist.name !== playlist.name);
 };
 
 const expanded = ref<IFullPlaylist | null>(null);
@@ -97,13 +93,15 @@ const merge = async () => {
     };
 
     for (const playlist of diff.value.added) {
-        base.value.push(playlist);
-        promises.push(createPlaylistWithMetadata(playlist.name, playlist.description, playlist.cover).then(id => {
-            playlist.id = id;
+        base.value.collection.push(playlist);
+        promises.push(createPlaylistWithMetadata(playlist.playlist.name,
+                                                 playlist.playlist.description,
+                                                 playlist.playlist.cover).then(id => {
+            playlist.playlist.id = id;
             modifyPlaylist({
-                id: playlist.id,
-                name: playlist.name,
-                added: playlist.songs,
+                id: playlist.playlist.id,
+                name: playlist.playlist.name,
+                added: playlist.playlist.songs,
                 removed: [],
                 modified: []
             });
@@ -115,7 +113,7 @@ const merge = async () => {
     }
 
     for (const playlist of diff.value.removed) {
-        promises.push(deletePlaylist(playlist.id));
+        promises.push(deletePlaylist(playlist.playlist.id));
     }
 
     await Promise.all(promises);
@@ -133,8 +131,8 @@ const uploadFile = async () => {
     // create input element and load 
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = ".json";
-    input.name = "lib.one.json";
+    input.accept = ".one.*";
+    input.name = "my.one.collection";
     input.onchange = async () => {
         if (!input.files) return;
         const file = input.files[0];
@@ -174,16 +172,16 @@ const ws = ref(null as WebSocket | null);
                     <h1>Incoming</h1>
                 </div>
                 <div
-                    v-for="playlist in base"
-                    :key="playlist.name"
+                    v-for="playlist in base.collection"
+                    :key="playlist.playlist.name"
                     class="grid grid-cols-2 gap-4"
                 >
                     <PlaylistDiff
-                        v-if="base.some(x => x.name === playlist.name)"
+                        v-if="base.collection.some(x => x.playlist.name === playlist.playlist.name)"
                         :diff="diff"
-                        :expanded="expanded?.name === playlist.name"
+                        :expanded="expanded?.name === playlist.playlist.name"
                         :expanded-song="expandedSong"
-                        :playlist="playlist"
+                        :playlist="playlist.playlist"
                         class="grid-1"
                         is-base
                         @exclude="exclude"
@@ -191,11 +189,11 @@ const ws = ref(null as WebSocket | null);
                         @toggle-expanded-song="toggleExpandedSong"
                     />
                     <PlaylistDiff
-                        v-if="compareWith.some(x => x.name === playlist.name)"
+                        v-if="compareWith.collection.some(x => x.playlist.name === playlist.playlist.name)"
                         :diff="diff"
-                        :expanded="expanded?.name === playlist.name"
+                        :expanded="expanded?.name === playlist.playlist.name"
                         :expanded-song="expandedSong"
-                        :playlist="compareWith.find(x => x.name === playlist.name)"
+                        :playlist="compareWith.collection.find(x => x.playlist.name === playlist.playlist.name)"
                         class="grid-2"
                         @exclude="exclude"
                         @toggle-expanded="toggleExpanded"
@@ -204,15 +202,15 @@ const ws = ref(null as WebSocket | null);
                 </div>
                 <div
                     v-for="playlist in diff.added"
-                    :key="playlist.name"
+                    :key="playlist.playlist.name"
                     class="grid grid-cols-2 gap-4"
                 >
                     <PlaylistDiff
-                        v-if="compareWith.some(x => x.name === playlist.name)"
+                        v-if="compareWith.collection.some(x => x.playlist.name === playlist.playlist.name)"
                         :diff="diff"
-                        :expanded="expanded?.name === playlist.name"
+                        :expanded="expanded?.name === playlist.playlist.name"
                         :expanded-song="expandedSong"
-                        :playlist="playlist"
+                        :playlist="playlist.playlist"
                         class="grid-2"
                         @exclude="exclude"
                         @toggle-expanded="toggleExpanded"

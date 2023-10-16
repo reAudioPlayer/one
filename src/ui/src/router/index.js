@@ -131,7 +131,7 @@ const routes = [{
 },
 {
     path: '/export',
-    component: () => import("@/views/Export.vue"),
+    component: () => import("@/views/sync/Export.vue"),
     meta: {
         title: "Export - reAudioPlayer One"
     }

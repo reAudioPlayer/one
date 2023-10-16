@@ -113,6 +113,7 @@ export interface IPlaylist extends IPlaylistMeta {
 export interface IFullPlaylist extends IPlaylist {
     songs: ISong[];
     queue: ISong[];
+    cursor: number;
 }
 
 export interface ISpotifySong extends ISong {
@@ -159,13 +160,22 @@ export interface IFilter {
     duration: IDuration;
 }
 
-export interface ISmartPlaylist {
-    name: string;
-    description: string;
+export interface ISmartPlaylistDefinition {
     direction: "asc" | "desc";
     sort: "duration" | "title" | "artist" | "album" | "id";
     limit: number;
     filter: IFilter;
+}
+
+export interface ISmartPlaylist {
+    id: string;
+    name: string;
+    description: string;
+    cover: string;
+    type: "smart";
+    definition: ISmartPlaylistDefinition;
+    plays: number;
+    href: string;
 }
 
 export const toTitleCase = (str: string) => {

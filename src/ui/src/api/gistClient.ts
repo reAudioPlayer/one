@@ -94,7 +94,7 @@ export default {
         return !!(await gistId());
     },
     get,
-    getContent: async (filename: string = "one.lib.json"): Promise<any[]> => {
+    getContent: async (filename: string = "one.lib.json"): Promise<any> => {
         const gist = await get();
         const content = gist.files?.[filename]?.content;
         return content ? JSON.parse(content) : [];

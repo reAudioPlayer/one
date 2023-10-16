@@ -3,7 +3,8 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import { IFullPlaylist, IMetadata, ISong } from "../../common";
+import { IFullPlaylist, IMetadata, ISmartPlaylist, ISong } from "../../common";
+import { ISyncableCollection, ISyncablePlaylist, ISyncableSong } from "./collection";
 
 export interface IChangedProperty<E> {
     from: E;
@@ -29,12 +30,12 @@ export interface IPlaylistDiff {
     added: ISong[];
     removed: ISong[];
     modified: ISongDiff[];
-    id?: number;
+    id?: string;
 }
 
 export interface IDiff {
-    added: IFullPlaylist[];
-    removed: IFullPlaylist[];
+    added: ISyncablePlaylist[];
+    removed: ISyncablePlaylist[];
     modified: IPlaylistDiff[];
 }
 
@@ -113,16 +114,28 @@ const diffSong = (a: ISong, b: ISong) => {
     return null;
 }
 
-const diffPlaylist = (base: IFullPlaylist, other: IFullPlaylist) => {
+const diffPlaylist = (base: ISyncablePlaylist, other: ISyncablePlaylist) => {
     const diff: IPlaylistDiff = {
-        name: base.name,
-        id: base.id,
+        name: base.playlist.name,
+        id: base.playlist.id,
         added: [],
         removed: [],
         modified: [],
     };
-    for (const baseSong of base.songs) {
-        const otherSong = other.songs.find((s) => s.source === baseSong.source);
+
+    if (base.playlist.type !== other.playlist.type) {
+        return null;
+    }
+
+    if (base.playlist.type === "smart") {
+        const smartPlaylist = base.playlist as ISmartPlaylist;
+        const otherSmartPlaylist = other.playlist as ISmartPlaylist;
+        return diff;
+    }
+    if (other.playlist.type === "smart") return;
+
+    for (const baseSong of base.playlist.songs) {
+        const otherSong = other.playlist.songs.find((s) => s.source === baseSong.source);
         if (otherSong) {
             const songDiff = diffSong(baseSong, otherSong);
             if (songDiff) {
@@ -132,8 +145,8 @@ const diffPlaylist = (base: IFullPlaylist, other: IFullPlaylist) => {
             diff.removed.push(baseSong);
         }
     }
-    for (const otherSong of other.songs) {
-        const baseSong = base.songs.find((s) => s.source === otherSong.source);
+    for (const otherSong of other.playlist.songs) {
+        const baseSong = base.playlist.songs.find((s) => s.source === otherSong.source);
         if (!baseSong) {
             diff.added.push(otherSong);
         }
@@ -144,14 +157,14 @@ const diffPlaylist = (base: IFullPlaylist, other: IFullPlaylist) => {
     return null;
 };
 
-export const diffLib = (base: IFullPlaylist[], other: IFullPlaylist[]) => {
+export const diffLib = (base: ISyncableCollection, other: ISyncableCollection) => {
     const diff: IDiff = {
         added: [],
         removed: [],
         modified: [],
     };
-    for (const basePlaylist of base) {
-        const otherPlaylist = other.find((p) => p.name === basePlaylist.name);
+    for (const basePlaylist of base.collection) {
+        const otherPlaylist = other.collection.find((p) => p.playlist.name === basePlaylist.playlist.name);
         if (otherPlaylist) {
             const playlistDiff = diffPlaylist(basePlaylist, otherPlaylist);
             if (playlistDiff) {
@@ -161,8 +174,8 @@ export const diffLib = (base: IFullPlaylist[], other: IFullPlaylist[]) => {
             diff.removed.push(basePlaylist);
         }
     }
-    for (const otherPlaylist of other) {
-        const basePlaylist = base.find((p) => p.name === otherPlaylist.name);
+    for (const otherPlaylist of other.collection) {
+        const basePlaylist = base.collection.find((p) => p.playlist.name === otherPlaylist.playlist.name);
         if (!basePlaylist) {
             diff.added.push(otherPlaylist);
         }

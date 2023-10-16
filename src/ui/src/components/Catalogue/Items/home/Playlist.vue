@@ -7,7 +7,12 @@
     <router-link :to="href" class="no-underline">
         <Card class="home-playlist drop-shadow-md" with-hover>
             <Cover :src="cover" type="playlist" />
-            <h2>{{name}}</h2>
+            <div class="title">
+                <span v-if="type != 'classic'" class="material-symbols-rounded">
+                    {{ type == "smart" ? "neurology" : "bolt" }}
+                </span>
+                <h4>{{ name }}</h4>
+            </div>
         </Card>
     </router-link>
 </template>
@@ -27,6 +32,10 @@ defineProps({
     href: {
         type: String,
         required: true
+    },
+    type: {
+        type: String,
+        default: "classic"
     }
 })
 </script>
@@ -63,4 +72,20 @@ defineProps({
     }
 }
 
+div.title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+    gap: 0.5em;
+
+    h4 {
+        margin: 0;
+    }
+
+    span {
+        color: var(--fg-secondary);
+    }
+}
 </style>

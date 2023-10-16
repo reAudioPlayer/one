@@ -3,7 +3,7 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import { IFullPlaylist, IPlaylistMeta, unhashPlaylist } from "../common";
+import { IFullPlaylist, IPlaylistMeta, ISmartPlaylistDefinition } from "../common";
 import { useDataStore } from "../store/data";
 
 const updateDataStore = async () => {
@@ -110,7 +110,7 @@ export const createPlaylistWithMetadata = async (
 };
 
 export const removeSongFromPlaylist = async (
-    playlistId: number,
+    playlistId: string,
     songId: number
 ) => {
     await fetch(`/api/playlists/${playlistId}/tracks`, {
@@ -126,7 +126,7 @@ export const removeSongFromPlaylist = async (
  * peeks into the songs in a smart playlist
  */
 export const peekSmartPlaylist = async (
-    definition: ISmartPlaylist
+    definition: ISmartPlaylistDefinition
 ): Promise<IFullPlaylist> => {
     const res = await fetch("/api/playlists/smart/peek", {
         method: "POST",
@@ -141,7 +141,7 @@ export const peekSmartPlaylist = async (
  */
 export const getSmartPlaylistDefinition = async (
     id: string
-): Promise<ISmartPlaylist> => {
+): Promise<ISmartPlaylistDefinition> => {
     const res = await fetch(`/api/playlists/smart/${id}`);
     const jdata = await res.json();
     return jdata;
@@ -152,7 +152,7 @@ export const getSmartPlaylistDefinition = async (
  */
 export const updateSmartPlaylistDefinition = async (
     id: string,
-    definition: ISmartPlaylist
+    definition: ISmartPlaylistDefinition
 ): Promise<void> => {
     await fetch(`/api/playlists/smart/${id}`, {
         method: "PUT",
