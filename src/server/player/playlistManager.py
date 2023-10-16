@@ -8,7 +8,7 @@ from dataModel.song import Song
 from db.database import Database
 from db.table.playlists import PlaylistModel
 from db.table.smartPlaylists import SmartPlaylistModel
-from player.iPlayerPlaylist import IPlayerPlaylist
+from player.iPlayerPlaylist import IPlayerPlaylist, PlaylistType
 from player.smartPlayerPlaylist import SmartPlayerPlaylist, SpecialPlayerPlaylist
 from player.classicPlayerPlaylist import ClassicPlayerPlaylist
 
@@ -90,8 +90,22 @@ class PlaylistManager(Logged):
         playlist = self.get(playlistId)
         if not isinstance(playlist, ClassicPlayerPlaylist):
             return False
-        await playlist.remove(songId)
+        song = await playlist.remove(songId)
+        if song is None:
+            return False
+        await self._deleteSongIfNotInPlaylists(song)
         return True
+
+    async def _deleteSongIfNotInPlaylists(self, song: Song) -> None:
+        """deletes a song if it is not in any playlist"""
+        for playlist in self._playlists.values():
+            if playlist.type != PlaylistType.Classic:
+                continue
+            if playlist.hasSong(song.model.id):
+                self._logger.debug("song %s is still in playlist %s", song.model.id, playlist.id)
+                return
+        self._logger.debug("deleting song %s", song.model.id)
+        await Database().songs.delete(song.model)
 
     def get(self, id_: str) -> Optional[IPlayerPlaylist]:
         """gets the playlist with this id"""
@@ -146,6 +160,7 @@ class PlaylistManager(Logged):
         playlist = self.get(playlistId)
         if playlist is None:
             return False
+        # TODO(dxstiny) delete songs from DB too
         if not await playlist.delete():
             return False
         del self._playlists[playlistId]

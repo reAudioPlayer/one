@@ -23,7 +23,7 @@ class Metadata:
         if not validators.url(url):
             return
         if "youtu" in url:
-            self._source = url
+            self._source = url.split("&")[0]
             self._track = YoutubeTrack.fromUrl(url)
         elif "spotify" in url:
             result = spotify.url(url)
@@ -34,7 +34,7 @@ class Metadata:
             if ytTrack:
                 self._source = f"https://music.youtube.com/watch?v={ytTrack._id}"
         elif "soundcloud" in url:
-            self._source = url
+            self._source = url.split("?")[0]
             self._track = SoundcloudTrack.fromUrl(url)
 
     def __bool__(self) -> bool:

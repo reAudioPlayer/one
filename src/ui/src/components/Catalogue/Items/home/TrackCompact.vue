@@ -34,13 +34,13 @@ const play = e => {
 };
 
 const openModal = () => {
-    if (!props.href?.includes("spotify.com"))
+    if (!props?.href?.includes("spotify.com"))
     {
         router.push(trackHref);
         return;
     }
 
-    if (props.href?.includes("spotify.com/album/"))
+    if (props?.href?.includes("spotify.com/album/"))
     {
         addRelease.value.show();
         return

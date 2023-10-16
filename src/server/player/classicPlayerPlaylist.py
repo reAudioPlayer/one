@@ -2,7 +2,7 @@
 """reAudioPlayer ONE"""
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
-from typing import Any
+from typing import Any, Optional
 import asyncio
 from db.database import Database
 from db.table.playlists import PlaylistModel
@@ -40,24 +40,33 @@ class ClassicPlayerPlaylist(IPlayerPlaylist):
     async def add(self, song: Song) -> None:
         """add a song"""
         songsInDb = await Database().songs.select("*", f"WHERE source='{song.model.source}'")
-        if len(songsInDb) == 0:
+        if len(songsInDb) > 0:
+            song.model.id = songsInDb[0].id
+        elif len(songsInDb) == 0:
             id_ = await Database().songs.insert(song.model)
             if id_:
                 song.model.id = id_
 
         songs = self._playlistModel.songsList
         songs.append(song.model.id)
+        self._queue.append(len(self._songs))
         self._songs.append(song)
         self._playlistModel.songsList = songs
 
-    async def remove(self, songId: int) -> None:
+    async def remove(self, songId: int) -> Optional[Song]:
         """removes a song"""
         songs = self._playlistModel.songsList
         if songId not in songs:
-            return
+            return None
         songs.remove(songId)
-        self._songs = [s for s in self._songs if s.model.id != songId]
+        song = next(s
+                    for s in self._songs
+                    if s.model.id == songId)
+        indexInSongs = self._songs.index(song)
+        self._songs.remove(song)
+        self._queue.remove(indexInSongs)
         self._playlistModel.songsList = songs
+        return song
 
     async def move(self, old: int, new: int) -> None:
         """moves a song"""

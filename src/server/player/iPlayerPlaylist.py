@@ -134,6 +134,10 @@ class IPlayerPlaylist(ABC):
                 self._cursor = index
                 return
 
+    def hasSong(self, songId: int) -> bool:
+        """checks if the playlist contains a song"""
+        return songId in [song.model.id for song in self._songs]
+
     @property
     @abstractmethod
     def type(self) -> PlaylistType:
