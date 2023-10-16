@@ -8,16 +8,20 @@ import Loader from "@/components/Loader.vue";
 import GistClient from "../../api/gistClient";
 import { diffLib, IPlaylistDiff } from "./diff";
 import PlaylistDiff from "./PlaylistDiff.vue";
-import { IFullPlaylist, ISong } from "../../common";
+import { IFullPlaylist, ISmartPlaylist, ISong } from "../../common";
 import { computed, ref, onMounted, watch } from "vue";
 import IconButton from "../../components/inputs/IconButton.vue";
-import { createPlaylistWithMetadata, deletePlaylist, removeSongFromPlaylist } from "../../api/playlist";
+import {
+    createPlaylistWithMetadata,
+    deletePlaylist,
+    removeSongFromPlaylist,
+    updateSmartPlaylistDefinition,
+} from "../../api/playlist";
 import { addSong, updateSongProperty } from "../../api/song";
 import { useDataStore } from "../../store/data";
 import Card from "../../containers/Card.vue";
 import gistClient from "../../api/gistClient";
 import { asSyncableCollection, ISyncableCollection } from "./collection";
-
 
 const merging = ref(false);
 const other = ref(null as "file" | "gist" | null);
@@ -34,7 +38,9 @@ const loadBase = async () => {
     if (loadingPlaylists) return;
     loadingPlaylists = true;
     const playlists = [] as IFullPlaylist[];
-    for (const availablePlaylist of dataStore.playlists?.filter(x => x.type != "special")) {
+    for (const availablePlaylist of dataStore.playlists?.filter(
+        (x) => x.type != "special"
+    )) {
         const playlist = Object.assign({}, availablePlaylist);
         playlists.push(playlist);
     }
@@ -49,8 +55,12 @@ const exclude = (playlist: IFullPlaylist) => {
     // NOTE perhaps an exclude list and computed base/compareWith?
     // because like this, a diff for added/modded playlists will be wrong
 
-    base.value.collection = base.value.collection.filter(x => x.playlist.name !== playlist.name);
-    compareWith.value.collection = compareWith.value.collection.filter(x => x.playlist.name !== playlist.name);
+    base.value.collection = base.value.collection.filter(
+        (x) => x.playlist.name !== playlist.name
+    );
+    compareWith.value.collection = compareWith.value.collection.filter(
+        (x) => x.playlist.name !== playlist.name
+    );
 };
 
 const expanded = ref<IFullPlaylist | null>(null);
@@ -87,25 +97,42 @@ const merge = async () => {
 
         for (const song of diff.modified) {
             for (const key of Object.keys(song.changed)) {
-                promises.push(updateSongProperty(song.id, key, song.changed[key].to));
+                promises.push(
+                    updateSongProperty(song.id, key, song.changed[key].to)
+                );
             }
         }
     };
 
     for (const playlist of diff.value.added) {
         base.value.collection.push(playlist);
-        promises.push(createPlaylistWithMetadata(playlist.playlist.name,
-                                                 playlist.playlist.description,
-                                                 playlist.playlist.cover).then(id => {
-            playlist.playlist.id = id;
-            modifyPlaylist({
-                id: playlist.playlist.id,
-                name: playlist.playlist.name,
-                added: playlist.playlist.songs,
-                removed: [],
-                modified: []
-            });
-        }));
+        promises.push(
+            createPlaylistWithMetadata(
+                playlist.playlist.type,
+                playlist.playlist.name,
+                playlist.playlist.description,
+                playlist.playlist.cover
+            ).then((id) => {
+                playlist.playlist.id = id;
+
+                if (playlist.playlist.type === "classic") {
+                    modifyPlaylist({
+                        id: playlist.playlist.id,
+                        name: playlist.playlist.name,
+                        added: playlist.playlist.songs,
+                        removed: [],
+                        modified: [],
+                    });
+                } else if (playlist.playlist.type === "smart") {
+                    promises.push(
+                        updateSmartPlaylistDefinition(
+                            playlist.playlist.id,
+                            (playlist.playlist as ISmartPlaylist).definition
+                        )
+                    );
+                }
+            })
+        );
     }
 
     for (const playlist of diff.value.modified) {
@@ -125,10 +152,10 @@ const merge = async () => {
 };
 
 const gistConnected = ref(false);
-gistClient.connected().then(x => gistConnected.value = x);
+gistClient.connected().then((x) => (gistConnected.value = x));
 
 const uploadFile = async () => {
-    // create input element and load 
+    // create input element and load
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".one.*";
@@ -155,18 +182,10 @@ const ws = ref(null as WebSocket | null);
 <template>
     <div class="pb-4 pr-4 flex flex-col gap-4 h-full">
         <div class="flex flex-row justify-end">
-            <IconButton
-                icon="merge"
-                label="Merge"
-                @click="merge"
-            />
+            <IconButton icon="merge" label="Merge" @click="merge" />
         </div>
-        <template
-            v-if="other"
-        >
-            <template
-                v-if="!merging"
-            >
+        <template v-if="other">
+            <template v-if="!merging">
                 <div class="grid grid-cols-2 gap-4">
                     <h1>Local</h1>
                     <h1>Incoming</h1>
@@ -177,7 +196,12 @@ const ws = ref(null as WebSocket | null);
                     class="grid grid-cols-2 gap-4"
                 >
                     <PlaylistDiff
-                        v-if="base.collection.some(x => x.playlist.name === playlist.playlist.name)"
+                        v-if="
+                            base.collection.some(
+                                (x) =>
+                                    x.playlist.name === playlist.playlist.name
+                            )
+                        "
                         :diff="diff"
                         :expanded="expanded?.name === playlist.playlist.name"
                         :expanded-song="expandedSong"
@@ -189,11 +213,21 @@ const ws = ref(null as WebSocket | null);
                         @toggle-expanded-song="toggleExpandedSong"
                     />
                     <PlaylistDiff
-                        v-if="compareWith.collection.some(x => x.playlist.name === playlist.playlist.name)"
+                        v-if="
+                            compareWith.collection.some(
+                                (x) =>
+                                    x.playlist.name === playlist.playlist.name
+                            )
+                        "
                         :diff="diff"
                         :expanded="expanded?.name === playlist.playlist.name"
                         :expanded-song="expandedSong"
-                        :playlist="compareWith.collection.find(x => x.playlist.name === playlist.playlist.name)"
+                        :playlist="
+                            compareWith.collection.find(
+                                (x) =>
+                                    x.playlist.name === playlist.playlist.name
+                            ).playlist
+                        "
                         class="grid-2"
                         @exclude="exclude"
                         @toggle-expanded="toggleExpanded"
@@ -206,7 +240,12 @@ const ws = ref(null as WebSocket | null);
                     class="grid grid-cols-2 gap-4"
                 >
                     <PlaylistDiff
-                        v-if="compareWith.collection.some(x => x.playlist.name === playlist.playlist.name)"
+                        v-if="
+                            compareWith.collection.some(
+                                (x) =>
+                                    x.playlist.name === playlist.playlist.name
+                            )
+                        "
                         :diff="diff"
                         :expanded="expanded?.name === playlist.playlist.name"
                         :expanded-song="expandedSong"
@@ -222,17 +261,19 @@ const ws = ref(null as WebSocket | null);
                 <Loader />
             </div>
         </template>
-        <div
-            v-else
-            class="fill-page !grid !grid-cols-2 gap-4"
-        >
+        <div v-else class="fill-page !grid !grid-cols-2 gap-4">
             <Card with-hover class="cursor-pointer" @click="uploadFile">
                 <h2>
                     <span class="material-symbols-rounded">file_upload</span>
                     From File
                 </h2>
             </Card>
-            <Card :disabled="!gistConnected" with-hover class="cursor-pointer" @click="importGist">
+            <Card
+                :disabled="!gistConnected"
+                with-hover
+                class="cursor-pointer"
+                @click="importGist"
+            >
                 <h2>
                     <span class="material-symbols-rounded">cloud_download</span>
                     GitHub Gist

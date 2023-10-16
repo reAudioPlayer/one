@@ -117,10 +117,13 @@ class PlaylistManager(Logged):
         name: Optional[str],
         description: Optional[str],
         cover: Optional[str],
-    ) -> None:
+    ) -> bool:
         """updates a playlist"""
-        if playlist := self.get(id_):
-            playlist.updateMeta(name, description, cover)
+        playlist = self.get(id_)
+        if playlist is None:
+            return False
+        playlist.updateMeta(name, description, cover)
+        return True
 
     @property
     def playlists(self) -> List[IPlayerPlaylist]:

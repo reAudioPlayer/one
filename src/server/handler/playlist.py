@@ -128,10 +128,10 @@ class PlaylistHandler:
         """post(/api/playlists/{id})"""
         id_ = str(request.match_info["id"])
         jdata: Dict[str, Any] = await request.json()
-        self._playlistManager.updatePlaylist(
+        success = self._playlistManager.updatePlaylist(
             id_, jdata.get("name"), jdata.get("description"), jdata.get("cover")
         )
-        return web.Response()
+        return web.Response() if success else web.HTTPNotFound()
 
     @withObjectPayload(SMART_DEFINITION, inBody=True)
     async def peekSmartPlaylist(self, payload: Dict[str, Any]) -> web.Response:

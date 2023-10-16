@@ -3,7 +3,11 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import { IFullPlaylist, IPlaylistMeta, ISmartPlaylistDefinition } from "../common";
+import {
+    IFullPlaylist,
+    IPlaylistMeta,
+    ISmartPlaylistDefinition,
+} from "../common";
 import { useDataStore } from "../store/data";
 
 const updateDataStore = async () => {
@@ -88,17 +92,20 @@ export const createPlaylist = async (
 
 /**
  * creates a new playlist with metadata
+ * @param type the type of the playlist
  * @param name the name of the playlist
  * @param description the description of the playlist
  * @param cover the cover of the playlist
  * @returns the id of the new playlist
  */
 export const createPlaylistWithMetadata = async (
+    type: "classic" | "smart" = "classic",
     name: string,
     description: string = "",
     cover: string = ""
 ): Promise<string> => {
-    const id = await createPlaylist();
+    const href = await createPlaylist(type);
+    const id = href.split("/").pop() as string;
     await updatePlaylistMetadata({
         id,
         name,
