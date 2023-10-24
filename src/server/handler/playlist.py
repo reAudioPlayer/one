@@ -51,7 +51,13 @@ class PlaylistHandler:
         """post(/api/playlists/{id}/tracks)"""
         id_ = str(request.match_info["id"])
         jdata = await request.json()
-        success = await self._playlistManager.addToPlaylist(id_, Song.fromDict(jdata))
+
+        if isinstance(jdata, list):
+            success = await self._playlistManager.addAllToPlaylist(
+                id_, [Song.fromDict(song) for song in jdata]
+            )
+        elif isinstance(jdata, dict):
+            success = await self._playlistManager.addToPlaylist(id_, Song.fromDict(jdata))
         if success:
             return web.Response()
         return web.HTTPInternalServerError()

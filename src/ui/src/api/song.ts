@@ -55,6 +55,15 @@ export const fetchMetadata = async (src: string): Promise<ISong> => {
     return await res.json();
 }
 
+const songToJson = (song: ISong) => ({
+    source: song.source,
+    title: song.title,
+    artist: song.artist,
+    album: song.album,
+    cover: song.cover,
+    spotify: song.metadata ? JSON.stringify(song.metadata.spotify) : ""
+});
+
 /**
  * adds a song to a playlist
  * @param playlistId the id of the playlist to add the song to
@@ -67,15 +76,26 @@ export const addSong = async (playlistId: string, song: ISong) => {
 
     await fetch(`/api/playlists/${playlistId}/tracks`, {
         method: "POST",
-        body: JSON.stringify({
-            source: song.source,
-            title: song.title,
-            artist: song.artist,
-            album: song.album,
-            cover: song.cover,
-            spotify: song.metadata ? JSON.stringify(song.metadata.spotify) : ""
-        })
+        body: JSON.stringify(songToJson(song))
     })
+
+    await updateDataStore();
+}
+
+/**
+ * adds multiple songs to a playlist
+ * @param playlistId the id of the playlist to add the song to
+ * @param songs the songs to add
+ */
+export const addSongs = async (playlistId: string, songs: ISong[]) => {
+    if (playlistId === "new") {
+        playlistId = await createPlaylist();
+    }
+
+    await fetch(`/api/playlists/${playlistId}/tracks`, {
+        method: "POST",
+        body: JSON.stringify(songs.map(song => songToJson(song)))
+    });
 
     await updateDataStore();
 }

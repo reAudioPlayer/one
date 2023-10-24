@@ -17,7 +17,7 @@ import {
     removeSongFromPlaylist,
     updateSmartPlaylistDefinition,
 } from "../../api/playlist";
-import { addSong, updateSongProperty } from "../../api/song";
+import { addSongs, updateSongProperty } from "../../api/song";
 import { useDataStore } from "../../store/data";
 import Card from "../../containers/Card.vue";
 import gistClient from "../../api/gistClient";
@@ -87,9 +87,7 @@ const merge = async () => {
     const promises = [] as Promise<any>[];
 
     const modifyPlaylist = (diff: IPlaylistDiff) => {
-        for (const song of diff.added) {
-            promises.push(addSong(diff.id, song));
-        }
+        promises.push(addSongs(diff.id, diff.added));
 
         for (const song of diff.removed) {
             promises.push(removeSongFromPlaylist(diff.id, song.id));

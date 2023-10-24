@@ -2,7 +2,7 @@
 """reAudioPlayer ONE"""
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
-from typing import Any, Optional
+from typing import Any, Optional, List
 import asyncio
 from db.database import Database
 from db.table.playlists import PlaylistModel
@@ -37,8 +37,7 @@ class ClassicPlayerPlaylist(IPlayerPlaylist):
         self._songs = songs
         self._resetQueue()
 
-    async def add(self, song: Song) -> None:
-        """add a song"""
+    async def _addOrGetSongFromDb(self, song: Song) -> Song:
         songsInDb = await Database().songs.select("*", f"WHERE source='{song.model.source}'")
         if len(songsInDb) > 0:
             song.model.id = songsInDb[0].id
@@ -46,12 +45,25 @@ class ClassicPlayerPlaylist(IPlayerPlaylist):
             id_ = await Database().songs.insert(song.model)
             if id_:
                 song.model.id = id_
+        return song
 
+    async def add(self, song: Song) -> None:
+        """add a song"""
+        song = await self._addOrGetSongFromDb(song)
         songs = self._playlistModel.songsList
         songs.append(song.model.id)
         self._queue.append(len(self._songs))
         self._songs.append(song)
         self._playlistModel.songsList = songs
+
+    async def addAll(self, songs: List[Song]) -> None:
+        """adds all songs"""
+        newSongs = [await self._addOrGetSongFromDb(s) for s in songs]
+        songs = self._playlistModel.songsList
+        songs.extend(s.model.id for s in newSongs)
+        self._queue.extend(range(len(self._songs), len(self._songs) + len(newSongs)))
+        self._songs.extend(newSongs)
+        self._playlistModel.songsList = songs        
 
     async def remove(self, songId: int) -> Optional[Song]:
         """removes a song"""

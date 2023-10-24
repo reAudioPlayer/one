@@ -77,6 +77,14 @@ class PlaylistManager(Logged):
         await playlist.add(song)
         return True
 
+    async def addAllToPlaylist(self, playlistId: str, songs: List[Song]) -> bool:
+        """adds a song to a playlist"""
+        playlist = self.get(playlistId)
+        if not isinstance(playlist, ClassicPlayerPlaylist):
+            return False
+        await playlist.addAll(songs)
+        return True
+
     async def moveInPlaylist(self, playlistId: str, songIndex: int, newSongIndex: int) -> bool:
         """moves a song in a playlist"""
         playlist = self.get(playlistId)
