@@ -205,7 +205,7 @@ export default {
             }
 
             this.songs = this.playlists
-                .map(async (playlist) => getPlaylist(playlist.id)?.songs || [])
+                .map(playlist => getPlaylist(playlist.id)?.songs || [])
                 .flat();
 
             if (this.songs.length < 3) {
