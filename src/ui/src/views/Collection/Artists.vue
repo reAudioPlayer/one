@@ -15,6 +15,7 @@
                     :cover="element.cover"
                     :description="element.description"
                     :name="element.name"
+                    initially-following
                     show-follow-button
                 />
             </full-shelf>

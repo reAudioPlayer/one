@@ -4,31 +4,29 @@
   -->
 
 <template>
-    <router-link :to="'/artist/' + name" class="noLink">
-        <Card class="wrapper" with-hover>
-            <add-artist-to-playlist
-                ref="import"
-                :artist="{
-                    id,
-                    name,
-                    href: `https://open.spotify.com/artist/${id}`,
-                    image: cover,
-                }"
-            />
-            <div class="item">
-                <img :src="cover" />
-                <h4>{{ name }}</h4>
-                <p v-html="description" />
-                <button
-                    v-if="showFollowButton"
-                    class="followButton"
-                    @click.stop="follow"
-                >
-                    {{ following ? "Following" : "Follow" }}
-                </button>
-            </div>
-        </Card>
-    </router-link>
+    <Card class="wrapper" with-hover @click.stop="$router.push('/artist/' + name)">
+        <add-artist-to-playlist
+            ref="import"
+            :artist="{
+                id,
+                name,
+                href: `https://open.spotify.com/artist/${id}`,
+                image: cover,
+            }"
+        />
+        <div class="item">
+            <img :src="cover" />
+            <h4>{{ name }}</h4>
+            <p v-html="description" />
+            <button
+                v-if="showFollowButton"
+                class="followButton"
+                @click.stop="follow"
+            >
+                {{ following ? "unfollow" : "Follow" }}
+            </button>
+        </div>
+    </Card>
 </template>
 
 <script>
@@ -55,7 +53,7 @@ export default {
     },
     data() {
         return {
-            following: false,
+            following: this.initiallyFollowing,
         };
     },
     props: {
@@ -63,6 +61,7 @@ export default {
         name: String,
         description: String,
         id: String,
+        initiallyFollowing: Boolean,
         showFollowButton: Boolean,
     },
 };

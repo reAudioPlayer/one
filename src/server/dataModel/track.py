@@ -320,9 +320,20 @@ class SpotifyArtist:
         self._id = dex.ensure("id", str)
         self._cover = dex.ensure("images.[0].url", str)
         self._followers = dex.ensure('followers.total', int)
-        self._description = f"{self._followers} followers"
+        self._description = f"{self._displayFollowers} followers"
         self._genres = dex.ensureCast("genres", JList).iterator().ensure(str)
         self._popularity = dex.ensure("popularity", int)
+
+    @property
+    def _displayFollowers(self) -> str:
+        # > 1.000.000 -> 1M
+        # > 1.000 -> 1K
+        followers = self._followers
+        if followers > 1e6:
+            followers = f"{round(followers / 1e6, 1)}M"
+        elif followers > 1e3:
+            followers = f"{round(followers / 1e3, 1)}k"
+        return followers
 
     @property
     def id(self) -> str:
