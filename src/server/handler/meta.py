@@ -186,7 +186,7 @@ class MetaHandler:
 
         return web.json_response(data = data.unwrap())
 
-    @useCache(1800) # type: ignore
+    @useCache(0) # type: ignore
     async def releases(self, _: web.Request) -> web.Response:
         """get(/api/releases)"""
         data = await asyncRunInThreadWithReturn(Releases, self._spotify)
