@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { version } from "../../../../package.json";
 import Markdown from "../../../components/popups/Markdown.vue";
 
-const BACKEND_VERSION = "0.11.0";
+const BACKEND_VERSION = "0.11.1";
 
 const latestVersion = ref("");
 const changes = ref("");
@@ -17,9 +17,7 @@ onMounted(async () => {
     changes.value = data.body;
 });
 
-const isLatest = computed(() => {
-    return latestVersion.value === version;
-});
+const isLatest = computed(() => latestVersion.value === BACKEND_VERSION);
 
 const changelog = ref(null);
 </script>
@@ -43,15 +41,17 @@ const changelog = ref(null);
                 class="text-sm flex items-center gap-2 latest"
             >
                 <span class="material-symbols-rounded">check</span>
-                You are on the latest version
+                You're on the latest version
+                <a class="cursor-pointer" @click="changelog?.show()">
+                    What's changed?
+                </a>
             </span>
             <span v-else class="text-sm flex items-center gap-2 update">
                 <span class="material-symbols-rounded">update</span>
                 Update available: {{ latestVersion }}
-                <br />
-                <a class="cursor-pointer" @click="changelog?.show()"
-                    >What changed?</a
-                >
+                <a class="cursor-pointer" @click="changelog?.show()">
+                    What's changed?
+                </a>
             </span>
         </template>
     </div>

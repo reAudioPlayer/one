@@ -80,6 +80,7 @@ class Router:
 
         app.router.add_get("/api/player/stream", downloadHandler.stream)
         app.router.add_get("/api/player/stream/{id}", downloadHandler.streamFromCache)
+        app.router.add_delete("/api/player/stream/{id}", downloadHandler.deleteFromCache)
 
         # UNGROUPED
         app.router.add_get("/api/cors/{url:.*}", Router._corsAnywhere)

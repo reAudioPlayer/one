@@ -13,6 +13,10 @@ import { usePlayerStore } from "../../store/player";
 import { favouriteSong } from "../../api/song";
 import Cover from "../image/Cover.vue";
 import ArtistMarquee from "../ArtistMarquee.vue";
+import { useDownloaderStore } from "../../store/downloader";
+import Spinner from "../loaders/Spinner.vue";
+
+const downloader = useDownloaderStore();
 
 const props = defineProps({
     song: {
@@ -80,6 +84,10 @@ const edit = () => {
 const update = () => {
     emit("update");
 };
+
+const isDownloading = computed(() =>
+    downloader.isSongDownloading(props.song.id)
+);
 </script>
 <template>
     <SongContext
@@ -106,13 +114,18 @@ const update = () => {
             @mouseenter="hovering = true"
             @mouseleave="hovering = false"
         >
+            <div class="index text-right downloading" v-if="isDownloading">
+                <Spinner />
+            </div>
             <div
+                v-else
                 :class="{ 'material-symbols-rounded': hovering }"
                 class="index text-right"
                 @click="playSong"
             >
                 {{ hovering ? "play_arrow" : index + 1 }}
             </div>
+
             <div v-if="withCover" class="cover">
                 <Cover :src="song.cover" type="track" />
             </div>

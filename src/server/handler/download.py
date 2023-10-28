@@ -17,6 +17,7 @@ from player.player import Player
 
 class DownloadHandler:
     """download handler"""
+
     def __init__(self, downloader: Downloader, player: Player) -> None:
         self._dbManager = Database()
         self._downloader = downloader
@@ -24,21 +25,23 @@ class DownloadHandler:
 
     async def downloadTrack(self, request: web.Request) -> web.Response:
         """get(/api/tracks/{id}/download)"""
-        id_ = int(request.match_info['id'])
+        id_ = int(request.match_info["id"])
         song = self._downloader.getSongById(id_)
 
         if not song:
-            return web.HTTPExpectationFailed(text = "not downloaded")
+            return web.HTTPExpectationFailed(text="not downloaded")
 
         pathAndName = f"./_cache/{song.id}.dl.mp3"
 
         if not self._downloader.pop(id_):
-            return web.HTTPExpectationFailed(text = "not downloaded")
+            return web.HTTPExpectationFailed(text="not downloaded")
 
-        filename = f"{song.artist} - {song.name}".replace(",", "%2C") # header
+        filename = f"{song.artist} - {song.name}".replace(",", "%2C")  # header
 
-        res = web.FileResponse(pathAndName,
-            headers=MultiDict({"Content-Disposition": f"Attachment;filename={filename}.mp3"}))
+        res = web.FileResponse(
+            pathAndName,
+            headers=MultiDict({"Content-Disposition": f"Attachment;filename={filename}.mp3"}),
+        )
 
         # NOTE, not:
         # return res
@@ -49,17 +52,42 @@ class DownloadHandler:
         os.remove(pathAndName)
         return web.Response()
 
-    @withObjectPayload(Object({ # type: ignore
-        "id": Integer().coerce(),
-    }), inPath = True)
-    async def streamFromCache(self, payload: Dict[str, Any]) -> Union[web.FileResponse,
-                                                                      web.Response]:
+    @withObjectPayload(
+        Object(
+            {
+                "id": Integer().coerce(),
+            }
+        ),
+        inPath=True,
+    )
+    async def deleteFromCache(
+        self, payload: Dict[str, Any]
+    ) -> Union[web.FileResponse, web.Response]:
+        """delete(/api/player/stream/{id})"""
+        id_: int = payload["id"]
+        pathAndName = f"./_cache/{id_}.mp3"
+        if os.path.exists(pathAndName):
+            os.remove(pathAndName)
+            return web.Response()
+        return web.Response(status=404)
+
+    @withObjectPayload(
+        Object(
+            {
+                "id": Integer().coerce(),
+            }
+        ),
+        inPath=True,
+    )
+    async def streamFromCache(
+        self, payload: Dict[str, Any]
+    ) -> Union[web.FileResponse, web.Response]:
         """get(/api/player/stream/{id})"""
         id_: int = payload["id"]
         pathAndName = f"./_cache/{id_}.mp3"
         if os.path.exists(pathAndName):
             return web.FileResponse(pathAndName)
-        return web.Response(status = 404)
+        return web.Response(status=404)
 
     async def stream(self, _: web.Request) -> web.Response:
         """get(/api/player/stream)"""

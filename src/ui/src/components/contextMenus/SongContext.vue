@@ -12,7 +12,11 @@ import {
     createPlaylistWithMetadata,
     removeSongFromPlaylist,
 } from "../../api/playlist";
-import { addSong as addSongToPlaylist, downloadSong } from "../../api/song";
+import {
+    addSong as addSongToPlaylist,
+    downloadSong,
+    removeSongFromCache,
+} from "../../api/song";
 import { Notifications } from "../notifications/createNotification";
 
 const dataStore = useDataStore();
@@ -152,9 +156,12 @@ const openSource = (source: string) => {
                 Update Metadata
             </v-contextmenu-item>
             <v-contextmenu-divider />
-            <v-contextmenu-item @click="downloadSong(song.id)"
-                >Download</v-contextmenu-item
-            >
+            <v-contextmenu-item @click="downloadSong(song.id)">
+                Download
+            </v-contextmenu-item>
+            <v-contextmenu-item @click="removeSongFromCache(song.id)">
+                Uncache
+            </v-contextmenu-item>
         </v-contextmenu>
     </div>
 </template>

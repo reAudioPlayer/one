@@ -8,7 +8,6 @@ import { defineStore } from "pinia";
 import { ISong } from "../common";
 import { downloadSong } from "../api/song";
 
-
 export interface IStatus {
     songId: number;
     filename: string;
@@ -22,14 +21,14 @@ export interface IStatus {
     action?: string;
     song?: ISong;
     chunk?: string;
-};
+    internal: boolean;
+}
 
 export type States = Record<number, IStatus>;
 
-
 // Create a new store instance.
 export const useDownloaderStore = defineStore({
-    id: 'downloader',
+    id: "downloader",
     state: () => ({
         ws: null as WebSocket | null,
         states: {} as States,
@@ -42,43 +41,45 @@ export const useDownloaderStore = defineStore({
     },
     actions: {
         _fireDownload(songId: number) {
-            this.onDownload.forEach(cb => cb(songId));
+            this.onDownload.forEach((cb) => cb(songId));
         },
         initialise() {
             const connect = () => {
-                console.log("[downloader] attempting reconnect")
+                console.log("[downloader] attempting reconnect");
                 const host = window.location.hostname;
-                const port = window.location.port === "5173" ? 1234 : window.location.port
+                const port =
+                    window.location.port === "5173"
+                        ? 1234
+                        : window.location.port;
                 this.ws = new WebSocket(`ws://${host}:${port}/download/ws`);
 
                 this.ws.onclose = () => {
-                    console.log("[downloader] ws closed")
+                    console.log("[downloader] ws closed");
 
                     setTimeout(() => connect(), 1000);
-                }
+                };
 
                 this.ws.onopen = () => {
-                    console.log("[downloader] ws connected")
-                }
+                    console.log("[downloader] ws connected");
+                };
 
-                this.ws.onmessage = msg => {
+                this.ws.onmessage = (msg) => {
                     const data = JSON.parse(msg.data) as IStatus;
-                    
+
                     if (data.action) {
                         return;
-                    };
+                    }
 
-                    if (data.status == "finished")
-                    {
+                    if (data.status == "finished") {
                         this.states[data.songId] = {
                             ...this.states[data.songId],
-                            ...data
-                        }
+                            ...data,
+                        };
                         return;
                     }
 
                     this.states[data.songId] = data;
-                }
+                };
             };
 
             connect();
@@ -95,24 +96,35 @@ export const useDownloaderStore = defineStore({
             this.states[songId] = {
                 songId,
                 status: "pending",
-            }
+            };
             this._fireDownload(songId);
         },
         downloadOther(song: ISong) {
             this.send({
                 action: "download",
                 source: "other",
-                ...song
+                ...song,
             });
             this.states[song.id] = {
                 songId: song.id,
                 status: "pending",
-            }
+            };
             this._fireDownload(song.id);
         },
         download(songId) {
-            window.open(`/api/tracks/${songId}/download`, "_blank", "noopener noreferrer");
+            window.open(
+                `/api/tracks/${songId}/download`,
+                "_blank",
+                "noopener noreferrer"
+            );
             this.states[songId].status = "downloaded";
-        }
-    }
+        },
+        isSongDownloading(songId: number) {
+            const state = this.states[songId];
+            if (!state?.internal) {
+                return false;
+            }
+            return state.status === "downloading";
+        },
+    },
 });
