@@ -5,27 +5,44 @@
 
 <template>
     <div class="wrap">
-        <div
-            class="covers"
-        >
-            <h2>Local covers</h2>
-            <div
-                class="items grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"
-            >
+        <h3>Browser Data</h3>
+        <IconButton
+            class="mb-4"
+            icon="delete"
+            label="Clean browser settings"
+            @click="clearBrowser"
+        />
+        <h3>Import / Export</h3>
+        <div class="flex gap-4 mb-4">
+            <IconButton
+                icon="backup"
+                label="Back up / Export"
+                @click="$router.push('/export')"
+            />
+            <IconButton
+                icon="cloud_download"
+                label="Import"
+                @click="$router.push('/import')"
+            />
+        </div>
+        <div class="covers mb-2">
+            <h3>Local covers</h3>
+            <div class="items gap-4">
                 <Card
                     v-for="(cover, index) in covers"
                     :key="index"
-                    class="cover-wrapper"
+                    class="cover-wrapper p-4"
                 >
-                    <Cover
-                        :src="cover.name"
-                        class="rounded-xl mb-4"
-                    />
+                    <Cover :src="cover.name" class="rounded-xl mb-4" />
                     <div class="flex justify-between w-full mb-4">
                         <p class="overflow-hidden">
                             <Marquee :text="cover.name" />
                         </p>
-                        <span class="ml-2 material-symbols-rounded cursor-pointer" @click="deleteCover(cover.name)">delete</span>
+                        <span
+                            class="ml-2 material-symbols-rounded cursor-pointer"
+                            @click="deleteCover(cover.name)"
+                            >delete</span
+                        >
                     </div>
                     <TrackCompact
                         v-for="(song, index) in cover.songs"
@@ -40,22 +57,29 @@
             </div>
         </div>
         <div class="tracks">
-            <h2>Local tracks</h2>
-            <div class="items grid grid-cols-2 md:grid-cols-4 gap-4">
+            <h3>Local tracks</h3>
+            <div class="items gap-4">
                 <Card
                     v-for="(track, index) in tracks"
                     :key="index"
-                    class="track"
+                    class="track p-4"
                 >
                     <div class="flex justify-between w-full mb-4">
                         <p class="overflow-hidden">
                             <Marquee :text="track.name" />
                         </p>
-                        <span class="material-symbols-rounded cursor-pointer" @click="deleteTrack(track.name)">delete</span>
+                        <span
+                            class="material-symbols-rounded cursor-pointer"
+                            @click="deleteTrack(track.name)"
+                            >delete</span
+                        >
                     </div>
                     <div class="flex justify-center w-full mb-4">
                         <audio
-                            :src="'/api/' + track.name.replace('local:', '/src/tracks/')"
+                            :src="
+                                '/api/' +
+                                track.name.replace('local:', '/src/tracks/')
+                            "
                             controls
                         />
                     </div>
@@ -81,45 +105,52 @@ import Cover from "@/components/image/Cover.vue";
 import Marquee from "@/components/Marquee.vue";
 import { usePlayerStore } from "@/store/player";
 import Card from "@/containers/Card.vue";
+import IconButton from "@/components/inputs/IconButton.vue";
 
 const covers = ref([]);
 const tracks = ref([]);
 const player = usePlayerStore();
 
 const update = () => {
-    fetch('/api/config/images').then(x => x.json()).then(x => covers.value = x);
-    fetch('/api/config/tracks').then(x => x.json()).then(x => tracks.value = x);
+    fetch("/api/config/images")
+        .then((x) => x.json())
+        .then((x) => (covers.value = x));
+    fetch("/api/config/tracks")
+        .then((x) => x.json())
+        .then((x) => (tracks.value = x));
 };
 
-const deleteCover = async name => {
-    await fetch('/api/config/images', {
-        method: 'DELETE',
-        body: JSON.stringify({name})
+const deleteCover = async (name) => {
+    await fetch("/api/config/images", {
+        method: "DELETE",
+        body: JSON.stringify({ name }),
     });
     update();
-}
+};
 
-const deleteTrack = async name => {
-    fetch('/api/config/tracks', {
-        method: 'DELETE',
-        body: JSON.stringify({name})
+const deleteTrack = async (name) => {
+    fetch("/api/config/tracks", {
+        method: "DELETE",
+        body: JSON.stringify({ name }),
     });
     update();
-}
+};
 
-const play = id => {
+const play = (id) => {
     player.loadPlaylist("track", id);
-}
+};
 update();
+
+const clearBrowser = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.reload();
+};
 </script>
 
 <style lang="scss" scoped>
-.wrap {
-    margin-right: 10px;
-    margin-bottom: 10px;
-}
-
-.cover-wrapper, .track {
-    padding: 20px;
+.items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(30ch, 1fr));
 }
 </style>

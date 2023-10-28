@@ -45,6 +45,9 @@
     .h2 {
         @apply text-2xl font-bold my-5;
     }
+    .h3 {
+        @apply text-lg font-bold;
+    }
     .h5 {
         @apply text-muted uppercase;
     }
@@ -63,7 +66,7 @@
     }
 
     h3 {
-        @apply text-lg;
+        @apply h3;
     }
     h4 {
         @apply font-bold my-4;

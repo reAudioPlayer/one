@@ -116,13 +116,6 @@ const routes = [{
     }
 },
 {
-    path: '/preferences/my-data',
-    component: () => import("@/views/preferences/LocalData.vue"),
-    meta: {
-        title: "Preferences - reAudioPlayer One"
-    }
-},
-{
     path: '/import',
     component: () => import("@/views/sync/Import.vue"),
     meta: {
