@@ -18,10 +18,11 @@
         <input
             v-model="value"
             :placeholder="placeholder"
-            type="text"
+            :type="type"
             @input="onChange"
             @keyup="onKeyUp"
             @focusout="$emit('focusout')"
+            ref="element"
         />
     </div>
 </template>
@@ -33,6 +34,11 @@ const props = defineProps({
     icon: String,
     placeholder: String,
     modelValue: String,
+    type: {
+        type: String,
+        required: false,
+        default: "text",
+    },
     onClick: {
         type: Function as PropType<() => void>,
         required: false,
@@ -46,31 +52,47 @@ const props = defineProps({
         type: Function as PropType<(e: KeyboardEvent) => boolean>,
         required: false,
     },
-})
-
-const value = ref(props.modelValue);
-watch(() => props.modelValue, (nValue) => {
-    value.value = nValue
 });
 
-const emits = defineEmits(['update:modelValue', 'change', 'submit']);
+const value = ref(props.modelValue);
+watch(
+    () => props.modelValue,
+    (nValue) => {
+        value.value = nValue;
+    }
+);
+
+const emits = defineEmits([
+    "update:modelValue",
+    "change",
+    "submit",
+    "focusout",
+]);
 
 const onChange = () => {
-    emits('update:modelValue', value.value);
-    emits('change', value.value);
-}
+    emits("update:modelValue", value.value);
+    emits("change", value.value);
+};
 
-const onKeyUp = e => {
+const onKeyUp = (e) => {
     if (props.onKeyUp) {
         if (props.onKeyUp(e)) {
             return;
         }
     }
 
-    if (e.key === 'Enter') {
-        emits('submit', value);
+    if (e.key === "Enter") {
+        emits("submit", value);
     }
-}
+};
+
+const element = ref<HTMLElement>();
+
+defineExpose({
+    focus: () => {
+        element.value.focus();
+    },
+});
 </script>
 
 <style lang="scss" scoped>
@@ -84,7 +106,8 @@ const onKeyUp = e => {
         color: var(--fg-base-dk);
     }
 
-    &:focus-within, &:hover {
+    &:focus-within,
+    &:hover {
         border-color: var(--fg-base);
 
         color: var(--fg-base);
@@ -98,8 +121,31 @@ const onKeyUp = e => {
     }
 }
 
-input[type=text] {
+input[type="text"],
+input[type="number"] {
     background: none !important;
     border: none !important;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"] {
+    background: var(--hover-2);
+    border: 1px solid var(--hover-3);
+    border-radius: 5px;
+    color: var(--font-colour);
+    padding: 10px;
+    width: auto;
+    flex-grow: 1;
+    font-family: var(--font-family);
+
+    &:focus {
+        outline: none;
+    }
+
+    &:hover {
+        background: var(--hover-1);
+        border: 1px solid var(--font-colour);
+    }
 }
 </style>

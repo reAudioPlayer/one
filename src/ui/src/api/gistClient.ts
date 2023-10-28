@@ -6,9 +6,9 @@
 import { getConfig } from "./config";
 import { Notifications } from "../components/notifications/createNotification";
 
-const getHeaders = async () => {
+const getHeaders = async (forcePat: string = null) => {
     const config = await getConfig();
-    const token = config.github.githubPat;
+    const token = forcePat ?? config.github.githubPat;
 
     if (!token) throw new Error("No GitHub PAT found");
 
@@ -94,7 +94,7 @@ export default {
         return !!(await gistId());
     },
     get,
-    getContent: async (filename: string = "one.lib.json"): Promise<any[]> => {
+    getContent: async (filename: string = "one.lib.json"): Promise<any> => {
         const gist = await get();
         const content = gist.files?.[filename]?.content;
         return content ? JSON.parse(content) : [];
@@ -116,5 +116,18 @@ export default {
             headers
         });
         return await res.json();
+    },
+    search: async (forcePat: string = null) => {
+        // searches for gists with the filename "one.lib.json"
+        const headers = await getHeaders(forcePat);
+        const res = await fetch(`https://api.github.com/gists?filename=one.lib.json`, {
+            headers
+        });
+        const data = await res.json();
+        return data?.[0]?.id;
+    },
+    gistUrl: async () => {
+        const gist = await get();
+        return gist?.html_url;
     }
 }

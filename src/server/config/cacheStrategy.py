@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
 from typing import Optional, TYPE_CHECKING
 import asyncio
 
-from player.playerPlaylist import PlayerPlaylist
+from player.iPlayerPlaylist import IPlayerPlaylist
 from dataModel.song import Song
 from helper.singleton import Singleton
 from helper.songCache import SongCache
@@ -17,14 +18,15 @@ if TYPE_CHECKING:
     from player.player import Player
 
 
-class ICacheStrategy(metaclass = Singleton):
+class ICacheStrategy(metaclass=Singleton):
     """ICacheStrategy"""
+
     __slots__ = ("_playlist", "_downloader", "_player")
     _STRATEGY: CacheStrategy = CacheStrategy.None_
     _INSTANCE: Optional[ICacheStrategy] = None
 
     def __init__(self, player: Player) -> None:
-        self._playlist: Optional[PlayerPlaylist] = None
+        self._playlist: Optional[IPlayerPlaylist] = None
         self._downloader = Downloader()
         self._player = player
 
@@ -53,11 +55,10 @@ class ICacheStrategy(metaclass = Singleton):
         asyncio.create_task(cls._INSTANCE.onStrategyLoad())
         return cls._INSTANCE
 
-
     async def onSongLoad(self, song: Song) -> None:
         """on song change"""
 
-    async def onPlaylistLoad(self, playlist: PlayerPlaylist) -> None:
+    async def onPlaylistLoad(self, playlist: IPlayerPlaylist) -> None:
         """on playlist change"""
         self._playlist = playlist
 
@@ -66,19 +67,23 @@ class ICacheStrategy(metaclass = Singleton):
         self._playlist = self._player.currentPlaylist
 
 
-class CacheAllStrategy(ICacheStrategy, metaclass = Singleton):
+class CacheAllStrategy(ICacheStrategy, metaclass=Singleton):
     """CacheAllStrategy"""
+
     async def onStrategyLoad(self) -> None:
         await super().onStrategyLoad()
+
         async def _task() -> None:
             for playlist in self._player.playlistManager.playlists:
                 for song in playlist:
                     await self._downloader.downloadSong(song.model)
+
         asyncio.create_task(_task())
 
 
-class CachePlaylistStrategy(ICacheStrategy, metaclass = Singleton):
+class CachePlaylistStrategy(ICacheStrategy, metaclass=Singleton):
     """CachePlaylistStrategy"""
+
     async def _downloadTask(self) -> None:
         assert self._playlist is not None
         SongCache.prune(self._playlist)
@@ -91,19 +96,21 @@ class CachePlaylistStrategy(ICacheStrategy, metaclass = Singleton):
             return
         asyncio.create_task(self._downloadTask())
 
-    async def onPlaylistLoad(self, playlist: PlayerPlaylist) -> None:
+    async def onPlaylistLoad(self, playlist: IPlayerPlaylist) -> None:
         await super().onPlaylistLoad(playlist)
         asyncio.create_task(self._downloadTask())
 
 
-class CacheCurrentStrategy(ICacheStrategy, metaclass = Singleton):
+class CacheCurrentStrategy(ICacheStrategy, metaclass=Singleton):
     """CacheCurrentStrategy"""
+
     async def onSongLoad(self, song: Song) -> None:
         SongCache.prune([song])
 
 
-class CacheCurrentNextStrategy(ICacheStrategy, metaclass = Singleton):
+class CacheCurrentNextStrategy(ICacheStrategy, metaclass=Singleton):
     """CacheCurrentNextStrategy"""
+
     async def onSongLoad(self, song: Song) -> None:
         assert self._playlist is not None
         currentSong, nextSong = song, self._playlist.next(True)

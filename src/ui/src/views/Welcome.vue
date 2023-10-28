@@ -59,6 +59,7 @@
 </template>
 
 <script>
+    import window from "@/themes";
     import ThemeSmall from '@/components/Preferences/ThemeSmall.vue'
     import {authoriseSpotify, isFirstRun, setSpotifyConfig} from "@/api/config";
     export default {

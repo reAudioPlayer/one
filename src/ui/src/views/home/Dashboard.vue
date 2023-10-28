@@ -3,35 +3,51 @@
   - Licenced under the GNU General Public License v3.0
   -->
 
-<script setup>
+<script setup lang="ts">
 import FlexShelf from "/src/components/Catalogue/FlexShelf.vue";
 import Playlist from "/src/components/Catalogue/Items/home/Playlist.vue";
 import TrackCompact from "/src/components/Catalogue/Items/home/TrackCompact.vue";
-import PlaylistHeader from '@/components/songContainers/PlaylistHeader.vue';
-import PlaylistEntry from '@/components/songContainers/PlaylistEntry.vue';
+import PlaylistHeader from "@/components/songContainers/PlaylistHeader.vue";
+import PlaylistEntry from "@/components/songContainers/PlaylistEntry.vue";
 
-import {parseCover} from "@/common";</script>
+import { parseCover } from "@/common";
+</script>
 
 <template>
     <div class="home">
         <div class="main">
             <div v-if="playlists.length" class="playlists">
                 <h2>
-                    <router-link class="linkOnHover" to="/collection/playlists">Playlists</router-link>
+                    <router-link class="linkOnHover" to="/collection/playlists"
+                        >Playlists</router-link
+                    >
                 </h2>
                 <FlexShelf>
+                    <playlist-item
+                        v-for="(element, index) in playlists"
+                        :key="index"
+                        :href="element.href"
+                        :cover="element.cover"
+                        :description="element.description"
+                        :title="element.name"
+                        :type="element.type"
+                        :spotify="false"
+                    />
                     <Playlist
                         v-for="(playlist, index) in playlists"
                         :key="index"
                         :cover="playlist.cover"
                         :href="playlist?.href"
                         :name="playlist.name"
+                        :type="playlist.type"
                     />
                 </FlexShelf>
             </div>
             <div v-if="liked.length" class="liked">
                 <h2>
-                    <router-link class="linkOnHover" to="/collection/tracks">Liked Songs</router-link>
+                    <router-link class="linkOnHover" to="/collection/tracks"
+                        >Liked Songs</router-link
+                    >
                 </h2>
                 <PlaylistHeader />
                 <PlaylistEntry
@@ -45,7 +61,11 @@ import {parseCover} from "@/common";</script>
             </div>
             <div v-if="breaking.length" class="breaking">
                 <h2>
-                    <router-link class="linkOnHover" to="/collection/tracks/breaking">Breaking Songs</router-link>
+                    <router-link
+                        class="linkOnHover"
+                        to="/collection/tracks/breaking"
+                        >Breaking Songs</router-link
+                    >
                 </h2>
                 <PlaylistHeader />
                 <PlaylistEntry
@@ -61,7 +81,9 @@ import {parseCover} from "@/common";</script>
         <div class="side">
             <div v-if="releases.length" class="releases">
                 <h2>
-                    <router-link class="linkOnHover" to="/collection/releases">Out now</router-link>
+                    <router-link class="linkOnHover" to="/collection/releases"
+                        >Out now</router-link
+                    >
                 </h2>
                 <FlexShelf>
                     <TrackCompact
@@ -78,7 +100,9 @@ import {parseCover} from "@/common";</script>
 
             <div v-if="picks.length" class="disovery">
                 <h2>
-                    <router-link class="linkOnHover" to="/discover">Discover</router-link>
+                    <router-link class="linkOnHover" to="/discover"
+                        >Discover</router-link
+                    >
                 </h2>
                 <FlexShelf>
                     <TrackCompact
@@ -112,46 +136,47 @@ import {parseCover} from "@/common";</script>
     </div>
 </template>
 
-<script>
-import {useDataStore} from "@/store/data";
-import {getPlaylist} from "@/api/playlist";
+<script lang="ts">
+import { useDataStore } from "../../store/data";
+import { getPlaylist } from "../../api/playlist";
 
 export default {
-    name: 'Home',
+    name: "Home",
     data() {
-        const time = new Date()
-        const greeting = time.getHours() < 12 ? "Good morning" : time.getHours() < 18 ? "Good afternoon" : "Good evening"
+        const time = new Date();
+        const greeting =
+            time.getHours() < 12
+                ? "Good morning"
+                : time.getHours() < 18
+                ? "Good afternoon"
+                : "Good evening";
         return {
             greeting,
             releases: [],
             picks: [],
             songs: [],
-            liked: [],
-            breaking: [],
             recommendations: [],
-            data: useDataStore()
-        }
+            data: useDataStore(),
+        };
     },
     mounted() {
         fetch("/api/releases")
-            .then(x => x.json())
-            .then(jdata => {
+            .then((x) => x.json())
+            .then((jdata) => {
                 this.releases = jdata.slice(0, 3);
-            })
-        fetch("/api/me/liked")
-            .then(x => x.json()).then(jdata => {
-            this.liked = jdata.songs.slice(0, 3)
-        })
-        fetch("/api/me/new")
-            .then(x => x.json()).then(jdata => {
-            this.breaking = jdata.songs.slice(0, 3)
-        })
+            });
         this.pick();
     },
     computed: {
         playlists() {
-            return this.data.playlists
-        }
+            return this.data.playlists;
+        },
+        liked() {
+            return getPlaylist("liked").songs.slice(0, 3);
+        },
+        breaking() {
+            return getPlaylist("breaking").songs.slice(0, 3);
+        },
     },
     methods: {
         playDiscover(song) {
@@ -159,17 +184,17 @@ export default {
                 method: "POST",
                 body: JSON.stringify({
                     id: song.id,
-                    type: "track"
-                })
-            })
+                    type: "track",
+                }),
+            });
         },
         playRecommendation(song) {
-            const event = new CustomEvent('player.play', {
+            const event = new CustomEvent("player.play", {
                 detail: {
                     artist: song.artist,
                     title: song.title,
                     source: song.source || song.url || song.href,
-                }
+                },
             });
             window.dispatchEvent(event);
         },
@@ -179,30 +204,33 @@ export default {
                 return;
             }
 
-            this.songs = (await Promise.all(
-                this.playlists.map(
-                    async playlist => (await getPlaylist(playlist.id))?.songs || [])
-            )).flat()
+            this.songs = this.playlists
+                .map(playlist => getPlaylist(playlist.id)?.songs || [])
+                .flat();
 
             if (this.songs.length < 3) {
                 return;
             }
 
             for (let i = 0; i < 3; i++) {
-                this.picks.push(this.songs[Math.floor(Math.random() * this.songs.length)])
+                this.picks.push(
+                    this.songs[Math.floor(Math.random() * this.songs.length)]
+                );
             }
 
             fetch("/api/spotify/recommendations", {
                 method: "POST",
                 body: JSON.stringify({
-                    query: `${this.picks[0].artist} ${this.picks[0].title}`
-                })
-            }).then(x => x.json()).then(jdata => {
-                this.recommendations = jdata.slice(0, 3)
+                    query: `${this.picks[0].artist} ${this.picks[0].title}`,
+                }),
             })
-        }
-    }
-}
+                .then((x) => x.json())
+                .then((jdata) => {
+                    this.recommendations = jdata.slice(0, 3);
+                });
+        },
+    },
+};
 </script>
 
 <style lang="scss" scoped>

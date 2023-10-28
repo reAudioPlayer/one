@@ -25,13 +25,19 @@ async def asyncRunInThreadWithReturn(target: Callable[..., T],
     (allows return value)
     """
     queue: Queue[Any] = Queue()
+    excQueue: Queue[BaseException] = Queue()
 
     def _implement() -> None:
-        ret = target(*args) if args else target()
-        queue.put_nowait(ret)
+        try:
+            ret = target(*args) if args else target()
+            queue.put_nowait(ret)
+        except BaseException as exc:
+            excQueue.put_nowait(exc)
 
     thread = Thread(target = _implement)
     thread.start()
     while thread.is_alive():
         await asyncio.sleep(1)
+    if not excQueue.empty():
+        raise excQueue.get_nowait()
     return cast(T, queue.get_nowait())

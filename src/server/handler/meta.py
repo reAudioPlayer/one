@@ -11,6 +11,7 @@ from pyaddict.schema import Object, String, Integer, Array, Boolean
 
 from db.database import Database
 from db.table.artists import ArtistModel, SpotifyArtistData
+from db.table.songs import SongModel
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.cacheDecorator import useCache
 from helper.payloadParser import withObjectPayload
@@ -42,7 +43,8 @@ class MetaHandler:
         metadata = await asyncRunInThreadWithReturn(Metadata, self._spotify, payload["url"])
         if not metadata:
             return web.HTTPNotFound(text = "no metadata found")
-        return web.json_response(data = metadata.toDict())
+        response = await metadata.toExtendedDict()
+        return web.json_response(data = response)
 
     @withObjectPayload(Object({
         "id": Integer().coerce()
@@ -137,7 +139,7 @@ class MetaHandler:
 
             tracks = result.unwrap()
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
-            return result.transform([ metadata.toDict() for metadata in metadatas ])
+            return result.transform([ (metadata.toDict()) for metadata in metadatas ])
 
         data = await asyncRunInThreadWithReturn(_implement)
 
@@ -175,7 +177,8 @@ class MetaHandler:
 
             tracks = result.unwrap()
             metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
-            return result.transform([ metadata.toDict() for metadata in metadatas ])
+            # TODO add metadata in UI for playlists, albums
+            return result.transform([ (metadata.toDict()) for metadata in metadatas ])
         data = await asyncRunInThreadWithReturn(_implement)
 
         if not data:
@@ -183,7 +186,7 @@ class MetaHandler:
 
         return web.json_response(data = data.unwrap())
 
-    @useCache(1800) # type: ignore
+    @useCache(0) # type: ignore
     async def releases(self, _: web.Request) -> web.Response:
         """get(/api/releases)"""
         data = await asyncRunInThreadWithReturn(Releases, self._spotify)
@@ -264,18 +267,21 @@ class MetaHandler:
         return web.Response(status = 400)
 
     @withObjectPayload(Object({
-        "id": Integer().min(1),
+        "id": Integer().min(1).optional(),
         "forceFetch": Boolean().optional(),
         "spotifyId": String().optional().min(22).max(22)
     }), inBody = True)
     async def fetchSongMeta(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/meta)"""
-        id_ = payload["id"]
+        id_: Optional[int] = payload.get("id")
         forceFetch = payload.get("forceFetch", False)
 
-        model = await self._dbManager.songs.byId(id_)
-        if not model:
-            return web.HTTPNotFound(text = "song not found")
+        if id_:
+            model = await self._dbManager.songs.byId(id_)
+            if not model:
+                return web.HTTPNotFound(text = "song not found")
+        else:
+            model = SongModel.empty()
 
         song = Song(model)
 

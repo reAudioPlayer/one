@@ -16,6 +16,7 @@ from sclib import SoundcloudAPI, Track # type: ignore
 from helper.asyncThread import asyncRunInThreadWithReturn
 
 if TYPE_CHECKING:
+    from dataModel.metadata import SongMetadata
     from meta.spotify import Spotify, SpotifyResult
 
 
@@ -64,6 +65,19 @@ class ITrack(ISimpleTrack):
         """return markets/regions"""
         return None
 
+    def toDict(self) -> Dict[str, Any]:
+        """return dict"""
+        return {
+            "title": self.title,
+            "album": self.album,
+            "artists": self.artists,
+            "artist": self.artist,
+            "cover": self.cover,
+            "url": self.url,
+            "preview": self.preview,
+            "markets": self.markets
+        }
+
 
 class BasicSpotifyItem:
     """basic spotify item model (artist, album, ...)"""
@@ -108,7 +122,7 @@ class BasicSpotifyItem:
 class SpotifyTrack(ITrack):
     """spotify track model"""
     __slots__ = ("_title", "_album", "_artists", "_id", "_preview", "_cover", "_markets",
-                 "_popularity", "_releaseDate", "_duration", "_explicit", "_url")
+                 "_popularity", "_releaseDate", "_duration", "_explicit", "_url", "_metadata")
 
     def __init__(self, track: Dict[str, Any]) -> None:
         dex = JDict(track).chain()
@@ -117,6 +131,7 @@ class SpotifyTrack(ITrack):
         self._album: Optional[BasicSpotifyItem] = None
         self._cover: Optional[str] = None
         self._releaseDate: Optional[str] = None
+        self._metadata: Optional[SongMetadata] = None
 
         if album:
             self._album = BasicSpotifyItem(album.ensure("id", str), album.ensure("name", str))
@@ -138,6 +153,10 @@ class SpotifyTrack(ITrack):
         assert "spotify" in data, "spotify data not found"
         assert isinstance(data["spotify"], dict), "spotify data is not dict"
         return SpotifyTrack(data["spotify"])
+
+    def addMetadata(self, metadata: Optional[SongMetadata]) -> None:
+        """add metadata"""
+        self._metadata = metadata
 
     @property
     def markets(self) -> List[str]:
@@ -209,7 +228,6 @@ class SpotifyTrack(ITrack):
 
     def toDict(self) -> Dict[str, Any]:
         """return dict of track"""
-
         return {
             "title": self.title,
             "artists": self.artists,
@@ -219,6 +237,7 @@ class SpotifyTrack(ITrack):
             "preview": self.preview,
             "markets": self.markets,
             "album": self.album,
+            "metadata": self._metadata.toDict() if self._metadata else None,
             "spotify": {
                 "id": self._id,
                 "name": self._title,
@@ -301,9 +320,20 @@ class SpotifyArtist:
         self._id = dex.ensure("id", str)
         self._cover = dex.ensure("images.[0].url", str)
         self._followers = dex.ensure('followers.total', int)
-        self._description = f"{self._followers} followers"
+        self._description = f"{self._displayFollowers} followers"
         self._genres = dex.ensureCast("genres", JList).iterator().ensure(str)
         self._popularity = dex.ensure("popularity", int)
+
+    @property
+    def _displayFollowers(self) -> str:
+        # > 1.000.000 -> 1M
+        # > 1.000 -> 1K
+        followers = self._followers
+        if followers > 1e6:
+            followers = f"{round(followers / 1e6, 1)}M"
+        elif followers > 1e3:
+            followers = f"{round(followers / 1e3, 1)}k"
+        return followers
 
     @property
     def id(self) -> str:

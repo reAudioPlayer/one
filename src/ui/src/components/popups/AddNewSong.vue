@@ -7,7 +7,14 @@
 import Template from "./components/Template.vue";
 import Form from "./components/Form.vue";
 import { ref } from "vue";
-import { hashTrack, isLink, ISong, unhashPlaylist } from "../../common";
+import {
+    hashTrack,
+    IBrowseSong,
+    IMetadata,
+    isLink,
+    ISong,
+    unhashPlaylist,
+} from "../../common";
 import { addSong, fetchMetadata } from "../../api/song";
 import { useRoute } from "vue-router";
 
@@ -21,70 +28,90 @@ const song: ISong = {
     cover: "",
     source: "",
     href: "",
-}
+};
 
 const upload = async (endpoint: string, file: File) => {
     const id = hashTrack(String(new Date().getTime()));
 
-    const data = new FormData()
-    const ext = "." + file.name.split('.').pop();
+    const data = new FormData();
+    const ext = "." + file.name.split(".").pop();
 
     var blob = file.slice(0, file.size, file.type);
-    var newFile = new File([blob], id + ext, {type: file.type});
+    var newFile = new File([blob], id + ext, { type: file.type });
 
-    data.append('file', newFile);
+    data.append("file", newFile);
 
     const res = await fetch(endpoint, {
-        method: 'POST',
-        body: data
+        method: "POST",
+        body: data,
     });
     return await res.text();
-}
+};
 
-const options = ref([{
-    name: "source",
-    type: "upload",
-    accept: "audio/mp3",
-    required: true,
-    onUpload: (file: File) => {
-        upload('/api/config/tracks', file).then(url => options.value.find(x => x.name == "source").value = url);
+const fetchedMetadata = ref(null as IMetadata | null);
+
+const options = ref([
+    {
+        name: "source",
+        type: "upload",
+        accept: "audio/mp3",
+        required: true,
+        onUpload: (file: File) => {
+            upload("/api/config/tracks", file).then(
+                (url) =>
+                    (options.value.find((x) => x.name == "source").value = url)
+            );
+        },
+        onChange: async (src: string) => {
+            const metadata = (await fetchMetadata(src)) as IBrowseSong;
+            options.value.find((x) => x.name === "title").value =
+                metadata.title;
+            options.value.find((x) => x.name === "artist").value =
+                metadata.artist;
+            options.value.find((x) => x.name === "album").value =
+                metadata.album;
+            options.value.find((x) => x.name === "cover").value =
+                metadata.cover;
+            options.value.find((x) => x.name === "source").value =
+                metadata.source;
+            fetchedMetadata.value = metadata.track.metadata;
+        },
+        value: song.source,
     },
-    onChange: async (src: string) => {
-        const metadata = await fetchMetadata(src);
-        options.value.find(x => x.name === "title").value = metadata.title;
-        options.value.find(x => x.name === "artist").value = metadata.artist;
-        options.value.find(x => x.name === "album").value = metadata.album;
-        options.value.find(x => x.name === "cover").value = metadata.cover;
-        options.value.find(x => x.name === "source").value = metadata.source;
+    {
+        name: "title",
+        type: "text",
+        icon: "title",
+        required: true,
+        value: song.title,
     },
-    value: song.source
-}, {
-    name: "title",
-    type: "text",
-    icon: "title",
-    required: true,
-    value: song.title
-}, {
-    name: "artist",
-    type: "text",
-    icon: "person",
-    required: true,
-    value: song.artist
-}, {
-    name: "album",
-    type: "text",
-    icon: "album",
-    value: song.album
-}, {
-    name: "cover",
-    type: "upload",
-    accept: "image/*",
-    imagePreview: true,
-    value: song.cover,
-    onUpload: (file: File) => {
-        upload('/api/config/images', file).then(url => options.value.find(x => x.name == "cover").value = url);
-    }
-}]);
+    {
+        name: "artist",
+        type: "text",
+        icon: "person",
+        required: true,
+        value: song.artist,
+    },
+    {
+        name: "album",
+        type: "text",
+        icon: "album",
+        value: song.album,
+    },
+    {
+        name: "cover",
+        type: "upload",
+        accept: "image/*",
+        imagePreview: true,
+        value: song.cover,
+        onUpload: (file: File) => {
+            upload("/api/config/images", file).then(
+                (url) =>
+                    (options.value.find((x) => x.name == "cover").value = url)
+            );
+        },
+    },
+]);
 
 const modal = ref(null);
 const form = ref(null);
@@ -97,37 +124,37 @@ const show = async () => {
     const text = await navigator.clipboard.readText();
     if (!isLink(text)) return;
 
-    const option = options.value.find(x => x.name === "source");
+    const option = options.value.find((x) => x.name === "source");
     option.value = text;
     // @ts-ignore
     option.onChange(text);
-}
+};
 
-const onSubmit = async _ => {
-    const id = Number(unhashPlaylist(String(route.params.hash)));
-    await addSong(id, form.value.toObject());
+const onSubmit = async (_) => {
+    const id = route.params.id as string;
+    await addSong(id, {
+        ...form.value.toObject(),
+        metadata: fetchedMetadata.value,
+    });
     emit("update");
-}
+};
 
 defineExpose({
     show,
-    options
-})
+    options,
+});
 </script>
 <template>
     <Template
         ref="modal"
         :submit="{
             label: 'Add',
-            icon: 'add'
+            icon: 'add',
         }"
         name="Add Song"
         @close="$emit('close')"
         @submit="onSubmit"
     >
-        <Form
-            ref="form"
-            :options="options"
-        />
+        <Form ref="form" :options="options" />
     </Template>
 </template>

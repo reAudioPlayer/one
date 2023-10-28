@@ -8,21 +8,26 @@ import Loader from "@/components/Loader.vue";
 import GistClient from "../../api/gistClient";
 import { diffLib, IPlaylistDiff } from "./diff";
 import PlaylistDiff from "./PlaylistDiff.vue";
-import { IFullPlaylist, ISong } from "../../common";
+import { IFullPlaylist, ISmartPlaylist, ISong } from "../../common";
 import { computed, ref, onMounted, watch } from "vue";
 import IconButton from "../../components/inputs/IconButton.vue";
-import { createPlaylistWithMetadata, deletePlaylist, removeSongFromPlaylist } from "../../api/playlist";
-import { addSong, updateSongProperty } from "../../api/song";
+import {
+    createPlaylistWithMetadata,
+    deletePlaylist,
+    removeSongFromPlaylist,
+    updateSmartPlaylistDefinition,
+} from "../../api/playlist";
+import { addSongs, updateSongProperty } from "../../api/song";
 import { useDataStore } from "../../store/data";
 import Card from "../../containers/Card.vue";
 import gistClient from "../../api/gistClient";
-
+import { asSyncableCollection, ISyncableCollection } from "./collection";
 
 const merging = ref(false);
 const other = ref(null as "file" | "gist" | null);
-const base = ref([] as IFullPlaylist[]);
+const base = ref({} as ISyncableCollection);
 // @ts-ignore
-const compareWith = ref([] as IFullPlaylist[]);
+const compareWith = ref({} as ISyncableCollection);
 
 const diff = computed(() => diffLib(base.value, compareWith.value));
 
@@ -32,17 +37,14 @@ const loadBase = async () => {
     if (merging.value) return;
     if (loadingPlaylists) return;
     loadingPlaylists = true;
-    const newBase = [] as IFullPlaylist[];
-    for (const availablePlaylist of dataStore.playlists) {
-        try {
-            const res = await fetch(`/api/playlists/${availablePlaylist.id}`)
-            const playlist = await res.json();
-            newBase.push(playlist);
-        } catch (e) {
-            console.error(e);
-        }
+    const playlists = [] as IFullPlaylist[];
+    for (const availablePlaylist of dataStore.playlists?.filter(
+        (x) => x.type != "special"
+    )) {
+        const playlist = Object.assign({}, availablePlaylist);
+        playlists.push(playlist);
     }
-    base.value = newBase;
+    base.value = await asSyncableCollection(playlists);
     loadingPlaylists = false;
 };
 
@@ -53,8 +55,12 @@ const exclude = (playlist: IFullPlaylist) => {
     // NOTE perhaps an exclude list and computed base/compareWith?
     // because like this, a diff for added/modded playlists will be wrong
 
-    base.value = base.value.filter(x => x.name !== playlist.name);
-    compareWith.value = compareWith.value.filter(x => x.name !== playlist.name);
+    base.value.collection = base.value.collection.filter(
+        (x) => x.playlist.name !== playlist.name
+    );
+    compareWith.value.collection = compareWith.value.collection.filter(
+        (x) => x.playlist.name !== playlist.name
+    );
 };
 
 const expanded = ref<IFullPlaylist | null>(null);
@@ -81,9 +87,7 @@ const merge = async () => {
     const promises = [] as Promise<any>[];
 
     const modifyPlaylist = (diff: IPlaylistDiff) => {
-        for (const song of diff.added) {
-            promises.push(addSong(diff.id, song));
-        }
+        promises.push(addSongs(diff.id, diff.added));
 
         for (const song of diff.removed) {
             promises.push(removeSongFromPlaylist(diff.id, song.id));
@@ -91,23 +95,42 @@ const merge = async () => {
 
         for (const song of diff.modified) {
             for (const key of Object.keys(song.changed)) {
-                promises.push(updateSongProperty(song.id, key, song.changed[key].to));
+                promises.push(
+                    updateSongProperty(song.id, key, song.changed[key].to)
+                );
             }
         }
     };
 
     for (const playlist of diff.value.added) {
-        base.value.push(playlist);
-        promises.push(createPlaylistWithMetadata(playlist.name, playlist.description, playlist.cover).then(id => {
-            playlist.id = id;
-            modifyPlaylist({
-                id: playlist.id,
-                name: playlist.name,
-                added: playlist.songs,
-                removed: [],
-                modified: []
-            });
-        }));
+        base.value.collection.push(playlist);
+        promises.push(
+            createPlaylistWithMetadata(
+                playlist.playlist.type,
+                playlist.playlist.name,
+                playlist.playlist.description,
+                playlist.playlist.cover
+            ).then((id) => {
+                playlist.playlist.id = id;
+
+                if (playlist.playlist.type === "classic") {
+                    modifyPlaylist({
+                        id: playlist.playlist.id,
+                        name: playlist.playlist.name,
+                        added: playlist.playlist.songs,
+                        removed: [],
+                        modified: [],
+                    });
+                } else if (playlist.playlist.type === "smart") {
+                    promises.push(
+                        updateSmartPlaylistDefinition(
+                            playlist.playlist.id,
+                            (playlist.playlist as ISmartPlaylist).definition
+                        )
+                    );
+                }
+            })
+        );
     }
 
     for (const playlist of diff.value.modified) {
@@ -115,7 +138,7 @@ const merge = async () => {
     }
 
     for (const playlist of diff.value.removed) {
-        promises.push(deletePlaylist(playlist.id));
+        promises.push(deletePlaylist(playlist.playlist.id));
     }
 
     await Promise.all(promises);
@@ -127,14 +150,14 @@ const merge = async () => {
 };
 
 const gistConnected = ref(false);
-gistClient.connected().then(x => gistConnected.value = x);
+gistClient.connected().then((x) => (gistConnected.value = x));
 
 const uploadFile = async () => {
-    // create input element and load 
+    // create input element and load
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = ".json";
-    input.name = "lib.one.json";
+    input.accept = ".one.*";
+    input.name = "my.one.collection";
     input.onchange = async () => {
         if (!input.files) return;
         const file = input.files[0];
@@ -157,33 +180,30 @@ const ws = ref(null as WebSocket | null);
 <template>
     <div class="pb-4 pr-4 flex flex-col gap-4 h-full">
         <div class="flex flex-row justify-end">
-            <IconButton
-                icon="merge"
-                label="Merge"
-                @click="merge"
-            />
+            <IconButton icon="merge" label="Merge" @click="merge" />
         </div>
-        <template
-            v-if="other"
-        >
-            <template
-                v-if="!merging"
-            >
+        <template v-if="other">
+            <template v-if="!merging">
                 <div class="grid grid-cols-2 gap-4">
                     <h1>Local</h1>
                     <h1>Incoming</h1>
                 </div>
                 <div
-                    v-for="playlist in base"
-                    :key="playlist.name"
+                    v-for="playlist in base.collection"
+                    :key="playlist.playlist.name"
                     class="grid grid-cols-2 gap-4"
                 >
                     <PlaylistDiff
-                        v-if="base.some(x => x.name === playlist.name)"
+                        v-if="
+                            base.collection.some(
+                                (x) =>
+                                    x.playlist.name === playlist.playlist.name
+                            )
+                        "
                         :diff="diff"
-                        :expanded="expanded?.name === playlist.name"
+                        :expanded="expanded?.name === playlist.playlist.name"
                         :expanded-song="expandedSong"
-                        :playlist="playlist"
+                        :playlist="playlist.playlist"
                         class="grid-1"
                         is-base
                         @exclude="exclude"
@@ -191,11 +211,21 @@ const ws = ref(null as WebSocket | null);
                         @toggle-expanded-song="toggleExpandedSong"
                     />
                     <PlaylistDiff
-                        v-if="compareWith.some(x => x.name === playlist.name)"
+                        v-if="
+                            compareWith.collection.some(
+                                (x) =>
+                                    x.playlist.name === playlist.playlist.name
+                            )
+                        "
                         :diff="diff"
-                        :expanded="expanded?.name === playlist.name"
+                        :expanded="expanded?.name === playlist.playlist.name"
                         :expanded-song="expandedSong"
-                        :playlist="compareWith.find(x => x.name === playlist.name)"
+                        :playlist="
+                            compareWith.collection.find(
+                                (x) =>
+                                    x.playlist.name === playlist.playlist.name
+                            ).playlist
+                        "
                         class="grid-2"
                         @exclude="exclude"
                         @toggle-expanded="toggleExpanded"
@@ -204,15 +234,20 @@ const ws = ref(null as WebSocket | null);
                 </div>
                 <div
                     v-for="playlist in diff.added"
-                    :key="playlist.name"
+                    :key="playlist.playlist.name"
                     class="grid grid-cols-2 gap-4"
                 >
                     <PlaylistDiff
-                        v-if="compareWith.some(x => x.name === playlist.name)"
+                        v-if="
+                            compareWith.collection.some(
+                                (x) =>
+                                    x.playlist.name === playlist.playlist.name
+                            )
+                        "
                         :diff="diff"
-                        :expanded="expanded?.name === playlist.name"
+                        :expanded="expanded?.name === playlist.playlist.name"
                         :expanded-song="expandedSong"
-                        :playlist="playlist"
+                        :playlist="playlist.playlist"
                         class="grid-2"
                         @exclude="exclude"
                         @toggle-expanded="toggleExpanded"
@@ -224,17 +259,19 @@ const ws = ref(null as WebSocket | null);
                 <Loader />
             </div>
         </template>
-        <div
-            v-else
-            class="fill-page !grid !grid-cols-2 gap-4"
-        >
+        <div v-else class="fill-page !grid !grid-cols-2 gap-4">
             <Card with-hover class="cursor-pointer" @click="uploadFile">
                 <h2>
                     <span class="material-symbols-rounded">file_upload</span>
                     From File
                 </h2>
             </Card>
-            <Card :disabled="!gistConnected" with-hover class="cursor-pointer" @click="importGist">
+            <Card
+                :disabled="!gistConnected"
+                with-hover
+                class="cursor-pointer"
+                @click="importGist"
+            >
                 <h2>
                     <span class="material-symbols-rounded">cloud_download</span>
                     GitHub Gist

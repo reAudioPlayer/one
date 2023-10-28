@@ -21,18 +21,20 @@ const data = useDataStore();
 const props = defineProps({
     album: {
         type: Object as PropType<ISpotifyAlbum>,
-        required: true
-    }
-})
+        required: true,
+    },
+});
 
-const options = ref([{
-    name: "playlist",
-    type: "dropdown",
-    icon: "playlist_add",
-    required: true,
-    value: null,
-    options: data.playlistsAsDropdown
-}]);
+const options = ref([
+    {
+        name: "playlist",
+        type: "dropdown",
+        icon: "playlist_add",
+        required: true,
+        value: null,
+        options: data.playlistsAsDropdown,
+    },
+]);
 
 const modal = ref(null);
 const form = ref(null);
@@ -44,33 +46,41 @@ const show = async () => {
         return;
     }
 
-    const res = await modal.value.fetch(`/api/spotify/albums/${props.album.id}`);
+    const res = await modal.value.fetch(
+        `/api/spotify/albums/${props.album.id}`
+    );
 
     if (!res) return;
 
-    songs.value = await res.json()
-}
+    songs.value = await res.json();
+};
 
 const preview = () => {
-    const event = new CustomEvent('player.play', { detail: {
-        artist: props.album.artist,
-        title: props.album.title,
-        source: props.album.href
-    } });
+    const event = new CustomEvent("player.play", {
+        detail: {
+            artist: props.album.artist,
+            title: props.album.title,
+            source: props.album.href,
+        },
+    });
     window.dispatchEvent(event);
-}
+};
 
-const createPlaylist = async (playlistId: string | number): Promise<number> => {
+const createPlaylist = async (playlistId: string) => {
     if (playlistId === "new") {
-        const newPlaylist = await createPlaylistWithMetadata(props.album.title, `${props.album.releaseDate}, ${props.album.artist}`, props.album.cover);
+        const newPlaylist = await createPlaylistWithMetadata(
+            props.album.title,
+            `${props.album.releaseDate}, ${props.album.artist}`,
+            props.album.cover
+        );
         options.value[0].options = data.playlistsAsDropdown;
         options.value[0].value = newPlaylist;
         return newPlaylist;
     }
-    return Number(playlistId);
-}
+    return playlistId;
+};
 
-const addSong = async (index: number, playlistId: number = null) => {
+const addSong = async (index: number, playlistId: string = null) => {
     if (songs.value[index].added) return;
 
     playlistId ??= form.value.toObject().playlist;
@@ -79,9 +89,10 @@ const addSong = async (index: number, playlistId: number = null) => {
 
     await addSongToPlaylist(
         playlistId ?? form.value.toObject().playlist,
-        songs.value[index]);
+        songs.value[index]
+    );
     songs.value[index].added = true;
-}
+};
 
 const addAll = async () => {
     let playlistId = form.value.toObject().playlist;
@@ -90,16 +101,18 @@ const addAll = async () => {
 
     songs.value.forEach((_, index) => {
         addSong(index, playlistId);
-    })
+    });
 
-    Notifications.addSuccess(props.album.title,
+    Notifications.addSuccess(
+        props.album.title,
         `Added ${songs.value.length} songs to ${data.playlists[playlistId].name}`,
-        3000);
-}
+        3000
+    );
+};
 
 defineExpose({
-    show
-})
+    show,
+});
 </script>
 <template>
     <Template
@@ -113,26 +126,22 @@ defineExpose({
         @submit="addAll"
     >
         <TrackInfo
-            :cover = "album.cover"
-            :icons="[{
-                name: 'share',
-                onClick: () => openInNewTab(album.href)
-            }, {
-                name: 'play_arrow',
-                onClick: preview
-            }]"
-            :subtitle = "album.artist"
-            :title = "album.title"
+            :cover="album.cover"
+            :icons="[
+                {
+                    name: 'share',
+                    onClick: () => openInNewTab(album.href),
+                },
+                {
+                    name: 'play_arrow',
+                    onClick: preview,
+                },
+            ]"
+            :subtitle="album.artist"
+            :title="album.title"
         />
-        <Form
-            ref="form"
-            :options="options"
-        />
-        <br>
-        <Playlist
-            :songs="songs"
-            noCover
-            @add="addSong"
-        />
+        <Form ref="form" :options="options" />
+        <br />
+        <Playlist :songs="songs" noCover @add="addSong" />
     </Template>
 </template>

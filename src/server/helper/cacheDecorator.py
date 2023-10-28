@@ -91,7 +91,8 @@ def useCache(expire: int) -> Callable[[
                 await asyncio.sleep(expire)
                 del _CACHE[function]
 
-            _INVALIDATION_TASKS[function] = asyncio.create_task(invalidateCache())
+            if expire:
+                _INVALIDATION_TASKS[function] = asyncio.create_task(invalidateCache())
             return _CACHE[function].initialResponse
         return _wrapper
     return _implement

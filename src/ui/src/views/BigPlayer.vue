@@ -7,13 +7,9 @@
 import { usePlayerStore } from "../store/player";
 import { useDataStore } from "../store/data";
 import { computed, onMounted, ref, watch } from "vue";
-
-import PlaylistEntry from "../components/songContainers/PlaylistEntry.vue";
-import PlaylistHeader from "../components/songContainers/PlaylistHeader.vue";
-
+import Playlist from "../components/Playlist/Playlist.vue";
 import PlaylistItem from "../components/Catalogue/Items/Playlists/PlaylistItem.vue";
 import Cover from "@/components/image/Cover.vue";
-import Card from "../containers/Card.vue";
 
 const player = usePlayerStore();
 const data = useDataStore();
@@ -21,8 +17,11 @@ const data = useDataStore();
 const playing = computed(() => player.playing);
 const cover = computed(() => player.song.cover);
 const songId = computed(() => player.song.id);
-const playlist = computed(() => player.playlist);
-const title = computed(() => `${player.song.title} • ${player.song.artist}`);
+const title = computed(() =>
+    player.loaded
+        ? `${player.song.title} • ${player.song.artist}`
+        : "reAudioPlayer One"
+);
 const playlists = computed(() => data.playlists);
 
 const playlistScroll = ref(null);
@@ -41,13 +40,15 @@ onMounted(() => {
             return;
         }
 
-        const scroll = document.getElementById(`bplayer-entry-${songId.value}`)?.offsetTop;
+        const scroll = document.getElementById(
+            `bplayer-entry-${songId.value}`
+        )?.offsetTop;
 
         if (scroll >= 354) {
             playlistScroll.value.scrollTop = scroll - 354;
         }
     }, 1000);
-})
+});
 
 let maximised = ref(false);
 const toggleMaximise = () => {
@@ -56,8 +57,6 @@ const toggleMaximise = () => {
 };
 const noPlaylist = ref(false); // hide playlist
 const animate = ref(false); // animations
-
-const selectedSongId = ref(-1);
 </script>
 
 <template>
@@ -72,36 +71,45 @@ const selectedSongId = ref(-1);
                     with-ambient
                 />
                 <div :class="{ playing, animate }" class="blocks">
-                    <div :style="{'animation-delay': '0s'}" class="block"></div>
-                    <div :style="{'animation-delay': '.25s'}" class="block"></div>
-                    <div :style="{'animation-delay': '.5s'}" class="block"></div>
+                    <div
+                        :style="{ 'animation-delay': '0s' }"
+                        class="block"
+                    ></div>
+                    <div
+                        :style="{ 'animation-delay': '.25s' }"
+                        class="block"
+                    ></div>
+                    <div
+                        :style="{ 'animation-delay': '.5s' }"
+                        class="block"
+                    ></div>
                 </div>
             </div>
-            <Card v-if="!noPlaylist" class="playlistOverflow drop-shadow-2xl relative">
-                <div ref="playlistScroll" class="playlist">
-                    <PlaylistHeader />
-                    <PlaylistEntry
-                        v-for="(element, index) in playlist.songs"
-                        :id="'bplayer-entry-' + element.id"
-                        :key="element.source"
-                        :index="index"
-                        :selected="selectedSongId == element.id"
-                        :song="element"
-                        with-cover
-                        @click="selectedSongId == element.id ? selectedSongId = -1 : selectedSongId = element.id"
-                    />
-                </div>
-            </Card>
 
+            <Card
+                v-if="player.playlist"
+                class="playlist-overflow drop-shadow-2xl relative"
+                :key="player.playlist.id"
+            >
+                <Playlist :playlist="player.playlist" use-queue />
+            </Card>
             <div class="settings">
-            <span class="iconButton material-symbols-rounded"
-                  @click="toggleMaximise">{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span>
-                <span :style="{ transform: `rotate(${ noPlaylist ? 0 : 180 }deg)` }" class="iconButton material-symbols-rounded"
-                      @click="() => noPlaylist = !noPlaylist">menu_open</span>
-                <span class="iconButton material-symbols-rounded"
-                      @click="() => animate = !animate">{{
-                        !animate ? "animation" : "motion_photos_off"
-                    }}</span>
+                <span
+                    class="iconButton material-symbols-rounded"
+                    @click="toggleMaximise"
+                    >{{ maximised ? "fullscreen_exit" : "fullscreen" }}</span
+                >
+                <span
+                    :style="{ transform: `rotate(${noPlaylist ? 0 : 180}deg)` }"
+                    class="iconButton material-symbols-rounded"
+                    @click="() => (noPlaylist = !noPlaylist)"
+                    >menu_open</span
+                >
+                <span
+                    class="iconButton material-symbols-rounded"
+                    @click="() => (animate = !animate)"
+                    >{{ !animate ? "animation" : "motion_photos_off" }}</span
+                >
             </div>
         </template>
         <template v-else>
@@ -138,6 +146,19 @@ const selectedSongId = ref(-1);
 
 .bigPlayer {
     overflow: hidden;
+}
+
+.playlist-overflow {
+    flex: 2;
+    height: calc(100% - 220px);
+    margin: 100px 0;
+    overflow: hidden;
+
+    .playlist {
+        overflow-y: auto;
+        height: 100%;
+        padding: 10px 20px;
+    }
 }
 
 .iconButton {
@@ -206,7 +227,7 @@ const selectedSongId = ref(-1);
     }
 
     img {
-        transition: transform .5s;
+        transition: transform 0.5s;
         animation: pump 20s infinite ease-in-out;
 
         &:not(.playing) {
@@ -273,7 +294,8 @@ const selectedSongId = ref(-1);
             }
         }
 
-        &:not(.animate) .block, &:not(.playing) .block {
+        &:not(.animate) .block,
+        &:not(.playing) .block {
             animation: none;
             opacity: 0;
         }
@@ -285,19 +307,6 @@ const selectedSongId = ref(-1);
     height: auto;
     max-width: 600px;
     border-radius: 20px;
-}
-
-.bigPlayer .playlistOverflow {
-    flex: 2;
-    height: calc(100% - 220px);
-    margin: 100px 0;
-    overflow: hidden;
-}
-
-.bigPlayer .playlistOverflow .playlist {
-    overflow-y: auto;
-    height: 100%;
-    padding: 10px 20px;
 }
 
 .no-playlist-selected {

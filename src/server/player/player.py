@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import logging
@@ -17,7 +18,7 @@ from dataModel.song import Song
 
 from db.database import Database
 
-from player.playerPlaylist import PlayerPlaylist
+from player.iPlayerPlaylist import IPlayerPlaylist
 from player.playlistManager import PlaylistManager
 
 from downloader.downloader import Downloader
@@ -26,9 +27,9 @@ if TYPE_CHECKING:
     from config.runtime import CacheStrategy
 
 
-
-class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attributes
+class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attributes
     """Player"""
+
     __slots__ = (
         "_dbManager",
         "_config",
@@ -42,25 +43,23 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         "_playlistChangeCallback",
         "_songChangeCallback",
         "_strategy",
-        "_incrementPlayCountTask"
+        "_incrementPlayCountTask",
     )
     _INSTANCE: Optional[Player] = None
 
-    def __init__(self,
-                 downloader: Downloader,
-                 playlistManager: PlaylistManager) -> None:
+    def __init__(self, downloader: Downloader, playlistManager: PlaylistManager) -> None:
         self._dbManager = Database()
         self._playlistManager = playlistManager
         self._downloader = downloader
-        self._playerPlaylist: Optional[PlayerPlaylist] = None
+        self._playerPlaylist: Optional[IPlayerPlaylist] = None
         self._song: Optional[Song] = None
         self._preloaded: Optional[str] = None
         self._logger = logging.getLogger("player")
         self._shuffle = False
 
-        self._playlistChangeCallback: Optional[Callable[[PlayerPlaylist], Awaitable[None]]] = None
+        self._playlistChangeCallback: Optional[Callable[[IPlayerPlaylist], Awaitable[None]]] = None
         self._songChangeCallback: Optional[Callable[[Song], Awaitable[None]]] = None
-        Player._INSTANCE = self # pylint: disable=protected-access
+        Player._INSTANCE = self  # pylint: disable=protected-access
         self._strategy: Optional[ICacheStrategy] = None
         Runtime.cache.onStrategyChange.add(self._onStrategyChange)
         self._incrementPlayCountTask: Optional[asyncio.Task[None]] = None
@@ -74,17 +73,17 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
     async def _onStrategyChange(self, newStrategy: CacheStrategy) -> None:
         self._strategy = ICacheStrategy.get(newStrategy, self)
 
-    async def _onPlaylistChange(self, playlist: PlayerPlaylist) -> None:
+    async def _onPlaylistChange(self, playlist: IPlayerPlaylist) -> None:
         if self._strategy:
             await self._strategy.onPlaylistLoad(playlist)
         if self._playlistChangeCallback:
-            await self._playlistChangeCallback(playlist) # pylint: disable=not-callable
+            await self._playlistChangeCallback(playlist)  # pylint: disable=not-callable
 
     async def _onSongChange(self, newSong: Song) -> None:
         if self._strategy:
             await self._strategy.onSongLoad(newSong)
         if self._songChangeCallback:
-            await self._songChangeCallback(newSong) # pylint: disable=not-callable
+            await self._songChangeCallback(newSong)  # pylint: disable=not-callable
 
         if self._incrementPlayCountTask:
             self._incrementPlayCountTask.cancel()
@@ -92,20 +91,23 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         async def _incrementPlayCount() -> None:
             await asyncio.sleep(30)
             newSong.model.plays += 1
+
         self._incrementPlayCountTask = asyncio.create_task(_incrementPlayCount())
 
-    async def loadPlaylist(self,
-                           playlist: Optional[PlayerPlaylist],
-                           atIndex: Optional[int] = None) -> bool:
+    async def loadPlaylist(
+        self, playlist: Optional[IPlayerPlaylist], atIndex: Optional[int] = None
+    ) -> bool:
         """loads a playlist"""
         self._logger.debug("loadPlaylist [%s] (at %s)", playlist, atIndex)
         if not playlist:
             return False
         if self._playerPlaylist and self._playerPlaylist == playlist:
+            if atIndex is not None:
+                await self.at(atIndex)
+                return True
             return False
 
         self._playerPlaylist = playlist
-        playlist.onLoad()
         asyncio.create_task(self._onPlaylistChange(self._playerPlaylist))
 
         if atIndex is not None:
@@ -118,7 +120,7 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         """unload and unbind song file"""
         if not self._playerPlaylist:
             return
-        current = self._playerPlaylist.current()
+        current = self._playerPlaylist.current
         cId = current.model.id if current else 0
         self._logger.debug("unload %d", cId)
 
@@ -136,12 +138,6 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
             return
         await self.unload()
 
-        if self._shuffle:
-            _, song = self._playerPlaylist.random()
-            await self._preloadSong(song)
-            await self._loadSong(song)
-            return
-
         await self._preloadSong(self._playerPlaylist.next())
         await self._loadSong()
 
@@ -155,6 +151,7 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
             return True
         await self.unload()
         await self._preloadSong(self._playerPlaylist.at(index))
+        self._playerPlaylist.jumpTo(index)
         await self._loadSong()
         return True
 
@@ -181,15 +178,16 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
     @shuffle.setter
     def shuffle(self, value: bool) -> None:
         self._shuffle = value
-
-    def updateSongMetadata(self, id_: int, song: Song) -> None:
-        """updates the metadata"""
-        self._playlistManager.updateSong(id_, lambda _: song)
+        assert self._playerPlaylist
+        if value:
+            self._playerPlaylist.shuffle()
+        else:
+            self._playerPlaylist.unshuffle()
 
     async def _loadSong(self, song: Optional[Song] = None) -> None:
         if not self._playerPlaylist:
             return
-        song = song or self._playerPlaylist.current()
+        song = song or self._playerPlaylist.current
         if not song:
             return
         self._logger.debug("load src=%s, preloaded=%s", song.model.source, self._preloaded)
@@ -203,6 +201,6 @@ class Player(metaclass = Singleton): # pylint: disable=too-many-instance-attribu
         return self._song
 
     @property
-    def currentPlaylist(self) -> PlayerPlaylist:
+    def currentPlaylist(self) -> Optional[IPlayerPlaylist]:
         """currently loaded playlist"""
-        return self._playerPlaylist or PlayerPlaylist()
+        return self._playerPlaylist

@@ -6,13 +6,13 @@
 import { defineStore } from "pinia";
 
 import { IDropdownOption, IFullPlaylist } from "../common";
-import { getAllPlaylists } from "../api/playlist";
+import { getAllPlaylists, getSinglePlaylist } from "../api/playlist";
 
 // Create a new store instance.
 export const useDataStore = defineStore({
-    id: 'data',
+    id: "data",
     state: () => ({
-        playlists: [ ] as IFullPlaylist[],
+        playlists: [] as IFullPlaylist[],
     }),
     getters: {
         notEmpty() {
@@ -23,7 +23,7 @@ export const useDataStore = defineStore({
         },
         playlistsAsDropdown(allowCreateNew = true): IDropdownOption[] {
             const options = this.playlists.map((playlist) => ({
-                value: playlist.id.toString(),
+                value: playlist.id,
                 label: playlist.name,
             }));
             if (allowCreateNew) {
@@ -34,11 +34,11 @@ export const useDataStore = defineStore({
             }
             return options;
         },
-        getPlaylistById(): (id: number) => IFullPlaylist {
-            return (id: number) => {
+        getPlaylistById(): (id: string) => IFullPlaylist {
+            return (id: string) => {
                 return this.playlists.find((playlist) => playlist.id === id);
-            }
-        }
+            };
+        },
     },
     actions: {
         setPlaylists(playlists) {
@@ -47,9 +47,22 @@ export const useDataStore = defineStore({
         initialise() {
             this.fetchPlaylists();
         },
-        async fetchPlaylists() {
+        async fetchPlaylists(...params: string[]) {
+            if (params) {
+                console.log("fetching playlists", params);
+                for (const param of params) {
+                    const i = this.playlists.findIndex(
+                        (playlist) => playlist.id === param
+                    );
+                    if (i === -1) {
+                        return;
+                    }
+                    this.playlists[i] = await getSinglePlaylist(param);
+                }
+            }
+
             const playlists = await getAllPlaylists();
             this.setPlaylists(playlists);
-        }
-    }
+        },
+    },
 });

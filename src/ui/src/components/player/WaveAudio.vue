@@ -19,17 +19,15 @@ onMounted(() => {
     const waveColor = themes["fg-base"][theme];
     const progressColor = themes["fg-secondary"][theme];
 
-
     audio.value = WaveSurfer.create({
-        container: '#waveform',
+        container: "#waveform",
         waveColor,
         progressColor,
         cursorWidth: 0,
         barWidth: 1,
-        pixelRatio: 1,
+        barGap: 3,
         responsive: true,
-        barGap: 0,
-        backend: 'MediaElement'
+        backend: "MediaElement",
     });
     audio.value.on("play", () => {
         player.setPlaying(true);
@@ -58,67 +56,67 @@ onMounted(() => {
 const player = usePlayerStore();
 let forcePlay = false;
 
-
 onMounted(() => {
     audio.value.load(player.stream);
 });
 
-watch(() => player.song.id, () => {
-    if (audio.value.isPlaying()) {
-        forcePlay = true;
-    }
+watch(
+    () => player.song.id,
+    () => {
+        if (audio.value.isPlaying()) {
+            forcePlay = true;
+        }
 
-    audio.value.load(player.stream);
-    player.setPlaying(false);
-});
+        audio.value.load(player.stream);
+        player.setPlaying(false);
+    }
+);
 
 const play = () => {
     try {
         audio.value.play();
     } catch (_) {}
-}
+};
 
 const pause = () => {
     audio.value.pause();
-}
+};
 
 const seek = (time: number) => {
     audio.value.seekTo(time / player.durationSeconds);
-}
+};
 
 const setVolume = (volume: number) => {
     let asPercent = volume / 100;
     asPercent = Math.min(Math.max(asPercent, 0), 1);
     audio.value.setVolume(asPercent);
-}
+};
 
 const setMute = (muted: boolean) => {
     audio.value.setMute(muted);
-}
+};
 
 onMounted(() => {
     setVolume(player.volume);
-})
+});
 
 const playable: Playable = {
     play,
     pause,
     seek,
     setVolume,
-    setMute
-}
+    setMute,
+};
 
 defineExpose(playable);
 </script>
 <template>
-    <div
-        id="waveform"
-        @audioprocess="player.setProgress($event)"
-    />
+    <div id="waveform" @audioprocess="player.setProgress($event)" />
 </template>
 <style lang="scss">
 #waveform {
-    wave, canvas {
+    wave,
+    canvas {
         width: 100%;
         height: calc(var(--h-player) / 2 - 1em) !important;
     }

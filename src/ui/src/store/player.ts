@@ -9,9 +9,9 @@ import { useDataStore } from "./data";
 import { SharedPlayer } from "../api/sharedPlayer";
 import { getShuffle, nextSong, prevSong, setShuffle } from "../api/player";
 import { computed } from "vue";
+import { type ILyrics, findLyrics } from "../views/SingAlong/lyrics";
 
-
-type PlaylistType = "playlist" | "collection" | "collection/breaking" | "track";
+type PlaylistType = "playlist" | "track";
 export type RepeatType = "repeat" | "repeat_one_on" | "repeat_on";
 export interface Playable {
     play: () => void;
@@ -22,9 +22,8 @@ export interface Playable {
     setMute: (mute: boolean) => void;
 }
 
-
 export const usePlayerStore = defineStore({
-    id: 'player',
+    id: "player",
     state: () => ({
         playing: false,
         progress: 0,
@@ -40,14 +39,15 @@ export const usePlayerStore = defineStore({
             duration: null,
             favourite: false,
             id: -1,
+            metadata: {
+                plays: 0,
+                spotify: {
+                    id: null,
+                },
+            },
         },
-        playlist: {
-            cover: null,
-            description: null,
-            name: null,
-            id: -1,
-            songs: [],
-        },
+        playlistId: null as string | null,
+        lyrics: null as ILyrics | null,
         volume: 50,
         repeat: "repeat" as RepeatType,
         sharedPlayer: null as InstanceType<typeof SharedPlayer> | null,
@@ -89,6 +89,7 @@ export const usePlayerStore = defineStore({
         setShuffle(shuffle: boolean) {
             this.shuffle = shuffle;
             setShuffle(shuffle);
+            useDataStore().fetchPlaylists();
         },
         toggleShuffle() {
             this.setShuffle(!this.shuffle);
@@ -97,7 +98,10 @@ export const usePlayerStore = defineStore({
             if (this.repeat === "repeat_one_on") {
                 this.play();
             } else {
-                if (this.repeat === "repeat" && this.playlist.index.value === this.playlist.songs.length - 1) {
+                if (
+                    this.repeat === "repeat" &&
+                    this.playlist.index.value === this.playlist.songs.length - 1
+                ) {
                     return;
                 }
 
@@ -122,11 +126,15 @@ export const usePlayerStore = defineStore({
 
             this.player = player;
         },
-        setSong(song) {
+        async setSong(song) {
             if (song.id == this.song.id) return;
+
             this.song = song;
             this.song.cover = parseCover(song.cover);
             this.progress = 0;
+
+            this.lyrics = null;
+            this.lyrics = await findLyrics(true);
         },
         setReady(ready) {
             if (this.ready === ready) return;
@@ -146,9 +154,9 @@ export const usePlayerStore = defineStore({
             fetch(`/api/tracks/${this.song.id}`, {
                 method: "PUT",
                 body: JSON.stringify({
-                    duration
-                })
-            })
+                    duration,
+                }),
+            });
 
             //saveDuration(this.song.id, duration);
         },
@@ -159,7 +167,7 @@ export const usePlayerStore = defineStore({
             this.player.seek(time);
         },
         seekPercent(percent) {
-            this.seek(this.durationSeconds * percent / 100);
+            this.seek((this.durationSeconds * percent) / 100);
         },
         setProgress(progress) {
             this.progress = Math.round(progress);
@@ -169,15 +177,12 @@ export const usePlayerStore = defineStore({
             fetch(`/api/tracks/${this.song.id}`, {
                 method: "PUT",
                 body: JSON.stringify({
-                    favourite
-                })
-            })
+                    favourite,
+                }),
+            });
         },
-        setPlaylist(playlist) {
-            this.playlist.songs = playlist.songs;
-            this.playlist.cover = parseCover(playlist.cover);
-            this.playlist.description = playlist.description;
-            this.playlist.name = playlist.name;
+        setPlaylist(playlistId) {
+            this.playlistId = playlistId;
         },
         setVolume(volume) {
             if (volume == this.volume) return;
@@ -196,53 +201,60 @@ export const usePlayerStore = defineStore({
             this.repeat = localStorage.getItem("reap.repeat") || "repeat_on";
             this.sharedPlayer = new SharedPlayer();
 
-            this.setShuffle(await getShuffle());
+            this.shuffle = await getShuffle();
         },
-        // TODO
-        // loadPlaylist( ??? )
-        loadPlaylist(playlistId: number | PlaylistType, id: number = null) {
+        loadPlaylist(playlistId: string | PlaylistType, id: number = null) {
             const body = {
                 type: "playlist",
-                id: playlistId,
-            }
+                id: playlistId as any,
+            };
 
-            if (typeof playlistId === "string") {
+            if (playlistId === "track") {
                 body.type = playlistId;
                 body.id = id;
             }
 
             fetch("/api/player/load", {
                 method: "POST",
-                body: JSON.stringify(body)
-            })
+                body: JSON.stringify(body),
+            });
         },
-        loadSong(playlist: number | PlaylistType, index: number) {
+        loadSong(playlist: string | PlaylistType, index: number) {
             const body = {
-                index
-            }
+                index,
+            };
 
-            if (typeof playlist === "number") {
-                if (!isNaN(playlist)) {
-                    body["playlistIndex"] = playlist;
-                }
-            } else {
+            if (playlist === "track") {
                 body["type"] = playlist;
+            } else {
+                body["playlist"] = playlist;
             }
 
             fetch("/api/player/at", {
                 method: "POST",
-                body: JSON.stringify(body)
+                body: JSON.stringify(body),
             });
-        }
+        },
     },
     getters: {
+        playlist(state) {
+            return useDataStore().playlists.find(
+                (playlist) => playlist.id === state.playlistId
+            );
+        },
+        hasLyrics(state) {
+            return state.lyrics?.lyrics;
+        },
         durationSeconds(state) {
             return state.song.duration;
         },
         displayDuration(state) {
             const duration = state.song.duration;
             if (isNaN(duration)) return "0:00";
-            return `${Math.floor(duration / 60)}:${zeroPad(Math.floor(duration % 60), 2)}`
+            return `${Math.floor(duration / 60)}:${zeroPad(
+                Math.floor(duration % 60),
+                2
+            )}`;
         },
         stream(state) {
             return `/api/player/stream/${state.song.id}`;
@@ -251,12 +263,15 @@ export const usePlayerStore = defineStore({
             return state.song.cover;
         },
         progressPercent(state) {
-            return state.progress / this.durationSeconds * 1000;
+            return (state.progress / this.durationSeconds) * 1000;
         },
         displayProgress(state) {
             const progress = state.progress;
             if (isNaN(progress)) return "0:00";
-            return `${Math.floor(progress / 60)}:${zeroPad(Math.floor(progress % 60), 2)}`
+            return `${Math.floor(progress / 60)}:${zeroPad(
+                Math.floor(progress % 60),
+                2
+            )}`;
         },
         loaded(state) {
             return state.song.id != -1;
@@ -279,11 +294,5 @@ export const usePlayerStore = defineStore({
             }
             return "volume_mute";
         },
-        playlist(state) {
-            return {
-                ...state.playlist,
-                index: computed(() => state.playlist?.songs?.findIndex(song => song.id === state.song.id) ?? -1)
-            };
-        }
-    }
+    },
 });

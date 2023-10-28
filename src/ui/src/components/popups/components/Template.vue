@@ -11,23 +11,23 @@ import IconButton, { IButton } from "../../inputs/IconButton.vue";
 const props = defineProps({
     name: {
         type: String,
-        required: true
+        required: true,
     },
     submit: {
         type: Object as PropType<IButton>,
-        required: true
+        required: false,
     },
     secondary: {
         type: Object as PropType<IButton>,
         required: false,
-        default: null
+        default: null,
     },
-})
+});
 
 const loading = ref(false);
 const showModal = ref(false);
 const error = ref("");
-const hide = () => showModal.value = false;
+const hide = () => (showModal.value = false);
 
 const show = () => {
     loading.value = false;
@@ -37,7 +37,7 @@ const show = () => {
 const load = () => {
     loading.value = true;
     showModal.value = true;
-}
+};
 
 const fetch = async (url: string, options: RequestInit) => {
     load();
@@ -48,56 +48,49 @@ const fetch = async (url: string, options: RequestInit) => {
         return null;
     }
     return res;
-}
+};
 
 const emit = defineEmits(["submit", "close", "secondary"]);
 
 const close = () => {
     hide();
     emit("close");
-}
+};
 
 const submit = () => {
     emit("submit");
     close();
-}
+};
 
 const secondary = () => {
     emit("secondary");
     close();
-}
+};
 
 defineExpose({
-    show, hide, load, fetch
-})
+    show,
+    hide,
+    load,
+    fetch,
+});
 </script>
 <template>
-    <teleport
-        v-if="showModal"
-        to="#popup-target"
-    >
+    <teleport v-if="showModal" to="#popup-target">
         <div
             class="modal"
-            @click.stop="showModal=false"
+            @click.stop="showModal = false"
             @contextmenu.stop
             @drag.stop
         >
-            <div
-                class="modal-content"
-                @click.stop
-            >
+            <div class="modal-content" @click.stop>
                 <div class="header bg-secondary rounded-t-2xl p-3">
-                    <h3 class="title font-black">{{name}}</h3>
+                    <h3 class="title font-black">{{ name }}</h3>
                     <button class="modal-close" @click="close">
-                        <span class="title material-icons-round">
-                            close
-                        </span>
+                        <span class="title material-icons-round"> close </span>
                     </button>
                 </div>
                 <Loader v-if="loading" />
-                <div v-else-if="error">
-
-                </div>
+                <div v-else-if="error"></div>
                 <div
                     v-else
                     class="p-4 pt-0 flex flex-col overflow-x-hidden overflow-y-auto"
@@ -132,7 +125,7 @@ defineExpose({
     height: 100%;
     z-index: 1000;
     background-color: rgba(0, 0, 0, 0.7);
-    animation: fadeIn .2s ease-in-out forwards;
+    animation: fadeIn 0.2s ease-in-out forwards;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -162,7 +155,7 @@ defineExpose({
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-    gap: .5rem;
+    gap: 0.5rem;
 }
 
 .header {

@@ -4,314 +4,123 @@
   -->
 
 <script lang="ts" setup>
-import Checkbox from "../../components/inputs/Checkbox.vue";
-import { computed, ref } from "vue";
+import { Ref, ref } from "vue";
 import Card from "../../containers/Card.vue";
-import PasswordInputWithIcon from "../../components/inputs/PasswordInputWithIcon.vue";
-import { useSettingsStore } from "../../store/settings";
-import Theme from "../../components/Preferences/Theme.vue";
-import IconButton from "../../components/inputs/IconButton.vue";
-import Dropdown from "../../components/inputs/Dropdown.vue";
-import { getConfig, IConfig, setConfig } from "../../api/config";
-import TextInputWithIcon from "../../components/inputs/TextInputWithIcon.vue";
+import TabButton from "./TabButton.vue";
 
-const spotifyEnabled = ref(false);
-const spotifyClient = ref({
-    id: "",
-    secret: ""
-});
-const spotifyChanged = computed(() => {
-    if (!spotifyEnabled.value) {
-        return currentSpotifyConfig.value.enabled;
-    }
+import About from "./tabs/About.vue";
+import LocalData from "./tabs/LocalData.vue";
+import Privacy from "./tabs/Privacy.md";
+import Cache from "./tabs/Cache.vue";
+import Appearance from "./tabs/Appearance.vue";
+import Player from "./tabs/Player.vue";
+import Integration from "./tabs/Integration.vue";
+import { useRoute } from "vue-router";
 
-    if (Object.values(spotifyClient.value).some(x => x === "")) {
-        return false;
-    }
-
-    return spotifyClient.value.id !== currentSpotifyConfig.value.id
-        || spotifyClient.value.secret !== currentSpotifyConfig.value.secret
-        || spotifyEnabled.value !== currentSpotifyConfig.value.enabled;
-});
-const currentSpotifyConfig = ref({
-    id: "",
-    secret: "",
-    enabled: false
-});
-
-fetch("/api/config/spotify").then(async x => {
-    let jdata = {
-        id: "",
-        secret: "",
-        enabled: false
-    };
-
-    if (x.status == 200) {
-        jdata = await x.json();
-    }
-    else if ([204, 401].includes(x.status)) {
-        jdata = {
-            id: "restricted",
-            secret: "restricted",
-            enabled: false
-        };
-    }
-    else {
-        throw new Error("Failed to fetch spotify config");
-    }
-
-    currentSpotifyConfig.value = jdata;
-    currentSpotifyConfig.value.enabled = ![ jdata.id, jdata.secret ].includes("restricted");
-    spotifyEnabled.value = currentSpotifyConfig.value.enabled;
-    spotifyClient.value.id = jdata.id.replace("restricted", "");
-    spotifyClient.value.secret = jdata.secret.replace("restricted", "");
-});
-const saveSpotify = async () => {
-    if (!spotifyChanged.value) return;
-
-    let id = spotifyClient.value.id;
-    let secret = spotifyClient.value.secret;
-
-    if (!spotifyEnabled.value) {
-        secret = id = "restricted";
-    }
-
-    const res = await fetch("/api/config/spotify", {
-        method: "POST",
-        body: JSON.stringify({
-            id,
-            secret
-        })
-    });
-    if (res.ok) {
-        currentSpotifyConfig.value = {
-            id,
-            secret,
-            enabled: spotifyEnabled.value
-        };
-    }
+const TABS = {
+    About: About,
+    Privacy: Privacy,
+    "Local Data": LocalData,
+    Integrations: Integration,
+    "Cache Policy": Cache,
+    Appearance: Appearance,
+    Player: Player,
 };
 
-const config = ref(null as IConfig | null);
-const cachedConfig = ref("");
-getConfig().then(x => {
-    config.value = x;
-    cachedConfig.value = JSON.stringify(x);
-});
-const configChanged = computed(() => {
-    if (!config.value) return false;
-    return JSON.stringify(config.value) !== cachedConfig.value;
-});
-const updateConfig = async () => {
-    if (!configChanged.value) return;
-    await setConfig(config.value);
-    cachedConfig.value = JSON.stringify(config.value);
+const groups = ref([
+    {
+        name: "General",
+        items: ["About"],
+    },
+    {
+        name: "My Data",
+        items: ["Privacy", "Local Data", "Integrations"],
+    },
+    {
+        name: "Player",
+        items: ["Player", "Cache Policy"],
+    },
+    {
+        name: "Appearance",
+        items: ["Appearance"],
+    },
+]);
+
+const route = useRoute();
+let requestTab = route.query.tab as string;
+const activeTab: Ref<keyof typeof TABS> = ref("About");
+
+if (Object.keys(TABS).includes(requestTab)) {
+    activeTab.value = requestTab as keyof typeof TABS;
 }
-
-const settings = useSettingsStore();
-
-const themes = [ "dynamic", "light", "dark" ];
-
-const clearBrowser = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.reload();
-};
-
-const host = window.location.host
-const spotifyRedirect = `http://${host}/api/spotify/callback`
 </script>
 <template>
     <div class="p-[10px] preferences">
-        <Card aria-description="spotify" class="p-4 pt-0">
-            <Checkbox
-                v-model="spotifyEnabled"
-                class="h2 mb-2"
-                label="Spotify"
-            />
-            <details>
-                <summary class="cursor-pointer">How to</summary>
-                <p>1) Head over to the <a href="https://developer.spotify.com/dashboard/applications" target="_blank">spotify developer dashboard</a></p>
-                <p>2) Create An App</p>
-                <p>3) Enter any name and any description</p>
-                <p>4) Edit the settings: set the redirect url to <a :href="spotifyRedirect">{{spotifyRedirect}}</a></p>
-                <p>5) Copy and enter the client id and secret into the corresponding input field</p>
-            </details>
-            <hr class="my-4">
-            <h5>Client ID: </h5>
-            <PasswordInputWithIcon
-                v-model="spotifyClient.id"
-                :disabled="!spotifyEnabled"
-                icon="token"
-            />
-            <h5 class="mt-4">Client Secret: </h5>
-            <PasswordInputWithIcon
-                v-model="spotifyClient.secret"
-                :disabled="!spotifyEnabled"
-                icon="lock"
-            />
-            <IconButton
-                :disabled="!spotifyChanged"
-                class="ml-auto mt-4"
-                icon="save"
-                label="Save"
-                @click="saveSpotify"
-            />
-        </Card>
-        <Card aria-description="player" class="p-4 pt-0">
-            <h2 class="mt-[10px]">Player</h2>
-            <Checkbox
-                v-model="settings.player.pictureInPicture"
-                label="Support Picture in Picture"
-                sublabel="this will slightly reduce performance"
-            />
-            <Dropdown
-                v-model="settings.player.type"
-                :options="[{
-                    value: 'web',
-                    label: 'Native player',
-                    icon: 'horizontal_rule'
-                }, {
-                    value: 'web/wave',
-                    label: 'Wave player',
-                    icon: 'graphic_eq'
-                }]"
-                icon="music_note"
-            />
-        </Card>
-        <Card aria-description="theme" class="p-4 pt-0">
-            <h2 class="mt-[10px]">Theme</h2>
-            <Checkbox
-                v-model="settings.ambient"
-                :disabled="!settings.themeSupportsAmbient"
-                label="Ambient"
-            />
-            <div class="themes">
-                <Theme
-                    v-for="(theme, index) in themes"
-                    :key="index"
-                    :name="theme"
-                />
+        <h1 class="w-full">Preferences</h1>
+        <div class="wrapper">
+            <div class="sections flex flex-col">
+                <div class="section p-2" v-for="group in groups">
+                    <span class="h5 text-sm">{{ group.name }}</span>
+                    <TabButton
+                        v-for="tab in group.items"
+                        :key="tab"
+                        :name="tab"
+                        :active="activeTab === tab"
+                        @click="activeTab = tab as keyof typeof TABS"
+                    />
+                </div>
             </div>
-        </Card>
-        <Card aria-description="sidebar" class="p-4 pt-0">
-            <h2 class="mt-[10px]">Sidebar</h2>
-            <Checkbox
-                v-model="settings.sidebar.news"
-                label="Show 'News' Tab"
-            />
-            <Checkbox
-                v-model="settings.sidebar.sports"
-                label="Show 'Sports' Tab"
-            />
-        </Card>
-        <Card aria-description="cache behaviour" class="p-4 pt-0">
-            <h2 class="mt-[10px]">Cache Behaviour</h2>
-            <Checkbox
-                v-if="config"
-                v-model="config.cache.preserve"
-                label="Preserve cache"
-            />
-            <Checkbox
-                v-if="config"
-                v-model="config.cache.preserveInSession"
-                :disabled="config.cache.preserve"
-                label="Preserve cache in session"
-            />
-            <Dropdown
-                v-if="config"
-                v-model="config.cache.strategy"
-                :options="[{
-                    value: 'all',
-                    label: 'All Songs'
-                }, {
-                    value: 'playlist',
-                    label: 'Current Playlist'
-                }, {
-                    value: 'currentNext',
-                    label: 'Current + Next Song '
-                }, {
-                    value: 'current',
-                    label: 'Current Song Only'
-                }]"
-                icon="cached"
-            />
-            <IconButton
-                :disabled="!config || !configChanged"
-                class="ml-auto mt-4"
-                icon="save"
-                label="Save"
-                @click="updateConfig"
-            />
-        </Card>
-        <Card aria-description="github settings" class="p-4 pt-0">
-            <h2 class="mt-[10px]">Github</h2>
-            <h5 class="mt-4">PAT: </h5>
-            <TextInputWithIcon
-                v-if="config"
-                v-model="config.github.githubPat"
-                icon="lock"
-            />
-            <h5 class="mt-4">Gist ID: </h5>
-            <TextInputWithIcon
-                v-if="config"
-                v-model="config.github.gistId"
-                icon="numbers"
-            />
-            <IconButton
-                :disabled="!config || !configChanged"
-                class="ml-auto mt-4"
-                icon="save"
-                label="Save"
-                @click="updateConfig"
-            />
-        </Card>
-        <Card aria-description="my data" class="p-4 pt-0">
-            <h2 class="mt-[10px]">My Data</h2>
-            <IconButton
-                class="mx-auto mt-4"
-                icon="backup"
-                label="Back up database"
-                @click="$router.push('/export')"
-            />
-            <IconButton
-                class="mx-auto mt-4"
-                icon="cloud_download"
-                label="Import database"
-                @click="$router.push('/import')"
-            />
-            <IconButton
-                class="mx-auto mt-4"
-                icon="delete"
-                label="Clean browser settings"
-                @click="clearBrowser"
-            />
-            <IconButton
-                class="mx-auto mt-4"
-                icon="folder"
-                label="Manage files"
-                @click="$router.push('/preferences/my-data')"
-            />
-        </Card>
+            <Card class="content h-max p-4 pt-0">
+                <h2>{{ activeTab }}</h2>
+                <component :is="TABS[activeTab]" />
+            </Card>
+        </div>
     </div>
 </template>
+<style lang="scss">
+ul {
+    margin-left: 2em;
+    list-style-type: disc;
+}
+
+.markdown-body {
+    line-height: 1.5;
+}
+</style>
+
 <style lang="scss" scoped>
 .preferences {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+}
 
-    .themes {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 1em;
+.section:not(:last-child) {
+    border-bottom: var(--border-container);
+}
 
-        .wrapper {
-            max-width: 200px;
-        }
+.btn {
+    width: 100%;
+    text-align: left;
+    padding: 0.5em 1em;
+    border-radius: 0.5em;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+
+    &.active {
+        background: var(--bg-base-lt);
+        border: var(--border-container);
     }
+}
+
+.preferences > * {
+    max-width: 1000px;
+    width: 100%;
+}
+
+.wrapper {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1em;
 }
 </style>

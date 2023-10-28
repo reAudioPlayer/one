@@ -17,37 +17,37 @@ import ArtistMarquee from "../ArtistMarquee.vue";
 const props = defineProps({
     song: {
         type: Object as PropType<ISong>,
-        required: true
+        required: true,
     },
     index: {
         type: Number,
-        required: true
+        required: true,
     },
     withCover: {
         type: Boolean,
         required: false,
-        default: false
+        default: false,
     },
     withAlbum: {
         type: Boolean,
         required: false,
-        default: false
+        default: false,
     },
     withMore: {
         type: Boolean,
         required: false,
-        default: false
+        default: false,
     },
     selected: {
         type: Boolean,
         required: false,
-        default: false
+        default: false,
     },
     playlistId: {
-        type: String as PropType<string | number>,
+        type: String,
         required: false,
-        default: null
-    }
+        default: null,
+    },
 });
 const emit = defineEmits(["update"]);
 
@@ -58,26 +58,28 @@ const hovering = ref(false);
 const toggleFavourite = () => {
     props.song.favourite = !props.song.favourite;
     favouriteSong(props.song.id, props.song.favourite);
-}
+};
 
-const playlistId = computed(() => props.playlistId == null ? playerStore.playlist.id : props.playlistId);
+const playlistId = computed(() =>
+    props.playlistId == null ? playerStore.playlist.id : props.playlistId
+);
 const playSong = () => {
     if (playlistId.value == "track") {
         playerStore.loadPlaylist("track", props.song.id);
         return;
     }
 
-    playerStore.loadSong(Number(playlistId.value), props.index);
-}
+    playerStore.loadSong(playlistId.value, props.index);
+};
 
 const updatePopup = ref(null);
 const edit = () => {
     updatePopup.value.show();
-}
+};
 
 const update = () => {
     emit("update");
-}
+};
 </script>
 <template>
     <SongContext
@@ -89,11 +91,7 @@ const update = () => {
         @like="toggleFavourite"
         @update="update"
     >
-        <EditSong
-            ref="updatePopup"
-            :song="song"
-            @update="$emit('update')"
-        />
+        <EditSong ref="updatePopup" :song="song" @update="$emit('update')" />
         <div
             :class="{
                 playing,
@@ -101,7 +99,7 @@ const update = () => {
                 hovering,
                 withCover,
                 withAlbum,
-                withMore
+                withMore,
             }"
             class="playlist-entry"
             @dblclick="playSong"
@@ -109,32 +107,32 @@ const update = () => {
             @mouseleave="hovering = false"
         >
             <div
-                :class="{'material-symbols-rounded': hovering}"
+                :class="{ 'material-symbols-rounded': hovering }"
                 class="index text-right"
                 @click="playSong"
             >
-                {{hovering ? "play_arrow" : index + 1}}
+                {{ hovering ? "play_arrow" : index + 1 }}
             </div>
-            <div
-                v-if="withCover"
-                class="cover"
-            >
+            <div v-if="withCover" class="cover">
                 <Cover :src="song.cover" type="track" />
             </div>
             <div class="artist-title">
                 <span class="title">
-                    <router-link :to="`/track/${hashTrack(song.id)}`" class="linkOnHover">
+                    <router-link
+                        :to="`/track/${hashTrack(song.id)}`"
+                        class="linkOnHover"
+                    >
                         <Marquee :text="song.title" />
                     </router-link>
                 </span>
                 <span class="artist">
-                    <ArtistMarquee :artist="song.artist" class="text-muted text-xs" />
+                    <ArtistMarquee
+                        :artist="song.artist"
+                        class="text-muted text-xs"
+                    />
                 </span>
             </div>
-            <div
-                v-if="withAlbum && !isMobile"
-                class="album"
-            >
+            <div v-if="withAlbum && !isMobile" class="album">
                 <Marquee :text="song.album" />
             </div>
             <div
@@ -146,7 +144,7 @@ const update = () => {
                 {{ song.favourite ? "favorite" : "heart_plus" }}
             </div>
             <div class="duration text-center">
-                {{displayDuration(song.duration)}}
+                {{ displayDuration(song.duration) }}
             </div>
             <div
                 v-if="false && withMore && (selected || hovering)"
@@ -160,7 +158,7 @@ const update = () => {
 </template>
 <style lang="scss" scoped>
 @import "@/assets/scss/_variables.scss";
-/* TODO move to separate file and share w/ externalEntry */ 
+/* TODO move to separate file and share w/ externalEntry */
 
 .playlist-entry {
     display: grid;
@@ -187,9 +185,12 @@ const update = () => {
         overflow: hidden;
     }
 
-    .index, .album, .duration, .icon {
+    .index,
+    .album,
+    .duration,
+    .icon {
         margin: auto 0;
-        font-size: .9rem;
+        font-size: 0.9rem;
         color: var(--fg-base-dk);
 
         &.index {
@@ -244,7 +245,7 @@ const update = () => {
         grid-template-rows: 1fr 1fr;
 
         .artist {
-            font-size: .8rem;
+            font-size: 0.8rem;
             color: var(--fg-base-dk);
         }
 
@@ -255,13 +256,16 @@ const update = () => {
     }
 
     &.playing {
-        .title, .index {
+        .title,
+        .index {
             color: var(--fg-secondary);
         }
     }
 
-    &.hovering, &.selected {
-        .artist, .album {
+    &.hovering,
+    &.selected {
+        .artist,
+        .album {
             color: var(--fg-base);
         }
     }
@@ -271,16 +275,17 @@ const update = () => {
         border-radius: 10px;
         grid-template-columns: 30px 40px 1fr 1fr 30px 40px;
 
-        .index, .duration {
-            font-size: .7rem;
+        .index,
+        .duration {
+            font-size: 0.7rem;
         }
 
         .artist-title {
             grid-column-end: 5;
-            font-size: .8rem;
+            font-size: 0.8rem;
 
             .artist {
-                font-size: .65rem;
+                font-size: 0.65rem;
             }
         }
     }

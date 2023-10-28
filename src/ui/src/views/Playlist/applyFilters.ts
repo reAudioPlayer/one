@@ -21,50 +21,67 @@ export interface IFilteredSong extends ISong {
 
 export const filterApplied = (filters: IPlaylistFilters) => {
     const { search, artist, title, album, order, sort } = filters;
-    return search.length || artist.length || title.length || album.length || order != "asc" || sort != "index";
-}
+    return (
+        search?.length ||
+        artist?.length ||
+        title?.length ||
+        album?.length ||
+        order != "asc" ||
+        sort != "index"
+    );
+};
 
-export const applyFilters = (songs: ISong[], filters: IPlaylistFilters): IFilteredSong[] => {
+export const applyFilters = (
+    songs: ISong[],
+    filters: IPlaylistFilters
+): IFilteredSong[] => {
     const { search, artist, title, album, sort } = filters;
 
-    return songs.map((song) => {
-        const searchMatch = search.length ? song.title.toLowerCase().includes(search.toLowerCase()) || song.artist.toLowerCase().includes(search.toLowerCase()) : true;
-        const artistMatch = artist.length ? artist.includes(song.artist) : true;
-        const titleMatch = title.length ? title.includes(song.title) : true;
-        const albumMatch = album.length ? album.includes(song.album) : true;
+    return songs
+        .map((song) => {
+            const searchMatch = search.length
+                ? song.title.toLowerCase().includes(search.toLowerCase()) ||
+                  song.artist.toLowerCase().includes(search.toLowerCase())
+                : true;
+            const artistMatch = artist.length
+                ? artist.includes(song.artist)
+                : true;
+            const titleMatch = title.length ? title.includes(song.title) : true;
+            const albumMatch = album.length ? album.includes(song.album) : true;
 
-        return {
-            ...song,
-            show: searchMatch && artistMatch && titleMatch && albumMatch,
-            index: songs.indexOf(song),
-        }
-    }).sort((a, b) => {
-        const aVal = a[sort];
-        const bVal = b[sort];
+            return {
+                ...song,
+                show: searchMatch && artistMatch && titleMatch && albumMatch,
+                index: songs.indexOf(song),
+            };
+        })
+        .sort((a, b) => {
+            const aVal = a[sort];
+            const bVal = b[sort];
 
-        if (aVal < bVal) {
-            return -1;
-        } else if (aVal > bVal) {
-            return 1;
-        } else {
-            return 0;
-        }
-    });
-}
+            if (aVal < bVal) {
+                return -1;
+            } else if (aVal > bVal) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+};
 
 export const titleOptions = (songs: ISong[]) => {
     return songs.map((song) => ({
         label: song.title,
         value: song.title,
     }));
-}
+};
 
 export const albumOptions = (songs: ISong[]) => {
     return songs.map((song) => ({
         label: song.album,
         value: song.album,
     }));
-}
+};
 
 export const artistOptions = (songs: ISong[]) => {
     const artists = new Set<String>();
@@ -73,8 +90,10 @@ export const artistOptions = (songs: ISong[]) => {
             artists.add(artist);
         }
     }
-    return Array.from(artists).sort().map((artist) => ({
-        label: artist,
-        value: artist,
-    }));
-}
+    return Array.from(artists)
+        .sort()
+        .map((artist) => ({
+            label: artist,
+            value: artist,
+        }));
+};

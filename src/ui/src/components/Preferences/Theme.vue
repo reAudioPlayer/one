@@ -11,6 +11,8 @@
 </template>
 
 <script>
+import window from "@/themes";
+
 export default {
     name: "Theme",
     props: {

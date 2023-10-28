@@ -3,37 +3,30 @@
   - Licenced under the GNU General Public License v3.0
   -->
 
-<script setup>
-import {useDataStore} from "@/store/data";
-import {computed} from "vue";
+<script setup lang="ts">
+import FullShelf from "@/components/Catalogue/FullShelf.vue";
+import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem.vue";
+import PlaylistItemBig from "@/components/Catalogue/Items/Playlists/PlaylistItemBig.vue";
+import CollectionHeader from "@/components/CollectionHeader.vue";
+import { useDataStore } from "../../store/data";
+import { ref, computed } from "vue";
 
 const dataStore = useDataStore();
-
 const playlists = computed(() => dataStore.playlists);
+const spotifyPlaylists = ref([]);
+
+fetch("/api/spotify/playlists")
+    .then((x) => x.json())
+    .then((jdata) => {
+        spotifyPlaylists.value = jdata;
+    });
 </script>
 
 <template>
     <div class="padding-20">
         <CollectionHeader />
         <div class="playlists">
-            <full-shelf
-                v-if="playlists.length"
-                heading="Playlists"
-            >
-                <playlist-item-big
-                    v-if="likedTracks?.songs?.length"
-                    title="Liked Songs"
-                    icon="favorite"
-                    :description="`${likedTracks?.songs?.length} liked songs`"
-                    href="/collection/tracks"
-                />
-                <playlist-item-big
-                    v-if="breakingTracks?.songs?.length"
-                    title="Breaking Songs"
-                    :description="`your 25 newest songs`"
-                    icon="trending_up"
-                    href="/collection/tracks/breaking"
-                />
+            <full-shelf v-if="playlists.length" heading="Playlists">
                 <playlist-item
                     v-for="(element, index) in playlists"
                     :key="index"
@@ -41,6 +34,7 @@ const playlists = computed(() => dataStore.playlists);
                     :cover="element.cover"
                     :description="element.description"
                     :title="element.name"
+                    :type="element.type"
                     :spotify="false"
                 />
             </full-shelf>
@@ -62,48 +56,8 @@ const playlists = computed(() => dataStore.playlists);
         </div>
     </div>
 </template>
-
-<script>
-    import FullShelf from '@/components/Catalogue/FullShelf.vue'
-    import PlaylistItem from '@/components/Catalogue/Items/Playlists/PlaylistItem.vue'
-    import PlaylistItemBig from '@/components/Catalogue/Items/Playlists/PlaylistItemBig.vue'
-    import CollectionHeader from '@/components/CollectionHeader.vue'
-
-    export default {
-        components: {
-            CollectionHeader,
-            PlaylistItem,
-            FullShelf,
-            PlaylistItemBig
-        },
-        data() {
-            fetch("/api/me/liked")
-                .then(x => x.json())
-                .then(jdata => {
-                    this.likedTracks = jdata
-                })
-            fetch("/api/me/new")
-                .then(x => x.json())
-                .then(jdata => {
-                    this.breakingTracks = jdata
-                })
-            fetch("/api/spotify/playlists")
-                .then(x => x.json())
-                .then(jdata => {
-                    this.spotifyPlaylists = jdata
-                })
-
-            return {
-                likedTracks: null,
-                breakingTracks: null,
-                spotifyPlaylists: []
-            }
-        }
-    }
-</script>
-
 <style scoped>
-    .padding-20 {
-        padding: 20px;
-    }
+.padding-20 {
+    padding: 20px;
+}
 </style>

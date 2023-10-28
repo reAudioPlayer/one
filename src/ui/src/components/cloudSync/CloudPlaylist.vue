@@ -8,7 +8,12 @@
         <span class="close material-symbols-rounded" @click="() => $emit('remove')">close</span>
         <Cover :src="cover" />
         <div class="data">
-            <h2>{{playlist.name}}</h2>
+            <div class="title">
+                <span v-if="playlist.type != 'classic'" class="material-symbols-rounded">
+                    {{ playlist.type == "smart" ? "neurology" : "bolt" }}
+                </span>
+                <h4>{{ playlist.name }}</h4>
+            </div>
             <div class="lead">
                 {{playlist.songs.length}} {{playlist.songs.length == 1 ? "song" : "songs"}}<template v-if="playlist.description"> • <i>{{playlist.description}}</i></template>
             </div>
@@ -217,6 +222,21 @@ export default {
         .lead {
             margin-left: 20px;
         }
+    }
+}
+
+div.title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+
+    h4 {
+        margin: 0;
+    }
+
+    span {
+        color: var(--fg-secondary);
     }
 }
 </style>

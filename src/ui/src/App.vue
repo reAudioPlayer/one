@@ -3,12 +3,12 @@
   - Licenced under the GNU General Public License v3.0
   -->
 
-<script setup>
+<script setup lang="ts">
 import PlayerInPicture from "./PlayerInPicture.vue";
 import Header from "./Header.vue";
 
-import { usePlayerStore } from "@/store/player";
-import { ref, watch } from "vue";
+import { usePlayerStore } from "./store/player";
+import { ref, onMounted, watch, computed } from "vue";
 import Startup from "@/views/Startup.vue";
 import { initPictureInPicture } from "@/pictureInPicture";
 import { getCover } from "@/components/image/placeholder";
@@ -19,39 +19,49 @@ initPictureInPicture();
 const playerStore = usePlayerStore();
 
 const cover = ref(null);
-watch(() => playerStore.song.cover, () => {
-    setCover();
-});
+watch(
+    () => playerStore.song.cover,
+    () => {
+        setCover();
+    }
+);
 
 const setCover = async () => {
-    cover.value = await getCover(playerStore.song.cover, "graphic_eq")
-}
+    cover.value = await getCover(playerStore.song.cover, "graphic_eq");
+};
 setCover();
+
+const coverAsBackground = computed(() => {
+    return window.getCurrentThemeProperty("coverAsBackground");
+});
+
+onMounted(() => {
+    // if space is pressed and no element is focused
+    window.addEventListener("keydown", (e) => {
+        if (e.code === "Space" && document.activeElement === document.body) {
+            e.preventDefault();
+            playerStore.playPause();
+        }
+    });
+});
 </script>
 
 <template>
     <div :class="{ hidden: !coverAsBackground }" class="bgImageWrapper">
-        <div
-            :style="{ backgroundImage: `url(${cover})` }"
-            class="bgImage"
-        >
-            <img
-                :src="cover"
-                class="hidden"
-                @error="src = null"
-            />
+        <div :style="{ backgroundImage: `url(${cover})` }" class="bgImage">
+            <img :src="cover" class="hidden" @error="src = null" />
         </div>
     </div>
     <div id="appRoot" class="appRoot">
         <template v-if="playerStore.ready">
-            <Header/>
+            <Header />
             <div class="interface">
-                <Sidebar v-if="!maximised"/>
-                <Body @maximise="val => maximised = val"/>
+                <Sidebar v-if="!maximised" />
+                <Body @maximise="(val) => (maximised = val)" />
             </div>
 
             <Player />
-            <PlayerInPicture v-if="!maximised"/>
+            <PlayerInPicture v-if="!maximised" />
         </template>
         <template v-else>
             <Startup />
@@ -63,7 +73,7 @@ setCover();
     <Notifications />
 </template>
 
-<script>
+<script lang="ts">
 import "v-contextmenu/dist/themes/dark.css";
 
 // January 2022, dxstiny (https://github.com/dxstiny)
@@ -71,74 +81,31 @@ import "v-contextmenu/dist/themes/dark.css";
 
 //import * as Vibrant from 'node-vibrant'
 import themes from "./assets/themes.json";
-import {connect} from "@/ws";
-import {initialiseStores} from "@/store";
-import {useSettingsStore} from "@/store/settings";
-import {authoriseSpotify, isFirstRun} from "@/api/config";
+import { connect } from "@/ws";
+import { initialiseStores } from "@/store";
+import { useSettingsStore } from "@/store/settings";
+import { authoriseSpotify, isFirstRun } from "@/api/config";
 import Sidebar from "@/Sidebar.vue";
 import Body from "@/Body.vue";
 import Player from "@/components/player/Player.vue";
 
-
-const LOCAL_STORAGE_KEY = "theme" // change it to whatever you like
+const LOCAL_STORAGE_KEY = "theme"; // change it to whatever you like
 
 export default {
-    name: 'App',
+    name: "App",
     components: {
         Sidebar,
         Body,
-        Player
+        Player,
     },
     async mounted() {
         const settings = useSettingsStore();
-
-        window.getThemes = () => { // returns a string array of all available themes
-            window.themes = []
-            for (const key of Object.keys(themes)) {
-                for (const theme of Object.keys(themes[key])) {
-                    if (!window.themes.includes(theme)) {
-                        window.themes.push(theme)
-                    }
-                }
-            }
-            return window.themes;
-        }
-
-        window.getCurrentTheme = () => {
-            return settings.theme;
-        }
-
-        window.setTheme = (theme) => { // accepts a string (theme name)
-            if (!window.getThemes().includes(theme)) {
-                return;
-            }
-
-            settings.theme = theme;
-
-            for (const key of Object.keys(themes)) {
-                const value = themes[key]
-
-                if (key == "coverAsBackground") {
-                    this.coverAsBackground = Boolean(value[theme]);
-                    continue;
-                }
-
-                document.documentElement.style.setProperty(`--${key}`, value[theme] ?? value.dark);
-            }
-        }
-
-        window.setTheme(settings.theme || "dynamic") // optional, loads the default theme
-
-        window.getCurrentThemeProperty = (property) => {
-            const value = themes[property]
-            return value[settings.theme] ?? value.dark;
-        }
 
         initialiseStores();
         connect();
 
         if (await isFirstRun()) {
-            this.$router.push("/welcome")
+            this.$router.push("/welcome");
         }
 
         await authoriseSpotify();
@@ -146,15 +113,14 @@ export default {
     data() {
         return {
             maximised: false,
-            coverAsBackground: false
-        }
+        };
     },
     watch: {
-        '$route'(to) {
-            document.title = to.meta.title || 'reAudioPlayer One'
-        }
+        $route(to) {
+            document.title = to.meta.title || "reAudioPlayer One";
+        },
     },
-}
+};
 </script>
 <style lang="scss">
 .noLink {
@@ -211,7 +177,7 @@ export default {
 </style>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap");
 </style>
 
 <style lang="scss">
@@ -240,7 +206,9 @@ div.interface {
     max-height: calc(100vh - var(--h-player) - var(--h-header));
 
     @media only screen and (max-width: 750px) {
-        max-height: calc(100vh - var(--h-player-mobile) - var(--h-header) - var(--h-sidebar));
+        max-height: calc(
+            100vh - var(--h-player-mobile) - var(--h-header) - var(--h-sidebar)
+        );
     }
 }
 
@@ -284,7 +252,8 @@ body {
     justify-content: center;
 }
 
-input[type="text"], input[type="password"] {
+input[type="text"],
+input[type="password"] {
     background: var(--hover-2);
     border: 1px solid var(--hover-3);
     border-radius: 5px;

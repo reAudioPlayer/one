@@ -1,27 +1,33 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
-from typing import Type, Tuple, Optional, Dict, Any
+from typing import Type, Tuple, Optional, Dict, Any, List
+import json
 import aiosqlite
 from db.table.table import ITable, IModel
+from db.table.iPlaylistModel import IPlaylistModel
 
 
-class PlaylistModel(IModel):
+class PlaylistModel(IModel, IPlaylistModel):
     """playlist model"""
+
     __slots__ = ("_id", "_name", "_songs", "_description", "_cover", "_plays")
     _SQLType = Tuple[int, str, str, str, str, int]
     _SQLInsertType = Tuple[str, str, str, str, int]
     COLUMNS = ["id", "name", "description", "cover", "songs", "plays"]
 
-    def __init__(self,
-                 name: str,
-                 description: Optional[str] = None,
-                 cover: Optional[str] = None,
-                 songs: str = "[]",
-                 plays: Optional[int] = None,
-                 id_: Optional[int] = None) -> None:
+    def __init__(
+        self,
+        name: str,
+        description: Optional[str] = None,
+        cover: Optional[str] = None,
+        songs: str = "[]",
+        plays: Optional[int] = None,
+        id_: Optional[int] = None,
+    ) -> None:
         self._id = id_
         self._name = name or ""
         self._songs = songs or "[]"
@@ -33,7 +39,7 @@ class PlaylistModel(IModel):
     @classmethod
     def fromTuple(cls, row: aiosqlite.Row) -> PlaylistModel:
         id_, others = row[0], row[1:]
-        return cls(*others, id_) # type: ignore
+        return cls(*others, id_)  # type: ignore
 
     @property
     def insertStatement(self) -> str:
@@ -48,13 +54,7 @@ class PlaylistModel(IModel):
         return f"{', '.join([f'{item}=?' for item in items])}"
 
     def toTuple(self) -> _SQLInsertType:
-        return (
-            self._name,
-            self._description,
-            self._cover,
-            self._songs,
-            self._plays
-        )
+        return (self._name, self._description, self._cover, self._songs, self._plays)
 
     @property
     def eq(self) -> str:
@@ -109,6 +109,15 @@ class PlaylistModel(IModel):
         self._fireChanged()
 
     @property
+    def songsList(self) -> List[int]:
+        """list of songs"""
+        return json.loads(self._songs)  # type: ignore
+
+    @songsList.setter
+    def songsList(self, songs: List[int]) -> None:
+        self.songs = json.dumps(songs)
+
+    @property
     def plays(self) -> int:
         """plays of the playlist"""
         return self._plays
@@ -126,6 +135,10 @@ class PlaylistModel(IModel):
         assert self._id is not None
         return self._id
 
+    @id.setter
+    def id(self, value: int) -> None:
+        self._id = value
+
     def toDict(self) -> Dict[str, Any]:
         """return dict"""
         return {
@@ -134,12 +147,13 @@ class PlaylistModel(IModel):
             "description": self._description,
             "cover": self._cover,
             "songs": self._songs,
-            "plays": self._plays
+            "plays": self._plays,
         }
 
 
 class PlaylistsTable(ITable[PlaylistModel]):
     """playlist table"""
+
     NAME = "Playlists"
     DESCRIPTION = """
                   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -155,7 +169,7 @@ class PlaylistsTable(ITable[PlaylistModel]):
 
     async def byId(self, id_: int) -> Optional[PlaylistModel]:
         """get playlist by id"""
-        return await self.selectOne(append = f"WHERE id = {id_}")
+        return await self.selectOne(append=f"WHERE id = {id_}")
 
     async def deleteById(self, id_: int) -> None:
         """delete playlist by id"""

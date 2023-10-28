@@ -203,6 +203,17 @@ const showWebWavePlayer = computed(() => {
                 </div>
             </div>
             <div class="aux relative">
+                <router-link
+                    to="/sing-along"
+                    class="icon"
+                >
+                    <span
+                        class="cursor-pointer material-symbols-rounded ms-fill"
+                        v-if="player.loaded && player.hasLyrics"
+                    >
+                        mic
+                    </span>
+                </router-link>
                 <IconDropdown
                     v-model="selectedPlaybackDevice"
                     :class="{
@@ -461,9 +472,18 @@ const showWebWavePlayer = computed(() => {
         grid-area: aux;
         justify-content: end;
         display: grid;
-        grid-template-columns: 20px 20px minmax(auto, 8vw);
+        grid-template-columns: 20px 20px 20px minmax(auto, 8vw);
         gap: 1em;
         align-items: center;
+
+        a.icon {
+            display: flex;
+            text-decoration: none;
+
+            &.router-link-active {
+                color: var(--fg-secondary);
+            }
+        }
     }
 }
 

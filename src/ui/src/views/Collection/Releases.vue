@@ -26,7 +26,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import FullShelf from "@/components/Catalogue/FullShelf.vue";
 import Item from "@/components/Catalogue/Items/Release/ReleaseItem.vue";
 import ItemBig from "@/components/Catalogue/Items/Release/ReleaseItemBig.vue";
@@ -34,45 +34,45 @@ import CollectionHeader from "@/components/CollectionHeader.vue";
 import Loader from "@/components/Loader.vue";
 
 export default {
-        components: { Loader, CollectionHeader, FullShelf, Item, ItemBig },
-        name: 'Releases',
-        data() {
-            return {
-                outSoon: [ ],
-                outNow: [ ],
-                outAlready: [ ],
-                loading: true
-            }
-        },
-        mounted() {
-            this.loading = true;
-            fetch("/api/releases")
-                .then(x => x.json())
-                .then(jdata => {
-                    const today = new Date()
-
-                    for (const album of jdata)
-                    {
-                        const releaseDate = new Date(album.releaseDate)
-
-                        if (today < releaseDate)
-                        {
-                            this.outSoon.push(album)
-                        }
-                        else if (today.getMonth() == releaseDate.getMonth() && today.getDate() == releaseDate.getDate() && today.getFullYear() == releaseDate.getFullYear())
-                        {
-                            this.outNow.push(album)
-                        }
-                        else
-                        {
-                            this.outAlready.push(album)
-                        }
-                    }
-
-                    this.loading = false;
-                })
+    components: { Loader, CollectionHeader, FullShelf, Item, ItemBig },
+    name: 'Releases',
+    data() {
+        return {
+            outSoon: [ ],
+            outNow: [ ],
+            outAlready: [ ],
+            loading: true
         }
+    },
+    mounted() {
+        this.loading = true;
+        fetch("/api/releases")
+            .then(x => x.json())
+            .then(jdata => {
+                const today = new Date()
+
+                for (const album of jdata)
+                {
+                    const releaseDate = new Date(album.releaseDate)
+
+                    if (today < releaseDate)
+                    {
+                        this.outSoon.push(album)
+                    }
+                    else if (today.getMonth() == releaseDate.getMonth() && today.getDate() == releaseDate.getDate() && today.getFullYear() == releaseDate.getFullYear())
+                    {
+                        this.outNow.push(album)
+                    }
+                    else
+                    {
+                        this.outAlready.push(album)
+                    }
+                }
+
+                this.loading = false;
+            })
     }
+}
 </script>
 
 <style scoped>

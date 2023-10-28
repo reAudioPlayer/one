@@ -2,104 +2,177 @@
 """reAudioPlayer ONE"""
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
-from typing import Callable, Optional
+from typing import Dict, Optional, List, TypeVar, Any
 from helper.logged import Logged
 from dataModel.song import Song
 from db.database import Database
 from db.table.playlists import PlaylistModel
-from player.playerPlaylist import PlayerPlaylist
-from player.playerPlaylist import OrderedUniqueList
+from db.table.smartPlaylists import SmartPlaylistModel
+from player.iPlayerPlaylist import IPlayerPlaylist, PlaylistType
+from player.smartPlayerPlaylist import SmartPlayerPlaylist, SpecialPlayerPlaylist
+from player.classicPlayerPlaylist import ClassicPlayerPlaylist
+
+
+T = TypeVar("T")  # pylint: disable=invalid-name
+
+
+class OrderedUniqueList(List[T]):
+    """ordered & unique list"""
+
+    def append(self, __object: T) -> None:
+        if __object in self:
+            return
+        super().append(__object)
+
+    def update(self, objects: List[T]) -> None:
+        """adds a list"""
+        for obj in objects:
+            self.append(obj)
+
+    def move(self, old: int, new: int) -> None:
+        """moves an element"""
+        elem = self[old]
+        self.remove(elem)
+        self.insert(new, elem)
 
 
 class PlaylistManager(Logged):
     """manages all playlists"""
+
     __slots__ = ("_dbManager", "_playlists")
 
     def __init__(self) -> None:
         self._dbManager = Database()
-        self._playlists: OrderedUniqueList[PlayerPlaylist] = OrderedUniqueList()
+        self._playlists: Dict[str, IPlayerPlaylist] = {}
         super().__init__(self.__class__.__name__)
 
-    async def loadPlaylists(self) -> None:
+    async def init(self) -> None:
+        """initialises the playlist manager"""
+
+        async def callback(_: Any) -> None:
+            await self.reloadPlaylists()
+
+        Database().playlists.onChanged.add(callback)
+        Database().smartPlaylists.onChanged.add(callback)
+        await self.reloadPlaylists()
+
+    async def reloadPlaylists(self) -> None:
         """loads all playlists"""
+        for specialPlaylist in SpecialPlayerPlaylist.all():
+            self._playlists[specialPlaylist.id] = specialPlaylist
         playlists = await self._dbManager.playlists.all()
         for playlist in playlists:
-            self._playlists.append(PlayerPlaylist(playlist.id))
+            classic = ClassicPlayerPlaylist(playlist)
+            self._playlists[classic.id] = classic
+        smartPlaylists = await self._dbManager.smartPlaylists.all()
+        for smartPlaylist in smartPlaylists:
+            smart = SmartPlayerPlaylist(smartPlaylist)
+            self._playlists[smart.id] = smart
 
-    async def addToPlaylist(self, playlistId: int, song: Song) -> None:
+    async def addToPlaylist(self, playlistId: str, song: Song) -> bool:
         """adds a song to a playlist"""
-        songsInDb = await self._dbManager.songs.select("*", f"WHERE source='{song.model.source}'")
-        if playlist := self.get(playlistId):
-            await playlist.add(song, len(songsInDb) > 0)
+        playlist = self.get(playlistId)
+        if not isinstance(playlist, ClassicPlayerPlaylist):
+            return False
+        await playlist.add(song)
+        return True
 
-    def moveInPlaylist(self, playlistId: int, songIndex: int, newSongIndex: int) -> None:
+    async def addAllToPlaylist(self, playlistId: str, songs: List[Song]) -> bool:
+        """adds a song to a playlist"""
+        playlist = self.get(playlistId)
+        if not isinstance(playlist, ClassicPlayerPlaylist):
+            return False
+        await playlist.addAll(songs)
+        return True
+
+    async def moveInPlaylist(self, playlistId: str, songIndex: int, newSongIndex: int) -> bool:
         """moves a song in a playlist"""
-        if playlist := self.get(playlistId):
-            playlist.move(songIndex, newSongIndex)
+        playlist = self.get(playlistId)
+        if not isinstance(playlist, ClassicPlayerPlaylist):
+            return False
+        await playlist.move(songIndex, newSongIndex)
+        return True
 
-    async def removefromPlaylist(self, playlistId: int, songId: int) -> None:
+    async def removefromPlaylist(self, playlistId: str, songId: int) -> bool:
         """removes a song from a playlist"""
-        if playlist := self.get(playlistId):
-            await playlist.remove(songId)
+        playlist = self.get(playlistId)
+        if not isinstance(playlist, ClassicPlayerPlaylist):
+            return False
+        song = await playlist.remove(songId)
+        if song is None:
+            return False
+        await self._deleteSongIfNotInPlaylists(song)
+        return True
 
-    def get(self, id_: int) -> Optional[PlayerPlaylist]:
-        """gets a playlist at this index"""
-        for playlist in self._playlists:
-            if playlist.id == id_:
-                return playlist
-        return None
+    async def _deleteSongIfNotInPlaylists(self, song: Song) -> None:
+        """deletes a song if it is not in any playlist"""
+        for playlist in self._playlists.values():
+            if playlist.type != PlaylistType.Classic:
+                continue
+            if playlist.hasSong(song.model.id):
+                self._logger.debug("song %s is still in playlist %s", song.model.id, playlist.id)
+                return
+        self._logger.debug("deleting song %s", song.model.id)
+        await Database().songs.delete(song.model)
 
-    def updateSong(self, id_: int, updateFunction: Callable[[Song], Song]) -> None:
-        """updates all songs with this id"""
-        for playlist in self._playlists:
-            songs = playlist.byId(id_)
-            for song in songs:
-                song.update(updateFunction(song))
+    def get(self, id_: str) -> Optional[IPlayerPlaylist]:
+        """gets the playlist with this id"""
+        return self._playlists.get(id_)
 
-    def updatePlaylist(self,
-                       id_: int,
-                       name: Optional[str],
-                       description: Optional[str],
-                       cover: Optional[str]) -> None:
+    def updatePlaylist(
+        self,
+        id_: str,
+        name: Optional[str],
+        description: Optional[str],
+        cover: Optional[str],
+    ) -> bool:
         """updates a playlist"""
         playlist = self.get(id_)
-        if not playlist:
-            return
-        if name:
-            playlist.name = name
-        if description:
-            playlist.description = description
-        if cover:
-            playlist.cover = cover
+        if playlist is None:
+            return False
+        playlist.updateMeta(name, description, cover)
+        return True
 
     @property
-    def playlists(self) -> OrderedUniqueList[PlayerPlaylist]:
+    def playlists(self) -> List[IPlayerPlaylist]:
         """return all playlists"""
-        return self._playlists
+        return list(self._playlists.values())
 
     @property
     def playlistLength(self) -> int:
         """return number of playlists"""
         return len(self._playlists)
 
-    async def addPlaylist(self, name: Optional[str] = None) -> int:
+    async def addClassicPlaylist(self, name: Optional[str] = None) -> str:
         """creates a playlist"""
         plId = self.playlistLength
         name = name or f"My Playlist #{plId + 1}"
-        await self._dbManager.playlists.insert(PlaylistModel(name))
-        await self.loadPlaylists()
-        playlist = self._playlists[-1]
-        assert playlist.playlistIndex is not None
-        return playlist.playlistIndex
+        playlist = PlaylistModel(name)
+        id_ = await self._dbManager.playlists.insert(playlist)
+        if id_:
+            playlist.id = id_
+            await self.reloadPlaylists()
+        return ClassicPlayerPlaylist(playlist).href
 
-    async def removePlaylist(self, playlistId: int) -> bool:
+    async def addSmartPlaylist(self, name: Optional[str] = None) -> str:
+        """creates a playlist"""
+        plId = self.playlistLength
+        name = name or f"My Smart Playlist #{plId + 1}"
+        playlist = SmartPlaylistModel(name)
+        id_ = await self._dbManager.smartPlaylists.insert(playlist)
+        if id_:
+            playlist.id = id_
+            await self.reloadPlaylists()
+        return SmartPlayerPlaylist(playlist).href
+
+    async def removePlaylist(self, playlistId: str) -> bool:
         """removes a playlist"""
-        self._logger.info("removing playlist %s, %s, %s",
-                          playlistId,
-                          self.get(playlistId),
-                          bool(self.get(playlistId)))
-        if playlist := self.get(playlistId):
-            self._playlists.remove(playlist)
-            await self._dbManager.playlists.deleteById(playlistId)
-            return True
-        return False
+        self._logger.info("removing playlist %s", playlistId)
+        playlist = self.get(playlistId)
+        if playlist is None:
+            return False
+        # TODO(dxstiny) delete songs from DB too
+        if not await playlist.delete():
+            return False
+        del self._playlists[playlistId]
+        return True
