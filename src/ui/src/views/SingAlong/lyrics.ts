@@ -1,6 +1,6 @@
-import { getSongMetadata } from '../../api/song';
-import { usePlayerStore } from '../../store/player';
-import { useSettingsStore } from '../../store/settings';
+import { getSongMetadata } from "../../api/song";
+import { usePlayerStore } from "../../store/player";
+import { useSettingsStore } from "../../store/settings";
 
 interface ILine {
     endTimeMs: string;
@@ -8,14 +8,14 @@ interface ILine {
     syllables: string[];
     words: string;
     originalWorlds?: string;
-};
+}
 
 interface IReturn {
     error: boolean;
     message?: string;
     syncType?: string;
     lines?: ILine[];
-};
+}
 
 export interface ILyrics {
     error?: string | null;
@@ -31,13 +31,15 @@ export interface ILyrics {
 
 const getLyrics = async (id: string) => {
     //const res = await fetch("https://spclient.wg.spotify.com/color-lyrics/v2/track/" + id + "?format=json&market=from_token");
-    const res = await fetch("https://spotify-lyric-api.herokuapp.com/?trackid=" + id);
+    const res = await fetch(
+        "https://spotify-lyric-api-984e7b4face0.herokuapp.com/?trackid=" + id
+    );
     const data: IReturn = await res.json();
 
     return {
         error: data.message,
         lyrics: data.lines,
-    }
+    };
 };
 
 export const findLyrics = async (fetchSpotify = false) => {
@@ -55,5 +57,5 @@ export const findLyrics = async (fetchSpotify = false) => {
 
     return {
         error: "Spotify equivalent unknown.",
-    }
+    };
 };
