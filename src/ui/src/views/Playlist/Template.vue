@@ -20,6 +20,8 @@ import PlaylistHeader from "../../components/songContainers/PlaylistHeader.vue";
 import AmbientBackground from "../../components/image/AmbientBackground.vue";
 import { useDataStore } from "../../store/data";
 import PlaylistMeta from "./PlaylistMeta.vue";
+import { ISyncableOne, ISyncableSong } from "../sync/collection";
+import { addSongs } from "../../api/song";
 
 const props = defineProps({
     id: {
@@ -90,7 +92,7 @@ const onPlaylistRearrange = (type) => {
         :placeholder="coverIcon"
         :src="playlist.cover"
     />
-    <div class="playlist p-4">
+    <div class="playlist relative p-4">
         <div v-if="!playlist" class="fill-page">
             <h2 class="text-2xl text-center error">Playlist not found</h2>
         </div>
@@ -123,6 +125,7 @@ const onPlaylistRearrange = (type) => {
                         item-key="id"
                         class="flex"
                         @change="onPlaylistRearrange"
+                        @dragover.stop
                     >
                         <template #item="{ element }">
                             <PlaylistEntry
