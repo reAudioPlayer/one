@@ -11,7 +11,7 @@ import { getShuffle, nextSong, prevSong, setShuffle } from "../api/player";
 import { computed } from "vue";
 import { type ILyrics, findLyrics } from "../views/SingAlong/lyrics";
 
-type PlaylistType = "playlist" | "track";
+type PlaylistType = "playlist" | "track" | "artist";
 export type RepeatType = "repeat" | "repeat_one_on" | "repeat_on";
 export interface Playable {
     play: () => void;
@@ -203,18 +203,27 @@ export const usePlayerStore = defineStore({
 
             this.shuffle = await getShuffle();
         },
-        loadPlaylist(playlistId: string | PlaylistType, id: number = null) {
+        async loadPlaylist(
+            playlistId: string | PlaylistType,
+            id: number | string = null
+        ) {
             const body = {
                 type: "playlist",
                 id: playlistId as any,
-            };
+            } as any;
 
             if (playlistId === "track") {
                 body.type = playlistId;
                 body.id = id;
             }
 
-            fetch("/api/player/load", {
+            if (playlistId === "artist") {
+                body.type = playlistId;
+                body.name = id;
+                delete body.id;
+            }
+
+            await fetch("/api/player/load", {
                 method: "POST",
                 body: JSON.stringify(body),
             });

@@ -52,6 +52,11 @@ const props = defineProps({
         required: false,
         default: null,
     },
+    artist: {
+        type: String,
+        required: false,
+        default: null,
+    },
 });
 const emit = defineEmits(["update"]);
 
@@ -67,9 +72,14 @@ const toggleFavourite = () => {
 const playlistId = computed(() =>
     props.playlistId == null ? playerStore.playlist.id : props.playlistId
 );
-const playSong = () => {
+const playSong = async () => {
     if (playlistId.value == "track") {
         playerStore.loadPlaylist("track", props.song.id);
+        return;
+    }
+    if (playlistId.value == "artist") {
+        await playerStore.loadPlaylist("artist", props.artist);
+        playerStore.loadSong(null, props.index);
         return;
     }
 

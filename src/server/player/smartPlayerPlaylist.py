@@ -86,7 +86,7 @@ class SmartPlayerPlaylist(IPlayerPlaylist):
         if favourite:
             query += " AND favourite = 1"
         if songs:
-            query += f" AND songs in {songs}"
+            query += f" AND id in {songs}"
 
         query += f" ORDER BY {sort} {direction}"
         if limit is not None:
@@ -174,4 +174,27 @@ class SpecialPlayerPlaylist(SmartPlayerPlaylist):
         """a single track"""
         return cls(
             "Track", "Track", {"filter": {"songs": f"({songId})"}}, str(songId), f"/tracks/{songId}"
+        )
+
+
+class SongListPlayerPlaylist(SpecialPlayerPlaylist):
+    """playlist from a list of songs"""
+
+    def __init__(self, name: str, description: str, id_: str, href: str, songs: List[Song]) -> None:
+        super().__init__(name, description, {}, id_, href)
+        self._songs = songs
+
+    async def _load(self) -> None:
+        self._resetQueue()
+
+    @classmethod
+    async def artist(cls, artist: str) -> SongListPlayerPlaylist:
+        """playlist from a single artist"""
+        songs = Song.list(await Database().songs.byArtist(artist))
+        return cls(
+            "Artist",
+            "Artist",
+            artist,
+            f"/artist/{artist}",
+            songs,
         )
