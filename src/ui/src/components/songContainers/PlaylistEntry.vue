@@ -159,13 +159,6 @@ const isDownloading = computed(() =>
             <div class="duration text-center">
                 {{ displayDuration(song.duration) }}
             </div>
-            <div
-                v-if="false && withMore && (selected || hovering)"
-                class="icon text-left material-symbols-rounded"
-                @click.stop="$refs.ctxMenu.toggle"
-            >
-                more_horiz
-            </div>
         </div>
     </SongContext>
 </template>

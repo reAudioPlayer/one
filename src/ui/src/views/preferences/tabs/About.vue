@@ -59,10 +59,19 @@ const changelog = ref(null);
 
 <style lang="scss" scoped>
 .latest {
-    color: var(--success);
+    --color: var(--success);
 }
 
 .update {
-    color: var(--warning);
+    --color: var(--warning);
+}
+
+span {
+    color: var(--color);
+}
+
+a:hover {
+    color: inherit;
+    font-weight: bold;
 }
 </style>
