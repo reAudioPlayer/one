@@ -69,6 +69,7 @@ const preview = () => {
 const createPlaylist = async (playlistId: string) => {
     if (playlistId === "new") {
         const newPlaylist = await createPlaylistWithMetadata(
+            "classic",
             props.album.title,
             `${props.album.releaseDate}, ${props.album.artist}`,
             props.album.cover
@@ -88,7 +89,7 @@ const addSong = async (index: number, playlistId: string = null) => {
     playlistId = await createPlaylist(playlistId);
 
     await addSongToPlaylist(
-        playlistId ?? form.value.toObject().playlist,
+        playlistId,
         songs.value[index]
     );
     songs.value[index].added = true;
