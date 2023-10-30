@@ -14,7 +14,8 @@ import {
     downloadSyncable,
 } from "../../views/sync/collection";
 import gistClient from "../../api/gistClient";
-import { Notifications } from "../notifications/createNotification";
+import Markdown from "../popups/Markdown.vue";
+import Confirmation from "../popups/Confirmation.vue";
 
 const props = defineProps({
     playlist: {
@@ -32,6 +33,11 @@ const data = useDataStore();
 const router = useRouter();
 const box = ref(null);
 const contextmenu = ref(null);
+const shareUrl = ref("");
+const markdownRef = ref<typeof Markdown>(null);
+const confirmation = ref<typeof Confirmation>(null);
+const popupTitle = ref("");
+const popupContent = ref("");
 
 const toggle = (e: MouseEvent = null) => {
     if (contextmenu.value.visible) {
@@ -102,10 +108,10 @@ const uploadFileToGists = async () => {
     const sha = rawUrl.split("/raw/")[1].split("/")[0];
     const gistUrl = `gist:${user}:${gistId}:${sha}`;
     const base64 = btoa(gistUrl);
-    const url = `http://localhost:1234/import/${base64}`;
-    // copy to clipboard
-    await navigator.clipboard.writeText(url);
-    Notifications.addSuccess("Copied to clipboard", url, 5000);
+    shareUrl.value = `http://localhost:1234/import/${base64}`;
+    popupContent.value = `Share this URL to import this playlist on another device: [${shareUrl.value}](${shareUrl.value})`;
+    popupTitle.value = "Share " + props.playlist.name;
+    markdownRef.value.show();
 }
 
 onMounted(() => {
@@ -115,11 +121,25 @@ onMounted(() => {
 <template>
     <div ref="box" v-contextmenu:contextmenu>
         <slot />
+        <Markdown
+            ref="markdownRef"
+            :title="popupTitle"
+            :content="popupContent"
+            @close="hide"
+        />
+        <Confirmation
+            ref="confirmation"
+            title="Delete Playlist"
+            question="Are you sure you want to delete this playlist?"
+            @yes="deleteMe"
+            @no="hide"
+            close-on-no
+        />
         <v-contextmenu ref="contextmenu">
             <v-contextmenu-item v-if="canEdit" @click="edit">
                 Edit
             </v-contextmenu-item>
-            <v-contextmenu-item @click="deleteMe"> Delete </v-contextmenu-item>
+            <v-contextmenu-item @click="confirmation.show()"> Delete </v-contextmenu-item>
             <v-contextmenu-submenu title="Export">
                 <v-contextmenu-item @click="downloadFile">
                     to file

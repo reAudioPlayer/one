@@ -35,6 +35,12 @@ defineExpose({
 </script>
 <template>
     <Template ref="modal" :name="title" @close="$emit('close')">
-        <div v-html="md.render(content)" />
+        <div class="overflow-hidden" v-html="md.render(content)" />
     </Template>
 </template>
+
+<style>
+.modal p {
+    text-overflow: ellipsis;
+}
+</style>
