@@ -4,7 +4,7 @@
   -->
 
 <script lang="ts" setup>
-import { Ref, ref } from "vue";
+import { Ref, ref, watch } from "vue";
 import Card from "../../containers/Card.vue";
 import TabButton from "./TabButton.vue";
 
@@ -15,7 +15,7 @@ import Cache from "./tabs/Cache.vue";
 import Appearance from "./tabs/Appearance.vue";
 import Player from "./tabs/Player.vue";
 import Integration from "./tabs/Integration.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const TABS = {
     About: About,
@@ -47,12 +47,18 @@ const groups = ref([
 ]);
 
 const route = useRoute();
+const router = useRouter();
 let requestTab = route.query.tab as string;
 const activeTab: Ref<keyof typeof TABS> = ref("About");
 
 if (Object.keys(TABS).includes(requestTab)) {
     activeTab.value = requestTab as keyof typeof TABS;
 }
+
+watch(activeTab, (x) => {
+    const query = { tab: x };
+    router.replace({ query });
+});
 </script>
 <template>
     <div class="p-[10px] preferences">
