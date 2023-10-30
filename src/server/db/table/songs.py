@@ -369,7 +369,7 @@ class SongsTable(ITable[SongModel]):
     async def search(self, query: str) -> List[SongModel]:
         """get songs by (non-sql) query (for the search function)"""
 
-        filters = query.split(";")
+        filters = query.replace("'", "''").split(";")
         filter_ = ""
 
         def createLike(word: str) -> str:
