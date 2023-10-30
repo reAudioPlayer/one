@@ -27,7 +27,7 @@
         </div>
         <div class="covers mb-2">
             <h3>Local covers</h3>
-            <div class="items gap-4">
+            <div class="items gap-4" v-if="covers.length">
                 <Card
                     v-for="(cover, index) in covers"
                     :key="index"
@@ -55,10 +55,11 @@
                     />
                 </Card>
             </div>
+            <span class="text-muted italic" v-else>No local covers</span>
         </div>
         <div class="tracks">
             <h3>Local tracks</h3>
-            <div class="items gap-4">
+            <div class="items gap-4" v-if="tracks.length">
                 <Card
                     v-for="(track, index) in tracks"
                     :key="index"
@@ -94,6 +95,7 @@
                     />
                 </Card>
             </div>
+            <span class="text-muted italic" v-else>No local tracks</span>
         </div>
     </div>
 </template>

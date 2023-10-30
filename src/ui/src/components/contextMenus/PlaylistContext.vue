@@ -13,6 +13,8 @@ import {
     asSyncablePlaylist,
     downloadSyncable,
 } from "../../views/sync/collection";
+import gistClient from "../../api/gistClient";
+import { Notifications } from "../notifications/createNotification";
 
 const props = defineProps({
     playlist: {
@@ -84,6 +86,28 @@ const downloadFile = async () => {
     downloadSyncable(syncable, props.playlist.name);
 };
 
+const uploadFileToGists = async () => {
+    const syncable = await asSyncablePlaylist(props.playlist);
+    const name = `${props.playlist.name}.one.playlist`;
+    const jdata = await gistClient.save(
+        {[name]: syncable},
+        props.playlist.name,
+        true);
+    const file = jdata.files[name];
+    const rawUrl = file.raw_url;
+    // "https://gist.githubusercontent.com/{user}/{gist}/raw/{file}/{filename}"
+    // gist:{user}:{gist}:{filename}
+    const gistId = jdata.id;
+    const user = jdata.owner.login;
+    const sha = rawUrl.split("/raw/")[1].split("/")[0];
+    const gistUrl = `gist:${user}:${gistId}:${sha}`;
+    const base64 = btoa(gistUrl);
+    const url = `http://localhost:1234/import/${base64}`;
+    // copy to clipboard
+    await navigator.clipboard.writeText(url);
+    Notifications.addSuccess("Copied to clipboard", url, 5000);
+}
+
 onMounted(() => {
     document.addEventListener("click", hide);
 });
@@ -99,6 +123,9 @@ onMounted(() => {
             <v-contextmenu-submenu title="Export">
                 <v-contextmenu-item @click="downloadFile">
                     to file
+                </v-contextmenu-item>
+                <v-contextmenu-item @click="uploadFileToGists">
+                    to GitHub Gists
                 </v-contextmenu-item>
             </v-contextmenu-submenu>
         </v-contextmenu>

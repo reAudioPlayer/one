@@ -58,7 +58,8 @@ export default {
             window.open(await GistClient.gistUrl(), "_blank");
         },
         async upload() {
-            console.log(await GistClient.saveOrUpdate(this.playlists));
+            const syncable = await asSyncableCollection(this.playlists);
+            console.log(await GistClient.saveOrUpdate({"my.one.collection": syncable}));
             this.fetchGists();
         },
         async fetchGists() {

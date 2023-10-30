@@ -6,6 +6,8 @@
 import { getConfig } from "./config";
 import { Notifications } from "../components/notifications/createNotification";
 
+type Files = Record<string, object>;
+
 const getHeaders = async (forcePat: string = null) => {
     const config = await getConfig();
     const token = forcePat ?? config.github.githubPat;
@@ -17,14 +19,25 @@ const getHeaders = async (forcePat: string = null) => {
     }
 };
 
-const body = (data: object, filename: string = "one.lib.json") => {
-    const files = {};
-    files[filename] = {
-        content: JSON.stringify(data)
+const body = (files: Files,
+              filename: string = "reAudioPlayer One",
+              description: string = "Fully managed with reAudioPlayer One",
+              isPublic: boolean = false) => {
+    const body = {
+        public: isPublic,
+        description: description,
+        files: {
+            [`_${filename}.md`]: {
+                content: "# reAudioPlayer One\n\nThis gist was created with reAudioPlayer One\n\nhttps://reaudioplayer.github.io/one/"
+            }
+        }
+    };
+    for (const [key, value] of Object.entries(files)) {
+        body.files[key] = {
+            content: JSON.stringify(value, null, 4)
+        }
     }
-    return JSON.stringify({
-        files
-    });
+    return JSON.stringify(body);
 };
 
 const gistId = async () => {
@@ -44,12 +57,12 @@ const get = async () => {
     }
 };
 
-const update = async (data: object, filename: string = "one.lib.json") => {
+const update = async (files: Files, filename: string = "one.lib.json") => {
     const headers = await getHeaders();
     const res = await fetch(`https://api.github.com/gists/${await gistId()}`, {
         method: "PATCH",
         headers,
-        body: body(data, filename)
+        body: body(files, filename)
     });
 
     if (!res.ok) {
@@ -62,13 +75,18 @@ const update = async (data: object, filename: string = "one.lib.json") => {
     return jdata;
 };
 
-const save = async (data: object, filename: string = "one.lib.json") => {
+const save = async (files: Files,
+                    filename: string = "reAudioPlayer One",
+                    isPublic: boolean = false,
+                    description: string = "Fully managed with reAudioPlayer One") => {
     const headers = await getHeaders();
     const res = await fetch("https://api.github.com/gists", {
         method: "POST",
         headers,
-        body: body(data, filename)
+        body: body(files, filename, description, isPublic)
     });
+
+    console.log(res);
 
     if (!res.ok) {
         Notifications.addError("Failed to create gist", "", 3000);
@@ -76,7 +94,7 @@ const save = async (data: object, filename: string = "one.lib.json") => {
     }
 
     const jdata = await res.json();
-    if (jdata.id) {
+    if (!isPublic && jdata.id) {
         await fetch("/api/config", {
             method: "PUT",
             body: JSON.stringify({
@@ -87,6 +105,7 @@ const save = async (data: object, filename: string = "one.lib.json") => {
         });
     }
     Notifications.addSuccess("Gist created", "", 3000);
+    return jdata;
 };
 
 export default {
@@ -94,17 +113,22 @@ export default {
         return !!(await gistId());
     },
     get,
-    getContent: async (filename: string = "one.lib.json"): Promise<any> => {
+    getContent: async (filename: string = "my.one.collection"): Promise<any> => {
         const gist = await get();
         const content = gist.files?.[filename]?.content;
         return content ? JSON.parse(content) : [];
     },
-    saveOrUpdate: async (data: object, filename: string = "one.lib.json") => {
+    saveOrUpdate: async (files: Files,
+                         filename: string = "reAudioPlayer One",
+                         isPublic: boolean = false) => {
         const gist = await get();
-        if (gist.files) {
-            return await update(data, filename);
+        if (gist?.files) {
+            return await update(files,
+                                filename);
         } else {
-            return await save(data, filename);
+            return await save(files,
+                              filename,
+                              isPublic);
         }
     },
     save,

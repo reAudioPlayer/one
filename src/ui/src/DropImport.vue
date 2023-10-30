@@ -7,6 +7,7 @@ import {
     ISyncableOne,
     ISyncablePlaylist,
     ISyncableSong,
+importSyncables,
 } from "./views/sync/collection";
 import { addSongs } from "./api/song";
 import {
@@ -40,71 +41,6 @@ const canAdd = computed(() => {
     return playlist.value.type === "classic";
 });
 
-const addSongsToPlaylist = async (songs: ISyncableSong[]) => {
-    if (!songs.length) {
-        return;
-    }
-
-    if (!playlist.value) {
-        Notifications.addError(
-            "No playlist selected",
-            "Please select open the playlist you want to add songs to",
-            3000
-        );
-        return;
-    }
-
-    if (!canAdd.value) {
-        Notifications.addError(
-            "Can't add songs to this playlist",
-            "You can only add songs to classic playlists",
-            3000
-        );
-        return;
-    }
-
-    await addSongs(
-        playlist.value.id,
-        songs.map((x) => x.song)
-    );
-    Notifications.addSuccess(
-        `Added ${songs.length} songs to ${playlist.value.name}`,
-        null,
-        3000
-    );
-};
-
-const addPlaylist = async (playlist: ISyncablePlaylist) => {
-    const toAdd = playlist.playlist;
-    const id = await createPlaylistWithMetadata(
-        toAdd.type as any,
-        toAdd.name,
-        toAdd.description,
-        toAdd.cover
-    );
-
-    if (toAdd.type === "smart") {
-        await updateSmartPlaylistDefinition(
-            id,
-            (toAdd as ISmartPlaylist).definition
-        );
-        return;
-    }
-    await addSongs(id, toAdd.songs);
-};
-
-const addPlaylists = async (playlists: ISyncablePlaylist[]) => {
-    if (!playlists.length) {
-        return;
-    }
-
-    for (const playlist of playlists) {
-        await addPlaylist(playlist);
-    }
-    Notifications.addSuccess(`Added ${playlists.length} playlists`, null, 3000);
-    data.fetchPlaylists();
-};
-
 const addFiles = async (files: FileList) => {
     // read all as json
     const promises = [];
@@ -114,18 +50,7 @@ const addFiles = async (files: FileList) => {
     }
     const texts: string[] = await Promise.all(promises);
     const items: ISyncableOne[] = texts.map((x) => JSON.parse(x));
-    const songs = items.filter((x) => x.type === "song") as ISyncableSong[];
-    addSongsToPlaylist(songs);
-    const playlists = items.filter(
-        (x) => x.type === "playlist"
-    ) as ISyncablePlaylist[];
-    const collections = items.filter(
-        (x) => x.type === "collection"
-    ) as ISyncableCollection[];
-    for (const collection of collections) {
-        playlists.push(...collection.collection);
-    }
-    addPlaylists(playlists);
+    importSyncables(items);
 };
 
 const onDrop = (e) => {
