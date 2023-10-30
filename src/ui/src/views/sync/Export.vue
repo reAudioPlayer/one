@@ -7,13 +7,20 @@
     <div class="export">
         <div class="action">
             <h1>Save to File</h1>
-            <a id="downloadAnchorElem" style="display:none"></a>
-            <IconButton icon="file_download" label="Save" @click="downloadFile" />
+            <IconButton
+                icon="file_download"
+                label="Save"
+                @click="downloadFile"
+            />
         </div>
         <div class="action">
             <h1>Save to Github Gists</h1>
             <div class="flex flex-row gap-2">
-                <IconButton icon="cloud_upload" label="Synchronise" @click="upload" />
+                <IconButton
+                    icon="cloud_upload"
+                    label="Synchronise"
+                    @click="upload"
+                />
                 <IconButton icon="link" label="Browse" @click="openGist" />
             </div>
         </div>
@@ -36,7 +43,7 @@ import Hashids from "hashids";
 import GistClient from "@/api/gistClient";
 import IconButton from "@/components/inputs/IconButton.vue";
 import { useDataStore } from "@/store/data";
-import { asSyncableCollection } from "./collection"
+import { asSyncableCollection, downloadSyncable } from "./collection";
 
 window.Buffer = Buffer;
 
@@ -45,17 +52,14 @@ export default {
     methods: {
         async downloadFile() {
             const collection = await asSyncableCollection(this.playlists);
-            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(collection));
-            var dlAnchorElem = document.getElementById('downloadAnchorElem');
-            dlAnchorElem.setAttribute("href",     dataStr     );
-            dlAnchorElem.setAttribute("download", "my.one.collection");
-            dlAnchorElem.click();
+            downloadSyncable(collection);
         },
         async openGist() {
             window.open(await GistClient.gistUrl(), "_blank");
         },
         async upload() {
-            console.log(await GistClient.saveOrUpdate(this.playlists));
+            const syncable = await asSyncableCollection(this.playlists);
+            console.log(await GistClient.saveOrUpdate({"my.one.collection": syncable}));
             this.fetchGists();
         },
         async fetchGists() {
@@ -66,21 +70,23 @@ export default {
                 return;
             }
             this.loadingPlaylists = true;
-            this.playlists = [ ];
-            for (const availablePlaylist of this.dataStore?.playlists?.filter(x => x.type != "special")) {
+            this.playlists = [];
+            for (const availablePlaylist of this.dataStore?.playlists?.filter(
+                (x) => x.type != "special"
+            )) {
                 const playlist = Object.assign({}, availablePlaylist);
                 this.playlists.push(playlist);
             }
             this.loadingPlaylists = false;
-        }
+        },
     },
     watch: {
         dataStore: {
             handler(newStore, oldStore) {
                 this.fetchLocalPlaylists();
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
     mounted() {
         this.fetchLocalPlaylists();
@@ -91,13 +97,13 @@ export default {
         return {
             playlists: [],
             loadingPlaylists: false,
-            userData: { },
+            userData: {},
             cloudPlaylists: [],
-            dataStore: useDataStore()
+            dataStore: useDataStore(),
         };
     },
-    components: { IconButton, CloudPlaylist }
-}
+    components: { IconButton, CloudPlaylist },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -111,8 +117,7 @@ export default {
     .data {
         border-top: 1px solid var(--border);
 
-        .cloudPlaylist
-        {
+        .cloudPlaylist {
             margin-top: 20px;
         }
     }

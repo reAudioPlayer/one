@@ -191,6 +191,9 @@ class IPlayerPlaylist(ABC):
     def __len__(self) -> int:
         return len(self._songs)
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} {self.id} ({len(self._songs)} songs)>"
+
     async def delete(self) -> bool:
         """deletes this playlist if possible"""
         if self.type == PlaylistType.Classic:

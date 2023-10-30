@@ -52,21 +52,23 @@ onMounted(() => {
             <img :src="cover" class="hidden" @error="src = null" />
         </div>
     </div>
-    <div id="appRoot" class="appRoot">
-        <template v-if="playerStore.ready">
-            <Header />
-            <div class="interface">
-                <Sidebar v-if="!maximised" />
-                <Body @maximise="(val) => (maximised = val)" />
-            </div>
+    <DropImport>
+        <div id="appRoot" class="appRoot">
+            <template v-if="playerStore.ready">
+                <Header />
+                <div class="interface">
+                    <Sidebar v-if="!maximised" />
+                    <Body @maximise="(val) => (maximised = val)" />
+                </div>
 
-            <Player />
-            <PlayerInPicture v-if="!maximised" />
-        </template>
-        <template v-else>
-            <Startup />
-        </template>
-    </div>
+                <Player />
+                <PlayerInPicture v-if="!maximised" />
+            </template>
+            <template v-else>
+                <Startup />
+            </template>
+        </div>
+    </DropImport>
     <div id="popup-target"></div>
     <div id="dropdown-target"></div>
     <div id="autocomplete-target"></div>
@@ -88,6 +90,7 @@ import { authoriseSpotify, isFirstRun } from "@/api/config";
 import Sidebar from "@/Sidebar.vue";
 import Body from "@/Body.vue";
 import Player from "@/components/player/Player.vue";
+import DropImport from "./DropImport.vue";
 
 const LOCAL_STORAGE_KEY = "theme"; // change it to whatever you like
 

@@ -25,35 +25,39 @@ export const updateSong = async (song: ISong) => {
             title: song.title,
             artist: song.artist,
             album: song.album,
-            cover: song.cover
-        })
+            cover: song.cover,
+        }),
     });
     await updateDataStore();
-}
+};
 
 /**
  * updates a song property
  * @param song
  */
-export const updateSongProperty = async (songId: number, key: string, value: any) => {
+export const updateSongProperty = async (
+    songId: number,
+    key: string,
+    value: any
+) => {
     await fetch(`/api/tracks/${songId}`, {
         method: "PUT",
         body: JSON.stringify({
-            [key]: value
-        })
-    })
+            [key]: value,
+        }),
+    });
     await updateDataStore();
-}
+};
 
 export const fetchMetadata = async (src: string): Promise<ISong> => {
     const res = await fetch("/api/browse/track", {
         method: "POST",
         body: JSON.stringify({
-            url: src
-        })
-    })
+            url: src,
+        }),
+    });
     return await res.json();
-}
+};
 
 const songToJson = (song: ISong) => ({
     source: song.source,
@@ -61,7 +65,7 @@ const songToJson = (song: ISong) => ({
     artist: song.artist,
     album: song.album,
     cover: song.cover,
-    spotify: song.metadata ? JSON.stringify(song.metadata.spotify) : ""
+    spotify: song.metadata ? JSON.stringify(song.metadata.spotify) : "",
 });
 
 /**
@@ -76,11 +80,11 @@ export const addSong = async (playlistId: string, song: ISong) => {
 
     await fetch(`/api/playlists/${playlistId}/tracks`, {
         method: "POST",
-        body: JSON.stringify(songToJson(song))
-    })
+        body: JSON.stringify(songToJson(song)),
+    });
 
     await updateDataStore();
-}
+};
 
 /**
  * adds multiple songs to a playlist
@@ -94,11 +98,11 @@ export const addSongs = async (playlistId: string, songs: ISong[]) => {
 
     await fetch(`/api/playlists/${playlistId}/tracks`, {
         method: "POST",
-        body: JSON.stringify(songs.map(song => songToJson(song)))
+        body: JSON.stringify(songs.map((song) => songToJson(song))),
     });
 
     await updateDataStore();
-}
+};
 
 /**
  * adds an existing song to a playlist
@@ -107,43 +111,46 @@ export const addSongs = async (playlistId: string, songs: ISong[]) => {
  */
 export const addExistingSong = async (playlistId: number, songId: number) => {
     await fetch(`/api/playlists/${playlistId}/tracks/${songId}`, {
-        method: "POST"
+        method: "POST",
     });
 
     await updateDataStore();
-}
+};
 
 /**
  * favours or unfavours a song
  * @param songId the id of the song to favourite, not the hash
  * @param favourite whether to favourite or unfavourite the song
  */
-export const favouriteSong = async (songId: number, favourite: boolean = true) => {
+export const favouriteSong = async (
+    songId: number,
+    favourite: boolean = true
+) => {
     await fetch(`/api/tracks/${songId}`, {
         method: "PUT",
         body: JSON.stringify({
-            favourite
-        })
+            favourite,
+        }),
     });
 
     await updateDataStore();
-}
+};
 
 /**
  * sets the duration of a song
  * @param songId the id of the song to set the duration of, not the hash
  * @param duration the duration in seconds
  */
-export const saveDuration = async(songId: number, duration: number) => {
+export const saveDuration = async (songId: number, duration: number) => {
     await fetch(`/api/tracks/${songId}`, {
         method: "PUT",
         body: JSON.stringify({
-            duration
-        })
+            duration,
+        }),
     });
 
     await updateDataStore();
-}
+};
 
 /**
  * downloads a song
@@ -152,7 +159,7 @@ export const saveDuration = async(songId: number, duration: number) => {
 export const downloadSong = (songId: number) => {
     const downloaderStore = useDownloaderStore();
     downloaderStore.downloadFromDb(songId);
-}
+};
 
 /**
  * gets a song by its id, not the hash
@@ -162,7 +169,7 @@ export const downloadSong = (songId: number) => {
 export const getSong = async (songId: number): Promise<ISong> => {
     const res = await fetch(`/api/tracks/${songId}`);
     return await res.json();
-}
+};
 
 /**
  * gets a song by its hash
@@ -172,11 +179,15 @@ export const getSong = async (songId: number): Promise<ISong> => {
 export const getSongByHash = async (hash: string): Promise<ISong> => {
     const songId = unhashTrack(hash);
     return await getSong(songId);
-}
+};
 
-export const getSongMetadata = async (songId: number, forceFetch = false, spotifyId: string = null): Promise<IMetadata> => {
+export const getSongMetadata = async (
+    songId: number,
+    forceFetch = false,
+    spotifyId: string = null
+): Promise<IMetadata> => {
     const body = {
-        id: songId
+        id: songId,
     } as any;
 
     if (forceFetch) {
@@ -189,12 +200,20 @@ export const getSongMetadata = async (songId: number, forceFetch = false, spotif
 
     const res = await fetch("/api/spotify/meta", {
         method: "POST",
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
     });
     return await res.json();
-}
+};
 
-export const getRecommendations = async (songId: number): Promise<ISpotifySong[]> => {
+export const getRecommendations = async (
+    songId: number
+): Promise<ISpotifySong[]> => {
     const res = await fetch(`/api/spotify/recommendations/${songId}`);
     return await res.json();
-}
+};
+
+export const removeSongFromCache = async (songId: number) => {
+    await fetch(`/api/player/stream/${songId}`, {
+        method: "DELETE",
+    });
+};

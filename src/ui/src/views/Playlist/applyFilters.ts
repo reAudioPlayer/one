@@ -39,11 +39,11 @@ export const applyFilters = (
 
     return songs
         .map((song) => {
-            const searchMatch = search.length
+            const searchMatch = search?.length
                 ? song.title.toLowerCase().includes(search.toLowerCase()) ||
                   song.artist.toLowerCase().includes(search.toLowerCase())
                 : true;
-            const artistMatch = artist.length
+            const artistMatch = artist?.length
                 ? artist.includes(song.artist)
                 : true;
             const titleMatch = title.length ? title.includes(song.title) : true;

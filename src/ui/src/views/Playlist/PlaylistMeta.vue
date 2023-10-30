@@ -2,10 +2,7 @@
 import { useRouter } from "vue-router";
 import {
     albumOptions,
-    applyFilters,
     artistOptions,
-    filterApplied,
-    IFilteredSong,
     IPlaylistFilters,
     titleOptions,
 } from "./applyFilters";
@@ -23,6 +20,7 @@ import FixedPlaylistHeader from "../../components/Playlist/FixedPlaylistHeader.v
 import { deletePlaylist, updatePlaylistMetadata } from "../../api/playlist";
 import { useDataStore } from "../../store/data";
 import AddNewSong from "../../components/popups/AddNewSong.vue";
+import PlaylistContext from "../../components/contextMenus/PlaylistContext.vue";
 
 const props = defineProps({
     playlist: {
@@ -35,6 +33,7 @@ const props = defineProps({
     },
 });
 
+const contextmenu = ref<typeof PlaylistContext>();
 const playlist = computed(() => props.playlist);
 const fixedHeaderHidden = ref(true);
 const router = useRouter();
@@ -97,10 +96,6 @@ const canAdd = computed(() => {
 const canEdit = computed(() => {
     return ["smart"].includes(playlist.value.type);
 });
-
-const editPlaylist = () => {
-    router.push(`/playlist/${playlist.value.id}/edit`);
-};
 
 const sortOptions = [
     {
@@ -169,162 +164,158 @@ const deleteMe = async () => {
 </script>
 
 <template>
-    <FixedPlaylistHeader
-        v-if="playlist"
-        ref="fixedHeading"
-        :class="{ hidden: fixedHeaderHidden }"
-        :title="playlist.name"
-        @loadPlaylist="player.loadPlaylist(playlist.id)"
-    />
-    <AddNewSong ref="addSongPopup" @update="data.fetchPlaylists()" />
-    <div v-observe-visibility="onObserveVisibility" class="upper relative">
-        <Cover
-            :placeholder="coverIcon"
-            :src="playlist.cover"
-            class="max-w-sm rounded-xl"
-            type="playlist"
+    <PlaylistContext ref="contextmenu" :playlist="playlist" :can-edit="canEdit">
+        <FixedPlaylistHeader
+            v-if="playlist"
+            ref="fixedHeading"
+            :class="{ hidden: fixedHeaderHidden }"
+            :title="playlist.name"
+            @loadPlaylist="player.loadPlaylist(playlist.id)"
         />
-        <div class="track__info__details flex flex-col justify-end">
-            <div class="trac__info__details__normal">
-                <div
-                    class="flex flex-row items-center gap-2 playlist-type"
-                    v-if="playlist.type != 'classic'"
-                >
-                    <span class="material-symbols-rounded">
-                        {{ playlist.type == "smart" ? "neurology" : "bolt" }}
-                    </span>
-                    <span>{{ playlist.type }} Playlist</span>
-                </div>
-                <div class="flex flew-row items-center">
-                    <span
-                        class="text-5xl cursor-pointer material-symbols-rounded ms-fill my-auto"
-                        @click="player.loadPlaylist(playlist.id)"
+        <AddNewSong ref="addSongPopup" @update="data.fetchPlaylists()" />
+        <div v-observe-visibility="onObserveVisibility" class="upper relative">
+            <Cover
+                :placeholder="coverIcon"
+                :src="playlist.cover"
+                class="max-w-sm rounded-xl"
+                type="playlist"
+            />
+            <div class="track__info__details flex flex-col justify-end">
+                <div class="trac__info__details__normal">
+                    <div
+                        class="flex flex-row items-center gap-2 playlist-type"
+                        v-if="playlist.type != 'classic'"
                     >
-                        play_circle
-                    </span>
-                    <h1 class="font-black text-5xl ml-4 w-full flex-1">
-                        <EditableText v-model="title">
-                            {{ playlist.name }}
+                        <span class="material-symbols-rounded">
+                            {{
+                                playlist.type == "smart" ? "neurology" : "bolt"
+                            }}
+                        </span>
+                        <span>{{ playlist.type }} Playlist</span>
+                    </div>
+                    <div class="flex flew-row items-center">
+                        <span
+                            class="text-5xl cursor-pointer material-symbols-rounded ms-fill my-auto"
+                            @click="player.loadPlaylist(playlist.id)"
+                        >
+                            play_circle
+                        </span>
+                        <h1 class="font-black text-5xl ml-4 w-full flex-1">
+                            <EditableText v-model="title">
+                                {{ playlist.name }}
+                            </EditableText>
+                        </h1>
+                    </div>
+                    <p class="text-muted">
+                        <EditableText
+                            v-model="description"
+                            placeholder="No description"
+                        >
+                            {{ playlist.description }}
                         </EditableText>
-                    </h1>
+                    </p>
                 </div>
-                <p class="text-muted">
-                    <EditableText
-                        v-model="description"
-                        placeholder="No description"
-                    >
-                        {{ playlist.description }}
-                    </EditableText>
-                </p>
-            </div>
-            <div class="features flex flex-row gap-4 pt-4 pb-2 overflow-x-auto">
-                <FactCard
-                    :primary-text="playlist.songs?.length"
-                    :secondary-text="
-                        playlist.songs?.length === 1 ? 'Song' : 'Songs'
-                    "
-                    class="w-full"
-                />
-                <FactCard
-                    :primary-text="estimatedDuration"
-                    class="w-full"
-                    secondary-text="Total Duration"
-                />
-                <FactCard
-                    v-if="playlist.plays"
-                    :primary-text="playlist.plays"
-                    class="w-full"
-                    secondary-text="Plays"
-                />
-                <Card
-                    v-if="canAdd"
-                    class="p-4 w-1/2 flex flex-col items-center justify-center"
+                <div
+                    class="features flex flex-row gap-4 pt-4 pb-2 overflow-x-auto"
                 >
+                    <FactCard
+                        :primary-text="playlist.songs?.length"
+                        :secondary-text="
+                            playlist.songs?.length === 1 ? 'Song' : 'Songs'
+                        "
+                        class="w-full"
+                    />
+                    <FactCard
+                        :primary-text="estimatedDuration"
+                        class="w-full"
+                        secondary-text="Total Duration"
+                    />
+                    <FactCard
+                        v-if="playlist.plays"
+                        :primary-text="playlist.plays"
+                        class="w-full"
+                        secondary-text="Plays"
+                    />
+                    <Card
+                        v-if="canAdd"
+                        class="p-4 w-1/2 flex flex-col items-center justify-center"
+                    >
+                        <span
+                            id="addToPlaylist"
+                            class="material-symbols-rounded ms-fill"
+                            @click="($refs.addSongPopup as any).show()"
+                            >add_circle</span
+                        >
+                        <span class="text-muted">Add a song</span>
+                    </Card>
+                    <Card
+                        class="p-4 w-1/2 flex flex-col items-center justify-center"
+                    >
+                        <span
+                            id="addToPlaylist"
+                            class="material-symbols-rounded ms-fill"
+                            @click.prevent.stop="(e) => contextmenu.toggle(e)"
+                        >
+                            more_horiz
+                        </span>
+                        <span class="text-muted">More...</span>
+                    </Card>
+                </div>
+                <div v-if="playlist.songs" class="filters mt-4">
+                    <TextInputWithIcon
+                        v-model="filters.search"
+                        icon="search"
+                        placeholder="Search"
+                    />
+                    <MultiSelect
+                        v-model="filters.title"
+                        :options="titleOptions(playlist.songs)"
+                        class="multiselect"
+                        icon="title"
+                        placeholder="Title"
+                    />
+                    <MultiSelect
+                        v-model="filters.artist"
+                        :options="artistOptions(playlist.songs) as any"
+                        class="multiselect"
+                        icon="person"
+                        placeholder="Artist"
+                    />
+                    <MultiSelect
+                        v-model="filters.album"
+                        :options="albumOptions(playlist.songs)"
+                        class="multiselect"
+                        icon="album"
+                        placeholder="Album"
+                    />
+                    <IconDropdown
+                        v-model="filters.sort"
+                        :options="sortOptions"
+                        icon="filter_list"
+                    />
                     <span
-                        id="addToPlaylist"
-                        class="material-symbols-rounded ms-fill"
-                        @click="($refs.addSongPopup as any).show()"
-                        >add_circle</span
+                        class="cursor-pointer material-symbols-rounded ms-wght-100 text-5xl"
+                        @click="
+                            filters.order =
+                                filters.order == 'asc' ? 'desc' : 'asc'
+                        "
                     >
-                    <span class="text-muted">Add a song</span>
-                </Card>
-                <Card
-                    class="p-4 w-1/2 flex flex-col items-center justify-center"
-                >
+                        {{
+                            filters.order == "asc"
+                                ? "arrow_drop_up"
+                                : "arrow_drop_down"
+                        }}
+                    </span>
                     <span
-                        id="addToPlaylist"
-                        class="material-symbols-rounded ms-fill"
-                        @click="deleteMe"
-                        >delete</span
+                        class="cursor-pointer material-symbols-rounded ms-wght-300 text-3xl mr-2"
+                        @click="resetFilters"
                     >
-                    <span class="text-muted">Delete this playlist</span>
-                </Card>
-                <Card
-                    v-if="canEdit"
-                    class="p-4 w-1/2 flex flex-col items-center justify-center"
-                >
-                    <span
-                        id="addToPlaylist"
-                        class="material-symbols-rounded ms-fill"
-                        @click="editPlaylist"
-                        >edit</span
-                    >
-                    <span class="text-muted">Edit this playlist</span>
-                </Card>
-            </div>
-            <div v-if="playlist.songs" class="filters mt-4">
-                <TextInputWithIcon
-                    v-model="filters.search"
-                    icon="search"
-                    placeholder="Search"
-                />
-                <MultiSelect
-                    v-model="filters.title"
-                    :options="titleOptions(playlist.songs)"
-                    class="multiselect"
-                    icon="title"
-                    placeholder="Title"
-                />
-                <MultiSelect
-                    v-model="filters.artist"
-                    :options="artistOptions(playlist.songs) as any"
-                    class="multiselect"
-                    icon="person"
-                    placeholder="Artist"
-                />
-                <MultiSelect
-                    v-model="filters.album"
-                    :options="albumOptions(playlist.songs)"
-                    class="multiselect"
-                    icon="album"
-                    placeholder="Album"
-                />
-                <IconDropdown
-                    v-model="filters.sort"
-                    :options="sortOptions"
-                    icon="filter_list"
-                />
-                <span
-                    class="cursor-pointer material-symbols-rounded ms-wght-100 text-5xl"
-                    @click="
-                        filters.order = filters.order == 'asc' ? 'desc' : 'asc'
-                    "
-                >
-                    {{
-                        filters.order == "asc"
-                            ? "arrow_drop_up"
-                            : "arrow_drop_down"
-                    }}
-                </span>
-                <span
-                    class="cursor-pointer material-symbols-rounded ms-wght-300 text-3xl mr-2"
-                    @click="resetFilters"
-                >
-                    delete_sweep
-                </span>
+                        delete_sweep
+                    </span>
+                </div>
             </div>
         </div>
-    </div>
+    </PlaylistContext>
 </template>
 
 <style scoped lang="scss">

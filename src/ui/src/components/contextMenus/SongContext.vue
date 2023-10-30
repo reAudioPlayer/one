@@ -12,8 +12,13 @@ import {
     createPlaylistWithMetadata,
     removeSongFromPlaylist,
 } from "../../api/playlist";
-import { addSong as addSongToPlaylist, downloadSong } from "../../api/song";
+import {
+    addSong as addSongToPlaylist,
+    downloadSong,
+    removeSongFromCache,
+} from "../../api/song";
 import { Notifications } from "../notifications/createNotification";
+import { asSyncableSong, downloadSyncable } from "../../views/sync/collection";
 
 const dataStore = useDataStore();
 
@@ -111,6 +116,11 @@ const openSource = (source: string) => {
     window.open(sources.value[source]);
     editSong();
 };
+
+const exportToFile = () => {
+    const syncable = asSyncableSong(props.song);
+    downloadSyncable(syncable, `${props.song.artist} - ${props.song.title}`);
+};
 </script>
 <template>
     <div ref="box" v-contextmenu:contextmenu>
@@ -152,9 +162,18 @@ const openSource = (source: string) => {
                 Update Metadata
             </v-contextmenu-item>
             <v-contextmenu-divider />
-            <v-contextmenu-item @click="downloadSong(song.id)"
-                >Download</v-contextmenu-item
-            >
+            <v-contextmenu-item @click="downloadSong(song.id)">
+                Download
+            </v-contextmenu-item>
+            <v-contextmenu-item @click="removeSongFromCache(song.id)">
+                Uncache
+            </v-contextmenu-item>
+            <v-contextmenu-divider />
+            <v-contextmenu-submenu title="Export...">
+                <v-contextmenu-item @click="exportToFile()">
+                    to file
+                </v-contextmenu-item>
+            </v-contextmenu-submenu>
         </v-contextmenu>
     </div>
 </template>

@@ -14,11 +14,7 @@ from db.database import Database
 from helper.payloadParser import withObjectPayload
 from player.player import Player
 from player.playlistManager import PlaylistManager
-from player.smartPlayerPlaylist import SpecialPlayerPlaylist
-
-
-MIN_PLAYLIST_ID = -2
-SPECIAL_PLAYLISTS = {-1: "collection", -2: "collection/breaking"}
+from player.smartPlayerPlaylist import SpecialPlayerPlaylist, SongListPlayerPlaylist
 
 
 class PlayerHandler:
@@ -43,13 +39,15 @@ class PlayerHandler:
         OneOf(
             Object({"type": String().enum("playlist"), "id": String()}),
             Object({"type": String().enum("track"), "id": Integer()}),
+            Object({"type": String().enum("artist"), "name": String()}),
         ),
         inBody=True,
     )
     async def loadPlaylist(self, payload: Dict[str, str]) -> web.Response:
         """post(/api/player/load)"""
         type_: str = payload["type"]
-        id_: Union[str, int] = payload["id"]
+        id_: Union[str, int] = payload.get("id")
+        name: str = payload.get("name")
 
         if type_ == "playlist":
             assert isinstance(id_, str)
@@ -61,6 +59,13 @@ class PlayerHandler:
         if type_ == "track":
             assert isinstance(id_, int)
             playlist = SpecialPlayerPlaylist.track(int(id_))
+            await playlist.waitForLoad()
+            asyncio.create_task(self._player.loadPlaylist(playlist))
+            return web.Response()
+
+        if type_ == "artist":
+            assert isinstance(name, str)
+            playlist = await SongListPlayerPlaylist.artist(name)
             await playlist.waitForLoad()
             asyncio.create_task(self._player.loadPlaylist(playlist))
             return web.Response()

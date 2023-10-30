@@ -66,6 +66,7 @@ class DownloadStatus:
         if len(nameNoPath.split(".")) > 3:
             self._chunk = nameNoPath.split(".")[2]
 
+    @property
     def showInUI(self) -> bool:
         """show in ui"""
         return ".dl" in self._filename
@@ -83,6 +84,7 @@ class DownloadStatus:
             "elapsed": self._elapsed,
             "eta": self._eta,
             "chunk": self._chunk,
+            "internal": not self.showInUI,
         }
         if self._songId in downloaded:
             res["song"] = downloaded[self._songId].toDict()
@@ -122,8 +124,6 @@ class Downloader(metaclass=Singleton):
         while True:
             try:
                 status = self._statusQueue.get(False)
-                if not status.showInUI():
-                    continue
                 for client in self._websocketClients:
                     await client.send_json(status.toDict(self._downloaded))
                 self._statusQueue.task_done()

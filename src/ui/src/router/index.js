@@ -123,6 +123,13 @@ const routes = [{
     }
 },
 {
+    path: '/import/:id',
+    component: () => import("@/views/sync/ImportLink.vue"),
+    meta: {
+        title: "Import - reAudioPlayer One"
+    }
+},
+{
     path: '/export',
     component: () => import("@/views/sync/Export.vue"),
     meta: {

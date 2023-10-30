@@ -13,6 +13,10 @@ import { usePlayerStore } from "../../store/player";
 import { favouriteSong } from "../../api/song";
 import Cover from "../image/Cover.vue";
 import ArtistMarquee from "../ArtistMarquee.vue";
+import { useDownloaderStore } from "../../store/downloader";
+import Spinner from "../loaders/Spinner.vue";
+
+const downloader = useDownloaderStore();
 
 const props = defineProps({
     song: {
@@ -48,6 +52,11 @@ const props = defineProps({
         required: false,
         default: null,
     },
+    artist: {
+        type: String,
+        required: false,
+        default: null,
+    },
 });
 const emit = defineEmits(["update"]);
 
@@ -63,9 +72,14 @@ const toggleFavourite = () => {
 const playlistId = computed(() =>
     props.playlistId == null ? playerStore.playlist.id : props.playlistId
 );
-const playSong = () => {
+const playSong = async () => {
     if (playlistId.value == "track") {
         playerStore.loadPlaylist("track", props.song.id);
+        return;
+    }
+    if (playlistId.value == "artist") {
+        await playerStore.loadPlaylist("artist", props.artist);
+        playerStore.loadSong(null, props.index);
         return;
     }
 
@@ -80,6 +94,10 @@ const edit = () => {
 const update = () => {
     emit("update");
 };
+
+const isDownloading = computed(() =>
+    downloader.isSongDownloading(props.song.id)
+);
 </script>
 <template>
     <SongContext
@@ -106,13 +124,18 @@ const update = () => {
             @mouseenter="hovering = true"
             @mouseleave="hovering = false"
         >
+            <div class="index text-right downloading" v-if="isDownloading">
+                <Spinner />
+            </div>
             <div
+                v-else
                 :class="{ 'material-symbols-rounded': hovering }"
                 class="index text-right"
                 @click="playSong"
             >
                 {{ hovering ? "play_arrow" : index + 1 }}
             </div>
+
             <div v-if="withCover" class="cover">
                 <Cover :src="song.cover" type="track" />
             </div>
@@ -145,13 +168,6 @@ const update = () => {
             </div>
             <div class="duration text-center">
                 {{ displayDuration(song.duration) }}
-            </div>
-            <div
-                v-if="false && withMore && (selected || hovering)"
-                class="icon text-left material-symbols-rounded"
-                @click.stop="$refs.ctxMenu.toggle"
-            >
-                more_horiz
             </div>
         </div>
     </SongContext>
