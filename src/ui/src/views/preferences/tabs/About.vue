@@ -19,6 +19,8 @@ onMounted(async () => {
 
 const isLatest = computed(() => latestVersion.value === BACKEND_VERSION);
 
+const build = computed(() => version.split(".").pop());
+
 const changelog = ref(null);
 </script>
 <template>
@@ -33,7 +35,7 @@ const changelog = ref(null);
 
         <span>
             <strong>v{{ BACKEND_VERSION }}</strong>
-            (Build {{ version }})
+            (Build {{ build }})
         </span>
         <template v-if="latestVersion">
             <span
