@@ -65,18 +65,6 @@ class Song(ISimpleTrack):
         """return metadata"""
         return self._metadata
 
-    @property
-    def title(self) -> str:
-        return self._model.name
-    
-    @property
-    def artist(self) -> str:
-        return self._model.artist
-    
-    @property
-    def album(self) -> str:
-        return self._model.album
-
     @metadata.setter
     def metadata(self, value: SongMetadata) -> None:
         self._metadata = value
@@ -84,6 +72,18 @@ class Song(ISimpleTrack):
             self._model.spotify = value.spotify.toStr()
         if value.plays:
             self._model.plays = value.plays
+
+    @property
+    def title(self) -> str:
+        return self._model.name
+
+    @property
+    def artist(self) -> str:
+        return self._model.artist
+
+    @property
+    def album(self) -> str:
+        return self._model.album
 
     def toDict(self) -> Dict[str, Any]:
         """return as dict"""

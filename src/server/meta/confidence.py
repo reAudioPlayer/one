@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""reAudioPlayer ONE"""
+from __future__ import annotations
+__copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
+
 from typing import List
 from Levenshtein import distance as lev
 from dataModel.track import ISimpleTrack
@@ -54,7 +59,6 @@ class Confidence:
                 query: str,
                 boost: float = 0) -> float:
         """get relevance of song"""
-        
         return cls._forStrings([song.title,
                                 song.album,
                                 song.artist],

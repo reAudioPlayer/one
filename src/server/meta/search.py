@@ -7,14 +7,14 @@ from typing import List, Any, Dict, Optional
 from enum import StrEnum
 
 from db.database import Database
-from meta.spotify import Spotify, SpotifyArtist
+from db.table.playlists import PlaylistModel
+from db.table.artists import ArtistModel
+from dataModel.track import YoutubeTrack, ITrack
+from dataModel.song import Song
+from meta.spotify import Spotify, SpotifyArtist, SpotifyTrack
 from meta.confidence import Confidence
 from helper.asyncThread import asyncRunInThreadWithReturn
 
-from dataModel.track import YoutubeTrack, ITrack
-from dataModel.song import Song
-from db.table.playlists import PlaylistModel
-from db.table.artists import ArtistModel
 
 
 class SearchScopes(StrEnum):
@@ -30,8 +30,9 @@ class SearchScopes(StrEnum):
 
 
 class SearchResult:
+    """search result"""
     def __init__(self,
-                 item: ITrack | PlaylistModel,
+                 item: ITrack | Song | PlaylistModel | SpotifyArtist | ArtistModel, # pylint: disable=unsubscriptable-object
                  confidence: float,
                  scope: SearchScopes) -> None:
         self._item = item
@@ -98,21 +99,21 @@ class SearchScope():
         if self._value is None:
             return True
         return SearchScopes.Artist in self._value
-    
+
     @property
     def playlist(self) -> bool:
         """playlist"""
         if self._value is None:
             return True
         return SearchScopes.Playlist in self._value
-    
+
     @property
     def song(self) -> bool:
         """song"""
         if self._value is None:
             return True
         return SearchScopes.Song in self._value
-    
+
     @property
     def album(self) -> bool:
         """album"""
@@ -136,7 +137,7 @@ class Search:
     async def _getYoutubeTracks(self) -> List[SearchResult]:
         if not self._scope.song:
             return []
-        def _implement() -> List[ITrack]:
+        def _implement() -> List[YoutubeTrack]:
             return YoutubeTrack.fromQuery(self._query) or []
         tracks = await asyncRunInThreadWithReturn(_implement)
         return [ SearchResult(track,
@@ -148,7 +149,7 @@ class Search:
         """get spotify tracks"""
         if not self._scope.song:
             return []
-        def _implement() -> List[ITrack]:
+        def _implement() -> List[SpotifyTrack]:
             return self._spotify.searchTrack(self._query).unwrapOr([])
         tracks = await asyncRunInThreadWithReturn(_implement)
         return [ SearchResult(track,
@@ -227,14 +228,4 @@ class Search:
             "query": self._query,
             "scope": self._scope.value,
             "items": [ _track.toDict() for _track in self._items ]
-        } 
-
-    def _trackToDict(self, track: ITrack) -> Dict[str, Any]: # extend with spotify
-        return {
-            "title": track.title,
-            "album": track.album,
-            "artists": track.artists,
-            "cover": track.cover,
-            "url": track.url,
-            "preview": track.preview
         }

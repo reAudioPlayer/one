@@ -328,11 +328,11 @@ class SpotifyArtist:
     def _displayFollowers(self) -> str:
         # > 1.000.000 -> 1M
         # > 1.000 -> 1K
-        followers = self._followers
-        if followers > 1e6:
-            followers = f"{round(followers / 1e6, 1)}M"
-        elif followers > 1e3:
-            followers = f"{round(followers / 1e3, 1)}k"
+        followers = str(self._followers)
+        if self._followers > 1e6:
+            followers = f"{round(self._followers / 1e6, 1)}M"
+        elif self._followers > 1e3:
+            followers = f"{round(self._followers / 1e3, 1)}k"
         return followers
 
     @property
