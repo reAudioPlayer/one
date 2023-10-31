@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import List, Any, Dict, Optional
@@ -16,9 +17,9 @@ from meta.confidence import Confidence
 from helper.asyncThread import asyncRunInThreadWithReturn
 
 
-
 class SearchScopes(StrEnum):
     """search scopes"""
+
     Spotify = "spotify"
     Youtube = "youtube"
     Local = "local"
@@ -31,13 +32,22 @@ class SearchScopes(StrEnum):
 
 class SearchResult:
     """search result"""
-    def __init__(self,
-                 item: ITrack | Song | PlaylistModel | SpotifyArtist | ArtistModel, # pylint: disable=unsubscriptable-object
-                 confidence: float,
-                 scope: SearchScopes) -> None:
+
+    def __init__(
+        self,
+        item: ITrack
+        | Song
+        | PlaylistModel
+        | SpotifyArtist
+        | ArtistModel,  # pylint: disable=unsubscriptable-object
+        confidence: float,
+        scope: SearchScopes,
+        type_: SearchScopes,
+    ) -> None:
         self._item = item
         self._confidence = confidence
         self._scope = scope
+        self._type = type_
 
     @property
     def confidence(self) -> float:
@@ -49,17 +59,23 @@ class SearchResult:
         """scope"""
         return self._scope
 
+    @property
+    def type(self) -> SearchScopes:
+        """type"""
+        return self._type
+
     def toDict(self) -> Dict[str, Any]:
         """serialise"""
         data = {
             "confidence": self._confidence,
             "scope": self._scope,
-            "item": self._item.toDict()
+            "type": self._type,
+            "item": self._item.toDict(),
         }
         return data
 
 
-class SearchScope():
+class SearchScope:
     """search scope"""
 
     __slots__ = ("_value",)
@@ -124,86 +140,114 @@ class SearchScope():
 
 class Search:
     """search engine"""
-    def __init__(self,
-                 spotify: Spotify,
-                 query: str,
-                 scope: SearchScope) -> None:
+
+    def __init__(self, spotify: Spotify, query: str, scope: SearchScope) -> None:
         self._spotify = spotify
         self._query = query
         self._scope = scope
 
-        self._items: List[SearchResult] = [ ]
+        self._items: List[SearchResult] = []
 
     async def _getYoutubeTracks(self) -> List[SearchResult]:
         if not self._scope.song:
             return []
+
         def _implement() -> List[YoutubeTrack]:
             return YoutubeTrack.fromQuery(self._query) or []
+
         tracks = await asyncRunInThreadWithReturn(_implement)
-        return [ SearchResult(track,
-                              Confidence.forSong(track, self._query),
-                              SearchScopes.Youtube)
-                 for track in tracks ]
+        return [
+            SearchResult(
+                track,
+                Confidence.forSong(track, self._query),
+                SearchScopes.Youtube,
+                SearchScopes.Song,
+            )
+            for track in tracks
+        ]
 
     async def _getSpotifyTracks(self) -> List[SearchResult]:
         """get spotify tracks"""
         if not self._scope.song:
             return []
+
         def _implement() -> List[SpotifyTrack]:
             return self._spotify.searchTrack(self._query).unwrapOr([])
+
         tracks = await asyncRunInThreadWithReturn(_implement)
-        return [ SearchResult(track,
-                              Confidence.forSong(track, self._query),
-                              SearchScopes.Spotify)
-                 for track in tracks ]
+        return [
+            SearchResult(
+                track,
+                Confidence.forSong(track, self._query),
+                SearchScopes.Spotify,
+                SearchScopes.Song,
+            )
+            for track in tracks
+        ]
 
     async def _getLocalTracks(self) -> List[SearchResult]:
         """get local tracks"""
         if not self._scope.song:
             return []
         songs = Song.list(await Database().songs.search(self._query))
-        return [ SearchResult(song,
-                              Confidence.forSong(song,
-                                                 self._query,
-                                                 boost = 0.5),
-                              SearchScopes.Local)
-                 for song in songs ]
+        return [
+            SearchResult(
+                song,
+                Confidence.forSong(song, self._query, boost=0.5),
+                SearchScopes.Local,
+                SearchScopes.Song,
+            )
+            for song in songs
+        ]
 
     async def _getLocalPlaylists(self) -> List[SearchResult]:
         """get local playlists"""
         if not self._scope.playlist:
             return []
         playlists = await Database().playlists.search(self._query)
-        return [ SearchResult(playlist,
-                              Confidence.forPlaylist(playlist,
-                                                 self._query,
-                                                 boost = 0.5),
-                              SearchScopes.Local)
-                 for playlist in playlists ]
+        return [
+            SearchResult(
+                playlist,
+                Confidence.forPlaylist(playlist, self._query, boost=0.5),
+                SearchScopes.Local,
+                SearchScopes.Playlist,
+            )
+            for playlist in playlists
+        ]
 
     async def _getSpotifyArtists(self) -> List[SearchResult]:
         """get spotify artists"""
         if not self._scope.artist:
             return []
+
         def _implement() -> List[SpotifyArtist]:
             return self._spotify.searchArtist(self._query).unwrapOr([])
+
         artists = await asyncRunInThreadWithReturn(_implement)
-        return [ SearchResult(artist,
-                              Confidence.forArtist(artist.name,
-                                                   self._query),
-                              SearchScopes.Spotify)
-                 for artist in artists ]
+        return [
+            SearchResult(
+                artist,
+                Confidence.forArtist(artist.name, self._query),
+                SearchScopes.Spotify,
+                SearchScopes.Artist,
+            )
+            for artist in artists
+        ]
 
     async def _getLocalArtists(self) -> List[SearchResult]:
         """get local artists"""
         if not self._scope.artist:
             return []
         artists = await Database().artists.search(self._query)
-        return [ SearchResult(artist,
-                              Confidence.forArtist(artist.name,
-                                                   self._query),
-                              SearchScopes.Local)
-                 for artist in artists ]
+        return [
+            SearchResult(
+                artist,
+                Confidence.forArtist(artist.name, self._query),
+                SearchScopes.Local,
+                SearchScopes.Artist,
+            )
+            for artist in artists
+        ]
 
     async def execute(self) -> None:
         """searches for tracks"""
@@ -219,13 +263,13 @@ class Search:
             self._items.extend(await self._getLocalPlaylists())
             self._items.extend(await self._getLocalArtists())
 
-        self._items = [ item for item in self._items if item.confidence > 0 ]
-        self._items.sort(key=lambda x: x.confidence, reverse = True)
+        self._items = [item for item in self._items if item.confidence > 0]
+        self._items.sort(key=lambda x: x.confidence, reverse=True)
 
     def toDict(self) -> Dict[str, Any]:
         """serialise"""
         return {
             "query": self._query,
             "scope": self._scope.value,
-            "items": [ _track.toDict() for _track in self._items ]
+            "items": [_track.toDict() for _track in self._items],
         }
