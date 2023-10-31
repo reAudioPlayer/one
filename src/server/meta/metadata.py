@@ -59,7 +59,7 @@ class Metadata:
             "cover": self._track.cover,
             "source": self._source,
             "preview": self._track.preview,
-            "markets": self._track.markets,
+            #"markets": self._track.markets,
             "href": self._href,
             "track": self._track.toDict()
         }

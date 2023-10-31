@@ -109,21 +109,21 @@ class MetaHandler:
 
     @withObjectPayload(Object({
         "query": String().min(1),
-        "scope": Array(String().enum("local", "spotify", "youtube")).min(1).max(3).optional(),
+        "scope": Array(String().enum("local",
+                                     "spotify",
+                                     "youtube",
+                                     "song",
+                                     "album",
+                                     "artist",
+                                     "playlist")).min(1).max(3).optional(),
     }), inBody = True)
     async def search(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/search)"""
         query: str = payload["query"]
         scope = SearchScope(payload.get("scope", None))
-        localTracks: List[Song] = [ ]
 
-        if scope.local:
-            localTracks = Song.list(await self._dbManager.songs.search(query))
-
-        def _implement() -> Search:
-            return Search(localTracks, self._spotify, query, scope)
-
-        search = await asyncRunInThreadWithReturn(_implement)
+        search = Search(self._spotify, query, scope)
+        await search.execute()
         return web.json_response(data = search.toDict())
 
     @withObjectPayload(Object({

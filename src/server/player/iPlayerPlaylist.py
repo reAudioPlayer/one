@@ -160,21 +160,26 @@ class IPlayerPlaylist(ABC):
         for index in self._queue:
             yield self._songs[index]
 
-    def toDict(self) -> Dict[str, Any]:
+    def toDict(self,
+               summarise: bool = False) -> Dict[str, Any]:
         """serialise"""
         assert self._model is not None
-        return {
+        data = {
             "name": self._model.name,
             "description": self._model.description,
             "cover": self._model.cover,
             "type": self.type.value,
             "cursor": self.cursor,
-            "songs": [song.toDict() for song in self._songs],
-            "queue": [song.toDict() for song in self.queue],
             "plays": self._model.plays,
             "id": self.id,
             "href": self.href,
         }
+        if not summarise:
+            data.update({
+                "songs": [song.toDict() for song in self._songs],
+                "queue": [song.toDict() for song in self.queue],
+            })
+        return data
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, IPlayerPlaylist):

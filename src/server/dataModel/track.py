@@ -75,7 +75,7 @@ class ITrack(ISimpleTrack):
             "cover": self.cover,
             "url": self.url,
             "preview": self.preview,
-            "markets": self.markets
+            #"markets": self.markets
         }
 
 
@@ -235,7 +235,7 @@ class SpotifyTrack(ITrack):
             "cover": self.cover,
             "href": self.url,
             "preview": self.preview,
-            "markets": self.markets,
+            #"markets": self.markets,
             "album": self.album,
             "metadata": self._metadata.toDict() if self._metadata else None,
             "spotify": {
