@@ -41,12 +41,12 @@ try:
     logger.info("==================== Create  Playlist ====================")
     logger.info("==========================================================")
 
-    id_= -1
+    id_= ""
 
     # create Playlist
-    with requests.get("http://localhost:1234/api/playlists/new", timeout = 10) as res:
+    with requests.get("http://localhost:1234/api/playlists/new?type=classic", timeout = 10) as res:
         logger.info(res.status_code)
-        id_ = int(res.text)
+        id_ = res.text.split("/")[-1]
 
     logger.info(id_)
 
@@ -78,11 +78,12 @@ try:
         logger.info(res.status_code)
         playlists = JList(res.json())
         logger.info(playlists)
-        newPlaylist = playlists.assertGet(0, dict)
+        newPlaylist = playlists.assertGet(2, dict)
         assert newPlaylist["name"] == playlist["name"], f"{newPlaylist['name']} != {playlist['name']}" # pylint: disable=line-too-long
 
     # get our playlist
     with requests.get(f"http://localhost:1234/api/playlists/{id_}", timeout = 10) as res:
+        print(res.text)
         playlist = JDict(res.json())
         logger.info(res.status_code)
         logger.info(playlist)
