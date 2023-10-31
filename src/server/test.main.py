@@ -83,7 +83,6 @@ try:
 
     # get our playlist
     with requests.get(f"http://localhost:1234/api/playlists/{id_}", timeout = 10) as res:
-        print(res.text)
         playlist = JDict(res.json())
         logger.info(res.status_code)
         logger.info(playlist)
