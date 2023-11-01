@@ -17,6 +17,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    noHover: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const image = computed(() => {
@@ -88,7 +92,7 @@ const onClick = () => {
         ref="importSpotifyAlbum"
         :album="props.item.item"
     />
-    <div class="item" :class="{ large }" @click="onClick">
+    <div class="item" :class="{ large, noHover }" @click="onClick">
         <Cover :src="image" :placeholder="fallbackIcon" with-ambient />
         <div class="info">
             <div class="flex flex-col flex-1">
@@ -166,7 +170,7 @@ const onClick = () => {
         }
     }
 
-    &:hover {
+    &:not(:nohover):hover {
         background: var(--bg-hover-dk);
         cursor: pointer;
     }

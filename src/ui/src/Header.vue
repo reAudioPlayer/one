@@ -95,7 +95,11 @@ downloaderStore.onDownload.push((songId: number) => {
 });
 
 const clickSuggestion = (value) => {
-    router.push(value.href);
+    if (value.type === "artist") {
+        router.push(`/artist/${value.item.name}`);
+        return;
+    }
+    router.push(value.item.href);
 };
 
 const suggest = async (value) => {
