@@ -15,6 +15,7 @@ from dataModel.song import Song
 from meta.spotify import Spotify, SpotifyArtist, SpotifyTrack
 from meta.confidence import Confidence
 from helper.asyncThread import asyncRunInThreadWithReturn
+from player.classicPlayerPlaylist import ClassicPlayerPlaylist
 
 
 class SearchScopes(StrEnum):
@@ -35,11 +36,7 @@ class SearchResult:
 
     def __init__(
         self,
-        item: ITrack
-        | Song
-        | PlaylistModel
-        | SpotifyArtist
-        | ArtistModel,  # pylint: disable=unsubscriptable-object
+        item: ITrack | Song | ClassicPlayerPlaylist | SpotifyArtist | ArtistModel,
         confidence: float,
         scope: SearchScopes,
         type_: SearchScopes,
@@ -207,7 +204,7 @@ class Search:
         playlists = await Database().playlists.search(self._query)
         return [
             SearchResult(
-                playlist,
+                ClassicPlayerPlaylist(playlist),
                 Confidence.forPlaylist(playlist, self._query, boost=0.5),
                 SearchScopes.Local,
                 SearchScopes.Playlist,
@@ -251,17 +248,17 @@ class Search:
 
     async def execute(self) -> None:
         """searches for tracks"""
+        if self._scope.local:
+            self._items.extend(await self._getLocalTracks())
+            self._items.extend(await self._getLocalPlaylists())
+            self._items.extend(await self._getLocalArtists())
+
         if self._scope.youtube:
             self._items.extend(await self._getYoutubeTracks())
 
         if self._scope.spotify:
             self._items.extend(await self._getSpotifyTracks())
             self._items.extend(await self._getSpotifyArtists())
-
-        if self._scope.local:
-            self._items.extend(await self._getLocalTracks())
-            self._items.extend(await self._getLocalPlaylists())
-            self._items.extend(await self._getLocalArtists())
 
         self._items = [item for item in self._items if item.confidence > 0]
         self._items.sort(key=lambda x: x.confidence, reverse=True)

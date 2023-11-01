@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
 from typing import List
@@ -11,9 +12,10 @@ from db.table.playlists import PlaylistModel
 
 class Confidence:
     """song relevance"""
-    minScore: int # any word is similar to any query word
-    minKeyScore: int # any property is similar to any query word
-    avgScore: float # average similarity
+
+    minScore: int  # any word is similar to any query word
+    minKeyScore: int  # any property is similar to any query word
+    avgScore: float  # average similarity
 
     @property
     def score(self) -> float:
@@ -28,16 +30,13 @@ class Confidence:
         )
 
     @classmethod
-    def _forStrings(cls,
-                    strings: List[str],
-                    query: str,
-                    boost: float = 0) -> float:
+    def _forStrings(cls, strings: List[str], query: str, boost: float = 0) -> float:
         rel = cls()
         distances = []
         keyDistances = []
         # break by spaces, compare each word
         for i in strings:
-            if i == query or not i:
+            if i == query or not i.strip():
                 keyDistances.append(0)
                 distances.append(0)
                 continue
@@ -54,33 +53,16 @@ class Confidence:
         return 1 - deviation
 
     @classmethod
-    def forSong(cls,
-                song: ISimpleTrack,
-                query: str,
-                boost: float = 0) -> float:
+    def forSong(cls, song: ISimpleTrack, query: str, boost: float = 0) -> float:
         """get relevance of song"""
-        return cls._forStrings([song.title,
-                                song.album,
-                                song.artist],
-                               query, boost)
+        return cls._forStrings([song.title, song.album, song.artist], query, boost)
 
     @classmethod
-    def forPlaylist(cls,
-                    playlist: PlaylistModel,
-                    query: str,
-                    boost: float = 0) -> float:
+    def forPlaylist(cls, playlist: PlaylistModel, query: str, boost: float = 0) -> float:
         """get relevance of playlist"""
-        return cls._forStrings([playlist.name,
-                                playlist.description],
-                               query,
-                               boost)
+        return cls._forStrings([playlist.name], query, boost)
 
     @classmethod
-    def forArtist(cls,
-                  name: str,
-                  query: str,
-                  boost: float = 0) -> float:
+    def forArtist(cls, name: str, query: str, boost: float = 0) -> float:
         """get relevance of artist"""
-        return cls._forStrings([name],
-                               query,
-                               boost)
+        return cls._forStrings([name], query, boost)

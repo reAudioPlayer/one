@@ -28,6 +28,7 @@ from config.customData import LocalTrack, LocalCover
 
 class MetaHandler:
     """handler for different 'meta' features (e.g. metadata, spotify, search)"""
+
     __slots__ = ("_spotify", "_dbManager", "_logger")
 
     def __init__(self, spotify: Spotify) -> None:
@@ -35,29 +36,27 @@ class MetaHandler:
         self._dbManager = Database()
         self._logger = logging.getLogger(MetaHandler.__name__)
 
-    @withObjectPayload(Object({
-        "url": String().url()
-    }), inBody = True)
+    @withObjectPayload(Object({"url": String().url()}), inBody=True)
     async def getMetadata(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/browse/track)"""
         metadata = await asyncRunInThreadWithReturn(Metadata, self._spotify, payload["url"])
         if not metadata:
-            return web.HTTPNotFound(text = "no metadata found")
+            return web.HTTPNotFound(text="no metadata found")
         response = await metadata.toExtendedDict()
-        return web.json_response(data = response)
+        return web.json_response(data=response)
 
-    @withObjectPayload(Object({
-        "id": Integer().coerce()
-    }), inPath = True)
+    @withObjectPayload(Object({"id": Integer().coerce()}), inPath=True)
     async def getTrack(self, payload: Dict[str, Any]) -> web.Response:
         """get(/api/tracks/{id})"""
         id_: int = payload["id"]
         song = await self._dbManager.songs.byId(id_)
         if not song:
-            return web.HTTPNotFound(text = "no track found")
-        return web.json_response(data = Song(song).toDict())
+            return web.HTTPNotFound(text="no track found")
+        return web.json_response(data=Song(song).toDict())
 
-    async def putArtist(self, request: web.Request) -> web.Response: # pylint: disable=too-many-locals
+    async def putArtist(
+        self, request: web.Request
+    ) -> web.Response:  # pylint: disable=too-many-locals
         """put(/api/artists/{name})"""
         inputArtist = request.match_info["name"]
         payload = await request.json()
@@ -67,13 +66,13 @@ class MetaHandler:
         artistModel = await ArtistModel.fetch(artistName, self._spotify, self._dbManager, tracks)
 
         if not artistModel:
-            return web.HTTPNotFound(text = "artist not found")
+            return web.HTTPNotFound(text="artist not found")
 
         spotifyId = payload["spotifyId"]
 
         if isinstance(spotifyId, str):
             if not len(spotifyId) == 22:
-                return web.HTTPBadRequest(text = "invalid spotify id")
+                return web.HTTPBadRequest(text="invalid spotify id")
             artistModel.spotifyModel = SpotifyArtistData.fromId(spotifyId)
             return web.Response()
         if isinstance(spotifyId, bool):
@@ -83,12 +82,12 @@ class MetaHandler:
                 artistModel.image = ""
                 artistModel.spotifyModel = SpotifyArtistData.disabled()
             return web.Response()
-        return web.HTTPBadRequest(text = "invalid spotify id")
+        return web.HTTPBadRequest(text="invalid spotify id")
 
-    @withObjectPayload(Object({
-        "name": String().min(1)
-    }), inPath = True)
-    async def getArtist(self, payload: Dict[str, Any]) -> web.Response: # pylint: disable=too-many-locals
+    @withObjectPayload(Object({"name": String().min(1)}), inPath=True)
+    async def getArtist(
+        self, payload: Dict[str, Any]
+    ) -> web.Response:  # pylint: disable=too-many-locals
         """get(/api/artists/{name})"""
         inputArtist: str = payload["name"]
         tracks = Song.list(await self._dbManager.songs.byArtist(inputArtist))
@@ -100,23 +99,28 @@ class MetaHandler:
         if artistModel and artistModel.spotifyModel:
             metaDict = artistModel.spotifyModel.toDict()
 
-        return web.json_response(data = {
-            "name": artistName,
-            "cover": artistModel.image if artistModel else None,
-            "metadata": metaDict,
-            "songs": [ track.toDict() for track in tracks ]
-        })
+        return web.json_response(
+            data={
+                "name": artistName,
+                "cover": artistModel.image if artistModel else None,
+                "metadata": metaDict,
+                "songs": [track.toDict() for track in tracks],
+            }
+        )
 
-    @withObjectPayload(Object({
-        "query": String().min(1),
-        "scope": Array(String().enum("local",
-                                     "spotify",
-                                     "youtube",
-                                     "song",
-                                     "album",
-                                     "artist",
-                                     "playlist")).min(1).max(3).optional(),
-    }), inBody = True)
+    @withObjectPayload(
+        Object(
+            {
+                "query": String().min(1),
+                "scope": Array(
+                    String().enum(
+                        "local", "spotify", "youtube", "song", "album", "artist", "playlist"
+                    )
+                ).optional(),
+            }
+        ),
+        inBody=True,
+    )
     async def search(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/search)"""
         query: str = payload["query"]
@@ -124,93 +128,94 @@ class MetaHandler:
 
         search = Search(self._spotify, query, scope)
         await search.execute()
-        return web.json_response(data = search.toDict())
+        return web.json_response(data=search.toDict())
 
-    @withObjectPayload(Object({
-        "id": String().min(22).max(22)
-    }), inPath = True)
+    @withObjectPayload(Object({"id": String().min(22).max(22)}), inPath=True)
     async def spotifyAlbum(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/albums/{id})"""
         id_: str = payload["id"]
-        def _implement() -> SpotifyResult[List[ Dict[str, Any] ]]:
+
+        def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             result = self._spotify.albumTracks(id_)
             if not result:
-                return result.transform([ ])
+                return result.transform([])
 
             tracks = result.unwrap()
-            metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
-            return result.transform([ (metadata.toDict()) for metadata in metadatas ])
+            metadatas = [Metadata(self._spotify, track.url) for track in tracks]
+            return result.transform([(metadata.toDict()) for metadata in metadatas])
 
         data = await asyncRunInThreadWithReturn(_implement)
 
         if not data:
             return data.httpResponse()
 
-        return web.json_response(data = data.unwrap())
+        return web.json_response(data=data.unwrap())
 
-    @useCache(900) # type: ignore
+    @useCache(900)  # type: ignore
     async def spotifyPlaylists(self, _: web.Request) -> web.Response:
         """get(/api/spotify/playlists)"""
+
         def _implement() -> SpotifyResult[List[SpotifyPlaylist]]:
             result = self._spotify.userPlaylists()
             if not result:
-                return result.transform([ ])
+                return result.transform([])
 
             return result
+
         data = await asyncRunInThreadWithReturn(_implement)
 
         if not data:
             return data.httpResponse()
 
-        return web.json_response(data = [ pl.toDict() for pl in data.unwrap() ])
+        return web.json_response(data=[pl.toDict() for pl in data.unwrap()])
 
-    @withObjectPayload(Object({
-        "id": String().min(22).max(22)
-    }), inPath = True)
+    @withObjectPayload(Object({"id": String().min(22).max(22)}), inPath=True)
     async def spotifyPlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/playlists/{id})"""
         id_: str = payload["id"]
+
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             result = self._spotify.playlistTracks(id_)
             if not result:
-                return result.transform([ ])
+                return result.transform([])
 
             tracks = result.unwrap()
-            metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
+            metadatas = [Metadata(self._spotify, track.url) for track in tracks]
             # TODO add metadata in UI for playlists, albums
-            return result.transform([ (metadata.toDict()) for metadata in metadatas ])
+            return result.transform([(metadata.toDict()) for metadata in metadatas])
+
         data = await asyncRunInThreadWithReturn(_implement)
 
         if not data:
             return data.httpResponse()
 
-        return web.json_response(data = data.unwrap())
+        return web.json_response(data=data.unwrap())
 
-    @useCache(0) # type: ignore
+    @useCache(0)  # type: ignore
     async def releases(self, _: web.Request) -> web.Response:
         """get(/api/releases)"""
         data = await asyncRunInThreadWithReturn(Releases, self._spotify)
-        return web.json_response(data = data.toDict())
+        return web.json_response(data=data.toDict())
 
-    @useCache(900) # type: ignore
+    @useCache(900)  # type: ignore
     async def spotifyArtists(self, _: web.Request) -> web.Response:
         """get(/api/spotify/artists)"""
+
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             result = self._spotify.allUserArtists()
             if not result:
-                return result.transform([ ])
+                return result.transform([])
 
-            return result.transform([ artist.toDict() for artist in result.unwrap() ])
+            return result.transform([artist.toDict() for artist in result.unwrap()])
+
         data = await asyncRunInThreadWithReturn(_implement)
 
         if not data:
             return data.httpResponse()
 
-        return web.json_response(data = data.unwrap())
+        return web.json_response(data=data.unwrap())
 
-    @withObjectPayload(Object({
-        "id": String().min(22).max(22)
-    }), inPath = True)
+    @withObjectPayload(Object({"id": String().min(22).max(22)}), inPath=True)
     async def spotifyArtist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/artists/{id})"""
         id_: str = payload["id"]
@@ -218,17 +223,18 @@ class MetaHandler:
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             result = self._spotify.artistTracks(id_)
             if not result:
-                return result.transform([ ])
+                return result.transform([])
 
             tracks = result.unwrap()
-            metadatas = [ Metadata(self._spotify, track.url) for track in tracks ]
-            return result.transform([ metadata.toDict() for metadata in metadatas ])
+            metadatas = [Metadata(self._spotify, track.url) for track in tracks]
+            return result.transform([metadata.toDict() for metadata in metadatas])
+
         data = await asyncRunInThreadWithReturn(_implement)
 
         if not data:
             return data.httpResponse()
 
-        return web.json_response(data = data.unwrap())
+        return web.json_response(data=data.unwrap())
 
     async def spotifyFollow(self, request: web.Request) -> web.Response:
         """post(/api/spotify/following)"""
@@ -245,32 +251,37 @@ class MetaHandler:
     async def upload(self, request: web.Request) -> web.Response:
         """post(/api/config/images)"""
         if not Runtime.args.withDocker:
-            return web.HTTPExpectationFailed(text = "must run in docker")
+            return web.HTTPExpectationFailed(text="must run in docker")
 
         async for obj in (await request.multipart()):
             if obj.filename:
                 file = LocalCover.createNew(obj.filename)
                 file.write(await obj.read())
-                return web.Response(text = file.displayPath)
-        return web.Response(status = 400)
+                return web.Response(text=file.displayPath)
+        return web.Response(status=400)
 
     async def uploadSong(self, request: web.Request) -> web.Response:
         """post(/api/config/tracks)"""
         if not Runtime.args.withDocker:
-            return web.HTTPExpectationFailed(text = "must run in docker")
+            return web.HTTPExpectationFailed(text="must run in docker")
 
         async for obj in (await request.multipart()):
             if obj.filename:
                 file = LocalTrack.createNew(obj.filename)
                 file.write(await obj.read())
-                return web.Response(text = file.displayPath)
-        return web.Response(status = 400)
+                return web.Response(text=file.displayPath)
+        return web.Response(status=400)
 
-    @withObjectPayload(Object({
-        "id": Integer().min(1).optional(),
-        "forceFetch": Boolean().optional(),
-        "spotifyId": String().optional().min(22).max(22)
-    }), inBody = True)
+    @withObjectPayload(
+        Object(
+            {
+                "id": Integer().min(1).optional(),
+                "forceFetch": Boolean().optional(),
+                "spotifyId": String().optional().min(22).max(22),
+            }
+        ),
+        inBody=True,
+    )
     async def fetchSongMeta(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/meta)"""
         id_: Optional[int] = payload.get("id")
@@ -279,7 +290,7 @@ class MetaHandler:
         if id_:
             model = await self._dbManager.songs.byId(id_)
             if not model:
-                return web.HTTPNotFound(text = "song not found")
+                return web.HTTPNotFound(text="song not found")
         else:
             model = SongModel.empty()
 
@@ -294,19 +305,15 @@ class MetaHandler:
             spotifyId = song.metadata.spotify.id
         spotifyId = JDict(payload).optionalGet("spotifyId", str) or spotifyId
 
-        spotifySong = await SpotifyTrack.fetch(self._spotify,
-                                               spotifyId,
-                                               song.model.artist,
-                                               song.model.name,
-                                               forceFetch)
+        spotifySong = await SpotifyTrack.fetch(
+            self._spotify, spotifyId, song.model.artist, song.model.name, forceFetch
+        )
         if not spotifySong:
-            return web.HTTPNotFound(text = "song not found")
+            return web.HTTPNotFound(text="song not found")
 
-        metadata = await SongMetadata.fetch(self._spotify,
-                                            spotifySong,
-                                            song.metadata)
+        metadata = await SongMetadata.fetch(self._spotify, spotifySong, song.metadata)
         if not metadata:
-            return web.HTTPNotFound(text = "metadata not found")
+            return web.HTTPNotFound(text="metadata not found")
 
         song.metadata = metadata
         return web.json_response(metadata.toDict())
@@ -314,43 +321,48 @@ class MetaHandler:
     async def _searchOnSpotify(self, query: str, limit: int) -> SpotifyResult[List[SpotifyTrack]]:
         def _implement() -> SpotifyResult[List[SpotifyTrack]]:
             return self._spotify.searchTrack(query, limit)
+
         return await asyncRunInThreadWithReturn(_implement)
 
-    @withObjectPayload(Object({
-        "id": Integer().min(1).coerce()
-    }), inPath = True)
+    @withObjectPayload(Object({"id": Integer().min(1).coerce()}), inPath=True)
     async def spotifyRecommendSong(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/recommendations/{id})"""
         id_: int = payload["id"]
         model = await self._dbManager.songs.byId(id_)
         if not model:
-            return web.HTTPNotFound(text = "song not found")
+            return web.HTTPNotFound(text="song not found")
         song = Song(model)
         if not song.metadata:
-            return web.HTTPNotFound(text = "metadata not found")
+            return web.HTTPNotFound(text="metadata not found")
         if not song.metadata.spotify:
-            return web.HTTPNotFound(text = "spotify metadata not found")
+            return web.HTTPNotFound(text="spotify metadata not found")
         if not song.metadata.spotify.id:
-            return web.HTTPNotFound(text = "spotify id not found")
+            return web.HTTPNotFound(text="spotify id not found")
 
         result = self._spotify.recommendations(
-            [ artist.id for artist in song.metadata.spotify.artists or [] ],
-            [ song.metadata.spotify.id ],
-            []
+            [artist.id for artist in song.metadata.spotify.artists or []],
+            [song.metadata.spotify.id],
+            [],
         )
         if not result:
             return result.httpResponse()
         tracks = result.unwrap()
-        return web.json_response([ track.toDict() for track in tracks ])
+        return web.json_response([track.toDict() for track in tracks])
 
-    @withObjectPayload(Object({
-        "query": String().min(1).optional(),
-        "artists": Array(String().min(22).max(22)).optional(),
-        "tracks": Array(String().min(22).max(22)).optional(),
-        "genres": Array(String().min(1)).optional()
-    }), inBody = True)
+    @withObjectPayload(
+        Object(
+            {
+                "query": String().min(1).optional(),
+                "artists": Array(String().min(22).max(22)).optional(),
+                "tracks": Array(String().min(22).max(22)).optional(),
+                "genres": Array(String().min(1)).optional(),
+            }
+        ),
+        inBody=True,
+    )
     async def spotifyRecommend(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/spotify/recommendations)"""
+
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
             dex = JDict(payload)
             query = dex.optionalGet("query", str)
@@ -359,7 +371,7 @@ class MetaHandler:
             tracks = dex.ensure("tracks", list)
             genres = dex.ensure("genres", list)
 
-            if query: # find track first
+            if query:  # find track first
                 result = self._spotify.searchTrack(query)
                 if result:
                     queryTracks = result.unwrap()
@@ -369,12 +381,13 @@ class MetaHandler:
             result = self._spotify.recommendations(artists, tracks, genres)
 
             if not result:
-                return result.transform([ ])
+                return result.transform([])
 
-            return result.transform([ track.toDict() for track in result.unwrap() ])
+            return result.transform([track.toDict() for track in result.unwrap()])
+
         data = await asyncRunInThreadWithReturn(_implement)
 
         if not data:
             return data.httpResponse()
 
-        return web.json_response(data = data.unwrap())
+        return web.json_response(data=data.unwrap())
