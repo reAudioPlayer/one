@@ -45,7 +45,7 @@
                     <div class="flex justify-between w-full items-center">
                         <div class="flex gap-4 items-center">
                             <span
-                                class="preview material-symbols-rounded text-3xl cursor-pointer"
+                                class="preview material-symbols-rounded ms-fill text-3xl cursor-pointer"
                                 @click="previewRelease(nextInQueue)"
                             >
                                 play_circle

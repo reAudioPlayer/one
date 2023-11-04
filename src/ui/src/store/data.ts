@@ -22,10 +22,12 @@ export const useDataStore = defineStore({
             return this.playlists.length === 0;
         },
         playlistsAsDropdown(allowCreateNew = true): IDropdownOption[] {
-            const options = this.playlists.map((playlist) => ({
-                value: playlist.id,
-                label: playlist.name,
-            }));
+            const options = (this.playlists as IFullPlaylist[])
+                .filter((x) => x.type === "classic")
+                .map((playlist) => ({
+                    value: playlist.id,
+                    label: playlist.name,
+                }));
             if (allowCreateNew) {
                 options.push({
                     value: "new",
