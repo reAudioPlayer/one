@@ -30,14 +30,7 @@
                         :class="{ selected }"
                         @click="clickSuggestion(value)"
                     >
-                        <Cover :src="value.cover" />
-                        <div class="flex flex-col overflow-hidden">
-                            <Marquee :text="value.title" />
-                            <Marquee
-                                class="text-sm text-muted"
-                                :text="value.artist"
-                            />
-                        </div>
+                        <SearchResultItem :item="value" />
                     </div>
                 </template>
             </InputWithAutoComplete>
@@ -79,6 +72,8 @@ import router from "./router";
 import { onMounted, ref, computed } from "vue";
 import InputWithAutoComplete from "@/components/inputs/InputWithAutoComplete.vue";
 import { useDownloaderStore } from "./store/downloader";
+import SearchResultItem from "./views/Search/SearchResultItem.vue";
+import { TYPES } from "./views/Search/search";
 
 const downloadIcon = ref(null);
 const showDownloadAnim = ref(false);
@@ -100,7 +95,11 @@ downloaderStore.onDownload.push((songId: number) => {
 });
 
 const clickSuggestion = (value) => {
-    router.push(value.href);
+    if (value.type === "artist") {
+        router.push(`/artist/${value.item.name}`);
+        return;
+    }
+    router.push(value.item.href);
 };
 
 const suggest = async (value) => {
@@ -110,11 +109,11 @@ const suggest = async (value) => {
         method: "POST",
         body: JSON.stringify({
             query: value,
-            scope: ["local"],
+            scope: ["local", ...TYPES],
         }),
     });
     const jdata = await res.json();
-    return jdata.tracks;
+    return jdata.items;
 };
 
 let query = ref("");
@@ -162,9 +161,7 @@ let submit = () => {
 
 .suggestion {
     display: grid;
-    grid-template-columns: 48px 1fr;
     gap: 1em;
-    padding: 0.5em;
     width: 100%;
 
     .cover {

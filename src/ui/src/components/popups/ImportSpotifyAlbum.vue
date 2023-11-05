@@ -40,8 +40,10 @@ const modal = ref(null);
 const form = ref(null);
 const songs: Ref<ISpotifySong[]> = ref([]);
 
+let fetchedId = null;
+
 const show = async () => {
-    if (songs.value.length > 0) {
+    if (songs.value.length > 0 && fetchedId === props.album.id) {
         modal.value.show();
         return;
     }
@@ -49,8 +51,16 @@ const show = async () => {
     const res = await modal.value.fetch(
         `/api/spotify/albums/${props.album.id}`
     );
+    fetchedId = props.album.id;
 
-    if (!res) return;
+    if (!res) {
+        Notifications.addError(
+            "Failed to fetch album from Spotify",
+            res.text,
+            3000
+        );
+        return;
+    }
 
     songs.value = await res.json();
 };
@@ -69,6 +79,7 @@ const preview = () => {
 const createPlaylist = async (playlistId: string) => {
     if (playlistId === "new") {
         const newPlaylist = await createPlaylistWithMetadata(
+            "classic",
             props.album.title,
             `${props.album.releaseDate}, ${props.album.artist}`,
             props.album.cover
@@ -87,10 +98,7 @@ const addSong = async (index: number, playlistId: string = null) => {
 
     playlistId = await createPlaylist(playlistId);
 
-    await addSongToPlaylist(
-        playlistId ?? form.value.toObject().playlist,
-        songs.value[index]
-    );
+    await addSongToPlaylist(playlistId, songs.value[index]);
     songs.value[index].added = true;
 };
 

@@ -7,7 +7,6 @@ __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 from typing import Type, Tuple, Optional, Union, List, Any, Dict
 from hashids import Hashids  # type: ignore
 import aiosqlite
-from Levenshtein import distance as lev
 from dataModel.track import ITrack
 from db.table.table import ITable, IModel
 
@@ -321,55 +320,10 @@ class SongsTable(ITable[SongModel]):
         where = f"id IN ({', '.join([ str(x) for x in ids ])})"
         return await self.select(append=f"WHERE {where}")
 
-    def _sortByRelevance(self, query: str, songs: List[SongModel]) -> List[SongModel]:
-        """sort songs by relevance"""
-
-        class SongRelevance:
-            """song relevance"""
-
-            song: SongModel
-            minScore: int
-            minKeyScore: int
-            avgScore: float
-
-            @property
-            def score(self) -> float:
-                """return score"""
-                minWeight = 2
-                minKeyWeight = 1.2
-                avgWeight = 0.7
-                return (
-                    (self.minScore * minWeight)
-                    + (self.minKeyScore * minKeyWeight)
-                    + (self.avgScore * avgWeight)
-                )
-
-        def relevance(song: SongModel) -> float:
-            """get relevance of song"""
-            rel = SongRelevance()
-            rel.song = song
-            distances = []
-            keyDistances = []
-            # break by spaces, compare each word
-            for i in [song.title, song.album, song.artist]:
-                words = i.split(" ")
-                for word in words:
-                    queryWords = query.split(" ")
-                    for queryWord in queryWords:
-                        keyDistances.append(lev(i, queryWord))
-                        distances.append(lev(word, queryWord))
-            rel.minScore = min(distances)
-            rel.minKeyScore = min(keyDistances)
-            rel.avgScore = sum(distances) / len(distances)
-
-            return rel.score
-
-        return sorted(songs, key=relevance)
-
     async def search(self, query: str) -> List[SongModel]:
         """get songs by (non-sql) query (for the search function)"""
 
-        filters = query.split(";")
+        filters = query.replace("'", "''").split(";")
         filter_ = ""
 
         def createLike(word: str) -> str:
@@ -384,7 +338,7 @@ class SongsTable(ITable[SongModel]):
                 ands.append(f"{tagAndQuery[0]} LIKE '%{tagAndQuery[1]}%'")
         filter_ = " AND ".join(ands)
         songs = await self.select(append=f"WHERE {filter_}")
-        return self._sortByRelevance(query, songs)
+        return songs
 
     async def byArtist(self, artist: str) -> List[SongModel]:
         """get songs by artist"""

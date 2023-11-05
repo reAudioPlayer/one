@@ -9,6 +9,7 @@ from hashids import Hashids # type: ignore
 from pyaddict import JDict
 
 from dataModel.metadata import SongMetadata
+from dataModel.track import ISimpleTrack
 from db.table.songs import SongModel
 
 
@@ -26,7 +27,7 @@ def _castDuration(value: Optional[Any]) -> int:
         return -1
 
 
-class Song:
+class Song(ISimpleTrack):
     """song model"""
     __slots__ = ("_metadata", "_model", "_onChanged" )
 
@@ -71,6 +72,18 @@ class Song:
             self._model.spotify = value.spotify.toStr()
         if value.plays:
             self._model.plays = value.plays
+
+    @property
+    def title(self) -> str:
+        return self._model.name
+
+    @property
+    def artist(self) -> str:
+        return self._model.artist
+
+    @property
+    def album(self) -> str:
+        return self._model.album
 
     def toDict(self) -> Dict[str, Any]:
         """return as dict"""

@@ -75,7 +75,7 @@ class ITrack(ISimpleTrack):
             "cover": self.cover,
             "url": self.url,
             "preview": self.preview,
-            "markets": self.markets
+            #"markets": self.markets
         }
 
 
@@ -235,7 +235,7 @@ class SpotifyTrack(ITrack):
             "cover": self.cover,
             "href": self.url,
             "preview": self.preview,
-            "markets": self.markets,
+            #"markets": self.markets,
             "album": self.album,
             "metadata": self._metadata.toDict() if self._metadata else None,
             "spotify": {
@@ -328,11 +328,11 @@ class SpotifyArtist:
     def _displayFollowers(self) -> str:
         # > 1.000.000 -> 1M
         # > 1.000 -> 1K
-        followers = self._followers
-        if followers > 1e6:
-            followers = f"{round(followers / 1e6, 1)}M"
-        elif followers > 1e3:
-            followers = f"{round(followers / 1e3, 1)}k"
+        followers = str(self._followers)
+        if self._followers > 1e6:
+            followers = f"{round(self._followers / 1e6, 1)}M"
+        elif self._followers > 1e3:
+            followers = f"{round(self._followers / 1e3, 1)}k"
         return followers
 
     @property

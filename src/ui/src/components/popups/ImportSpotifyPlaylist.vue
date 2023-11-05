@@ -51,17 +51,17 @@ const preview = () => {
     playInPicture("Spotify Playlist", props.playlist.name, props.playlist.href);
 }
 
-const createPlaylist = async (playlistId: string | number): Promise<number> => {
+const createPlaylist = async (playlistId: string): Promise<string> => {
     if (playlistId === "new") {
-        const newPlaylist = await createPlaylistWithMetadata(props.playlist.name, props.playlist.description, props.playlist.cover);
+        const newPlaylist = await createPlaylistWithMetadata("classic", props.playlist.name, props.playlist.description, props.playlist.cover);
         options.value[0].options = data.playlistsAsDropdown;
         options.value[0].value = newPlaylist;
         return newPlaylist;
     }
-    return Number(playlistId);
+    return playlistId;
 }
 
-const addSong = async (index: number, playlistId: number = null) => {
+const addSong = async (index: number, playlistId: string = null) => {
     if (songs.value[index].added) return;
 
     playlistId ??= form.value.toObject().playlist;
@@ -69,8 +69,8 @@ const addSong = async (index: number, playlistId: number = null) => {
     playlistId = await createPlaylist(playlistId);
 
     await addSongToPlaylist(
-        playlistId ?? form.value.toObject().playlist,
-         songs.value[index]);
+        playlistId,
+        songs.value[index]);
     songs.value[index].added = true;
 }
 

@@ -2,6 +2,7 @@
 """reAudioPlayer ONE"""
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
+import asyncio
 from typing import Dict, Optional, List, TypeVar, Any
 from helper.logged import Logged
 from dataModel.song import Song
@@ -171,8 +172,9 @@ class PlaylistManager(Logged):
         playlist = self.get(playlistId)
         if playlist is None:
             return False
-        # TODO(dxstiny) delete songs from DB too
         if not await playlist.delete():
             return False
+        for song in playlist:
+            asyncio.create_task(self._deleteSongIfNotInPlaylists(song))
         del self._playlists[playlistId]
         return True
