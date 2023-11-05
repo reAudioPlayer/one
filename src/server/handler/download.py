@@ -52,7 +52,7 @@ class DownloadHandler:
         os.remove(pathAndName)
         return web.Response()
 
-    @withObjectPayload(
+    @withObjectPayload( # type: ignore
         Object(
             {
                 "id": Integer().coerce(),
@@ -71,7 +71,7 @@ class DownloadHandler:
             return web.Response()
         return web.Response(status=404)
 
-    @withObjectPayload(
+    @withObjectPayload( # type: ignore
         Object(
             {
                 "id": Integer().coerce(),

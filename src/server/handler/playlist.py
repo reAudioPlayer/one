@@ -88,7 +88,8 @@ class PlaylistHandler:
     async def getPlaylist(self, payload: Dict[str, Any]) -> web.Response:
         """post(/api/playlists/{id})"""
         id_: str = payload["id"]
-        if playlist := self._playlistManager.get(id_):
+        playlist = self._playlistManager.get(id_)
+        if playlist is not None:
             return web.json_response(playlist.toDict())
         return web.HTTPNotFound()
 

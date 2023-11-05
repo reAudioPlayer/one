@@ -17,16 +17,9 @@ const routes = [{
     }
 },
 {
-    path: '/search',
-    component: () => import("@/views/Search.vue"),
-    meta: {
-        title: "Search - reAudioPlayer One"
-    }
-},
-{
     name: "Search",
     path: '/search/:query',
-    component: () => import("@/views/Search.vue"),
+    component: () => import("@/views/Search/index.vue"),
     meta: {
         title: "Search - reAudioPlayer One"
     }

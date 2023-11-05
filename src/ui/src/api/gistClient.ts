@@ -15,27 +15,30 @@ const getHeaders = async (forcePat: string = null) => {
     if (!token) throw new Error("No GitHub PAT found");
 
     return {
-        "Authorization": "Bearer " + token
-    }
+        Authorization: "Bearer " + token,
+    };
 };
 
-const body = (files: Files,
-              filename: string = "reAudioPlayer One",
-              description: string = "Fully managed with reAudioPlayer One",
-              isPublic: boolean = false) => {
+const body = (
+    files: Files,
+    filename: string = "reAudioPlayer One",
+    description: string = "Fully managed with reAudioPlayer One",
+    isPublic: boolean = false
+) => {
     const body = {
         public: isPublic,
         description: description,
         files: {
             [`_${filename}.md`]: {
-                content: "# reAudioPlayer One\n\nThis gist was created with reAudioPlayer One\n\nhttps://reaudioplayer.github.io/one/"
-            }
-        }
+                content:
+                    "# reAudioPlayer One\n\nThis gist was created with reAudioPlayer One\n\nhttps://reaudioplayer.github.io/one/",
+            },
+        },
     };
     for (const [key, value] of Object.entries(files)) {
         body.files[key] = {
-            content: JSON.stringify(value, null, 4)
-        }
+            content: JSON.stringify(value, null, 4),
+        };
     }
     return JSON.stringify(body);
 };
@@ -48,7 +51,7 @@ const gistId = async () => {
 const get = async () => {
     const headers = await getHeaders();
     const res = await fetch(`https://api.github.com/gists/${await gistId()}`, {
-        headers
+        headers,
     });
     try {
         return await res.json();
@@ -62,7 +65,7 @@ const update = async (files: Files, filename: string = "one.lib.json") => {
     const res = await fetch(`https://api.github.com/gists/${await gistId()}`, {
         method: "PATCH",
         headers,
-        body: body(files, filename)
+        body: body(files, filename),
     });
 
     if (!res.ok) {
@@ -75,15 +78,17 @@ const update = async (files: Files, filename: string = "one.lib.json") => {
     return jdata;
 };
 
-const save = async (files: Files,
-                    filename: string = "reAudioPlayer One",
-                    isPublic: boolean = false,
-                    description: string = "Fully managed with reAudioPlayer One") => {
+const save = async (
+    files: Files,
+    filename: string = "reAudioPlayer One",
+    isPublic: boolean = false,
+    description: string = "Fully managed with reAudioPlayer One"
+) => {
     const headers = await getHeaders();
     const res = await fetch("https://api.github.com/gists", {
         method: "POST",
         headers,
-        body: body(files, filename, description, isPublic)
+        body: body(files, filename, description, isPublic),
     });
 
     console.log(res);
@@ -99,9 +104,9 @@ const save = async (files: Files,
             method: "PUT",
             body: JSON.stringify({
                 github: {
-                    gistId: jdata.id
-                }
-            })
+                    gistId: jdata.id,
+                },
+            }),
         });
     }
     Notifications.addSuccess("Gist created", "", 3000);
@@ -113,45 +118,53 @@ export default {
         return !!(await gistId());
     },
     get,
-    getContent: async (filename: string = "my.one.collection"): Promise<any> => {
+    getContent: async (
+        filename: string = "my.one.collection"
+    ): Promise<any> => {
         const gist = await get();
         const content = gist.files?.[filename]?.content;
         return content ? JSON.parse(content) : [];
     },
-    saveOrUpdate: async (files: Files,
-                         filename: string = "reAudioPlayer One",
-                         isPublic: boolean = false) => {
+    saveOrUpdate: async (
+        files: Files,
+        filename: string = "reAudioPlayer One",
+        isPublic: boolean = false
+    ) => {
         const gist = await get();
         if (gist?.files) {
-            return await update(files,
-                                filename);
+            return await update(files, filename);
         } else {
-            return await save(files,
-                              filename,
-                              isPublic);
+            return await save(files, filename, isPublic);
         }
     },
     save,
     update,
     delete: async () => {
         const headers = await getHeaders();
-        const res = await fetch(`https://api.github.com/gists/${await gistId()}`, {
-            method: "DELETE",
-            headers
-        });
+        const res = await fetch(
+            `https://api.github.com/gists/${await gistId()}`,
+            {
+                method: "DELETE",
+                headers,
+            }
+        );
         return await res.json();
     },
     search: async (forcePat: string = null) => {
         // searches for gists with the filename "one.lib.json"
         const headers = await getHeaders(forcePat);
-        const res = await fetch(`https://api.github.com/gists?filename=one.lib.json`, {
-            headers
+        const res = await fetch(`https://api.github.com/gists`, {
+            headers,
         });
         const data = await res.json();
-        return data?.[0]?.id;
+
+        // search for file "my.one.collection"
+        const filename = "my.one.collection";
+        const gist = data?.find((gist) => gist.files?.[filename]);
+        return gist?.id;
     },
     gistUrl: async () => {
         const gist = await get();
         return gist?.html_url;
-    }
-}
+    },
+};

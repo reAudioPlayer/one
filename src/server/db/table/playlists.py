@@ -174,3 +174,23 @@ class PlaylistsTable(ITable[PlaylistModel]):
     async def deleteById(self, id_: int) -> None:
         """delete playlist by id"""
         await self._db.execute(f"DELETE FROM {self.NAME} WHERE id={id_}")
+
+    async def search(self, query: str) -> List[PlaylistModel]:
+        """get songs by (non-sql) query (for the search function)"""
+
+        filters = query.replace("'", "''").split(";")
+        filter_ = ""
+
+        def createLike(word: str) -> str:
+            return f"(name LIKE '%{word}%')"
+
+        ands: List[str] = []
+        for x in filters:
+            tagAndQuery = x.replace("title", "name").split(":")
+            if len(tagAndQuery) == 1:
+                ands.extend([createLike(x) for x in tagAndQuery[0].split(" ")])
+            else:
+                ands.append(f"{tagAndQuery[0]} LIKE '%{tagAndQuery[1]}%'")
+        filter_ = " AND ".join(ands)
+        playlists = await self.select(append=f"WHERE {filter_}")
+        return playlists

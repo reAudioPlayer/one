@@ -420,3 +420,23 @@ class ArtistsTable(ITable[ArtistModel]):
         """get artist by id"""
         where = f"name = '{name}'"
         return await self.selectOne(append = f"WHERE {where}")
+
+    async def search(self, query: str) -> List[ArtistModel]:
+        """get songs by (non-sql) query (for the search function)"""
+
+        filters = query.replace("'", "''").split(";")
+        filter_ = ""
+
+        def createLike(word: str) -> str:
+            return f"(name LIKE '%{word}%')"
+
+        ands: List[str] = []
+        for x in filters:
+            tagAndQuery = x.replace("title", "name").split(":")
+            if len(tagAndQuery) == 1:
+                ands.extend([createLike(x) for x in tagAndQuery[0].split(" ")])
+            else:
+                ands.append(f"{tagAndQuery[0]} LIKE '%{tagAndQuery[1]}%'")
+        filter_ = " AND ".join(ands)
+        playlists = await self.select(append=f"WHERE {filter_}")
+        return playlists

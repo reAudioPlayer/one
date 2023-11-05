@@ -59,11 +59,11 @@ class ClassicPlayerPlaylist(IPlayerPlaylist):
     async def addAll(self, songs: List[Song]) -> None:
         """adds all songs"""
         newSongs = [await self._addOrGetSongFromDb(s) for s in songs]
-        songs = self._playlistModel.songsList
-        songs.extend(s.model.id for s in newSongs)
+        songList = self._playlistModel.songsList
+        songList.extend(s.model.id for s in newSongs)
         self._queue.extend(range(len(self._songs), len(self._songs) + len(newSongs)))
         self._songs.extend(newSongs)
-        self._playlistModel.songsList = songs        
+        self._playlistModel.songsList = songList
 
     async def remove(self, songId: int) -> Optional[Song]:
         """removes a song"""

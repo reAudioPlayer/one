@@ -3,7 +3,7 @@
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 import asyncio
-from typing import Dict, Any, Union, Optional
+from typing import Dict, Any, Optional
 import json
 
 from aiohttp import web
@@ -46,8 +46,8 @@ class PlayerHandler:
     async def loadPlaylist(self, payload: Dict[str, str]) -> web.Response:
         """post(/api/player/load)"""
         type_: str = payload["type"]
-        id_: Union[str, int] = payload.get("id")
-        name: str = payload.get("name")
+        id_: Optional[str | int] = payload.get("id")
+        name: Optional[str] = payload.get("name")
 
         if type_ == "playlist":
             assert isinstance(id_, str)

@@ -6,6 +6,7 @@ import IconButton from "../../../components/inputs/IconButton.vue";
 import { getConfig, IConfig, setConfig } from "../../../api/config";
 import TextInputWithIcon from "../../../components/inputs/TextInputWithIcon.vue";
 import gistClient from "../../../api/gistClient";
+import { Notifications } from "../../../components/notifications/createNotification";
 
 const spotifyEnabled = ref(false);
 const spotifyClient = ref({
@@ -105,18 +106,23 @@ const updateConfig = async () => {
 const host = window.location.host;
 const spotifyRedirect = `http://${host}/api/spotify/callback`;
 
-watch(
-    () => config.value?.github?.githubPat,
-    async () => {
-        if (!config.value?.github?.githubPat) return;
-        if (config.value.github.gistId) return;
+const autoFillGistId = async () => {
+    if (!config.value?.github?.githubPat) return;
+    if (config.value.github.gistId) return;
 
-        config.value.github.gistId = await gistClient.search(
-            config.value.github.githubPat
+    config.value.github.gistId = await gistClient.search(
+        config.value.github.githubPat
+    );
+
+    if (!config.value.github.gistId) {
+        Notifications.addError(
+            "Failed to find gist",
+            "You can start syncing directly in 'Local Data' (a Gist will be created for you) or enter the gist id manually"
         );
-        console.log(config.value.github.gistId);
     }
-);
+};
+
+watch(() => config.value?.github?.githubPat, autoFillGistId);
 </script>
 <template>
     <Checkbox v-model="spotifyEnabled" class="h3 mb-2" label="Spotify" />
@@ -163,7 +169,7 @@ watch(
     />
     <h3 class="mt-[10px]">Github</h3>
     <h5 class="mt-4">PAT:</h5>
-    <TextInputWithIcon
+    <PasswordInputWithIcon
         v-if="config"
         v-model="config.github.githubPat"
         icon="lock"
@@ -174,11 +180,20 @@ watch(
         v-model="config.github.gistId"
         icon="numbers"
     />
-    <IconButton
-        :disabled="!config || !configChanged"
-        class="ml-auto mt-4"
-        icon="save"
-        label="Save"
-        @click="updateConfig"
-    />
+    <div class="flex gap-4 justify-end mt-4">
+        <IconButton
+            :disabled="
+                !config || !config.github.githubPat || !!config.github.gistId
+            "
+            icon="search"
+            label="Search"
+            @click="autoFillGistId"
+        />
+        <IconButton
+            :disabled="!config || !configChanged"
+            icon="save"
+            label="Save"
+            @click="updateConfig"
+        />
+    </div>
 </template>

@@ -70,7 +70,7 @@ const preview = () => {
 
 const createPlaylist = async (playlistId: string): Promise<string> => {
     if (playlistId === "new") {
-        const newPlaylist = await createPlaylistWithMetadata(props.song.title, props.song.artist, props.song.cover);
+        const newPlaylist = await createPlaylistWithMetadata("classic", props.song.title, props.song.artist, props.song.cover);
         options.value[0].options = data.playlistsAsDropdown;
         options.value[0].value = newPlaylist;
         return newPlaylist;
