@@ -8,7 +8,6 @@ from typing import List, Any, Dict, Optional
 from enum import StrEnum
 
 from db.database import Database
-from db.table.playlists import PlaylistModel
 from db.table.artists import ArtistModel
 from dataModel.track import YoutubeTrack, ITrack
 from dataModel.song import Song
