@@ -286,9 +286,9 @@ const queue = computed(() => {
         case "all":
             return releases.value;
         case "seen":
-            return seen.value.map((x) =>
-                releases.value.find((y) => y.url == x)
-            );
+            return seen.value
+                .map((x) => releases.value.find((y) => y.url == x))
+                .filter((x) => x);
     }
 });
 
@@ -367,6 +367,10 @@ onMounted(async () => {
     loading.value = false;
 
     seen.value = localStorage.getItem(SEEN_KEY)?.split(",") ?? [];
+    // seen should only contain releases that are in the releases list
+    seen.value = seen.value.filter((x) =>
+        releases.value.find((y) => y.url == x)
+    );
     remember.value = JSON.parse(localStorage.getItem(REMEMBER_KEY) ?? "[]");
 });
 watch(queue, (queue) => {
@@ -375,14 +379,22 @@ watch(queue, (queue) => {
 watch(
     seen,
     (seen) => {
-        localStorage.setItem(SEEN_KEY, seen.join(","));
+        if (seen.length) {
+            localStorage.setItem(SEEN_KEY, seen.join(","));
+        } else {
+            localStorage.removeItem(SEEN_KEY);
+        }
     },
     { deep: true }
 );
 watch(
     remember,
     (remember) => {
-        localStorage.setItem(REMEMBER_KEY, JSON.stringify(remember));
+        if (remember.length) {
+            localStorage.setItem(REMEMBER_KEY, JSON.stringify(remember));
+        } else {
+            localStorage.removeItem(REMEMBER_KEY);
+        }
     },
     { deep: true }
 );
