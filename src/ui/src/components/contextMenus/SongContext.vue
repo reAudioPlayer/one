@@ -22,7 +22,9 @@ import { asSyncableSong, downloadSyncable } from "../../views/sync/collection";
 
 const dataStore = useDataStore();
 
-const playlists = computed(() => dataStore.playlists);
+const playlists = computed(() =>
+    dataStore.playlists.filter((x) => x.type === "classic")
+);
 const props = defineProps({
     song: {
         type: Object as PropType<ISong>,

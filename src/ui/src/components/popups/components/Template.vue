@@ -90,7 +90,9 @@ defineExpose({
                     </button>
                 </div>
                 <Loader v-if="loading" />
-                <div v-else-if="error"></div>
+                <div v-else-if="error">
+                    <p class="p-4 error">{{ error }}</p>
+                </div>
                 <div
                     v-else
                     class="p-4 pt-0 flex flex-col overflow-x-hidden overflow-y-auto"
@@ -129,6 +131,10 @@ defineExpose({
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.error {
+    color: var(--danger);
 }
 
 @keyframes fadeIn {

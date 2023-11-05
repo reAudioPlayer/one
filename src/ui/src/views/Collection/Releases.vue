@@ -45,39 +45,54 @@
                     <div class="flex justify-between w-full items-center">
                         <div class="flex gap-4 items-center">
                             <span
-                                class="preview material-symbols-rounded ms-fill text-3xl cursor-pointer"
+                                class="preview material-symbols-rounded ms-fill text-5xl cursor-pointer"
                                 @click="previewRelease(nextInQueue)"
                             >
                                 play_circle
                             </span>
                             <div class="info">
                                 <h3 v-if="nextInQueue">
-                                    {{ nextInQueue.title }}
+                                    <Marquee :text="nextInQueue.title" />
                                 </h3>
-                                <p v-if="nextInQueue" class="m-0">
-                                    {{ nextInQueue.artist }}
+                                <p
+                                    v-if="nextInQueue"
+                                    class="m-0 text-muted text-sm"
+                                >
+                                    <ArtistMarquee
+                                        :artist="nextInQueue.artist"
+                                    />
                                 </p>
-                                <p v-if="nextInQueue" class="m-0 text-muted">
-                                    {{ nextInQueue.releaseDate }}
+                                <p
+                                    v-if="nextInQueue"
+                                    class="m-0 text-muted text-xs"
+                                    :title="nextInQueue.releaseDate"
+                                >
+                                    {{
+                                        formatReleaseDate(
+                                            nextInQueue.releaseDate
+                                        )
+                                    }}
                                 </p>
                             </div>
                         </div>
                         <div class="actions">
                             <span
                                 class="material-symbols-rounded cursor-pointer text-muted hover:text-primary"
-                                @click="importRelease(nextInQueue)"
+                                @click.stop="importRelease(nextInQueue)"
+                                title="Add to playlist"
                             >
                                 add
                             </span>
                             <span
                                 class="material-symbols-rounded cursor-pointer text-muted hover:text-primary"
-                                @click="
+                                @click.stop="
                                     remember.find(
                                         (x) => x.url === nextInQueue.url
                                     )
                                         ? forgetRelease(nextInQueue)
                                         : rememberRelease(nextInQueue)
                                 "
+                                title="Pin"
                             >
                                 {{
                                     remember.find(
@@ -89,7 +104,8 @@
                             </span>
                             <span
                                 class="material-symbols-rounded cursor-pointer text-muted hover:text-primary"
-                                @click="seeRelease(nextInQueue)"
+                                @click.stop="seeRelease(nextInQueue)"
+                                title="Mark as seen"
                             >
                                 done_all
                             </span>
@@ -123,7 +139,7 @@
                         :class="{ selected: activeQueue == 'watching' }"
                         @click="activeQueue = 'watching'"
                     >
-                        Watching
+                        Pinned
                     </h5>
                     <h5
                         class="cursor-pointer"
@@ -155,6 +171,10 @@
                 <div class="entries overflow-y-auto flex flex-col gap-2">
                     <div
                         class="entry"
+                        @click="
+                            nextInQueue = entry;
+                            previewRelease(entry);
+                        "
                         v-for="entry in queue"
                         v-if="queue.length"
                     >
@@ -167,22 +187,27 @@
                                 <ArtistMarquee :artist="entry.artist" />
                             </p>
                         </div>
-                        <p class="text-sm m-0 text-muted">
-                            {{ entry.releaseDate }}
+                        <p
+                            class="text-sm m-0 text-muted"
+                            :title="entry.releaseDate"
+                        >
+                            {{ formatReleaseDate(entry.releaseDate) }}
                         </p>
                         <span
                             class="material-symbols-rounded cursor-pointer text-muted hover:text-primary"
-                            @click="seeRelease(entry)"
+                            @click.stop="importRelease(entry)"
+                            title="Add to playlist"
                         >
-                            done_all
+                            add
                         </span>
                         <span
                             class="material-symbols-rounded cursor-pointer text-muted hover:text-primary"
-                            @click="
+                            @click.stop="
                                 remember.find((x) => x.url === entry.url)
                                     ? forgetRelease(entry)
                                     : rememberRelease(entry)
                             "
+                            title="Pin"
                         >
                             {{
                                 remember.find((x) => x.url === entry.url)
@@ -192,9 +217,10 @@
                         </span>
                         <span
                             class="material-symbols-rounded cursor-pointer text-muted hover:text-primary"
-                            @click="importRelease(entry)"
+                            @click.stop="seeRelease(entry)"
+                            title="Mark as seen"
                         >
-                            add
+                            done_all
                         </span>
                     </div>
                 </div>
@@ -225,6 +251,23 @@ const activeQueue = ref<"unseen" | "out-today" | "watching" | "seen" | "all">(
     "unseen"
 );
 
+const formatReleaseDate = (date: string) => {
+    const d = new Date(date);
+    // e.g. 2 days ago
+    const diff = Math.floor((Date.now() - d.getTime()) / 1000 / 60 / 60 / 24);
+    if (diff == 0) {
+        return "Today";
+    } else if (diff == 1) {
+        return "Yesterday";
+    } else if (diff < 100) {
+        return `${diff} days ago`;
+    } else if (diff < 365) {
+        return `${Math.floor(diff / 30)} months ago`;
+    } else {
+        return d.toLocaleDateString();
+    }
+};
+
 const router = useRouter();
 
 watch(activeQueue, (x) => {
@@ -247,10 +290,6 @@ const queue = computed(() => {
                 releases.value.find((y) => y.url == x)
             );
     }
-});
-
-const nextInQueue = computed(() => {
-    return queue.value[0];
 });
 
 const previewRelease = (release: IRelease) => {
@@ -319,6 +358,7 @@ const seen = ref<string[]>([]);
 const remember = ref<IRelease[]>([]);
 const SEEN_KEY = "reap.releases.seen";
 const REMEMBER_KEY = "reap.releases.remember";
+const nextInQueue = ref<IRelease | null>(null);
 
 onMounted(async () => {
     loading.value = true;
@@ -328,6 +368,9 @@ onMounted(async () => {
 
     seen.value = localStorage.getItem(SEEN_KEY)?.split(",") ?? [];
     remember.value = JSON.parse(localStorage.getItem(REMEMBER_KEY) ?? "[]");
+});
+watch(queue, (queue) => {
+    nextInQueue.value = queue[0] ?? null;
 });
 watch(
     seen,
@@ -345,12 +388,11 @@ watch(
 );
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .releases {
     display: grid;
     grid-template-columns: 2fr 1fr;
     align-items: center;
-    gap: 1em;
     overflow-y: hidden;
     height: calc(100% - 40px);
 }
@@ -359,13 +401,31 @@ watch(
     display: grid;
     grid-template-columns: 50px 1fr 10ch 20px 20px 20px;
     gap: 0.5em;
+    padding: 0.5em;
+    border-radius: 1em;
+    cursor: pointer;
+    align-items: center;
+
+    &:hover {
+        background: var(--bg-hover);
+    }
+}
+
+h5 {
+    text-transform: none;
+    font-weight: bold;
+    font-size: 0.85em;
+    color: var(--fg-base);
+    padding: 0.25em 0.5em;
+    border-radius: 0.5em;
+
+    &:hover {
+        background: var(--bg-hover-dk);
+    }
 }
 
 h5.selected {
     background: var(--bg-hover);
-    padding: 0.25em 0.5em;
-    border-radius: 0.5em;
-    color: var(--fg-base);
 }
 
 .current {
