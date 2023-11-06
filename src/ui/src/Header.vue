@@ -74,9 +74,11 @@ import InputWithAutoComplete from "@/components/inputs/InputWithAutoComplete.vue
 import { useDownloaderStore } from "./store/downloader";
 import SearchResultItem from "./views/Search/SearchResultItem.vue";
 import { TYPES } from "./views/Search/search";
+import { useDataStore } from "./store/data";
 
 const downloadIcon = ref(null);
 const showDownloadAnim = ref(false);
+const data = useDataStore();
 const downloadAnimationPosition = computed(() => {
     if (!downloadIcon.value) return {};
     const top = `calc(${downloadIcon.value.offsetTop}px + 10px)`;
@@ -102,8 +104,53 @@ const clickSuggestion = (value) => {
     router.push(value.item.href);
 };
 
+
+const randomSong = () => {
+    const songs = data.playlists.flatMap((p) => p.songs);
+    const song = songs[Math.floor(Math.random() * songs.length)];
+    console.log(song);
+    return song;
+};
+
 const suggest = async (value) => {
     if (!value.length) return [];
+
+    if (value === "/rand") {
+        const song = randomSong()
+
+        if (!song) return [];
+
+        return [
+            {
+                type: "command",
+                confidence: 1,
+                scope: "local",
+                item: song
+            }
+        ];
+    }
+    if (["/create", "/new"].includes(value)) {
+        return [
+            {
+                type: "command",
+                confidence: 0.5,
+                scope: "local",
+                item: {
+                    name: "Create classic playlist",
+                    href: "/playlist/create?type=classic",
+                },
+            },
+            {
+                type: "command",
+                confidence: 0.5,
+                scope: "local", 
+                item: {
+                    name: "Create smart playlist",
+                    href: "/playlist/create?type=smart",
+                },
+            },
+        ]
+    }
 
     const res = await fetch("/api/search", {
         method: "POST",

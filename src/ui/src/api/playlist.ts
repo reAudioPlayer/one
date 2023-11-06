@@ -112,6 +112,7 @@ export const createPlaylistWithMetadata = async (
         description,
         cover,
         plays: 0,
+        type
     });
     return id;
 };

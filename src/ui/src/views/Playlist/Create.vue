@@ -1,14 +1,23 @@
 <script setup lang="ts">
+import {onMounted} from "vue";
 import Card from "../../containers/Card.vue";
 import { createPlaylist } from "../../api/playlist";
 import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 
 const router = useRouter();
+const route = useRoute();
 
 const create = async (type: string) => {
     const playlist = await createPlaylist(type);
     router.push(playlist);
 };
+
+onMounted(() => {
+    if (route.query.type) {
+        create(route.query.type as string);
+    }
+});
 </script>
 <template>
     <div class="flex h-full w-full items-center justify-center">

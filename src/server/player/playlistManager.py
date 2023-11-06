@@ -159,7 +159,7 @@ class PlaylistManager(Logged):
         """creates a playlist"""
         plId = self.playlistLength
         name = name or f"My Smart Playlist #{plId + 1}"
-        playlist = SmartPlaylistModel(name)
+        playlist = SmartPlaylistModel(name, definition = "{\"limit\": 25}")
         id_ = await self._dbManager.smartPlaylists.insert(playlist)
         if id_:
             playlist.id = id_

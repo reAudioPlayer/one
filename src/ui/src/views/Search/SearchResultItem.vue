@@ -45,6 +45,7 @@ const fallbackIcon = computed(() => {
         album: "album",
         artist: "person",
         playlist: "queue_music",
+        command: "code",
     }[type.value ?? "song"];
 });
 
