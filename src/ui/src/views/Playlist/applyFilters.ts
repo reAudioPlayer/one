@@ -46,8 +46,8 @@ export const applyFilters = (
             const artistMatch = artist?.length
                 ? artist.includes(song.artist)
                 : true;
-            const titleMatch = title.length ? title.includes(song.title) : true;
-            const albumMatch = album.length ? album.includes(song.album) : true;
+            const titleMatch = title?.length ? title.includes(song.title) : true;
+            const albumMatch = album?.length ? album.includes(song.album) : true;
 
             return {
                 ...song,

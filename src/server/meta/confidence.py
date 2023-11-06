@@ -36,15 +36,15 @@ class Confidence:
         keyDistances = []
         # break by spaces, compare each word
         for i in strings:
-            if i == query or not i.strip():
+            if i.lower() == query.lower() or not i.strip():
                 keyDistances.append(0)
                 distances.append(0)
                 continue
-            words = i.split(" ")
+            words = i.lower().split(" ")
             for word in words:
-                queryWords = query.split(" ")
+                queryWords = query.lower().split(" ")
                 for queryWord in queryWords:
-                    keyDistances.append(lev(i, queryWord))
+                    keyDistances.append(lev(i.lower(), queryWord))
                     distances.append(lev(word, queryWord))
         rel.minScore = min(distances)
         rel.minKeyScore = min(keyDistances)
