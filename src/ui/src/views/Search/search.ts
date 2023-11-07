@@ -1,4 +1,4 @@
-export const SCOPES = ["local", "spotify"] as const;
+export const SCOPES = ["local", "spotify", "audius"] as const;
 export const TYPES = ["song", "artist", "album", "playlist"] as const;
 
 type SearchScope = (typeof SCOPES)[number];

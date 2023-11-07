@@ -3,6 +3,7 @@ __pycache__
 *.db
 node_modules
 .cache
+audius.cache
 src/server/config/*.json
 src/ui/public/assets/img/covers
 src/ui/dist/assets/img/covers/*.png

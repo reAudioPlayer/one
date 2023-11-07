@@ -114,7 +114,7 @@ class MetaHandler:
                 "query": String().min(1),
                 "scope": Array(
                     String().enum(
-                        "local", "spotify", "youtube", "song", "album", "artist", "playlist"
+                        "local", "spotify", "audius", "youtube", "song", "album", "artist", "playlist"
                     )
                 ).optional(),
             }
