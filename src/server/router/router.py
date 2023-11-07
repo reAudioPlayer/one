@@ -22,6 +22,7 @@ from handler.sports import SportsHandler
 from handler.websocket import Websocket
 from handler.spotifyAuth import SpotifyAuth
 from handler.sharedPlayer import Connection
+from handler.audius import Audius
 
 
 class Router:
@@ -65,6 +66,7 @@ class Router:
         configHandler: ConfigHandler,
         websocket: Websocket,
         spotify: SpotifyAuth,
+        audius: Audius,
     ) -> None:
         """Apply routes to the app"""
         # /api/player/
@@ -106,6 +108,10 @@ class Router:
         app.router.add_get("/api/spotify/recommendations/{id}", metaHandler.spotifyRecommendSong)
         app.router.add_get("/api/spotify/callback", spotify.callbackHandler)
         app.router.add_get("/api/spotify/authorise", spotify.clientSideAuthHandler)
+
+        # /api/audius/
+        app.router.add_get("/api/audius/callback", audius.callbackHandler)
+        app.router.add_get("/api/audius/feed", audius.getFeed)
 
         # /api/me/player
         app.router.add_get("/api/me/player/current-track", playerHandler.getCurrentTrack)

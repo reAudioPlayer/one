@@ -107,7 +107,10 @@ const onClick = () => {
                 <span class="material-symbols-rounded tag">
                     {{ fallbackIcon }}
                 </span>
-                <span v-if="!isLocal" class="material-symbols-rounded tag"
+                <span
+                    :name="item.scope"
+                    v-if="!isLocal"
+                    class="material-symbols-rounded tag"
                     >cloud</span
                 >
             </div>

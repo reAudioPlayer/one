@@ -10,8 +10,8 @@ import asyncio
 
 import uvloop
 from aiohttp import web
-from aiohttp_index import IndexMiddleware # type: ignore
-import aiohttp_cors # type: ignore
+from aiohttp_index import IndexMiddleware  # type: ignore
+import aiohttp_cors  # type: ignore
 
 from db.database import Database
 
@@ -25,6 +25,7 @@ from handler.playlist import PlaylistHandler
 from handler.meta import MetaHandler
 from handler.config import ConfigHandler
 from handler.websocket import Websocket
+from handler.audius import Audius
 
 from meta.spotify import Spotify
 
@@ -44,7 +45,7 @@ from middleware.exception import exceptionMiddleware
 
 Logged.initLogger()
 mimetypes.init()
-mimetypes.types_map['.js'] = 'application/javascript; charset=utf-8'
+mimetypes.types_map[".js"] = "application/javascript; charset=utf-8"
 
 Migrator.migrate()
 downloader = Downloader()
@@ -52,7 +53,7 @@ playlistManager = PlaylistManager()
 player = Player(downloader, playlistManager)
 
 
-async def _init() -> web.Application: # pylint: disable=too-many-statements
+async def _init() -> web.Application:  # pylint: disable=too-many-statements
     Nginx.init()
 
     spotify = Spotify()
@@ -65,34 +66,42 @@ async def _init() -> web.Application: # pylint: disable=too-many-statements
     newsHandler = NewsHandler()
     sportsHandler = SportsHandler()
     websocket = Websocket(player)
+    audius = Audius()
 
     app = web.Application(middlewares=[IndexMiddleware(), exceptionMiddleware])
 
-    Router.applyRoutes(app,
-                       playerHandler,
-                       downloadHandler,
-                       metaHandler,
-                       sportsHandler,
-                       newsHandler,
-                       playlistHandler,
-                       configHandler,
-                       websocket,
-                       spotify.auth)
+    Router.applyRoutes(
+        app,
+        playerHandler,
+        downloadHandler,
+        metaHandler,
+        sportsHandler,
+        newsHandler,
+        playlistHandler,
+        configHandler,
+        websocket,
+        spotify.auth,
+        audius,
+    )
 
     # Configure default CORS settings.
-    cors = aiohttp_cors.setup(app, defaults={
-        "*": aiohttp_cors.ResourceOptions(
+    cors = aiohttp_cors.setup(
+        app,
+        defaults={
+            "*": aiohttp_cors.ResourceOptions(
                 allow_credentials=True,
                 expose_headers="*",
                 allow_headers="*",
             )
-    })
+        },
+    )
 
     # Configure CORS on all routes.
     for route in list(app.router.routes()):
         cors.add(route)
 
     return app
+
 
 async def main() -> None:
     """MAIN"""
@@ -102,7 +111,7 @@ async def main() -> None:
     app = await _init()
     appRunner = web.AppRunner(app)
     await appRunner.setup()
-    site = web.TCPSite(appRunner, host = Runtime.args.host, port = Runtime.args.port)
+    site = web.TCPSite(appRunner, host=Runtime.args.host, port=Runtime.args.port)
     await site.start()
 
     logger.info("Server started at http://%s:%s", Runtime.args.host, Runtime.args.port)
@@ -114,8 +123,9 @@ async def main() -> None:
     await Runtime.cache.init()
     logger.debug("Cache initialised")
 
-    while True: # endless loop
+    while True:  # endless loop
         await asyncio.sleep(1)
+
 
 def _cleanCache() -> None:
     cachePath = os.path.abspath("./_cache")
@@ -129,8 +139,10 @@ def _cleanCache() -> None:
     for file in os.listdir(cachePath):
         os.remove(os.path.join(cachePath, file))
 
-def _exitHandler(sig: int, frame: Optional[object]) -> None: # pylint: disable=unused-argument
+
+def _exitHandler(sig: int, frame: Optional[object]) -> None:  # pylint: disable=unused-argument
     _cleanCache()
+
 
 signal.signal(signal.SIGTERM, _exitHandler)
 

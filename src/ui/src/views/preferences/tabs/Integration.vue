@@ -7,6 +7,7 @@ import { getConfig, IConfig, setConfig } from "../../../api/config";
 import TextInputWithIcon from "../../../components/inputs/TextInputWithIcon.vue";
 import gistClient from "../../../api/gistClient";
 import { Notifications } from "../../../components/notifications/createNotification";
+import { linkAudius } from "./audius";
 
 const spotifyEnabled = ref(false);
 const spotifyClient = ref({
@@ -167,6 +168,7 @@ watch(() => config.value?.github?.githubPat, autoFillGistId);
         label="Save"
         @click="saveSpotify"
     />
+
     <h3 class="mt-[10px]">Github</h3>
     <h5 class="mt-4">PAT:</h5>
     <PasswordInputWithIcon
@@ -196,4 +198,7 @@ watch(() => config.value?.github?.githubPat, autoFillGistId);
             @click="updateConfig"
         />
     </div>
+
+    <h3 class="mt-[10px]">Audius</h3>
+    <IconButton icon="link" label="Connect" @click="linkAudius" />
 </template>

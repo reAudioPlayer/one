@@ -17,6 +17,14 @@ const routes = [{
     }
 },
 {
+    path: '/audius/callback',
+    redirect: to => {
+        // replace "#" with "?" to make it work with the audius callback
+        window.location.href = window.location.origin + '/api/audius/callback' + to.hash.replace("#", "?")
+        return null
+    },
+},
+{
     name: "Search",
     path: '/search/:query',
     component: () => import("@/views/Search/index.vue"),

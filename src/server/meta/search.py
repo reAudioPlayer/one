@@ -15,6 +15,7 @@ from meta.spotify import Spotify, SpotifyArtist, SpotifyTrack
 from meta.confidence import Confidence
 from helper.asyncThread import asyncRunInThreadWithReturn
 from player.classicPlayerPlaylist import ClassicPlayerPlaylist
+from handler.audius import Audius, AudiusTrack
 
 
 class SearchScopes(StrEnum):
@@ -22,6 +23,7 @@ class SearchScopes(StrEnum):
 
     Spotify = "spotify"
     Youtube = "youtube"
+    Audius = "audius"
     Local = "local"
 
     Artist = "artist"
@@ -92,6 +94,13 @@ class SearchScope:
         return SearchScopes.Spotify in self._value
 
     @property
+    def audius(self) -> bool:
+        """audius"""
+        if self._value is None:
+            return True
+        return SearchScopes.Audius in self._value
+
+    @property
     def youtube(self) -> bool:
         """youtube"""
         if self._value is None:
@@ -157,6 +166,23 @@ class Search:
                 track,
                 Confidence.forSong(track, self._query),
                 SearchScopes.Youtube,
+                SearchScopes.Song,
+            )
+            for track in tracks
+        ]
+
+    async def _getAudiusTracks(self) -> List[AudiusTrack]:
+        if not self._scope.song:
+            return []
+        tracks = await Audius().search(self._query)
+        import logging
+
+        logging.debug("audius tracks: %s", tracks)
+        return [
+            SearchResult(
+                track,
+                Confidence.forSong(track, self._query),
+                SearchScopes.Audius,
                 SearchScopes.Song,
             )
             for track in tracks
@@ -254,6 +280,9 @@ class Search:
 
         if self._scope.youtube:
             self._items.extend(await self._getYoutubeTracks())
+
+        if self._scope.audius:
+            self._items.extend(await self._getAudiusTracks())
 
         if self._scope.spotify:
             self._items.extend(await self._getSpotifyTracks())
