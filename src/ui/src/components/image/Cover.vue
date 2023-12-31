@@ -6,6 +6,7 @@
 <script lang="ts" setup>
 import { computed, PropType, ref, watch } from "vue";
 import { generatePlaceholder, getCover } from "./placeholder";
+import Placeholder from "./Placeholder.vue";
 import { parseAnyCover } from "../../common";
 import { applyBoxShadow } from "../../helpers/accent";
 import window from "@/themes";
@@ -13,12 +14,12 @@ import window from "@/themes";
 const props = defineProps({
     src: {
         type: String,
-        required: true
+        required: true,
     },
     type: {
         type: String as PropType<"track" | "playlist">,
         required: false,
-        default: "track"
+        default: "track",
     },
     placeholder: {
         type: String,
@@ -27,13 +28,17 @@ const props = defineProps({
     withAmbient: {
         type: Boolean,
         required: false,
-        default: false
+        default: false,
     },
     ambientOpacity: {
         type: Number,
         required: false,
-        default: 0.2
-    }
+        default: 0.2,
+    },
+    name: {
+        type: String,
+        required: false,
+    },
 });
 
 const placeholderIcon = computed(() => {
@@ -44,8 +49,12 @@ const placeholderIcon = computed(() => {
 });
 
 const imgSrc = ref(null as string | null);
+const showFallback = ref(false);
 
 const onError = async () => {
+    showFallback.value = true;
+    return;
+
     imgSrc.value = await generatePlaceholder(placeholderIcon.value);
 
     if (!imgSrc.value) {
@@ -54,15 +63,16 @@ const onError = async () => {
         }, 100);
         return;
     }
-}
+};
 
 const updateSrc = () => {
+    showFallback.value = false;
     imgSrc.value = parseAnyCover(props.src, props.type);
 
     if (!imgSrc.value) {
         onError();
     }
-}
+};
 
 watch(() => props.src, updateSrc);
 updateSrc();
@@ -77,15 +87,24 @@ const onLoad = async () => {
     const src = await getCover(imgSrc.value, placeholderIcon.value);
 
     applyBoxShadow(element.value, src, props.ambientOpacity);
-}
+};
 </script>
 <template>
     <img
         ref="element"
         :alt="props.type"
         :src="getCover(imgSrc, placeholderIcon)"
-        class="cover"
+        class="cover rounded-md"
         @error="onError"
         @load="onLoad"
+        v-show="!showFallback"
+    />
+    <Placeholder
+        v-if="showFallback"
+        :icon="placeholderIcon"
+        :type="props.type"
+        :with-ambient="props.withAmbient"
+        :ambient-opacity="props.ambientOpacity"
+        :name="props.name"
     />
 </template>

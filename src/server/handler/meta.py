@@ -114,7 +114,14 @@ class MetaHandler:
                 "query": String().min(1),
                 "scope": Array(
                     String().enum(
-                        "local", "spotify", "audius", "youtube", "song", "album", "artist", "playlist"
+                        "local",
+                        "spotify",
+                        "audius",
+                        "youtube",
+                        "song",
+                        "album",
+                        "artist",
+                        "playlist",
                     )
                 ).optional(),
             }
@@ -326,7 +333,7 @@ class MetaHandler:
 
     @withObjectPayload(Object({"id": Integer().min(1).coerce()}), inPath=True)
     async def spotifyRecommendSong(self, payload: Dict[str, Any]) -> web.Response:
-        """post(/api/spotify/recommendations/{id})"""
+        """get(/api/spotify/recommendations/{id})"""
         id_: int = payload["id"]
         model = await self._dbManager.songs.byId(id_)
         if not model:

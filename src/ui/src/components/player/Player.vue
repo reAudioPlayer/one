@@ -12,7 +12,10 @@ import Marquee from "../Marquee.vue";
 import ProgressBar from "../ProgressBar.vue";
 import IconDropdown from "../inputs/IconDropdown.vue";
 import { useSettingsStore } from "../../store/settings";
-import { pictureInPictureStatus, requestPictureInPicture } from "../../pictureInPicture";
+import {
+    pictureInPictureStatus,
+    requestPictureInPicture,
+} from "../../pictureInPicture";
 import Spinner from "../loaders/Spinner.vue";
 import { hashTrack, isMobile } from "../../common";
 import WaveAudio from "./WaveAudio.vue";
@@ -26,7 +29,7 @@ const playable: Ref<Playable> = ref(null);
 
 const selectedPlaybackDevice = ref("");
 const playbackDevices = computed(() => {
-    return player.sharedPlayer.connections.map(c => ({
+    return player.sharedPlayer.connections.map((c) => ({
         value: c.id,
         label: c.friendlyName,
     }));
@@ -35,23 +38,27 @@ watch(selectedPlaybackDevice, (value) => {
     if (value === player.sharedPlayer.me?.id) {
         player.sharedPlayer.makeMePlayer();
         player.setPlaying(false);
-    }
-    else
-        setPlayerTo(value);
+    } else setPlayerTo(value);
 });
-watch(() => player.sharedPlayer.connections, connections => {
-    if (!selectedPlaybackDevice.value || !connections.find(c => c.id === selectedPlaybackDevice.value)) {
-        selectedPlaybackDevice.value = player.sharedPlayer.me?.id;
+watch(
+    () => player.sharedPlayer.connections,
+    (connections) => {
+        if (
+            !selectedPlaybackDevice.value ||
+            !connections.find((c) => c.id === selectedPlaybackDevice.value)
+        ) {
+            selectedPlaybackDevice.value = player.sharedPlayer.me?.id;
+        }
     }
-});
+);
 
 const setPlayerTo = (id: string) => {
-    const connection = player.sharedPlayer.connections.find(c => c.id === id);
+    const connection = player.sharedPlayer.connections.find((c) => c.id === id);
     if (connection) {
         player.sharedPlayer.setPlayer(connection);
         playable.value = player.sharedPlayer;
     }
-}
+};
 
 onMounted(() => {
     selectedPlaybackDevice.value = player.sharedPlayer.me?.id;
@@ -79,15 +86,9 @@ const showWebWavePlayer = computed(() => {
 </script>
 <template>
     <div class="player relative">
-        <AmbientBackground
-            :src="player.song.cover"
-            direction="to top right"
-        />
+        <AmbientBackground :src="player.song.cover" direction="to top right" />
 
-        <HtmlAudio
-            v-if="showWebPlayer"
-            ref="playable"
-        />
+        <HtmlAudio v-if="showWebPlayer" ref="playable" />
 
         <div v-if="!isMobile" class="desktop mx-4">
             <div class="song-info">
@@ -96,38 +97,50 @@ const showWebWavePlayer = computed(() => {
                         v-if="player.loaded"
                         :src="player.song.cover"
                         class="cover rounded-md"
+                        :name="player.song.title"
                     />
                 </router-link>
                 <template v-if="player.loaded">
                     <div class="title-artist">
-                        <router-link :to="`/track/${hashTrack(player.song.id)}`" class="linkOnHover">
+                        <router-link
+                            :to="`/track/${hashTrack(player.song.id)}`"
+                            class="linkOnHover"
+                        >
                             <Marquee :text="player.song.title" class="" />
                         </router-link>
-                        <ArtistMarquee :artist="player.song.artist" class="text-muted text-xs" />
+                        <ArtistMarquee
+                            :artist="player.song.artist"
+                            class="text-muted text-xs"
+                        />
                     </div>
                     <span
-                        :class="{'ms-fill': player.song.favourite}"
+                        :class="{ 'ms-fill': player.song.favourite }"
                         class="favourite text-xl cursor-pointer material-symbols-rounded ms-wght-300"
                         @click="player.toggleFavourite"
                     >
                         favorite
                     </span>
-                        <template v-if="settings.player.pictureInPicture">
-                            <Spinner
-                                v-if="pictureInPictureStatus == 'loading'"
-                            />
-                            <span
-                                v-else
-                                class="favourite material-icons-round cursor-pointer text-xl"
-                                @click="requestPictureInPicture"
-                            >
-                            {{ pictureInPictureStatus == "ready" ? "picture_in_picture_alt" : "error" }}
+                    <template v-if="settings.player.pictureInPicture">
+                        <Spinner v-if="pictureInPictureStatus == 'loading'" />
+                        <span
+                            v-else
+                            class="favourite material-icons-round cursor-pointer text-xl"
+                            @click="requestPictureInPicture"
+                        >
+                            {{
+                                pictureInPictureStatus == "ready"
+                                    ? "picture_in_picture_alt"
+                                    : "error"
+                            }}
                         </span>
-                        </template>
+                    </template>
                 </template>
                 <template v-else>
                     <router-link :to="`/collection/playlists`">
-                        <Marquee class="text-xs text-muted" text="Nothing playing yet..." />
+                        <Marquee
+                            class="text-xs text-muted"
+                            text="Nothing playing yet..."
+                        />
                     </router-link>
                 </template>
             </div>
@@ -137,7 +150,7 @@ const showWebWavePlayer = computed(() => {
                         class="icon cursor-pointer material-symbols-rounded ms-wght-300"
                         @click="player.toggleShuffle"
                     >
-                        {{player.shuffleIcon}}
+                        {{ player.shuffleIcon }}
                     </span>
                     <span
                         :class="{
@@ -180,33 +193,30 @@ const showWebWavePlayer = computed(() => {
                     <div class="display">
                         <span
                             class="text-xs text-muted text-right cursor-pointer"
-                            @click="settings.player.type = settings.player.type === 'web' ? 'web/wave' : 'web'"
+                            @click="
+                                settings.player.type =
+                                    settings.player.type === 'web'
+                                        ? 'web/wave'
+                                        : 'web'
+                            "
                         >
                             {{ player.displayProgress }}
                         </span>
-                        <WaveAudio
-                            v-if="showWebWavePlayer"
-                            ref="playable"
-                        />
+                        <WaveAudio v-if="showWebWavePlayer" ref="playable" />
                         <ProgressBar
                             v-else
                             v-model="player.progressPercent"
                             max="1000"
-                            @change="e => player.seekPercent(e / 10)"
+                            @change="(e) => player.seekPercent(e / 10)"
                         />
-                        <span
-                            class="text-xs text-muted text-left"
-                        >
+                        <span class="text-xs text-muted text-left">
                             {{ player.displayDuration }}
                         </span>
                     </div>
                 </div>
             </div>
             <div class="aux relative">
-                <router-link
-                    to="/sing-along"
-                    class="icon"
-                >
+                <router-link to="/sing-along" class="icon">
                     <span
                         class="cursor-pointer material-symbols-rounded ms-fill"
                         v-if="player.loaded && player.hasLyrics"
@@ -217,7 +227,7 @@ const showWebWavePlayer = computed(() => {
                 <IconDropdown
                     v-model="selectedPlaybackDevice"
                     :class="{
-                        'on-this-device': onThisDevice
+                        'on-this-device': onThisDevice,
                     }"
                     :options="playbackDevices"
                     icon="devices"
@@ -231,7 +241,7 @@ const showWebWavePlayer = computed(() => {
                 <ProgressBar
                     v-model="player.volume"
                     max="100"
-                    @change="e => player.setVolume(e)"
+                    @change="(e) => player.setVolume(e)"
                 />
             </div>
         </div>
@@ -246,18 +256,18 @@ const showWebWavePlayer = computed(() => {
                 class="small"
                 @click="mobileExpanded = true"
             >
-                <Cover
-                    :src="player.song.cover"
-                    class="cover rounded-md"
-                />
+                <Cover :src="player.song.cover" class="cover rounded-md" />
                 <div class="artist-title overflow-hidden">
-                    <Marquee :text="player.song.title" class="text-sm"/>
-                    <Marquee :text="player.song.artist" class="text-xs text-muted"/>
+                    <Marquee :text="player.song.title" class="text-sm" />
+                    <Marquee
+                        :text="player.song.artist"
+                        class="text-xs text-muted"
+                    />
                 </div>
                 <IconDropdown
                     v-model="selectedPlaybackDevice"
                     :class="{
-                        'on-this-device': onThisDevice
+                        'on-this-device': onThisDevice,
                     }"
                     :options="playbackDevices"
                     class="material-symbols-rounded"
@@ -281,20 +291,29 @@ const showWebWavePlayer = computed(() => {
                     </span>
                 </div>
                 <router-link class="my-auto linkOnHover" to="/player">
-                    <Cover
-                        :src="player.song.cover"
-                        class="cover rounded-md"
-                    />
+                    <Cover :src="player.song.cover" class="cover rounded-md" />
                 </router-link>
                 <div class="rest">
                     <div class="song-info">
                         <div class="rest"></div>
                         <div class="title-artist mb-4">
-                            <router-link :to="`/track/${hashTrack(player.song.id)}`" class="linkOnHover">
-                                <Marquee :text="player.song.title" class="text-2xl font-bold" />
+                            <router-link
+                                :to="`/track/${hashTrack(player.song.id)}`"
+                                class="linkOnHover"
+                            >
+                                <Marquee
+                                    :text="player.song.title"
+                                    class="text-2xl font-bold"
+                                />
                             </router-link>
-                            <router-link :to="`/search/${player.song.artist}`" class="linkOnHover">
-                                <Marquee :text="player.song.artist" class="text-muted text-xs" />
+                            <router-link
+                                :to="`/search/${player.song.artist}`"
+                                class="linkOnHover"
+                            >
+                                <Marquee
+                                    :text="player.song.artist"
+                                    class="text-muted text-xs"
+                                />
                             </router-link>
                         </div>
                     </div>
@@ -304,7 +323,7 @@ const showWebWavePlayer = computed(() => {
                                 class="icon cursor-pointer material-symbols-rounded ms-wght-300"
                                 @click="player.toggleShuffle"
                             >
-                                {{ player.shuffleIcon}}
+                                {{ player.shuffleIcon }}
                             </span>
                             <span
                                 class="icon cursor-pointer material-symbols-rounded ms-fill"
@@ -316,7 +335,11 @@ const showWebWavePlayer = computed(() => {
                                 class="cursor-pointer material-symbols-rounded ms-fill text-4xl"
                                 @click="player.playPause"
                             >
-                                {{ player.playing ? "pause_circle" : "play_circle" }}
+                                {{
+                                    player.playing
+                                        ? "pause_circle"
+                                        : "play_circle"
+                                }}
                             </span>
                             <span
                                 class="icon cursor-pointer material-symbols-rounded ms-fill"
@@ -340,17 +363,13 @@ const showWebWavePlayer = computed(() => {
                                 v-else
                                 v-model="player.progressPercent"
                                 max="1000"
-                                @change="e => player.seekPercent(e / 10)"
+                                @change="(e) => player.seekPercent(e / 10)"
                             />
                             <div class="flex flex-row justify-between">
-                                <span
-                                    class="text-xs text-muted text-right"
-                                >
+                                <span class="text-xs text-muted text-right">
                                     {{ player.displayProgress }}
                                 </span>
-                                <span
-                                    class="text-xs text-muted text-left"
-                                >
+                                <span class="text-xs text-muted text-left">
                                     {{ player.song.duration }}
                                 </span>
                             </div>
@@ -359,30 +378,34 @@ const showWebWavePlayer = computed(() => {
                     <div class="aux flex flex-row justify-between">
                         <div class="flex flex-row">
                             <span
-                                    :class="{'ms-fill': player.song.favourite}"
-                                    class="favourite text-xl cursor-pointer material-symbols-rounded ms-wght-300"
-                                    @click="player.toggleFavourite"
-                                >
+                                :class="{ 'ms-fill': player.song.favourite }"
+                                class="favourite text-xl cursor-pointer material-symbols-rounded ms-wght-300"
+                                @click="player.toggleFavourite"
+                            >
                                 favorite
                             </span>
-                                <template v-if="settings.player.pictureInPicture">
-                                    <Spinner
-                                        v-if="pictureInPictureStatus == 'loading'"
-                                    />
-                                    <span
-                                        v-else
-                                        class="favourite material-icons-round cursor-pointer text-xl ml-2"
-                                        @click="requestPictureInPicture"
-                                    >
-                                        {{ pictureInPictureStatus == "ready" ? "picture_in_picture_alt" : "error" }}
-                                    </span>
+                            <template v-if="settings.player.pictureInPicture">
+                                <Spinner
+                                    v-if="pictureInPictureStatus == 'loading'"
+                                />
+                                <span
+                                    v-else
+                                    class="favourite material-icons-round cursor-pointer text-xl ml-2"
+                                    @click="requestPictureInPicture"
+                                >
+                                    {{
+                                        pictureInPictureStatus == "ready"
+                                            ? "picture_in_picture_alt"
+                                            : "error"
+                                    }}
+                                </span>
                             </template>
                         </div>
 
                         <IconDropdown
                             v-model="selectedPlaybackDevice"
                             :class="{
-                                'on-this-device': onThisDevice
+                                'on-this-device': onThisDevice,
                             }"
                             :options="playbackDevices"
                             icon="devices"
@@ -395,7 +418,7 @@ const showWebWavePlayer = computed(() => {
 </template>
 <style lang="scss">
 .player .on-this-device > .material-symbols-rounded {
-    color: var(--fg-secondary)
+    color: var(--fg-secondary);
 }
 </style>
 <style lang="scss" scoped>
@@ -462,8 +485,8 @@ const showWebWavePlayer = computed(() => {
         .bottom .display {
             display: grid;
             grid-template-columns: 1fr 10fr 1fr;
-            gap: .5em;
-            margin-bottom: .5em;
+            gap: 0.5em;
+            margin-bottom: 0.5em;
             align-items: center;
         }
     }
@@ -492,7 +515,7 @@ const showWebWavePlayer = computed(() => {
         display: grid;
         grid-template-columns: calc(var(--h-player-mobile) - 1em) 1fr 30px 30px;
         gap: 1em;
-        margin: .5em;
+        margin: 0.5em;
         align-items: center;
         max-width: calc(100vw - 2em);
 
