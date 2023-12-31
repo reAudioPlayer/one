@@ -46,6 +46,11 @@ export const usePlayerStore = defineStore({
                 },
             },
         },
+        loudness: {
+            momentary: 0,
+            shortterm: 0,
+            integrated: 0,
+        },
         playlistId: null as string | null,
         lyrics: null as ILyrics | null,
         volume: 50,
@@ -162,6 +167,19 @@ export const usePlayerStore = defineStore({
         },
         setPlaying(playing) {
             this.playing = playing;
+        },
+        setLoudness(e) {
+            switch (e.data.mode) {
+                case "momentary":
+                    this.loudness.momentary = e.data.value;
+                    break;
+                case "short-term":
+                    this.loudness.shortterm = e.data.value;
+                    break;
+                case "integrated":
+                    this.loudness.integrated = e.data.value;
+                    break;
+            }
         },
         seek(time) {
             this.player.seek(time);

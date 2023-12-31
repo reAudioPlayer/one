@@ -10,6 +10,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import Playlist from "../components/Playlist/Playlist.vue";
 import PlaylistItem from "../components/Catalogue/Items/Playlists/PlaylistItem.vue";
 import Cover from "@/components/image/Cover.vue";
+import Card from "@/containers/Card.vue";
 
 const player = usePlayerStore();
 const data = useDataStore();
@@ -57,6 +58,10 @@ const toggleMaximise = () => {
 };
 const noPlaylist = ref(false); // hide playlist
 const animate = ref(false); // animations
+
+const formatLoudness = (loudness: number) => {
+    return Math.round(loudness * 100) / 100 + " LUFS";
+};
 </script>
 
 <template>
@@ -69,7 +74,28 @@ const animate = ref(false); // animations
                     class="drop-shadow-2xl"
                     type="track"
                     with-ambient
+                    :name="player.song.title"
                 />
+                <div class="loudness">
+                    <Card class="mode">
+                        <span class="label uppercase"> short term </span>
+                        <span>
+                            {{ formatLoudness(player.loudness.shortterm) }}
+                        </span>
+                    </Card>
+                    <Card class="mode">
+                        <span class="label uppercase"> integrated </span>
+                        <span>
+                            {{ formatLoudness(player.loudness.integrated) }}
+                        </span>
+                    </Card>
+                    <Card class="mode">
+                        <span class="label uppercase"> momentary </span>
+                        <span>
+                            {{ formatLoudness(player.loudness.momentary) }}
+                        </span>
+                    </Card>
+                </div>
                 <div :class="{ playing, animate }" class="blocks">
                     <div
                         :style="{ 'animation-delay': '0s' }"
@@ -132,6 +158,57 @@ const animate = ref(false); // animations
     </div>
 </template>
 
+<style lang="scss">
+.bigPlayer .upNow img {
+    width: 80%;
+    height: auto;
+    max-width: 600px;
+    border-radius: 20px;
+    transition: transform 0.5s;
+    animation: pump 20s infinite ease-in-out;
+
+    &:not(.playing) {
+        transform: scale(0.95);
+        animation: none;
+    }
+
+    &:not(.animate) {
+        animation: none;
+    }
+}
+
+@keyframes pump {
+    0% {
+        transform: scale(1);
+        opacity: 0;
+    }
+    6% {
+        transform: scale(1);
+        opacity: 0;
+    }
+    7% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    85% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    95% {
+        transform: scale(5);
+        opacity: 0;
+    }
+    97% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+</style>
+
 <style lang="scss" scoped>
 .settings {
     position: absolute;
@@ -191,52 +268,26 @@ const animate = ref(false); // animations
 .bigPlayer .upNow {
     flex: 3;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    gap: 1em;
     position: relative;
 
-    @keyframes pump {
-        0% {
-            transform: scale(1);
-            opacity: 0;
-        }
-        6% {
-            transform: scale(1);
-            opacity: 0;
-        }
-        7% {
-            transform: scale(1);
-            opacity: 1;
-        }
-        85% {
-            transform: scale(1);
-            opacity: 1;
-        }
-        95% {
-            transform: scale(5);
-            opacity: 0;
-        }
-        97% {
-            transform: scale(0);
-            opacity: 0;
-        }
-        100% {
-            transform: scale(1);
-            opacity: 0;
-        }
-    }
+    .loudness {
+        display: flex;
+        gap: 1em;
 
-    img {
-        transition: transform 0.5s;
-        animation: pump 20s infinite ease-in-out;
-
-        &:not(.playing) {
-            transform: scale(0.95);
-            animation: none;
-        }
-
-        &:not(.animate) {
-            animation: none;
+        .mode {
+            padding: 0.5em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 12ch;
+            .label {
+                font-size: 0.8em;
+                color: var(--fg-base-dk);
+            }
         }
     }
 
@@ -300,13 +351,6 @@ const animate = ref(false); // animations
             opacity: 0;
         }
     }
-}
-
-.bigPlayer .upNow img {
-    width: 80%;
-    height: auto;
-    max-width: 600px;
-    border-radius: 20px;
 }
 
 .no-playlist-selected {

@@ -177,8 +177,9 @@ const deleteMe = async () => {
             <Cover
                 :placeholder="coverIcon"
                 :src="playlist.cover"
-                class="max-w-sm rounded-xl"
+                class="cover rounded-xl"
                 type="playlist"
+                :name="playlist.name"
             />
             <div class="track__info__details flex flex-col justify-end">
                 <div class="trac__info__details__normal">
@@ -317,6 +318,12 @@ const deleteMe = async () => {
         </div>
     </PlaylistContext>
 </template>
+
+<style lang="scss">
+.upper .cover {
+    max-width: 30rem !important;
+}
+</style>
 
 <style scoped lang="scss">
 .filters {
