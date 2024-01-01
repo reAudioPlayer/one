@@ -10,7 +10,6 @@ import { computed, onMounted, ref, watch } from "vue";
 import Playlist from "../components/Playlist/Playlist.vue";
 import PlaylistItem from "../components/Catalogue/Items/Playlists/PlaylistItem.vue";
 import Cover from "@/components/image/Cover.vue";
-import Card from "@/containers/Card.vue";
 
 const player = usePlayerStore();
 const data = useDataStore();
@@ -58,10 +57,6 @@ const toggleMaximise = () => {
 };
 const noPlaylist = ref(false); // hide playlist
 const animate = ref(false); // animations
-
-const formatLoudness = (loudness: number) => {
-    return Math.round(loudness * 100) / 100 + " LUFS";
-};
 </script>
 
 <template>
@@ -76,26 +71,6 @@ const formatLoudness = (loudness: number) => {
                     with-ambient
                     :name="player.song.title"
                 />
-                <div class="loudness">
-                    <Card class="mode">
-                        <span class="label uppercase"> short term </span>
-                        <span>
-                            {{ formatLoudness(player.loudness.shortterm) }}
-                        </span>
-                    </Card>
-                    <Card class="mode">
-                        <span class="label uppercase"> integrated </span>
-                        <span>
-                            {{ formatLoudness(player.loudness.integrated) }}
-                        </span>
-                    </Card>
-                    <Card class="mode">
-                        <span class="label uppercase"> momentary </span>
-                        <span>
-                            {{ formatLoudness(player.loudness.momentary) }}
-                        </span>
-                    </Card>
-                </div>
                 <div :class="{ playing, animate }" class="blocks">
                     <div
                         :style="{ 'animation-delay': '0s' }"
@@ -136,6 +111,12 @@ const formatLoudness = (loudness: number) => {
                     @click="() => (animate = !animate)"
                     >{{ !animate ? "animation" : "motion_photos_off" }}</span
                 >
+                <span
+                    class="iconButton material-symbols-rounded"
+                    @click="$router.push('/player/insights')"
+                >
+                    insights
+                </span>
             </div>
         </template>
         <template v-else>
@@ -273,23 +254,6 @@ const formatLoudness = (loudness: number) => {
     align-items: center;
     gap: 1em;
     position: relative;
-
-    .loudness {
-        display: flex;
-        gap: 1em;
-
-        .mode {
-            padding: 0.5em;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 12ch;
-            .label {
-                font-size: 0.8em;
-                color: var(--fg-base-dk);
-            }
-        }
-    }
 
     .blocks {
         display: flex;

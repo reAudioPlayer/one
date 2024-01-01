@@ -180,6 +180,13 @@ const routes = [{
     }
 },
 {
+    path: '/player/insights',
+    component: () => import("@/views/BigPlayer/Insight.vue"),
+    meta: {
+        title: "Insights - reAudioPlayer One"
+    }
+},
+{
     path: '/player',
     component: () => import("@/views/BigPlayer.vue"),
     meta: {
