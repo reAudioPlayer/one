@@ -7,6 +7,8 @@ import { defineStore } from "pinia";
 import { watch } from "vue";
 import { usePlayerStore } from "./player";
 import { LoudnessMeter } from "@domchristie/needles";
+import { correlation, stereoField } from "../helpers/correlationMeter";
+import { useRoute } from "vue-router";
 
 export const useInsightStore = defineStore({
     id: "insights",
@@ -14,6 +16,8 @@ export const useInsightStore = defineStore({
         stereo: {
             left: 0,
             right: 0,
+            correlation: 0,
+            field: [] as { x: number; y: number }[],
             _analyserL: null as any | null,
             _analyserR: null as any | null,
         },
@@ -55,9 +59,16 @@ export const useInsightStore = defineStore({
             this._stereo();
         },
         _stereo() {
+            const route = useRoute();
+
             const pcmDataR = new Float32Array(this.stereo.analyserR.fftSize);
             const pcmDataL = new Float32Array(this.stereo.analyserL.fftSize);
             const onFrame = () => {
+                if (route.path !== "/player/insights") {
+                    window.requestAnimationFrame(onFrame);
+                    return;
+                }
+
                 this.stereo.analyserR.getFloatTimeDomainData(pcmDataR);
                 this.stereo.analyserL.getFloatTimeDomainData(pcmDataL);
                 let sumR = 0.0;
@@ -70,6 +81,16 @@ export const useInsightStore = defineStore({
                 }
                 this.stereo.right = Math.sqrt(sumR / pcmDataR.length);
                 this.stereo.left = Math.sqrt(sumL / pcmDataL.length);
+
+                this.stereo.correlation = correlation(
+                    this.stereo.analyserL,
+                    this.stereo.analyserR
+                );
+                this.stereo.field = stereoField(
+                    this.stereo.analyserL,
+                    this.stereo.analyserR
+                );
+
                 window.requestAnimationFrame(onFrame);
             };
             window.requestAnimationFrame(onFrame);

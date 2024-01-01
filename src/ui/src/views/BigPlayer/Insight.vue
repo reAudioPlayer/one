@@ -15,6 +15,7 @@ import {
     LinearScale,
     PointElement,
     LineElement,
+    ScatterController,
 } from "chart.js";
 
 ChartJS.register(
@@ -27,10 +28,12 @@ ChartJS.register(
     Legend,
     BarElement,
     CategoryScale,
-    LinearScale
+    LinearScale,
+    ScatterController
 );
 
 const chart = ref<HTMLCanvasElement>();
+const stereoFieldChart = ref<HTMLCanvasElement>();
 
 const player = usePlayerStore();
 const insights = useInsightStore();
@@ -40,13 +43,21 @@ const integratedData = ref<number[]>([]);
 // array of 60 empty values
 const emptyData = Array.from({ length: 60 }, () => -Infinity);
 
+const resizeCanvas = (canvas: HTMLCanvasElement) => {
+    canvas.width = canvas.parentElement?.clientWidth as number;
+    canvas.height = canvas.parentElement?.clientHeight as number;
+};
+
 onMounted(() => {
+    resizeCanvas(stereoFieldChart.value);
+    // resizeCanvas(chart.value);
+
     shortTermData.value = emptyData;
     integratedData.value = emptyData;
     const chartjs = new ChartJS(chart.value, {
         data: {
             labels: Array.from({ length: 60 }, (_, i) => i),
-            datasets: chartData(),
+            datasets: chartData() as any,
         },
         options: {
             responsive: true,
@@ -56,10 +67,53 @@ onMounted(() => {
                     max: 0,
                     ticks: {
                         callback: (value) => value + " LUFS",
+                        // @ts-ignore
                         min: -60,
                     },
                 },
                 x: {
+                    display: false,
+                },
+            },
+            animation: {
+                duration: 0,
+            },
+        },
+    });
+
+    const field = new ChartJS(stereoFieldChart.value, {
+        type: "scatter",
+        data: {
+            datasets: [
+                {
+                    label: "Stereo Field",
+                    data: [],
+                    backgroundColor: "#00c48b",
+                    borderColor: "#00c48b",
+                    pointRadius: 0.5,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    min: -1,
+                    max: 1,
+                    ticks: {
+                        callback: (value) => value,
+                    },
+                },
+                x: {
+                    min: -1,
+                    max: 1,
+                    ticks: {
+                        callback: (value) => value,
+                    },
+                },
+            },
+            plugins: {
+                legend: {
                     display: false,
                 },
             },
@@ -69,6 +123,9 @@ onMounted(() => {
     setInterval(() => {
         if (!player.playing) return;
 
+        field.data.datasets[0].data = insights.stereo.field;
+        field.update();
+
         chartjs.data.datasets[0].data.shift();
         chartjs.data.datasets[0].data.push(insights.loudness.shortterm);
 
@@ -76,10 +133,13 @@ onMounted(() => {
         chartjs.data.datasets[1].data.push(insights.loudness.integrated);
 
         chartjs.data.datasets[2].data.shift();
-        chartjs.data.datasets[2].data.push([-60, insights.loudness.momentary]);
+        chartjs.data.datasets[2].data.push([
+            -60,
+            insights.loudness.momentary,
+        ] as any);
 
         chartjs.update();
-    }, 1000);
+    }, 500);
 });
 
 const chartData = () => [
@@ -113,7 +173,7 @@ const formatLoudness = (loudness: number) => {
             <span class="material-symbols-rounded">insights</span>
             <span>Insights</span>
         </h1>
-        <div class="container">
+        <div class="relative">
             <canvas ref="chart"></canvas>
         </div>
         <div class="loudness">
@@ -158,6 +218,22 @@ const formatLoudness = (loudness: number) => {
                         :value="insights.stereo.right"
                     />
                 </div>
+                <h4>Correlation</h4>
+                <div class="meter">
+                    <span class="label uppercase"> L/R </span>
+                    <meter
+                        optimum="0"
+                        low="-1"
+                        high="1"
+                        min="-1"
+                        max="1"
+                        :value="insights.stereo.correlation"
+                    />
+                </div>
+                <h4>Stereo Field</h4>
+                <div class="container stereo-field">
+                    <canvas ref="stereoFieldChart"></canvas>
+                </div>
             </Card>
         </div>
     </div>
@@ -169,10 +245,21 @@ const formatLoudness = (loudness: number) => {
     flex-direction: column;
     justify-content: center;
     gap: 1em;
-    width: 100%;
-    height: 100%;
     padding: 0.5em;
     grid-column: 1 / -1;
+
+    .stereo-field {
+        aspect-ratio: 1;
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    h4 {
+        margin-bottom: 0;
+    }
 
     .meter {
         display: grid;
@@ -196,7 +283,6 @@ const formatLoudness = (loudness: number) => {
     grid-template-columns: 2fr 1fr;
     gap: 1em;
     padding: 1em;
-    align-items: start;
 
     > h1 {
         grid-column: 1 / -1;
@@ -211,6 +297,7 @@ const formatLoudness = (loudness: number) => {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1em;
+    align-items: start;
 
     .mode {
         padding: 0.5em;
