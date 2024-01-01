@@ -4,11 +4,12 @@
   -->
 
 <script lang="ts" setup>
+import { useInsightStore } from "../../store/insight";
 import { Playable, usePlayerStore } from "../../store/player";
 import { onMounted, ref, watch } from "vue";
-import { LoudnessMeter } from "@domchristie/needles";
 
 const player = usePlayerStore();
+const insights = useInsightStore();
 const audio = ref<HTMLAudioElement>(null);
 let forcePlay = false;
 
@@ -39,7 +40,6 @@ watch(
         audio.value.src = null;
         audio.value.src = player.stream;
         audio.value.load();
-        meter?.reset();
         player.setPlaying(!audio.value.paused);
     }
 );
@@ -53,12 +53,10 @@ const play = () => {
     try {
         audio.value.play();
     } catch (_) {}
-    meter?.resume();
 };
 
 const pause = () => {
     audio.value.pause();
-    meter?.pause();
 };
 
 const seek = (time: number) => {
@@ -75,8 +73,6 @@ const setMute = (muted: boolean) => {
     audio.value.muted = muted;
 };
 
-let meter: LoudnessMeter | null = null;
-
 onMounted(() => {
     setVolume(player.volume);
 
@@ -84,13 +80,7 @@ onMounted(() => {
     var context = new AudioContext();
     var source = context.createMediaElementSource(audio.value);
     source.connect(context.destination);
-
-    meter = new LoudnessMeter({
-        source: source,
-        workerUri: "/assets/needles/needles-worker.js",
-    });
-    meter.on("dataavailable", player.setLoudness);
-    meter.start();
+    insights.setSource(source, context);
 });
 
 const playable: Playable = {
