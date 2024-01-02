@@ -73,11 +73,9 @@ onMounted(() => {
             responsive: true,
             scales: {
                 y: {
-                    min: -60,
+                    min: -30,
                     max: 0,
                     ticks: {
-                        // @ts-ignore
-                        min: -60,
                         font: {
                             family: "Poppins",
                             size: 10,
