@@ -216,7 +216,7 @@ const showWebWavePlayer = computed(() => {
                 </div>
             </div>
             <div class="aux relative">
-                <router-link to="/sing-along" class="icon">
+                <router-link to="/sing-along" class="icon select-none">
                     <span
                         class="cursor-pointer material-symbols-rounded ms-fill"
                         v-if="player.loaded && player.hasLyrics"
@@ -231,9 +231,10 @@ const showWebWavePlayer = computed(() => {
                     }"
                     :options="playbackDevices"
                     icon="devices"
+                    class="select-none"
                 />
                 <span
-                    class="icon cursor-pointer material-symbols-rounded ms-fill"
+                    class="icon cursor-pointer material-symbols-rounded ms-fill select-none"
                     @click="player.toggleMute"
                 >
                     {{ player.muteIcon }}

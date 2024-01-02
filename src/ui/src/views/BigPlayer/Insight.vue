@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import Card from "../../containers/Card.vue";
 import { useInsightStore } from "../../store/insight";
 import { usePlayerStore } from "../../store/player";
@@ -18,6 +18,7 @@ import {
     LineElement,
     ScatterController,
 } from "chart.js";
+import AmbientBackground from "../../components/image/AmbientBackground.vue";
 
 ChartJS.register(
     LineController,
@@ -96,7 +97,7 @@ onMounted(() => {
                     },
                     title: {
                         display: true,
-                        text: "Seconds",
+                        text: "Time (s)",
                         font: {
                             family: "Poppins",
                         },
@@ -200,19 +201,35 @@ onMounted(() => {
                 y: {
                     min: 0,
                     max: 255,
-                    display: false,
+                    ticks: {
+                        display: false,
+                    },
+                    title: {
+                        display: true,
+                        text: "Gain",
+                        font: {
+                            family: "Poppins",
+                        },
+                    },
                 },
                 x: {
                     min: 0,
                     max: 18000,
                     type: "logarithmic",
                     ticks: {
+                        callback: (value: any) => {
+                            if (value >= 1000) {
+                                return value / 1000 + "k";
+                            }
+                            return value;
+                        },
                         font: {
                             family: "Poppins",
                         },
                     },
                     title: {
                         display: true,
+
                         text: "Frequency (Hz)",
                         font: {
                             family: "Poppins",
@@ -290,6 +307,7 @@ const formatLoudness = (loudness: number) => {
 };
 </script>
 <template>
+    <AmbientBackground :src="player.song.cover" direction="to top right" />
     <div class="insights">
         <h1>
             <span class="material-symbols-rounded">insights</span>
@@ -319,7 +337,7 @@ const formatLoudness = (loudness: number) => {
             <Card class="mode">
                 <span class="label uppercase"> max momentary </span>
                 <span>
-                    {{ formatLoudness(insights.loudness.momentary) }}
+                    {{ formatLoudness(insights.loudness.maxMomentary) }}
                 </span>
             </Card>
             <Card class="meters">
@@ -428,6 +446,7 @@ const formatLoudness = (loudness: number) => {
     gap: 1em;
 
     .loudness-chart {
+        width: 100%;
         max-height: 500px;
     }
 
@@ -455,5 +474,51 @@ const formatLoudness = (loudness: number) => {
             color: var(--fg-base-dk);
         }
     }
+}
+
+meter {
+    --background: var(--bg-base);
+    --optimum: var(--success);
+    --sub-optimum: var(--warning);
+    --sub-sub-optimum: var(--fail);
+
+    display: block;
+    width: 100%;
+}
+
+/* The gray background in Chrome, etc. */
+meter::-webkit-meter-bar {
+    background: var(--background);
+    border: 2px solid var(--border-base);
+}
+
+/* The green (optimum) bar in Firefox */
+meter:-moz-meter-optimum::-moz-meter-bar {
+    background: var(--optimum);
+}
+
+/* The green (optimum) bar in Chrome etc. */
+meter::-webkit-meter-optimum-value {
+    background: var(--optimum);
+}
+
+/* The yellow (sub-optimum) bar in Firefox */
+meter:-moz-meter-sub-optimum::-moz-meter-bar {
+    background: var(--sub-optimum);
+}
+
+/* The yellow (sub-optimum) bar in Chrome etc. */
+meter::-webkit-meter-suboptimum-value {
+    background: var(--sub-optimum);
+}
+
+/* The red (even less good) bar in Firefox */
+meter:-moz-meter-sub-sub-optimum::-moz-meter-bar {
+    background: var(--sub-sub-optimum);
+}
+
+/* The red (even less good) bar in Chrome etc. */
+meter::-webkit-meter-even-less-good-value {
+    background: var(--sub-sub-optimum);
 }
 </style>

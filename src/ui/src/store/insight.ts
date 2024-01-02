@@ -31,6 +31,7 @@ export const useInsightStore = defineStore({
         },
         loudness: {
             momentary: -Infinity,
+            maxMomentary: -Infinity,
             shortterm: -Infinity,
             integrated: -Infinity,
         },
@@ -43,6 +44,7 @@ export const useInsightStore = defineStore({
             this.truePeak.left = -Infinity;
             this.truePeak.right = -Infinity;
             this.loudness.momentary = -Infinity;
+            this.loudness.maxMomentary = -Infinity;
             this.loudness.shortterm = -Infinity;
             this.loudness.integrated = -Infinity;
         },
@@ -135,8 +137,9 @@ export const useInsightStore = defineStore({
         _setLoudness(mode: string, value: number) {
             switch (mode) {
                 case "momentary":
-                    this.loudness.momentary = Math.max(
-                        this.loudness.momentary,
+                    this.loudness.momentary = value;
+                    this.loudness.maxMomentary = Math.max(
+                        this.loudness.maxMomentary,
                         value
                     );
                     break;

@@ -4,9 +4,21 @@
   -->
 
 <template>
-    <div ref="el" class="progressBar" @click="seek" @mouseenter="hover = true" @mouseleave="hover = false">
+    <div
+        ref="el"
+        class="progressBar"
+        @mousedown="seeking = true"
+        @dragover.stop
+        @click="seek"
+        @mouseenter="hover = true"
+        @mouseleave="hover = false"
+    >
         <div class="progressBar__track">
-            <div :class="{ hover }" :style=" { width: `${percentage}%` } " class="progressBar__progress"/>
+            <div
+                :class="{ hover }"
+                :style="{ width: `${percentage}%` }"
+                class="progressBar__progress"
+            />
         </div>
     </div>
 </template>
@@ -16,46 +28,65 @@ export default {
     props: {
         modelValue: {
             type: Number,
-            required: true
+            required: true,
         },
         max: {
             type: Number,
-            default: 100
+            default: 100,
         },
     },
     watch: {
         modelValue() {
             this.value = this.modelValue;
-        }
+        },
     },
     computed: {
         percentage() {
             return Math.min(1, this.value / this.max) * 100;
-        }
+        },
     },
     methods: {
-        seek(e) {
-            const x = e.offsetX;
+        seek(e, preview = false) {
+            console.log("seek", e);
+            const rect = this.$el.getBoundingClientRect();
+            const x = e.clientX - rect.left;
             const width = this.$el.offsetWidth;
-            this.value = x / width * this.max;
-            this.$emit('change', this.value);
+            this.value = (x / width) * this.max;
 
-            try {
-                this.$emit('update:modelValue', this.value);
-            } catch (_) { }
-        }
+            if (!preview) {
+                this.seeking = false;
+                this.$emit("change", this.value);
+
+                try {
+                    this.$emit("update:modelValue", this.value);
+                } catch (_) {}
+            }
+        },
     },
     data() {
         return {
             hover: false,
             value: this.modelValue || 0,
-        }
-    }
-}
+            seeking: false,
+        };
+    },
+    mounted() {
+        window.addEventListener("mouseup", (e) => {
+            if (this.seeking) {
+                this.seeking = false;
+                this.seek(e);
+            }
+        });
+        window.addEventListener("mousemove", (e) => {
+            if (this.seeking) {
+                this.seek(e, true);
+            }
+        });
+    },
+};
 </script>
 
 <style lang="scss" scoped>
-
 .progressBar {
 }
 
@@ -79,7 +110,7 @@ export default {
         background-color: var(--fg-secondary);
 
         &:after {
-            content: '';
+            content: "";
         }
     }
 
