@@ -11,7 +11,7 @@ import { usePlayerStore } from "./store/player";
 import { ref, onMounted, watch, computed } from "vue";
 import Startup from "@/views/Startup.vue";
 import { initPictureInPicture } from "@/pictureInPicture";
-import { getCover } from "@/components/image/placeholder";
+import { getCover, generatePlaceholder } from "@/components/image/placeholder";
 import Notifications from "@/components/notifications/NotificationHandler.vue";
 
 initPictureInPicture();
@@ -22,12 +22,20 @@ const cover = ref(null);
 watch(
     () => playerStore.song.cover,
     () => {
+        console.log("cover changed");
         setCover();
     }
 );
 
 const setCover = async () => {
-    cover.value = await getCover(playerStore.song.cover, "graphic_eq");
+    cover.value = await getCover(
+        playerStore.song.cover,
+        playerStore.song.title,
+        200
+    );
+};
+const setPlaceholder = async () => {
+    cover.value = await generatePlaceholder(playerStore.song.title, 200);
 };
 setCover();
 
@@ -49,7 +57,7 @@ onMounted(() => {
 <template>
     <div :class="{ hidden: !coverAsBackground }" class="bgImageWrapper">
         <div :style="{ backgroundImage: `url(${cover})` }" class="bgImage">
-            <img :src="cover" class="hidden" @error="src = null" />
+            <img :src="cover" class="hidden" @error="setPlaceholder" />
         </div>
     </div>
     <DropImport>
@@ -180,7 +188,7 @@ export default {
 </style>
 
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;900&display=swap");
 </style>
 
 <style lang="scss">
