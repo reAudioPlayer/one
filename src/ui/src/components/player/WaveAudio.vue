@@ -10,8 +10,10 @@ import WaveSurfer from "wavesurfer.js";
 
 // @ts-ignore
 import themes from "../../assets/themes.json";
+import { useInsightStore } from "../../store/insight";
 
 const audio = ref(null);
+const audioElement = new Audio();
 
 onMounted(() => {
     // @ts-ignore
@@ -51,13 +53,20 @@ onMounted(() => {
             forcePlay = false;
         }
     });
+
+    var context = audio.value.backend.ac as AudioContext;
+    var source = context.createMediaElementSource(audioElement);
+    source.connect(context.destination);
+    insights.setSource(source, context);
 });
 
 const player = usePlayerStore();
+const insights = useInsightStore();
 let forcePlay = false;
 
 onMounted(() => {
-    audio.value.load(player.stream);
+    audioElement.src = player.stream;
+    audio.value.load(audioElement);
 });
 
 watch(
@@ -67,7 +76,8 @@ watch(
             forcePlay = true;
         }
 
-        audio.value.load(player.stream);
+        audioElement.src = player.stream;
+        audio.value.load(audioElement);
         player.setPlaying(false);
     }
 );
