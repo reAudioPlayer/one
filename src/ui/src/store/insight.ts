@@ -7,7 +7,7 @@ import { defineStore } from "pinia";
 import { watch } from "vue";
 import { usePlayerStore } from "./player";
 import { LoudnessMeter } from "@domchristie/needles";
-import { correlation, stereoField } from "../helpers/correlationMeter";
+import { correlation, getData, stereoField } from "../helpers/correlationMeter";
 import { useRoute } from "vue-router";
 
 export const useInsightStore = defineStore({
@@ -20,6 +20,10 @@ export const useInsightStore = defineStore({
             field: [] as { x: number; y: number }[],
             _analyserL: null as any | null,
             _analyserR: null as any | null,
+        },
+        tonalBalance: {
+            data: null as Uint8Array | null,
+            _analyser: null as any | null,
         },
         truePeak: {
             left: -Infinity,
@@ -52,6 +56,14 @@ export const useInsightStore = defineStore({
 
             this.stereo.analyserL = context.createAnalyser();
             this.stereo.analyserR = context.createAnalyser();
+            this.tonalBalance.analyser = context.createAnalyser();
+
+            this.tonalBalance.analyser.fftSize = 256;
+            source.connect(this.tonalBalance.analyser);
+            this.tonalBalance.data = new Uint8Array(
+                this.tonalBalance.analyser.frequencyBinCount
+            );
+
             var splitter = context.createChannelSplitter(2);
             source.connect(splitter);
             splitter.connect(this.stereo.analyserR, 1);
@@ -69,6 +81,10 @@ export const useInsightStore = defineStore({
                     return;
                 }
 
+                this.tonalBalance.analyser.getByteFrequencyData(
+                    this.tonalBalance.data
+                );
+
                 this.stereo.analyserR.getFloatTimeDomainData(pcmDataR);
                 this.stereo.analyserL.getFloatTimeDomainData(pcmDataL);
                 let sumR = 0.0;
@@ -82,14 +98,12 @@ export const useInsightStore = defineStore({
                 this.stereo.right = Math.sqrt(sumR / pcmDataR.length);
                 this.stereo.left = Math.sqrt(sumL / pcmDataL.length);
 
-                this.stereo.correlation = correlation(
+                this.stereo.data = getData(
                     this.stereo.analyserL,
                     this.stereo.analyserR
                 );
-                this.stereo.field = stereoField(
-                    this.stereo.analyserL,
-                    this.stereo.analyserR
-                );
+                this.stereo.correlation = correlation(this.stereo.data);
+                this.stereo.field = stereoField(this.stereo.data);
 
                 window.requestAnimationFrame(onFrame);
             };

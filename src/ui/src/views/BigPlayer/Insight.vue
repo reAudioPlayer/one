@@ -13,6 +13,7 @@ import {
     BarElement,
     CategoryScale,
     LinearScale,
+    LogarithmicScale,
     PointElement,
     LineElement,
     ScatterController,
@@ -29,11 +30,13 @@ ChartJS.register(
     BarElement,
     CategoryScale,
     LinearScale,
+    LogarithmicScale,
     ScatterController
 );
 
 const chart = ref<HTMLCanvasElement>();
 const stereoFieldChart = ref<HTMLCanvasElement>();
+const tonalBalanceChart = ref<HTMLCanvasElement>();
 
 const player = usePlayerStore();
 const insights = useInsightStore();
@@ -46,11 +49,17 @@ const emptyData = Array.from({ length: 60 }, () => -Infinity);
 const resizeCanvas = (canvas: HTMLCanvasElement) => {
     canvas.width = canvas.parentElement?.clientWidth as number;
     canvas.height = canvas.parentElement?.clientHeight as number;
+
+    window.addEventListener("resize", () => {
+        canvas.width = canvas.parentElement?.clientWidth as number;
+        canvas.height = canvas.parentElement?.clientHeight as number;
+    });
 };
 
 onMounted(() => {
     resizeCanvas(stereoFieldChart.value);
-    // resizeCanvas(chart.value);
+    resizeCanvas(chart.value);
+    resizeCanvas(tonalBalanceChart.value);
 
     shortTermData.value = emptyData;
     integratedData.value = emptyData;
@@ -66,13 +75,32 @@ onMounted(() => {
                     min: -60,
                     max: 0,
                     ticks: {
-                        callback: (value) => value + " LUFS",
                         // @ts-ignore
                         min: -60,
+                        font: {
+                            family: "Poppins",
+                            size: 10,
+                        },
+                    },
+                    title: {
+                        display: true,
+                        text: "Loudness (LUFS)",
+                        font: {
+                            family: "Poppins",
+                        },
                     },
                 },
                 x: {
-                    display: false,
+                    ticks: {
+                        display: false,
+                    },
+                    title: {
+                        display: true,
+                        text: "Seconds",
+                        font: {
+                            family: "Poppins",
+                        },
+                    },
                 },
             },
             animation: {
@@ -86,22 +114,44 @@ onMounted(() => {
         data: {
             datasets: [
                 {
-                    label: "Stereo Field",
                     data: [],
                     backgroundColor: "#00c48b",
                     borderColor: "#00c48b",
                     pointRadius: 0.5,
                 },
+                {
+                    data: [],
+                    backgroundColor: "#00c48b99",
+                    borderColor: "#00c48bcc",
+                    pointRadius: 0.3,
+                },
+                {
+                    data: [],
+                    backgroundColor: "#00c48b33",
+                    borderColor: "#00c48b99",
+                    pointRadius: 0.1,
+                },
             ],
         },
         options: {
             responsive: true,
+            animation: false,
             scales: {
                 y: {
                     min: -1,
                     max: 1,
                     ticks: {
                         callback: (value) => value,
+                        font: {
+                            family: "Poppins",
+                        },
+                    },
+                    title: {
+                        display: true,
+                        text: "Left",
+                        font: {
+                            family: "Poppins",
+                        },
                     },
                 },
                 x: {
@@ -109,6 +159,16 @@ onMounted(() => {
                     max: 1,
                     ticks: {
                         callback: (value) => value,
+                        font: {
+                            family: "Poppins",
+                        },
+                    },
+                    title: {
+                        display: true,
+                        text: "Right",
+                        font: {
+                            family: "Poppins",
+                        },
                     },
                 },
             },
@@ -120,11 +180,73 @@ onMounted(() => {
         },
     });
 
+    const tonalBalance = new ChartJS(tonalBalanceChart.value, {
+        data: {
+            datasets: [
+                {
+                    type: "line",
+                    tension: 1,
+                    cubicInterpolationMode: "monotone",
+                    data: [
+                        { x: 0, y: 0 },
+                        { x: 255, y: 50 },
+                    ],
+                    borderColor: "#00c48b",
+                },
+            ],
+        },
+        options: {
+            scales: {
+                y: {
+                    min: 0,
+                    max: 255,
+                    display: false,
+                },
+                x: {
+                    min: 0,
+                    max: 18000,
+                    type: "logarithmic",
+                    ticks: {
+                        font: {
+                            family: "Poppins",
+                        },
+                    },
+                    title: {
+                        display: true,
+                        text: "Frequency (Hz)",
+                        font: {
+                            family: "Poppins",
+                        },
+                    },
+                },
+            },
+            plugins: {
+                legend: {
+                    display: false,
+                },
+            },
+        },
+    });
+
+    let i = 0;
+
     setInterval(() => {
         if (!player.playing) return;
 
+        field.data.datasets[2].data = field.data.datasets[1].data;
+        field.data.datasets[1].data = field.data.datasets[0].data;
         field.data.datasets[0].data = insights.stereo.field;
         field.update();
+
+        if (i++ % 10 !== 0) return;
+
+        const points: { x: number; y: number }[] =
+            insights.tonalBalance.data.reduce((acc, curr, i) => {
+                acc.push({ x: i * 188, y: curr });
+                return acc;
+            }, [] as { x: number; y: number }[]);
+        tonalBalance.data.datasets[0].data = points;
+        tonalBalance.update();
 
         chartjs.data.datasets[0].data.shift();
         chartjs.data.datasets[0].data.push(insights.loudness.shortterm);
@@ -139,7 +261,7 @@ onMounted(() => {
         ] as any);
 
         chartjs.update();
-    }, 500);
+    }, 100);
 });
 
 const chartData = () => [
@@ -173,10 +295,15 @@ const formatLoudness = (loudness: number) => {
             <span class="material-symbols-rounded">insights</span>
             <span>Insights</span>
         </h1>
-        <div class="relative">
-            <canvas ref="chart"></canvas>
+        <div class="left">
+            <Card class="relative loudness-chart p-2">
+                <canvas ref="chart"></canvas>
+            </Card>
+            <Card class="relative tonal-balance-chart p-2">
+                <canvas ref="tonalBalanceChart"></canvas>
+            </Card>
         </div>
-        <div class="loudness">
+        <div class="right">
             <Card class="mode">
                 <span class="label uppercase"> short term </span>
                 <span>
@@ -222,9 +349,9 @@ const formatLoudness = (loudness: number) => {
                 <div class="meter">
                     <span class="label uppercase"> L/R </span>
                     <meter
-                        optimum="0"
-                        low="-1"
-                        high="1"
+                        optimum="1"
+                        low="-0.5"
+                        high="0"
                         min="-1"
                         max="1"
                         :value="insights.stereo.correlation"
@@ -249,6 +376,8 @@ const formatLoudness = (loudness: number) => {
     grid-column: 1 / -1;
 
     .stereo-field {
+        max-width: 400px;
+        align-self: center;
         aspect-ratio: 1;
 
         canvas {
@@ -293,11 +422,26 @@ const formatLoudness = (loudness: number) => {
     }
 }
 
-.loudness {
+.left {
+    display: grid;
+    grid-template-rows: 1fr max-content;
+    gap: 1em;
+
+    .loudness-chart {
+        max-height: 500px;
+    }
+
+    .tonal-balance-chart {
+        width: 100%;
+        max-height: 300px;
+    }
+}
+
+.right {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1em;
-    align-items: start;
+    align-content: start;
 
     .mode {
         padding: 0.5em;

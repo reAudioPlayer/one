@@ -31,21 +31,21 @@ const polar2cartesian = (radius, angle) => {
     return { x: x, y: y };
 };
 
-const getData = (leftChannel: any, rightChannel: any) => {
-    const data = [];
+export type StereoData = Float32Array[];
 
-    data.push(new Float32Array(leftChannel.frequencyBinCount));
-    leftChannel.getFloatTimeDomainData(data[0]);
+export const getData = (leftChannel: any, rightChannel: any): StereoData => {
+    const data = [] as StereoData;
 
     data.push(new Float32Array(rightChannel.frequencyBinCount));
-    rightChannel.getFloatTimeDomainData(data[1]);
+    rightChannel.getFloatTimeDomainData(data[0]);
+
+    data.push(new Float32Array(leftChannel.frequencyBinCount));
+    leftChannel.getFloatTimeDomainData(data[1]);
 
     return data;
 };
 
-export const correlation = (leftChannel: any, rightChannel: any) => {
-    const data = getData(leftChannel, rightChannel);
-
+export const correlation = (data: StereoData) => {
     const doSmooth = (oldV, newV) => {
         var ret = oldV;
         if (oldV > newV) {
@@ -77,9 +77,7 @@ export const correlation = (leftChannel: any, rightChannel: any) => {
     return prevCorr;
 };
 
-export const stereoField = (leftChannel: any, rightChannel: any) => {
-    const data = getData(leftChannel, rightChannel);
-
+export const stereoField = (data: StereoData) => {
     var x = data[1] ? data[1][0] : 0; // take care of single channel signals
     let rotated = rotate45deg(x, data[0][0]); // Right channel is mapped to x axis
 
