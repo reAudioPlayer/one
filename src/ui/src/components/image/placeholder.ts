@@ -3,29 +3,33 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-
-const VERSION = 1.1;
+const VERSION = 2.0;
 const storage = window.localStorage.getItem("renderedIcons");
-const renderedIcons: Map<string, string> = storage ? new Map(JSON.parse(storage)) : new Map<string, string>();
+const renderedIcons: Map<string, string> = storage
+    ? new Map(JSON.parse(storage))
+    : new Map<string, string>();
 
-const updateStorage = () => {
-    window.localStorage.setItem("renderedIcons", JSON.stringify([...renderedIcons]));
-}
-
-
-export const getCover = (cover: string | null, placeholder: string, size: number = 500) => {
+export const getCover = (
+    cover: string | null,
+    placeholder: string,
+    size: number = 500
+) => {
     if (!cover) {
         return generatePlaceholder(placeholder, size);
     }
 
     return cover;
-}
+};
 
+const imgSrc = "/assets/img/bg-1024x1024.png";
 
-export const generatePlaceholder = async (icon: string, size: number = 500): Promise<string> => {
+export const generatePlaceholder = async (
+    name: string,
+    size: number = 1024
+): Promise<string> => {
     await document.fonts.ready;
 
-    const key = `${VERSION}-${icon}-${size}`;
+    const key = `${VERSION}-${name}-${size}`;
 
     if (renderedIcons.has(key)) {
         const src = renderedIcons.get(key);
@@ -34,28 +38,71 @@ export const generatePlaceholder = async (icon: string, size: number = 500): Pro
 
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.opacity = "0";
+    document.body.appendChild(canvas);
 
-    const bgGradient = getComputedStyle(document.documentElement).getPropertyValue('--bg-gradient-placeholder');
-    const stop1 = bgGradient.match(/(#[0-9a-f]{3,6})/g)[0];
-    const stop2 = bgGradient.match(/(#[0-9a-f]{3,6})/g)[1];
-    const gradient = ctx.createLinearGradient(size, 0, 0, size);
-    gradient.addColorStop(0, stop1);
-    gradient.addColorStop(1, stop2);
+    // resize to parent size
+    canvas.height = size;
+    canvas.width = size;
+    // resize display size (css)
+    canvas.style.height = size + "px";
+    canvas.style.width = size + "px";
 
-    const baseHeight = size;
+    const img = new Image();
+    img.src = imgSrc;
 
-    ctx.canvas.width = baseHeight
-    ctx.canvas.height = baseHeight;
+    return await new Promise((resolve) => {
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, baseHeight, baseHeight);
+            ctx.fillStyle = "white";
+            ctx.font = `900 100px 'Poppins'`;
+            ctx.textAlign = "center";
+            ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+            ctx.shadowBlur = 50;
+            ctx.fillText(
+                name,
+                canvas.width / 2,
+                canvas.height / 2 + 72 / 2,
+                canvas.width
+            );
 
-    ctx.font = `300 ${baseHeight}px Material Symbols Rounded`;
-    ctx.fillStyle = "whitesmoke";
-    ctx.fillText(icon,0, baseHeight);
+            // white rectangle in top, full width
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, 14);
 
-    const src = canvas.toDataURL();
-    renderedIcons.set(key, src);
-    updateStorage();
-    return src;
+            // repeating text "reAudioPlayer" in rectangle
+            ctx.fillStyle = "black";
+            ctx.font = `400 italic 8px 'Poppins'`;
+            ctx.textAlign = "left";
+            ctx.fillText(" reAudioPlayer ".repeat(100), 2, 8 + 2);
+
+            // white line in 50px above bottom, horizontal padding of 100px
+            const paddingX = 30;
+            ctx.fillStyle = "white";
+            ctx.font = `600 14px 'Poppins'`;
+            ctx.textAlign = "left";
+            ctx.fillText(
+                name?.toUpperCase() ?? name,
+                paddingX,
+                canvas.height - 35 + 8 + 2
+            );
+            const offsetX = ctx.measureText(name).width + paddingX + 16;
+
+            ctx.fillStyle = "white";
+            ctx.fillRect(
+                offsetX,
+                canvas.height - 30,
+                canvas.width - offsetX - paddingX,
+                2
+            );
+            const src = canvas.toDataURL();
+            renderedIcons.set(key, src);
+
+            resolve(src);
+        };
+    });
 };

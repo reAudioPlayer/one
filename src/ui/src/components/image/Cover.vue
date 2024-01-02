@@ -4,9 +4,8 @@
   -->
 
 <script lang="ts" setup>
-import { computed, PropType, ref, watch } from "vue";
+import { PropType, ref, watch } from "vue";
 import { generatePlaceholder, getCover } from "./placeholder";
-import Placeholder from "./Placeholder.vue";
 import { parseAnyCover } from "../../common";
 import { applyBoxShadow } from "../../helpers/accent";
 import window from "@/themes";
@@ -41,21 +40,10 @@ const props = defineProps({
     },
 });
 
-const placeholderIcon = computed(() => {
-    if (props.placeholder) {
-        return props.placeholder;
-    }
-    return props.type === "track" ? "music_note" : "queue_music";
-});
-
 const imgSrc = ref(null as string | null);
-const showFallback = ref(false);
 
 const onError = async () => {
-    showFallback.value = true;
-    return;
-
-    imgSrc.value = await generatePlaceholder(placeholderIcon.value);
+    imgSrc.value = await generatePlaceholder(props.name);
 
     if (!imgSrc.value) {
         setTimeout(() => {
@@ -66,7 +54,6 @@ const onError = async () => {
 };
 
 const updateSrc = () => {
-    showFallback.value = false;
     imgSrc.value = parseAnyCover(props.src, props.type);
 
     if (!imgSrc.value) {
@@ -84,7 +71,7 @@ const onLoad = async () => {
 
     if (!window.getCurrentThemeProperty("supportsAmbient")) return;
 
-    const src = await getCover(imgSrc.value, placeholderIcon.value);
+    const src = await getCover(imgSrc.value, props.name);
 
     applyBoxShadow(element.value, src, props.ambientOpacity);
 };
@@ -93,18 +80,9 @@ const onLoad = async () => {
     <img
         ref="element"
         :alt="props.type"
-        :src="getCover(imgSrc, placeholderIcon)"
+        :src="getCover(imgSrc, name)"
         class="cover rounded-md"
         @error="onError"
         @load="onLoad"
-        v-show="!showFallback"
-    />
-    <Placeholder
-        v-if="showFallback"
-        :icon="placeholderIcon"
-        :type="props.type"
-        :with-ambient="props.withAmbient"
-        :ambient-opacity="props.ambientOpacity"
-        :name="props.name"
     />
 </template>
