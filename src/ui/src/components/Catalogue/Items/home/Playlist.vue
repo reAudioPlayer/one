@@ -6,7 +6,7 @@
 <template>
     <router-link :to="href" class="no-underline">
         <Card class="home-playlist drop-shadow-md" with-hover>
-            <Cover :src="cover" type="playlist" />
+            <Cover :src="cover" type="playlist" :name="name" />
             <div class="title">
                 <span v-if="type != 'classic'" class="material-symbols-rounded">
                     {{ type == "smart" ? "neurology" : "bolt" }}
@@ -23,25 +23,24 @@ import Card from "@/containers/Card.vue";
 defineProps({
     name: {
         type: String,
-        required: true
+        required: true,
     },
     cover: {
         type: String,
-        required: true
+        required: true,
     },
     href: {
         type: String,
-        required: true
+        required: true,
     },
     type: {
         type: String,
-        default: "classic"
-    }
-})
+        default: "classic",
+    },
+});
 </script>
 
 <style lang="scss" scoped>
-
 .home-playlist {
     background: var(--bg-base-lt);
     border-radius: 20px;
@@ -63,7 +62,6 @@ defineProps({
         border-radius: 12px;
         width: 100%;
     }
-
 
     h2 {
         font-size: 1em;
