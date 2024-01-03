@@ -71,6 +71,7 @@ onMounted(() => {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     min: -30,
@@ -134,6 +135,7 @@ onMounted(() => {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             animation: false,
             scales: {
                 y: {
@@ -195,6 +197,8 @@ onMounted(() => {
             ],
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     min: 0,
@@ -445,12 +449,16 @@ const formatLoudness = (loudness: number) => {
 
     .loudness-chart {
         width: 100%;
-        max-height: 500px;
+        height: calc(
+            2 * (100vh - var(--h-header) - var(--h-player) - 2.25rem - 5em) / 3
+        );
     }
 
     .tonal-balance-chart {
         width: 100%;
-        max-height: 300px;
+        height: calc(
+            1 * (100vh - var(--h-header) - var(--h-player) - 2.25rem - 5em) / 3
+        );
     }
 }
 

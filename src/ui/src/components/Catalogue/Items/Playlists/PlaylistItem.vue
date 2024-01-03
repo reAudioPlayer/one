@@ -17,7 +17,7 @@
             }"
         />
         <div class="item" @click="redirect">
-            <Cover :src="parseCover(cover)" type="playlist" />
+            <Cover :src="parseCover(cover)" type="playlist" :name="title" />
             <div class="title">
                 <span v-if="type != 'classic'" class="material-symbols-rounded">
                     {{ type == "smart" ? "neurology" : "bolt" }}
