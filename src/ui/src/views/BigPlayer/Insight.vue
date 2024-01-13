@@ -139,8 +139,8 @@ onMounted(() => {
             animation: false,
             scales: {
                 y: {
-                    min: -1,
-                    max: 1,
+                    min: -1.5,
+                    max: 1.5,
                     ticks: {
                         callback: (value) => value,
                         font: {
@@ -156,8 +156,8 @@ onMounted(() => {
                     },
                 },
                 x: {
-                    min: -1,
-                    max: 1,
+                    min: -1.5,
+                    max: 1.5,
                     ticks: {
                         callback: (value) => value,
                         font: {
