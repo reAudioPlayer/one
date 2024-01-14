@@ -9,8 +9,8 @@
             v-model="value"
             :icon="icon"
             :placeholder="placeholder"
-            @submit="submit"
             @change="onChange"
+            @submit="onSubmit"
             :onKeyUp="onKeyUp"
             :expanded="suggestions.length > 0"
             ref="input"
@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType, ref, watch, computed, onMounted } from "vue";
+import { PropType, ref, watch, computed } from "vue";
 import TextInputWithIcon from "./TextInputWithIcon.vue";
 import { debounce } from "lodash";
 
@@ -58,10 +58,10 @@ const onKeyUp = (e) => {
         return true;
     }
     if (e.key === "Enter") {
-        console.log(selectedAutoCompleteItem.value);
         if (selectedAutoCompleteItem.value >= 0) {
             props.clickSuggest(
-                suggestions.value[selectedAutoCompleteItem.value]
+                suggestions.value[selectedAutoCompleteItem.value],
+                e.shiftKey
             );
             selectedAutoCompleteItem.value = -1;
             suggestions.value = [];
@@ -72,8 +72,20 @@ const onKeyUp = (e) => {
     return false;
 };
 
+const onSubmit = () => {
+    suggestions.value = [];
+    emits("submit", value.value);
+};
+
 document.addEventListener("click", (e) => {
     if (!inputElement.value?.contains(e.target as Node)) {
+        suggestions.value = [];
+        selectedAutoCompleteItem.value = -1;
+    }
+});
+document.addEventListener("keydown", (e) => {
+    // escape
+    if (e.key === "Escape") {
         suggestions.value = [];
         selectedAutoCompleteItem.value = -1;
     }
@@ -92,7 +104,7 @@ const props = defineProps({
         required: true,
     },
     clickSuggest: {
-        type: Function as PropType<(any) => void>,
+        type: Function as PropType<(any, bool) => void>,
         required: false,
     },
 });
@@ -124,11 +136,6 @@ const onChange = () => {
     emits("update:modelValue", value.value);
     emits("change", value.value);
     onInput();
-};
-
-const submit = (e) => {
-    emits("submit", e);
-    suggestions.value = [];
 };
 
 defineExpose({
