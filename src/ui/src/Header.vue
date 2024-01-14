@@ -75,10 +75,12 @@ import { useDownloaderStore } from "./store/downloader";
 import SearchResultItem from "./views/Search/SearchResultItem.vue";
 import { TYPES } from "./views/Search/search";
 import { useDataStore } from "./store/data";
+import { usePlayerStore } from "./store/player";
 
 const downloadIcon = ref(null);
 const showDownloadAnim = ref(false);
 const data = useDataStore();
+const player = usePlayerStore();
 const downloadAnimationPosition = computed(() => {
     if (!downloadIcon.value) return {};
     const top = `calc(${downloadIcon.value.offsetTop}px + 10px)`;
@@ -96,14 +98,21 @@ downloaderStore.onDownload.push((songId: number) => {
     }, 500);
 });
 
-const clickSuggestion = (value) => {
+const clickSuggestion = (value, shift = false) => {
+    if (shift) {
+        if (value.type === "song") {
+            player.loadPlaylist("track", value.item.id);
+            return;
+        }
+    }
+
     if (value.type === "artist") {
         router.push(`/artist/${value.item.name}`);
         return;
     }
+
     router.push(value.item.href);
 };
-
 
 const randomSong = () => {
     const songs = data.playlists.flatMap((p) => p.songs);
@@ -116,7 +125,7 @@ const suggest = async (value) => {
     if (!value.length) return [];
 
     if (value === "/rand") {
-        const song = randomSong()
+        const song = randomSong();
 
         if (!song) return [];
 
@@ -125,8 +134,8 @@ const suggest = async (value) => {
                 type: "command",
                 confidence: 1,
                 scope: "local",
-                item: song
-            }
+                item: song,
+            },
         ];
     }
     if (["/create", "/new"].includes(value)) {
@@ -143,13 +152,13 @@ const suggest = async (value) => {
             {
                 type: "command",
                 confidence: 0.5,
-                scope: "local", 
+                scope: "local",
                 item: {
                     name: "Create smart playlist",
                     href: "/playlist/create?type=smart",
                 },
             },
-        ]
+        ];
     }
 
     const res = await fetch("/api/search", {
