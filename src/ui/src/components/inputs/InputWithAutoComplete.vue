@@ -77,6 +77,10 @@ const onSubmit = () => {
     emits("submit", value.value);
 };
 
+const blur = () => {
+    inputElement.value?.querySelector("input")?.blur();
+};
+
 document.addEventListener("click", (e) => {
     if (!inputElement.value?.contains(e.target as Node)) {
         suggestions.value = [];
@@ -88,6 +92,7 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
         suggestions.value = [];
         selectedAutoCompleteItem.value = -1;
+        blur();
     }
 });
 
@@ -142,6 +147,7 @@ defineExpose({
     focus: () => {
         input.value?.focus();
     },
+    blur,
 });
 </script>
 
