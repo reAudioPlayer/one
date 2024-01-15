@@ -102,6 +102,12 @@ const clickSuggestion = (value, shift = false) => {
     if (shift) {
         if (value.type === "song") {
             player.loadPlaylist("track", value.item.id);
+            search.value?.blur();
+            return;
+        }
+        if (value.type === "playlist") {
+            player.loadPlaylist(value.item.id);
+            search.value?.blur();
             return;
         }
     }

@@ -156,10 +156,29 @@ const estimatedDuration = computed(() => {
     return prefix + duration + " sec";
 });
 
-const deleteMe = async () => {
-    await deletePlaylist(playlist.value.id);
-    await data.fetchPlaylists();
-    router.push("/");
+const imgUpload = ref(null as HTMLInputElement | null);
+
+const uploadCover = async (e: Event) => {
+    const upload = async (endpoint: string, file: File) => {
+        const data = new FormData();
+        const ext = "." + file.name.split(".").pop();
+
+        var blob = file.slice(0, file.size, file.type);
+        var newFile = new File([blob], props.playlist.name + ext, {
+            type: file.type,
+        });
+
+        data.append("file", newFile);
+
+        const res = await fetch(endpoint, {
+            method: "POST",
+            body: data,
+        });
+        return await res.text();
+    };
+
+    const src = await upload("/api/config/images", imgUpload.value!.files[0]);
+    updatePlaylistMetadata({ ...playlist.value, cover: src });
 };
 </script>
 
@@ -180,6 +199,15 @@ const deleteMe = async () => {
                 class="cover rounded-xl"
                 type="playlist"
                 :name="playlist.name"
+                @click="imgUpload?.click()"
+            />
+            <input
+                ref="imgUpload"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="uploadCover"
+                v-if="!canEdit"
             />
             <div class="track__info__details flex flex-col justify-end">
                 <div class="trac__info__details__normal">
@@ -368,6 +396,8 @@ const deleteMe = async () => {
     .cover {
         min-width: 384px;
         aspect-ratio: 1 / 1;
+        position: relative;
+        z-index: 1;
     }
 
     @media (max-width: 1000px) {
