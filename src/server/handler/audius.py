@@ -11,11 +11,12 @@ import json
 import random
 from dataclasses import dataclass
 
+import requests
 import aiohttp
 from aiohttp import web
 from pyaddict import JDict, JList
 from pyaddict.schema import Object, String
-from hashids import Hashids
+from hashids import Hashids  # type: ignore
 
 from dataModel.track import ITrack, BasicSpotifyItem
 from helper.logged import Logged
@@ -46,10 +47,10 @@ class AudiusUser:
     def id(self) -> int:
         """returns the id"""
         (userId,) = hashids.decode(self.userId)
-        return userId
+        return int(userId)
 
     @classmethod
-    def fromDict(cls, data: Dict[str, str]) -> AudiusUser:
+    def fromDict(cls, data: Dict[str, Any]) -> AudiusUser:
         """sets the data from the cache"""
         return cls(
             data["userId"],
@@ -78,6 +79,8 @@ class AudiusUser:
 
 
 class AudiusTrack(ITrack):
+    """Audius Track"""
+
     def __init__(self, track: Dict[str, Any]) -> None:
         dex = JDict(track).chain()
         self._title = dex.ensure("title", str)
@@ -87,6 +90,17 @@ class AudiusTrack(ITrack):
         self._id = dex.ensure("id", str)
         self._explicit = dex.ensure("explicit", bool)
         self._url = dex.ensure("permalink", str)
+
+    @staticmethod
+    def fromUrl(url: str) -> Optional[AudiusTrack]:
+        """returns the track from the url"""
+        if "audius" not in url:
+            return None
+        resolve = Audius().resolveUrl(url)
+        if resolve.status_code != 200:
+            return None
+        data = resolve.json()
+        return AudiusTrack(data["data"])
 
     @property
     def title(self) -> str:
@@ -106,14 +120,14 @@ class AudiusTrack(ITrack):
         return [artist.name for artist in self._artists]
 
     @property
-    def cover(self) -> Optional[str]:
+    def cover(self) -> str:
         """returns the cover"""
-        return self._cover
+        return self._cover or ""
 
     @property
     def url(self) -> str:
         """returns the url"""
-        return "https://audius.co/" + self._url
+        return "https://audius.co" + self._url
 
 
 class Audius(metaclass=Singleton):
@@ -161,9 +175,15 @@ class Audius(metaclass=Singleton):
         # /feed?offset=0&limit=8&with_users=true&filter=all
         endpoint = self._endpoint("/feed?offset=0&limit=8&with_users=true&filter=all")
         async with aiohttp.ClientSession() as session:
+            assert self._user is not None
             async with session.get(endpoint, headers={"X-User-Id": str(self._user.id)}) as response:
                 data = await response.json()
                 return web.json_response(data)
+
+    def resolveUrl(self, url: str) -> requests.Response:
+        """get(/api/audius/resolve)"""
+        # /v1/resolve?url={url}
+        return requests.get(self._endpoint(f"/v1/resolve?url={url}"), timeout=5)
 
     async def search(self, query: str) -> List[AudiusTrack]:
         """get(/api/audius/search)"""

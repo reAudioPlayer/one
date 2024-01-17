@@ -15,7 +15,7 @@ from meta.spotify import Spotify, SpotifyArtist, SpotifyTrack
 from meta.confidence import Confidence
 from helper.asyncThread import asyncRunInThreadWithReturn
 from player.classicPlayerPlaylist import ClassicPlayerPlaylist
-from handler.audius import Audius, AudiusTrack
+from handler.audius import Audius
 
 
 class SearchScopes(StrEnum):
@@ -171,13 +171,10 @@ class Search:
             for track in tracks
         ]
 
-    async def _getAudiusTracks(self) -> List[AudiusTrack]:
+    async def _getAudiusTracks(self) -> List[SearchResult]:
         if not self._scope.song:
             return []
         tracks = await Audius().search(self._query)
-        import logging
-
-        logging.debug("audius tracks: %s", tracks)
         return [
             SearchResult(
                 track,
