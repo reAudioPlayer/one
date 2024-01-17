@@ -1,11 +1,9 @@
-<script setup lang=ts>
-import AmbientBackground from '../../components/image/AmbientBackground.vue';
-import IconButton from '../../components/inputs/IconButton.vue';
-import { usePlayerStore } from '../../store/player';
-import Loader from '../../components/Loader.vue';
-import { setCORS } from "google-translate-api-browser";
-
-const translate = setCORS("http://localhost:1234/api/cors/");
+<script setup lang="ts">
+import AmbientBackground from "../../components/image/AmbientBackground.vue";
+import IconButton from "../../components/inputs/IconButton.vue";
+import { usePlayerStore } from "../../store/player";
+import Loader from "../../components/Loader.vue";
+import { translate } from "google-translate-api-browser";
 
 const playerStore = usePlayerStore();
 
@@ -23,7 +21,9 @@ const displayLine = (index: number) => {
      */
 
     const start = parseInt(line.startTimeMs);
-    const end = parseInt(line.endTimeMs) ? parseInt(line.endTimeMs) : parseInt(playerStore.lyrics.lyrics[index + 1]?.startTimeMs);
+    const end = parseInt(line.endTimeMs)
+        ? parseInt(line.endTimeMs)
+        : parseInt(playerStore.lyrics.lyrics[index + 1]?.startTimeMs);
 
     if (currentMs >= start && currentMs < end) {
         // scroll to this element
@@ -37,11 +37,11 @@ const displayLine = (index: number) => {
         }
 
         return "current";
-    };
+    }
 
     if (currentMs >= end) {
         return "past";
-    };
+    }
 
     return "future";
 };
@@ -60,7 +60,10 @@ const translateLine = async (index: number) => {
     if (line.originalWorlds) {
         return;
     }
-    const res = await translate(line.words, { to: "en" });
+    const res = await translate(line.words, {
+        to: "en",
+        corsUrl: "http://localhost:1234/api/cors/",
+    });
     line.originalWorlds = line.words;
     line.words = res.text;
 };
@@ -86,16 +89,19 @@ const untranslateAll = () => {
 };
 
 const showUntranslateAll = () => {
-    const nTranslated = playerStore.lyrics?.lyrics?.filter(line => line.originalWorlds).length;
+    const nTranslated = playerStore.lyrics?.lyrics?.filter(
+        (line) => line.originalWorlds
+    ).length;
     // > 50%
     return nTranslated && nTranslated > playerStore.lyrics?.lyrics?.length / 2;
 };
 </script>
 <template>
-    <AmbientBackground
-        :src="playerStore.song.cover"
-    />
-    <div v-if="!playerStore.lyrics || playerStore.lyrics?.error" class="fill-page">
+    <AmbientBackground :src="playerStore.song.cover" />
+    <div
+        v-if="!playerStore.lyrics || playerStore.lyrics?.error"
+        class="fill-page"
+    >
         <h1 v-if="playerStore.lyrics?.error">
             {{ playerStore.lyrics?.error }}
         </h1>
@@ -159,7 +165,7 @@ const showUntranslateAll = () => {
             right: 1em;
             top: 50%;
             transform: translateY(-50%);
-            
+
             &:not(.translated) {
                 display: none;
             }
