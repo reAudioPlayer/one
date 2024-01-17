@@ -61,6 +61,10 @@ const isSpotify = computed(() => {
     return props.item?.scope === "spotify";
 });
 
+const isAudius = computed(() => {
+    return props.item?.scope === "audius";
+});
+
 const importSpotifySong = ref<typeof ImportSpotifySong>();
 const importSpotifyAlbum = ref<typeof ImportSpotifyAlbum>();
 
@@ -79,12 +83,16 @@ const onClick = () => {
         } else if (type.value === "album") {
             importSpotifyAlbum.value.show();
         }
+    } else if (isAudius.value) {
+        if (type.value === "song") {
+            importSpotifySong.value.show();
+        }
     }
 };
 </script>
 <template>
     <ImportSpotifySong
-        v-if="type === 'song' && isSpotify"
+        v-if="type === 'song' && (isSpotify || isAudius)"
         ref="importSpotifySong"
         :song="props.item.item"
     />
@@ -110,8 +118,8 @@ const onClick = () => {
                 <span
                     :name="item.scope"
                     v-if="!isLocal"
-                    class="material-symbols-rounded tag"
-                    >cloud</span
+                    class="uppercase tag"
+                    >{{ item.scope }}</span
                 >
             </div>
         </div>
@@ -174,7 +182,7 @@ const onClick = () => {
         }
     }
 
-    &:not(:nohover):hover {
+    &:not(.nohover):hover {
         background: var(--bg-hover-dk);
         cursor: pointer;
     }

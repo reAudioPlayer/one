@@ -20,19 +20,20 @@ const data = useDataStore();
 const props = defineProps({
     song: {
         type: Object as PropType<ISpotifySong>,
-        required: true
-    }
-})
+        required: true,
+    },
+});
 
-const options = ref([{
-    name: "playlist",
-    type: "dropdown",
-    icon: "playlist_add",
-    required: true,
-    value: null,
-    options: data.playlistsAsDropdown
-}]);
-
+const options = ref([
+    {
+        name: "playlist",
+        type: "dropdown",
+        icon: "playlist_add",
+        required: true,
+        value: null,
+        options: data.playlistsAsDropdown,
+    },
+]);
 
 const modal = ref(null);
 const form = ref(null);
@@ -47,8 +48,8 @@ const show = async () => {
     const res = await modal.value.fetch("/api/browse/track", {
         method: "POST",
         body: JSON.stringify({
-            url: props.song.href
-        })
+            url: props.song.href ?? props.song.url,
+        }),
     });
 
     if (!res) return;
@@ -57,26 +58,33 @@ const show = async () => {
 
     track.value = await res.json();
     modal.value.show();
-}
+};
 
 const preview = () => {
-    const event = new CustomEvent('player.play', { detail: {
+    const event = new CustomEvent("player.play", {
+        detail: {
             artist: props.song.artist,
             title: props.song.title,
-            source: props.song.href
-        } });
+            source: props.song.href,
+        },
+    });
     window.dispatchEvent(event);
-}
+};
 
 const createPlaylist = async (playlistId: string): Promise<string> => {
     if (playlistId === "new") {
-        const newPlaylist = await createPlaylistWithMetadata("classic", props.song.title, props.song.artist, props.song.cover);
+        const newPlaylist = await createPlaylistWithMetadata(
+            "classic",
+            props.song.title,
+            props.song.artist,
+            props.song.cover
+        );
         options.value[0].options = data.playlistsAsDropdown;
         options.value[0].value = newPlaylist;
         return newPlaylist;
     }
     return playlistId;
-}
+};
 
 const addSong = async (index: number, playlistId: string = null) => {
     playlistId ??= form.value.toObject().playlist;
@@ -85,18 +93,18 @@ const addSong = async (index: number, playlistId: string = null) => {
 
     playlistId = await createPlaylist(playlistId);
 
-    await addSongToPlaylist(
-        playlistId,
-        track.value);
+    await addSongToPlaylist(playlistId, track.value);
     props.song.added = true;
-    Notifications.addSuccess(track.value.title,
-        `Added to ${data.playlists.find(p => p.id == playlistId)?.name}`,
-        3000);
-}
+    Notifications.addSuccess(
+        track.value.title,
+        `Added to ${data.playlists.find((p) => p.id == playlistId)?.name}`,
+        3000
+    );
+};
 
 defineExpose({
-    show
-})
+    show,
+});
 </script>
 <template>
     <Template
@@ -110,19 +118,19 @@ defineExpose({
         @submit="addSong"
     >
         <TrackInfo
-            :cover = "song.cover"
-            :icons="[{
-                name: 'share',
-                onClick: () => openInNewTab(song.href)
-            }, {
-                name: 'play_arrow',
-                onClick: preview
-            }]"
-            :title = "song.title"
+            :cover="song.cover"
+            :icons="[
+                {
+                    name: 'share',
+                    onClick: () => openInNewTab(song.href),
+                },
+                {
+                    name: 'play_arrow',
+                    onClick: preview,
+                },
+            ]"
+            :title="song.title"
         />
-        <Form
-            ref="form"
-            :options="options"
-        />
+        <Form ref="form" :options="options" />
     </Template>
 </template>

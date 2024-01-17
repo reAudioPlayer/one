@@ -4,7 +4,7 @@
   -->
 
 <script lang="ts" setup>
-import { Ref, ref, watch } from "vue";
+import { Ref, computed, ref, watch } from "vue";
 import Card from "../../containers/Card.vue";
 import TabButton from "./TabButton.vue";
 
@@ -15,6 +15,7 @@ import Cache from "./tabs/Cache.vue";
 import Appearance from "./tabs/Appearance.vue";
 import Player from "./tabs/Player.vue";
 import Integration from "./tabs/Integration.vue";
+import Developer from "./tabs/Developer.vue";
 import { useRoute, useRouter } from "vue-router";
 
 const TABS = {
@@ -25,26 +26,40 @@ const TABS = {
     "Cache Policy": Cache,
     Appearance: Appearance,
     Player: Player,
+    Developer: Developer,
 };
 
-const groups = ref([
-    {
-        name: "General",
-        items: ["About"],
-    },
-    {
-        name: "My Data",
-        items: ["Privacy", "Local Data", "Integrations"],
-    },
-    {
-        name: "Player",
-        items: ["Player", "Cache Policy"],
-    },
-    {
-        name: "Appearance",
-        items: ["Appearance"],
-    },
-]);
+const groups = computed(() => {
+    const base = [
+        {
+            name: "General",
+            items: ["About"],
+        },
+        {
+            name: "My Data",
+            items: ["Privacy", "Local Data", "Integrations"],
+        },
+        {
+            name: "Player",
+            items: ["Player", "Cache Policy"],
+        },
+        {
+            name: "Appearance",
+            items: ["Appearance"],
+        },
+    ];
+
+    const mode = (import.meta as any).env.MODE;
+
+    if (mode === "development") {
+        base.push({
+            name: "Developer",
+            items: ["Developer"],
+        });
+    }
+
+    return base;
+});
 
 const route = useRoute();
 const router = useRouter();

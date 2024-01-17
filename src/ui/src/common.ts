@@ -120,6 +120,7 @@ export interface ISpotifySong extends ISong {
     added?: boolean;
     artists: string[];
     source: string;
+    url?: string;
 }
 
 export interface ISpotifyAlbum {
