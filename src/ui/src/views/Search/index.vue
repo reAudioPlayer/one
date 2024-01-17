@@ -19,21 +19,48 @@
                     <SearchResultItem :item="topResult" large />
                 </div>
                 <div class="list songs flex-1" v-if="songs.length">
-                    <h2>Songs</h2>
-                    <SearchResultItem v-for="item in songs" :item="item" />
+                    <div class="flex justify-between items-center">
+                        <h2>Songs</h2>
+                        <span
+                            v-if="songs.length > 4"
+                            class="more cursor-pointer text-muted hover:text-primary text-sm uppercase"
+                            @click="showAllSongs = !showAllSongs"
+                        >
+                            {{
+                                showAllSongs
+                                    ? "Show less"
+                                    : `Show all ${songs.length} songs`
+                            }}
+                        </span>
+                    </div>
+                    <SearchResultItem
+                        v-for="item in showAllSongs ? songs : songs.slice(0, 4)"
+                        :item="item"
+                    />
                 </div>
             </div>
-            <div class="list artists" v-if="artists.length">
-                <h2>Artists</h2>
-                <SearchResultItem v-for="item in artists" :item="item" />
-            </div>
-            <div class="list playlists" v-if="playlists.length">
-                <h2>Playlists</h2>
-                <SearchResultItem v-for="item in playlists" :item="item" />
-            </div>
-            <div class="list albums" v-if="albums.length">
-                <h2>Albums</h2>
-                <SearchResultItem v-for="item in albums" :item="item" />
+            <div class="flex flex-wrap flexibleSearchResults">
+                <div
+                    class="list flex-1 min-w-[40vw] artists"
+                    v-if="artists.length"
+                >
+                    <h2>Artists</h2>
+                    <SearchResultItem v-for="item in artists" :item="item" />
+                </div>
+                <div
+                    class="list flex-1 min-w-[40vw] playlists"
+                    v-if="playlists.length"
+                >
+                    <h2>Playlists</h2>
+                    <SearchResultItem v-for="item in playlists" :item="item" />
+                </div>
+                <div
+                    class="list flex-1 min-w-[40vw] albums"
+                    v-if="albums.length"
+                >
+                    <h2>Albums</h2>
+                    <SearchResultItem v-for="item in albums" :item="item" />
+                </div>
             </div>
         </template>
     </div>
@@ -50,6 +77,7 @@ const route = useRoute();
 
 const loading = ref(true);
 const error = ref(null);
+const showAllSongs = ref(false);
 const response = ref<ISearchResponse | null>(null);
 
 const topResult = computed(() => {
