@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from abc import ABC, abstractmethod
@@ -10,8 +11,8 @@ from typing import Any, Dict, List, Optional, Callable, TypeVar, ParamSpec, TYPE
 import requests
 
 from pyaddict import JDict, JList
-from ytmusicapi import YTMusic # type: ignore
-from sclib import SoundcloudAPI, Track # type: ignore
+from ytmusicapi import YTMusic  # type: ignore
+from sclib import SoundcloudAPI, Track  # type: ignore
 
 from helper.asyncThread import asyncRunInThreadWithReturn
 
@@ -22,6 +23,7 @@ if TYPE_CHECKING:
 
 class ISimpleTrack(ABC):
     """very simple track model"""
+
     @property
     @abstractmethod
     def title(self) -> str:
@@ -40,6 +42,7 @@ class ISimpleTrack(ABC):
 
 class ITrack(ISimpleTrack):
     """track model"""
+
     @property
     @abstractmethod
     def artists(self) -> List[str]:
@@ -75,18 +78,16 @@ class ITrack(ISimpleTrack):
             "cover": self.cover,
             "url": self.url,
             "preview": self.preview,
-            #"markets": self.markets
+            # "markets": self.markets
         }
 
 
 class BasicSpotifyItem:
     """basic spotify item model (artist, album, ...)"""
+
     __slots__ = ("_id", "_name", "_cover")
 
-    def __init__(self,
-                 id_: str,
-                 name: str,
-                 cover: Optional[str] = None) -> None:
+    def __init__(self, id_: str, name: str, cover: Optional[str] = None) -> None:
         self._id = id_
         self._name = name
         self._cover = cover
@@ -103,26 +104,34 @@ class BasicSpotifyItem:
 
     def toDict(self) -> Dict[str, Any]:
         """return dict"""
-        return {
-            "id": self._id,
-            "name": self._name,
-            "cover": self._cover
-        }
+        return {"id": self._id, "name": self._name, "cover": self._cover}
 
     @staticmethod
     def fromDict(data: JDict) -> BasicSpotifyItem:
         """from dict"""
         return BasicSpotifyItem(
-            data.ensure("id", str),
-            data.ensure("name", str),
-            data.optionalGet("cover", str)
+            data.ensure("id", str), data.ensure("name", str), data.optionalGet("cover", str)
         )
 
 
 class SpotifyTrack(ITrack):
     """spotify track model"""
-    __slots__ = ("_title", "_album", "_artists", "_id", "_preview", "_cover", "_markets",
-                 "_popularity", "_releaseDate", "_duration", "_explicit", "_url", "_metadata")
+
+    __slots__ = (
+        "_title",
+        "_album",
+        "_artists",
+        "_id",
+        "_preview",
+        "_cover",
+        "_markets",
+        "_popularity",
+        "_releaseDate",
+        "_duration",
+        "_explicit",
+        "_url",
+        "_metadata",
+    )
 
     def __init__(self, track: Dict[str, Any]) -> None:
         dex = JDict(track).chain()
@@ -137,10 +146,12 @@ class SpotifyTrack(ITrack):
             self._album = BasicSpotifyItem(album.ensure("id", str), album.ensure("name", str))
             self._cover = album.chain().ensure("images.[0].url", str)
             self._releaseDate = album.optionalGet("release_date", str)
-        elif "images" in track: # probably album
+        elif "images" in track:  # probably album
             self._cover = dex.ensure("images.[0].url", str)
-        self._artists = [ BasicSpotifyItem(x.ensure("id", str), x.ensure("name", str))
-                          for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict) ]
+        self._artists = [
+            BasicSpotifyItem(x.ensure("id", str), x.ensure("name", str))
+            for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)
+        ]
         self._id = dex.ensure("id", str)
         self._preview = dex.ensure("preview_url", str)
         self._markets = dex.ensureCast("available_markets", JList).iterator().ensure(str)
@@ -235,7 +246,7 @@ class SpotifyTrack(ITrack):
             "cover": self.cover,
             "href": self.url,
             "preview": self.preview,
-            #"markets": self.markets,
+            # "markets": self.markets,
             "album": self.album,
             "metadata": self._metadata.toDict() if self._metadata else None,
             "spotify": {
@@ -250,29 +261,30 @@ class SpotifyTrack(ITrack):
                     "id": self._album.id if self._album else "",
                     "name": self._album.name if self._album else "",
                     "images": [{"url": self._cover}] if self._cover else [],
-                    "release_date": self._releaseDate
-                }
-            }
+                    "release_date": self._releaseDate,
+                },
+            },
         }
 
     @staticmethod
-    async def _getFromSpotify(spotify: Spotify,
-                              spotifyId: str) -> SpotifyResult[SpotifyTrack]:
+    async def _getFromSpotify(spotify: Spotify, spotifyId: str) -> SpotifyResult[SpotifyTrack]:
         return await asyncRunInThreadWithReturn(spotify.track, spotifyId)
 
     @staticmethod
-    async def _searchOnSpotify(spotify: Spotify,
-                               query: str,
-                               limit: int) -> SpotifyResult[List[SpotifyTrack]]:
+    async def _searchOnSpotify(
+        spotify: Spotify, query: str, limit: int
+    ) -> SpotifyResult[List[SpotifyTrack]]:
         return await asyncRunInThreadWithReturn(spotify.searchTrack, query, limit)
 
     @classmethod
-    async def fetch(cls,
-                    spotify: Spotify,
-                    spotifyId: Optional[str],
-                    artist: Optional[str],
-                    title: Optional[str],
-                    forceFetch: bool) -> Optional[SpotifyTrack]:
+    async def fetch(
+        cls,
+        spotify: Spotify,
+        spotifyId: Optional[str],
+        artist: Optional[str],
+        title: Optional[str],
+        forceFetch: bool,
+    ) -> Optional[SpotifyTrack]:
         """fetch metadata from spotify"""
         if spotifyId and forceFetch:
             spotifyResult = await cls._getFromSpotify(spotify, spotifyId)
@@ -290,6 +302,7 @@ class SpotifyTrack(ITrack):
 
 class SpotifyPlaylist:
     """spotify playlist model"""
+
     def __init__(self, playlist: Dict[str, Any]) -> None:
         dex = JDict(playlist).chain()
         self._name = dex.ensure("name", str)
@@ -307,19 +320,20 @@ class SpotifyPlaylist:
             "cover": self._cover,
             "id": self._id,
             "owner": self._owner,
-            "length": self._trackCount
+            "length": self._trackCount,
         }
 
 
 class SpotifyArtist:
     """spotify artist model"""
+
     def __init__(self, artist: Dict[str, Any]) -> None:
         dex = JDict(artist).chain()
         self._all = artist
         self._name = dex.ensure("name", str)
         self._id = dex.ensure("id", str)
         self._cover = dex.ensure("images.[0].url", str)
-        self._followers = dex.ensure('followers.total', int)
+        self._followers = dex.ensure("followers.total", int)
         self._description = f"{self._displayFollowers} followers"
         self._genres = dex.ensureCast("genres", JList).iterator().ensure(str)
         self._popularity = dex.ensure("popularity", int)
@@ -379,19 +393,22 @@ class SpotifyArtist:
             "cover": self._cover,
             "id": self._id,
             "genres": self._genres,
-            "popularity": self._popularity
+            "popularity": self._popularity,
         }
 
 
 class SpotifyAlbum:
     """spotify album model"""
+
     def __init__(self, album: Dict[str, Any]) -> None:
         dex = JDict(album).chain()
         self._title = dex.ensure("name", str)
         self._cover = dex.ensure("images.[0].url", str)
         self._releaseDate = dex.ensure("release_date", str)
-        self._artists = [x.ensure("name", str)
-                         for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)]
+        self._artists = [
+            x.ensure("name", str)
+            for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)
+        ]
         self._id = dex.ensure("id", str)
 
     @property
@@ -420,7 +437,7 @@ class SpotifyAlbum:
         return f"https://open.spotify.com/album/{self._id}"
 
 
-P = ParamSpec('P')
+P = ParamSpec("P")
 U = TypeVar("U")
 
 
@@ -433,9 +450,11 @@ def _youtubeRequired(func: Callable[P, U]) -> Callable[P, U]:
             YoutubeTrack.YtMusic = YTMusic()
             return True
         except requests.exceptions.SSLError:
-            print("""ssl verification error.
-        Make sure you are connected to the internet and no firewall is blocking or limiting access to sites like youtube.com""") # pylint: disable=line-too-long
-        except Exception as exception: # pylint: disable=broad-except
+            print(
+                """ssl verification error.
+Make sure you are connected to the internet and no firewall is blocking or limiting access to sites like youtube.com"""  # pylint: disable=line-too-long
+            )
+        except Exception as exception:  # pylint: disable=broad-except
             print(exception)
         return False
 
@@ -444,22 +463,26 @@ def _youtubeRequired(func: Callable[P, U]) -> Callable[P, U]:
         if not _connect():
             return None
         return func(*args, **kwargs)
+
     return wrapper
+
 
 class YoutubeTrack(ITrack):
     """youtube track model"""
+
     def __init__(self, track: Dict[str, Any]) -> None:
         dex = JDict(track).chain()
         self._title = dex.ensure("title", str)
         album = dex.ensureCast("album", JDict)
         self._album = album.ensure("name", str)
-        self._artists = [x.ensure("name", str)
-                         for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)]
+        self._artists = [
+            x.ensure("name", str)
+            for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)
+        ]
         self._id = dex.ensure("videoId", str)
-        self._cover = dex.ensure("thumbnails.[0].url", str)\
-                         .replace("w60-h60", "w500-h500")
+        self._cover = dex.ensure("thumbnails.[0].url", str).replace("w60-h60", "w500-h500")
         self._preview = None
-        self._markets: Optional[List[str]] = [ ]
+        self._markets: Optional[List[str]] = []
 
     YtMusic: Optional[YTMusic] = None
 
@@ -496,26 +519,30 @@ class YoutubeTrack(ITrack):
     def fromUrl(url: str) -> Optional[YoutubeTrack]:
         """return track from url"""
         assert YoutubeTrack.YtMusic
-        x = re.search(r"(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([a-zA-Z0-9_]+)", url, re.IGNORECASE) # pylint: disable=line-too-long
+        x = re.search(
+            r"(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([a-zA-Z0-9_]+)",  # pylint: disable=line-too-long
+            url,
+            re.IGNORECASE,
+        )
         assert x
         video = YoutubeTrack.YtMusic.get_song(x.group(1))
         details = video.get("videoDetails")
         results = YoutubeTrack.YtMusic.search(
-            f"{details.get('author')} {details.get('title')}", filter = "songs")
+            f"{details.get('author')} {details.get('title')}", filter="songs"
+        )
         if len(results) > 0:
             return YoutubeTrack(results[0])
-        return YoutubeTrack({
-            "title": details.get("title"),
-            "artists": [{ "name": details.get("author") }]
-        })
+        return YoutubeTrack(
+            {"title": details.get("title"), "artists": [{"name": details.get("author")}]}
+        )
 
     @staticmethod
     @_youtubeRequired
     def fromQuery(query: str) -> Optional[List[YoutubeTrack]]:
         """return list of tracks from query"""
         assert YoutubeTrack.YtMusic
-        tracks = YoutubeTrack.YtMusic.search(query, filter = "songs")
-        return [ YoutubeTrack(track) for track in tracks ]
+        tracks = YoutubeTrack.YtMusic.search(query, filter="songs")
+        return [YoutubeTrack(track) for track in tracks]
 
     @staticmethod
     @_youtubeRequired
@@ -523,7 +550,8 @@ class YoutubeTrack(ITrack):
         """return track from spotify track"""
         assert YoutubeTrack.YtMusic
         results = YoutubeTrack.YtMusic.search(
-            f"{' '.join(track.artists)} {track.title}", filter = "songs")
+            f"{' '.join(track.artists)} {track.title}", filter="songs"
+        )
         if len(results) > 0:
             return YoutubeTrack(results[0])
         return None
@@ -531,11 +559,12 @@ class YoutubeTrack(ITrack):
 
 class SoundcloudTrack(ITrack):
     """soundcloud track model"""
+
     def __init__(self, track: Track) -> None:
         self._url: str = track.uri
         self._title: str = track.title
         self._album: str = track.album or track.title
-        self._artists: List[str] = [ track.artist ]
+        self._artists: List[str] = [track.artist]
         self._id = track.id
         self._cover: str = track.artwork_url.replace("large", "t500x500")
         self._extendedTrack = track
