@@ -158,6 +158,10 @@ const animate = ref(false); // animations
     }
 }
 
+div.body:has(.bigPlayer) {
+    overflow: visible !important;
+}
+
 @keyframes pump {
     0% {
         transform: scale(1);
@@ -200,10 +204,6 @@ const animate = ref(false); // animations
     justify-content: flex-end;
 
     padding: 10px;
-}
-
-.bigPlayer {
-    overflow: hidden;
 }
 
 .playlist-overflow {
