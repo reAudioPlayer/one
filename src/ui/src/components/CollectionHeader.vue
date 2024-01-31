@@ -6,64 +6,59 @@
 <template>
     <div class="wrapper">
         <router-link class="link" to="/collection/playlists">
-            <div class="collection">
-                Playlists
-            </div>
+            <div class="collection">Playlists</div>
         </router-link>
         <router-link class="link" to="/collection/releases">
-            <div class="collection">
-                Releases
-            </div>
+            <div class="collection">Releases</div>
         </router-link>
         <router-link class="link" to="/collection/artists">
-            <div class="collection">
-                Artists
-            </div>
+            <div class="collection">Artists</div>
         </router-link>
         <router-link v-if="false" class="link" to="/collection/albums">
-            <div class="collection">
-                Albums
-            </div>
+            <div class="collection">Albums</div>
         </router-link>
     </div>
 </template>
 
 <script>
-    export default {
-        name: 'CollectionHeader',
-        props: {
-            href: String
-        }
-    }
+export default {
+    name: "CollectionHeader",
+    props: {
+        href: String,
+    },
+};
 </script>
 
 <style scoped>
+.wrapper {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+}
 
-    .wrapper {
-        display: flex;
-        flex-direction: row;
-        margin-bottom: 20px;
-    }
+.link {
+    text-decoration: none;
+}
 
-    .link {
-        text-decoration: none;
-    }
+.collection {
+    padding: 0.5em 1em;
+    border-radius: 1000vmax;
+    font-weight: bold;
+    color: var(--fg-base);
+    margin-right: 10px;
+    font-size: 0.85em;
+    border: var(--border-container);
 
-    .collection {
-        padding: 10px;
-        border-radius: 5px;
-        font-weight: bold;
-        color: var(--fg-base);
-        margin-right: 10px;
-        font-size: .85em;
-    }
+    transition: all 0.2s ease-in-out;
+}
 
-    .collection:hover {
-        background: var(--bg-hover-dk);
-    }
+.collection:hover {
+    background: var(--bg-hover-dk);
+    border-color: var(--fg-secondary);
+}
 
-    .router-link-active div.collection {
-        background: var(--bg-hover);
-    }
-
+.router-link-active div.collection {
+    background: var(--fg-secondary);
+    color: var(--fg-contrast);
+}
 </style>

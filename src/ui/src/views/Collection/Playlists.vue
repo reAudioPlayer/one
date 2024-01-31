@@ -6,7 +6,6 @@
 <script setup lang="ts">
 import FullShelf from "@/components/Catalogue/FullShelf.vue";
 import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem.vue";
-import PlaylistItemBig from "@/components/Catalogue/Items/Playlists/PlaylistItemBig.vue";
 import CollectionHeader from "@/components/CollectionHeader.vue";
 import { useDataStore } from "../../store/data";
 import { ref, computed } from "vue";
@@ -42,6 +41,12 @@ fetch("/api/spotify/playlists")
                 heading="Import From Spotify"
                 v-if="spotifyPlaylists.length"
             >
+                <playlist-item
+                    title="Liked"
+                    description="your liked tracks"
+                    :spotify="true"
+                    id="liked"
+                />
                 <playlist-item
                     v-for="(element, index) in spotifyPlaylists"
                     :key="index"

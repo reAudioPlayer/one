@@ -59,12 +59,6 @@ const settings = useSettingsStore();
                 icon="add_circle"
                 name="Create Playlist"
             />
-            <nav-entry
-                :minimised="minimised"
-                href="/collection/tracks"
-                icon="favorite"
-                name="Liked Songs"
-            />
         </div>
         <hr v-if="playlists.length" class="hideIfMobile" />
         <div class="playlistList hideIfMobile">

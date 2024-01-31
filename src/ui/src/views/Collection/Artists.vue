@@ -7,6 +7,15 @@
     <div class="padding-20">
         <CollectionHeader />
         <div class="artists">
+            <full-shelf heading="In your library">
+                <CardWithImageAndText
+                    v-for="item in artists"
+                    :title="item.name"
+                    :cover="item.image"
+                    @click="$router.push(`/artist/${item.name}`)"
+                    imageType="artist"
+                />
+            </full-shelf>
             <full-shelf heading="Following on Spotify">
                 <artist-item
                     v-for="(element, index) in spotifyArtists"
@@ -23,23 +32,25 @@
     </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 import FullShelf from "@/components/Catalogue/FullShelf.vue";
 import ArtistItem from "@/components/Catalogue/Items/Artist/ArtistItem.vue";
 import CollectionHeader from "@/components/CollectionHeader.vue";
+import CardWithImageAndText from "@/containers/CardWithImageAndText.vue";
+import { onMounted, ref } from "vue";
 
-export default {
-        components: { CollectionHeader, ArtistItem, FullShelf },
-        name: 'Artists',
-        data() {
-            fetch("/api/spotify/artists")
-                .then(x => x.json())
-                .then(jdata => this.spotifyArtists.push(...jdata))
-            return {
-                spotifyArtists: [ ]
-            }
-        }
-    }
+const spotifyArtists = ref([]);
+const artists = ref([]);
+
+onMounted(async () => {
+    let res = await fetch("/api/spotify/artists");
+    let data = await res.json();
+    spotifyArtists.value = data.sort((a, b) => a.name.localeCompare(b.name));
+
+    res = await fetch("/api/artists");
+    data = await res.json();
+    artists.value = data.sort((a, b) => a.name.localeCompare(b.name));
+});
 </script>
 
 <style scoped>

@@ -8,6 +8,7 @@ import PlayerInPicture from "./PlayerInPicture.vue";
 import Header from "./Header.vue";
 
 import { usePlayerStore } from "./store/player";
+import { useSettingsStore } from "./store/settings";
 import { ref, onMounted, watch, computed } from "vue";
 import Startup from "@/views/Startup.vue";
 import { initPictureInPicture } from "@/pictureInPicture";
@@ -17,6 +18,7 @@ import Notifications from "@/components/notifications/NotificationHandler.vue";
 initPictureInPicture();
 
 const playerStore = usePlayerStore();
+const settings = useSettingsStore();
 
 const cover = ref(null);
 watch(
@@ -49,6 +51,9 @@ onMounted(() => {
         if (e.code === "Space" && document.activeElement === document.body) {
             e.preventDefault();
             playerStore.playPause();
+        } else if (e.code === "F1") {
+            e.preventDefault();
+            settings.mode.toggle();
         }
     });
 });
@@ -93,7 +98,6 @@ import "v-contextmenu/dist/themes/dark.css";
 import themes from "./assets/themes.json";
 import { connect } from "@/ws";
 import { initialiseStores } from "@/store";
-import { useSettingsStore } from "@/store/settings";
 import { authoriseSpotify, isFirstRun } from "@/api/config";
 import Sidebar from "@/Sidebar.vue";
 import Body from "@/Body.vue";
@@ -110,8 +114,6 @@ export default {
         Player,
     },
     async mounted() {
-        const settings = useSettingsStore();
-
         initialiseStores();
         connect();
 

@@ -41,7 +41,8 @@ const songs: Ref<ISpotifySong[]> = ref([]);
 const show = async () => {
     modal.value.load();
     if (songs.value.length == 0) {
-        const res = await fetch(`/api/spotify/playlists/${props.playlist.id}`)
+        const endpoint = props.playlist.id === "liked" ? '/api/spotify/tracks' : `/api/spotify/playlists/${props.playlist.id}`;
+        const res = await fetch(endpoint)
         songs.value = await res.json()
     }
     modal.value.show();

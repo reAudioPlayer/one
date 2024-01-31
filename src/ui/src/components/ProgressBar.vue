@@ -47,7 +47,6 @@ export default {
     },
     methods: {
         seek(e, preview = false) {
-            console.log("seek", e);
             const rect = this.$el.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const width = this.$el.offsetWidth;
@@ -57,9 +56,7 @@ export default {
                 this.seeking = false;
                 this.$emit("change", this.value);
 
-                try {
-                    this.$emit("update:modelValue", this.value);
-                } catch (_) {}
+                this.$emit("update:modelValue", this.value);
             }
         },
     },

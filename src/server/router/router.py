@@ -96,6 +96,7 @@ class Router:
         app.router.add_post("/api/sports", sportsHandler.getMatches)
 
         # /api/spotify/
+        app.router.add_get("/api/spotify/tracks", metaHandler.spotifyLiked)
         app.router.add_get("/api/spotify/albums/{id}", metaHandler.spotifyAlbum)
         app.router.add_get("/api/spotify/artists/{id}", metaHandler.spotifyArtist)
         app.router.add_get("/api/spotify/artists", metaHandler.spotifyArtists)
@@ -128,6 +129,7 @@ class Router:
         app.router.add_get("/api/tracks/{id}/download", downloadHandler.downloadTrack)
 
         # /api/artists
+        app.router.add_get("/api/artists", metaHandler.getArtists)
         app.router.add_get("/api/artists/{name}", metaHandler.getArtist)
         app.router.add_put("/api/artists/{name}", metaHandler.putArtist)
 

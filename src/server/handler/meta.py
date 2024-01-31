@@ -84,6 +84,11 @@ class MetaHandler:
             return web.Response()
         return web.HTTPBadRequest(text="invalid spotify id")
 
+    async def getArtists(self, _: web.Request) -> web.Response:
+        """get(/api/artists)"""
+        artists = await self._dbManager.artists.all()
+        return web.json_response(data = [ artist.toDict() for artist in artists ])
+
     @withObjectPayload(Object({"name": String().min(1)}), inPath=True)
     async def getArtist(
         self, payload: Dict[str, Any]
@@ -178,7 +183,7 @@ class MetaHandler:
 
     @withObjectPayload(Object({"id": String().min(22).max(22)}), inPath=True)
     async def spotifyPlaylist(self, payload: Dict[str, Any]) -> web.Response:
-        """post(/api/spotify/playlists/{id})"""
+        """get(/api/spotify/playlists/{id})"""
         id_: str = payload["id"]
 
         def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
@@ -188,7 +193,7 @@ class MetaHandler:
 
             tracks = result.unwrap()
             metadatas = [Metadata(self._spotify, track.url) for track in tracks]
-            # TODO add metadata in UI for playlists, albums
+
             return result.transform([(metadata.toDict()) for metadata in metadatas])
 
         data = await asyncRunInThreadWithReturn(_implement)
@@ -214,6 +219,27 @@ class MetaHandler:
                 return result.transform([])
 
             return result.transform([artist.toDict() for artist in result.unwrap()])
+
+        data = await asyncRunInThreadWithReturn(_implement)
+
+        if not data:
+            return data.httpResponse()
+
+        return web.json_response(data=data.unwrap())
+
+    @useCache(900)  # type: ignore
+    async def spotifyLiked(self, _: web.Request) -> web.Response:
+        """get(/api/spotify/tracks)"""
+
+        def _implement() -> SpotifyResult[List[Dict[str, Any]]]:
+            result = self._spotify.likedTracks()
+            if not result:
+                return result.transform([])
+
+            tracks = result.unwrap()
+            metadatas = [Metadata(self._spotify, track.url) for track in tracks]
+
+            return result.transform([(metadata.toDict()) for metadata in metadatas])
 
         data = await asyncRunInThreadWithReturn(_implement)
 

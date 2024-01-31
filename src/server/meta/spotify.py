@@ -146,7 +146,7 @@ def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
 
             return SpotifyResult.errorResult(SpotifyState.InternalError)
         except Exception as exc: # pylint: disable=broad-except
-            logger.error("Exception: %s", exc)
+            logger.exception("Exception: %s", exc)
             # if KeyError 'expires_at'
             if isinstance(exc, KeyError):
                 self.auth.addExpiresAt()
@@ -491,3 +491,13 @@ class Spotify(Logged):
         if not features:
             return SpotifyResult.errorResult(SpotifyState.NotFound)
         return SpotifyResult.successResult(SpotifyAudioFeatures(JDict(features[0])))
+
+    @_connectionRequired
+    @_mayFail
+    def likedTracks(self) -> SpotifyResult[List[SpotifyTrack]]:
+        """returns a user's saved tracks"""
+        self._logger.debug("Getting user's saved tracks")
+        assert self._spotify is not None
+        tracks = self._spotify.current_user_saved_tracks()
+        tracks = JDict(tracks).ensureCast("items", JList).iterator().ensure(dict)
+        return SpotifyResult.successResult([SpotifyTrack(track["track"]) for track in tracks])
