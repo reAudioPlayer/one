@@ -17,6 +17,9 @@ import Player from "./tabs/Player.vue";
 import Integration from "./tabs/Integration.vue";
 import Developer from "./tabs/Developer.vue";
 import { useRoute, useRouter } from "vue-router";
+import { useSettingsStore } from "../../store/settings";
+
+const settings = useSettingsStore();
 
 const TABS = {
     About: About,
@@ -49,9 +52,7 @@ const groups = computed(() => {
         },
     ];
 
-    const mode = (import.meta as any).env.MODE;
-
-    if (mode === "development") {
+    if (settings.mode.dev) {
         base.push({
             name: "Developer",
             items: ["Developer"],

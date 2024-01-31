@@ -350,7 +350,7 @@ const seeRelease = (release: IRelease) => {
     }
 
     if (autoPlayNextPreview) {
-        previewRelease(nextInQueue.value!);
+        nextTick(() => previewRelease(nextInQueue.value!));
     }
 };
 

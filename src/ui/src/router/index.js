@@ -90,7 +90,7 @@ const routes = [{
 },
 {
     path: '/playlist/:id',
-    component: () => import("@/views/Playlist/Normal.vue"),
+    component: () => import("@/views/playlist/Normal.vue"),
     meta: {
         title: "Playlist - reAudioPlayer One"
     }

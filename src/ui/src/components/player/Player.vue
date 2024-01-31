@@ -26,6 +26,7 @@ const player = usePlayerStore();
 const settings = useSettingsStore();
 
 const playable: Ref<Playable> = ref(null);
+const progressPercent = ref(null);
 
 const selectedPlaybackDevice = ref("");
 const playbackDevices = computed(() => {
@@ -51,6 +52,10 @@ watch(
         }
     }
 );
+watch(() => player.progressPercent,
+    (percent) => {
+        progressPercent.value = percent;
+});
 
 const setPlayerTo = (id: string) => {
     const connection = player.sharedPlayer.connections.find((c) => c.id === id);
@@ -83,6 +88,8 @@ const showWebPlayer = computed(() => {
 const showWebWavePlayer = computed(() => {
     return settings.player.type === "web/wave" && onThisDevice.value;
 });
+
+
 </script>
 <template>
     <div class="player relative">
@@ -205,8 +212,8 @@ const showWebWavePlayer = computed(() => {
                         <WaveAudio v-if="showWebWavePlayer" ref="playable" />
                         <ProgressBar
                             v-else
-                            v-model="player.progressPercent"
-                            max="1000"
+                            v-model="progressPercent"
+                            :max="1000"
                             @change="(e) => player.seekPercent(e / 10)"
                         />
                         <span class="text-xs text-muted text-left">
@@ -241,7 +248,7 @@ const showWebWavePlayer = computed(() => {
                 </span>
                 <ProgressBar
                     v-model="player.volume"
-                    max="100"
+                    :max="100"
                     @change="(e) => player.setVolume(e)"
                 />
             </div>
@@ -362,8 +369,8 @@ const showWebWavePlayer = computed(() => {
                             />
                             <ProgressBar
                                 v-else
-                                v-model="player.progressPercent"
-                                max="1000"
+                                v-model="progressPercent"
+                                :max="1000"
                                 @change="(e) => player.seekPercent(e / 10)"
                             />
                             <div class="flex flex-row justify-between">

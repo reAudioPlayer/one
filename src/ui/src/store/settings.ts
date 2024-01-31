@@ -92,12 +92,15 @@ const migrateSettings = () => {
     updateStorage(settings);
 }
 
+const envMode = (import.meta as any).env.MODE as "development" | "production";
+
 export const useSettingsStore = defineStore("settings", () => {
     migrateSettings();
     const playerState = ref(getSettings().player);
     const sidebarState = ref(getSettings().sidebar);
     const theme = ref(getSettings().theme);
     const ambient = ref(getSettings().ambient);
+    const mode = ref(envMode);
 
     const update = () => {
         updateStorage({
@@ -116,5 +119,16 @@ export const useSettingsStore = defineStore("settings", () => {
     // @ts-ignore
     const themeSupportsAmbient = computed(() => window.getCurrentThemeProperty && window.getCurrentThemeProperty("supportsAmbient"));
 
-    return { player: playerState, sidebar: sidebarState, theme, ambient, themeSupportsAmbient };
+    return { player: playerState, sidebar: sidebarState, theme, ambient, themeSupportsAmbient, mode: {
+        mode,
+        dev: computed(() => mode.value === "development"),
+        prod: computed(() => mode.value === "production"),
+        toggle: () => {
+            if (mode.value === "development") {
+                mode.value = "production";
+            } else {
+                mode.value = "development";
+            }
+        }
+    } };
 });

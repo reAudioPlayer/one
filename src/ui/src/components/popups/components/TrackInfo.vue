@@ -5,6 +5,7 @@
 
 <script lang="ts" setup>
 import {PropType} from "vue";
+import Cover from "../../image/Cover.vue";
 
 interface IIcon {
     name: string;
@@ -32,7 +33,7 @@ const props = defineProps({
 </script>
 <template>
 <div class="padding-20 playlisteditor">
-    <img :src="cover" class="cover" />
+    <Cover type="playlist" :name="title" :src="cover" class="cover" />
     <div class="details">
         <div class="detailswrapper">
             <span
