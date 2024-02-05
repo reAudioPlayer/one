@@ -59,16 +59,18 @@ class SmartPlayerPlaylist(IPlayerPlaylist):
             value = filter_.optionalCast(key, JList)
             if not value:
                 return ""
-            query = " AND "
+            query = " AND ("
             items = value.iterator().optionalGet(str)
-            for i, item in enumerate(items):
+            i = 0
+            for item in items:
                 if not item:
                     continue
                 if i > 0:
                     query += " OR "
+                i += 1
                 encodedItem = item.replace("'", "''")
                 query += f"{key} LIKE '%{encodedItem}%'"
-            return query
+            return query + ")"
 
         query += _addList("title").replace("title LIKE", "name LIKE")
         query += _addList("artist")
@@ -91,6 +93,7 @@ class SmartPlayerPlaylist(IPlayerPlaylist):
         query += f" ORDER BY {sort} {direction}"
         if limit is not None:
             query += f" LIMIT {limit}"
+
         return query
 
     async def _load(self) -> None:

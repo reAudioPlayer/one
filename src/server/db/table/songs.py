@@ -28,9 +28,10 @@ class SongModel(IModel, ITrack):  # pylint: disable=too-many-public-methods
         "_source",
         "_plays",
         "_spotify",
+        "_albumHash",
     )
-    _SQLType = Tuple[int, str, str, str, str, int, int, str, str, int]
-    _SQLInsertType = Tuple[str, str, str, str, int, int, str, str, int]
+    _SQLType = Tuple[int, str, str, str, str, int, int, str, str, int, str]
+    _SQLInsertType = Tuple[str, str, str, str, int, int, str, str, int, str]
     COLUMNS = [
         "id",
         "name",
@@ -42,6 +43,7 @@ class SongModel(IModel, ITrack):  # pylint: disable=too-many-public-methods
         "spotify",
         "source",
         "plays",
+        "albumHash",
     ]
 
     def __init__(  # pylint: disable=too-many-arguments
@@ -55,6 +57,7 @@ class SongModel(IModel, ITrack):  # pylint: disable=too-many-public-methods
         spotify: str,
         source: str,
         plays: int,
+        albumHash: str,
         id_: Optional[int] = None,
     ) -> None:
         self._id = id_
@@ -67,6 +70,7 @@ class SongModel(IModel, ITrack):  # pylint: disable=too-many-public-methods
         self._source = source or ""
         self._plays = plays or 0
         self._spotify = spotify or ""
+        self._albumHash = albumHash or ""
         super().__init__()
 
     @classmethod
@@ -77,7 +81,7 @@ class SongModel(IModel, ITrack):  # pylint: disable=too-many-public-methods
     @classmethod
     def empty(cls) -> SongModel:
         """return empty model"""
-        return cls("", "", "", "", False, 0, "", "", 0, None)
+        return cls("", "", "", "", False, 0, "", "", 0, "")
 
     @property
     def insertStatement(self) -> str:
@@ -102,6 +106,7 @@ class SongModel(IModel, ITrack):  # pylint: disable=too-many-public-methods
             self._spotify,
             self._source,
             self._plays,
+            self._albumHash,
         )
 
     def __eq__(self, other: object) -> bool:
@@ -126,6 +131,8 @@ class SongModel(IModel, ITrack):  # pylint: disable=too-many-public-methods
         if self._plays != other._plays:
             return False
         if self._spotify != other._spotify:
+            return False
+        if self._albumHash != other.albumHash:
             return False
         return True
 
@@ -262,9 +269,27 @@ class SongModel(IModel, ITrack):  # pylint: disable=too-many-public-methods
         self._fireChanged()
 
     @property
+    def albumHash(self) -> str:
+        """album hash"""
+        return self._albumHash
+
+    @albumHash.setter
+    def albumHash(self, value: str) -> None:
+        """album hash"""
+        if value == self._albumHash:
+            return
+        self._albumHash = value
+        self._fireChanged()
+
+    @property
     def url(self) -> str:
         """return url"""
         return f"/track/{hashids.encode(self.id)}"
+
+    @property
+    def albumUrl(self) -> str:
+        """return album url"""
+        return f"/album/{self._albumHash}"
 
     def downloadPath(self, forExport: bool = False) -> str:
         """return download path"""
@@ -278,7 +303,7 @@ class SongModel(IModel, ITrack):  # pylint: disable=too-many-public-methods
             "id": self.id,
             "title": self.name,
             "artist": self.artist,
-            "album": self.album,
+            "album": {"name": self._album, "id": self._albumHash, "href": self.albumUrl},
             "cover": self.cover,
             "favourite": self.favourite,
             "duration": self.duration,
@@ -304,7 +329,8 @@ class SongsTable(ITable[SongModel]):
                   duration INTEGER,
                   spotify TEXT,
                   source TEXT,
-                  plays INTEGER
+                  plays INTEGER,
+                  albumHash TEXT
                   """
 
     def _model(self) -> Type[SongModel]:

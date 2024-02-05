@@ -397,46 +397,6 @@ class SpotifyArtist:
         }
 
 
-class SpotifyAlbum:
-    """spotify album model"""
-
-    def __init__(self, album: Dict[str, Any]) -> None:
-        dex = JDict(album).chain()
-        self._title = dex.ensure("name", str)
-        self._cover = dex.ensure("images.[0].url", str)
-        self._releaseDate = dex.ensure("release_date", str)
-        self._artists = [
-            x.ensure("name", str)
-            for x in dex.ensureCast("artists", JList).iterator().ensureCast(JDict)
-        ]
-        self._id = dex.ensure("id", str)
-
-    @property
-    def title(self) -> str:
-        """return title"""
-        return self._title
-
-    @property
-    def artists(self) -> List[str]:
-        """return artists"""
-        return self._artists
-
-    @property
-    def cover(self) -> str:
-        """return cover"""
-        return self._cover
-
-    @property
-    def releaseDate(self) -> str:
-        """return release date"""
-        return self._releaseDate
-
-    @property
-    def url(self) -> str:
-        """return url"""
-        return f"https://open.spotify.com/album/{self._id}"
-
-
 P = ParamSpec("P")
 U = TypeVar("U")
 
