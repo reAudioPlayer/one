@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import Any, Dict, List, Optional
 
-from hashids import Hashids # type: ignore
+from hashids import Hashids  # type: ignore
 from pyaddict import JDict
 
 from dataModel.metadata import SongMetadata
@@ -23,16 +24,16 @@ def _castDuration(value: Optional[Any]) -> int:
         return -1
     try:
         return int(value.split(":")[0]) * 60 + int(value.split(":")[1])
-    except: # pylint: disable=bare-except
+    except:  # pylint: disable=bare-except
         return -1
 
 
 class Song(ISimpleTrack):
     """song model"""
-    __slots__ = ("_metadata", "_model", "_onChanged" )
 
-    def __init__(self,
-                 model: SongModel) -> None:
+    __slots__ = ("_metadata", "_model", "_onChanged")
+
+    def __init__(self, model: SongModel) -> None:
         self._model = model
         self._metadata = SongMetadata.fromSongModel(model)
 
@@ -55,7 +56,7 @@ class Song(ISimpleTrack):
         """deep equal"""
         if not isinstance(other, Song):
             return False
-        return self._model == other._model # pylint: disable=protected-access
+        return self._model == other._model  # pylint: disable=protected-access
 
     def __hash__(self) -> int:
         return hash(self._model.id)
@@ -84,6 +85,11 @@ class Song(ISimpleTrack):
     @property
     def album(self) -> str:
         return self._model.album
+
+    @property
+    def albumInDb(self) -> bool:
+        """return if album is in db"""
+        return bool(self._model.albumHash)
 
     def toDict(self) -> Dict[str, Any]:
         """return as dict"""
@@ -119,7 +125,9 @@ class Song(ISimpleTrack):
         source = dex.ensure("source", str)
         spotify = dex.ensure("spotify", str)
         id_ = dex.optionalGet("id", int)
-        model = SongModel(name, artist, album, cover, favourite, duration, spotify, source, 0, id_)
+        model = SongModel(
+            name, artist, album, cover, favourite, duration, spotify, source, 0, "", id_
+        )
         return cls(model)
 
     @staticmethod
@@ -127,10 +135,7 @@ class Song(ISimpleTrack):
         """corrects casing of artist"""
         if len(songs) == 0:
             return artist
-        return next(( x
-                      for x in songs[0].model.artists
-                      if x.lower() == artist.lower() ),
-                    artist)
+        return next((x for x in songs[0].model.artists if x.lower() == artist.lower()), artist)
 
     def update(self, other: Song) -> None:
         """update from other"""

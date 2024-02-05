@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
 
 
@@ -22,35 +23,48 @@ SQLRow = Tuple[int, Optional[str], int]
 
 class SpotifyMetadata:
     """Spotify Metadata"""
-    __slots__ = ("_id", "_features", "_analysis", "_popularity",
-                 "_album", "_artists", "_releaseDate", "_explicit")
 
-    def __init__(self,
-                 id_: str,
-                 features: Optional[SpotifyAudioFeatures] = None,
-                 analysis: Optional[str] = None,
-                 popularity: int = 0,
-                 album: Optional[BasicSpotifyItem] = None,
-                 artists: Optional[List[BasicSpotifyItem]] = None,
-                 releaseDate: Optional[str] = None,
-                 explicit: Optional[bool] = None) -> None:
+    __slots__ = (
+        "_id",
+        "_features",
+        "_analysis",
+        "_popularity",
+        "_album",
+        "_artists",
+        "_releaseDate",
+        "_explicit",
+    )
+
+    def __init__(
+        self,
+        id_: str,
+        features: Optional[SpotifyAudioFeatures] = None,
+        analysis: Optional[str] = None,
+        popularity: int = 0,
+        album: Optional[BasicSpotifyItem] = None,
+        artists: Optional[List[BasicSpotifyItem]] = None,
+        releaseDate: Optional[str] = None,
+        explicit: Optional[bool] = None,
+    ) -> None:
         self._id = id_
         self._features = features
         self._analysis = analysis
         self._popularity = popularity
         self._album = album
-        self._artists = artists
+        self._artists = artists or []
         self._releaseDate = releaseDate
         self._explicit = explicit
 
-    def update(self,
-               features: Optional[SpotifyAudioFeatures] = None,
-               analysis: Optional[str] = None,
-               popularity: Optional[int] = None,
-               album: Optional[BasicSpotifyItem] = None,
-               artists: Optional[List[BasicSpotifyItem]] = None,
-               releaseDate: Optional[str] = None,
-               explicit: Optional[bool] = None) -> None:
+    def update(
+        self,
+        features: Optional[SpotifyAudioFeatures] = None,
+        analysis: Optional[str] = None,
+        popularity: Optional[int] = None,
+        album: Optional[BasicSpotifyItem] = None,
+        artists: Optional[List[BasicSpotifyItem]] = None,
+        releaseDate: Optional[str] = None,
+        explicit: Optional[bool] = None,
+    ) -> None:
         """Update the metadata"""
         if features is not None:
             self._features = features
@@ -77,7 +91,7 @@ class SpotifyMetadata:
             "album": self._album.toDict() if self._album else None,
             "artists": [artist.toDict() for artist in self._artists] if self._artists else None,
             "releaseDate": self._releaseDate,
-            "explicit": self._explicit
+            "explicit": self._explicit,
         }
 
     @property
@@ -86,7 +100,7 @@ class SpotifyMetadata:
         return self._id
 
     @property
-    def artists(self) -> Optional[List[BasicSpotifyItem]]:
+    def artists(self) -> List[BasicSpotifyItem]:
         """Get the artists"""
         return self._artists
 
@@ -109,7 +123,7 @@ class SpotifyMetadata:
             BasicSpotifyItem.fromDict(data.ensureCast("album", JDict)),
             [BasicSpotifyItem.fromDict(JDict(artist)) for artist in data.ensure("artists", list)],
             data.optionalGet("releaseDate", str),
-            data.optionalGet("explicit", bool)
+            data.optionalGet("explicit", bool),
         )
 
     @staticmethod
@@ -119,7 +133,7 @@ class SpotifyMetadata:
             return None
         try:
             return SpotifyMetadata.fromDict(JDict.fromString(row))
-        except: # pylint: disable=bare-except
+        except:  # pylint: disable=bare-except
             return None
 
     def toStr(self) -> str:
@@ -129,11 +143,10 @@ class SpotifyMetadata:
 
 class SongMetadata:
     """Song Metadata"""
+
     __slots__ = ("_id", "_spotify", "_spotifyFeatures", "_spotifyAnalysis", "_plays")
 
-    def __init__(self,
-                 spotify: Optional[str] = None,
-                 plays: int = 0) -> None:
+    def __init__(self, spotify: Optional[str] = None, plays: int = 0) -> None:
         self._plays = plays
         self._spotify = SpotifyMetadata.fromSql(spotify)
 
@@ -168,16 +181,12 @@ class SongMetadata:
 
     def toDict(self) -> Dict[str, Any]:
         """return dict representation"""
-        return {
-            "spotify": self._spotify.toDict() if self._spotify else None,
-            "plays": self._plays
-        }
+        return {"spotify": self._spotify.toDict() if self._spotify else None, "plays": self._plays}
 
     @classmethod
-    async def fetch(cls,
-                    spotify: Spotify,
-                    track: SpotifyTrack,
-                    oldMetadata: Optional[SongMetadata] = None) -> Optional[SongMetadata]:
+    async def fetch(
+        cls, spotify: Spotify, track: SpotifyTrack, oldMetadata: Optional[SongMetadata] = None
+    ) -> Optional[SongMetadata]:
         """fetch metadata from spotify"""
         metadata = cls()
         if oldMetadata:
@@ -188,11 +197,11 @@ class SongMetadata:
         if not features:
             return None
         metadata.spotify.update(
-            features = features.unwrap(),
-            popularity = track.popularity,
-            album = track.albumItem,
-            artists = track.artistItems,
-            explicit = track.explicit,
-            releaseDate = track.releaseDate
+            features=features.unwrap(),
+            popularity=track.popularity,
+            album=track.albumItem,
+            artists=track.artistItems,
+            explicit=track.explicit,
+            releaseDate=track.releaseDate,
         )
         return metadata

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
 from __future__ import annotations
+
 __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from functools import wraps
@@ -10,20 +11,23 @@ from typing import Any, Callable, Dict, Generic, List, Optional, ParamSpec, Type
 
 from aiohttp import web
 from pyaddict import JDict, JList
-import spotipy # type: ignore
-from spotipy.exceptions import SpotifyException # type: ignore
+import spotipy  # type: ignore
+from spotipy.exceptions import SpotifyException  # type: ignore
 
 from handler.spotifyAuth import SpotifyAuth
 from helper.logged import Logged
-from dataModel.track import SpotifyArtist, SpotifyTrack, SpotifyPlaylist, SpotifyAlbum
+from helper.singleton import Singleton
+from dataModel.track import SpotifyArtist, SpotifyTrack, SpotifyPlaylist
+from db.table.albums import SpotifyAlbum
 
 
-P = ParamSpec('P')
+P = ParamSpec("P")
 U = TypeVar("U")
 
 
 class SpotifyState(Enum):
     """state of the spotify connection"""
+
     Disabled = web.HTTPServiceUnavailable
     Unauthorised = web.HTTPUnauthorized
     Authorised = web.Response
@@ -37,12 +41,13 @@ class SpotifyState(Enum):
         return state == SpotifyState.Authorised
 
 
-T = TypeVar('T')
-S = TypeVar('S')
+T = TypeVar("T")
+S = TypeVar("S")
 
 
 class SpotifyResult(Generic[T]):
     """result of a spotify operation"""
+
     def __init__(self, state: SpotifyState, data: Optional[T] = None) -> None:
         self._state = state
         self._data = data
@@ -112,12 +117,13 @@ class SpotifyResult(Generic[T]):
 def _connectionRequired(func: Callable[P, U]) -> Callable[P, U]:
     @wraps(func)
     def wrapper(self: Spotify, *args: Any, **kwargs: Any) -> Any:
-        if self._auth.isDisabled(): # pylint: disable=protected-access
+        if self._auth.isDisabled():  # pylint: disable=protected-access
             return SpotifyResult.errorResult(SpotifyState.Disabled)
         if not self.connect():
             return SpotifyResult.errorResult(SpotifyState.Unauthorised)
-        return func(self, *args, **kwargs) # type: ignore
-    return wrapper # type: ignore
+        return func(self, *args, **kwargs)  # type: ignore
+
+    return wrapper  # type: ignore
 
 
 def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
@@ -129,7 +135,7 @@ def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
         nonlocal retryCount
 
         try:
-            return func(self, *args, **kwargs) # type: ignore
+            return func(self, *args, **kwargs)  # type: ignore
         except SpotifyException as exc:
             logger.error("SpotifyException: %s (%d)", exc, exc.http_status)
 
@@ -145,7 +151,7 @@ def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
                 return SpotifyResult.errorResult(SpotifyState.QuoteExceeded)
 
             return SpotifyResult.errorResult(SpotifyState.InternalError)
-        except Exception as exc: # pylint: disable=broad-except
+        except Exception as exc:  # pylint: disable=broad-except
             logger.exception("Exception: %s", exc)
             # if KeyError 'expires_at'
             if isinstance(exc, KeyError):
@@ -157,11 +163,13 @@ def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
 
                 return SpotifyResult.errorResult(SpotifyState.Unauthorised)
             return SpotifyResult.errorResult(SpotifyState.InternalError)
-    return wrapper # type: ignore
+
+    return wrapper  # type: ignore
 
 
 class SpotifyMode(Enum):
     """mode of a track"""
+
     Major = 1
     Minor = 0
 
@@ -184,6 +192,7 @@ class SpotifyMode(Enum):
 
 class SpotifyKey(Enum):
     """key of a track"""
+
     C = 0
     CSharp = 1
     D = 2
@@ -217,11 +226,24 @@ class SpotifyKey(Enum):
                 return key
         raise ValueError(f"Invalid key name {name}")
 
+
 class SpotifyAudioFeatures:
     """Audio features of a track"""
-    __slots__ = ("_acousticness", "_danceability", "_energy",
-                 "_instrumentalness", "_key", "_liveness", "_loudness",
-                 "_mode", "_speechiness", "_tempo", "_timeSignature", "_valence")
+
+    __slots__ = (
+        "_acousticness",
+        "_danceability",
+        "_energy",
+        "_instrumentalness",
+        "_key",
+        "_liveness",
+        "_loudness",
+        "_mode",
+        "_speechiness",
+        "_tempo",
+        "_timeSignature",
+        "_valence",
+    )
 
     def __init__(self, data: JDict) -> None:
         self._acousticness = data.ensureCast("acousticness", float)
@@ -231,14 +253,14 @@ class SpotifyAudioFeatures:
         self._liveness = data.ensureCast("liveness", float)
         self._loudness = data.ensureCast("loudness", float)
 
-        key = SpotifyKey.fromInt(data.optionalGet("key", int)) # spotify
+        key = SpotifyKey.fromInt(data.optionalGet("key", int))  # spotify
         if key is None:
-            key = SpotifyKey.fromName(data.assertGet("key", str)) # cache
+            key = SpotifyKey.fromName(data.assertGet("key", str))  # cache
         self._key = key
 
-        mode = SpotifyMode.fromInt(data.optionalGet("mode", int)) # spotify
+        mode = SpotifyMode.fromInt(data.optionalGet("mode", int))  # spotify
         if mode is None:
-            mode = SpotifyMode.fromName(data.assertGet("mode", str)) # cache
+            mode = SpotifyMode.fromName(data.assertGet("mode", str))  # cache
         self._mode = mode
 
         self._speechiness = data.ensureCast("speechiness", float)
@@ -267,7 +289,7 @@ class SpotifyAudioFeatures:
             "speechiness": self._speechiness,
             "tempo": self._tempo,
             "time_signature": self._timeSignature,
-            "valence": self._valence
+            "valence": self._valence,
         }
 
     def toSql(self) -> str:
@@ -275,8 +297,9 @@ class SpotifyAudioFeatures:
         return JDict(self.toDict()).toString()
 
 
-class Spotify(Logged):
+class Spotify(Logged, metaclass=Singleton):  # pylint: disable=too-many-public-methods
     """spotify api wrapper"""
+
     def __init__(self) -> None:
         super().__init__(self.__class__.__name__)
         self._connected = False
@@ -290,7 +313,7 @@ class Spotify(Logged):
         if not self._auth.isAuth():
             return False
         if not self._connected:
-            self._spotify = spotipy.Spotify(auth_manager = SpotifyAuth.getSpotifyAuth())
+            self._spotify = spotipy.Spotify(auth_manager=SpotifyAuth.getSpotifyAuth())
             self._connected = True
         return self._connected
 
@@ -323,9 +346,20 @@ class Spotify(Logged):
         """Searches for a track"""
         self._logger.debug("Searching for track %s", query)
         assert self._spotify is not None
-        search = self._spotify.search(query, limit = limit, type = "track")
+        search = self._spotify.search(query, limit=limit, type="track")
         tracks = JDict(search).chain().ensure("tracks.items", list)
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
+
+    @_connectionRequired
+    @_mayFail
+    def searchAlbum(self, query: str) -> SpotifyResult[List[SpotifyAlbum]]:
+        """Searches for an artist"""
+        self._logger.debug("Searching for album %s", query)
+        assert self._spotify is not None
+        search = self._spotify.search(query, limit=10, type="album")
+        albums = JDict(search).chain().ensure("albums.items", JList).iterator().ensureCast(JDict)
+        spotifyAlbums = [SpotifyAlbum.fromDict(album) for album in albums]
+        return SpotifyResult.successResult([album for album in spotifyAlbums if album])
 
     @_connectionRequired
     @_mayFail
@@ -333,7 +367,7 @@ class Spotify(Logged):
         """Searches for an artist"""
         self._logger.debug("Searching for artist %s", query)
         assert self._spotify is not None
-        search = self._spotify.search(query, limit = 10, type = "artist")
+        search = self._spotify.search(query, limit=10, type="artist")
         artists = JDict(search).chain().ensure("artists.items", list)
         return SpotifyResult.successResult([SpotifyArtist(artist) for artist in artists])
 
@@ -356,9 +390,20 @@ class Spotify(Logged):
         items = self._spotify.playlist_items(playlistId)
         tracks = [
             track.ensure("track", dict)
-            for track in
-            JDict(items).ensureCast("items", JList).iterator().ensureCast(JDict) ]
+            for track in JDict(items).ensureCast("items", JList).iterator().ensureCast(JDict)
+        ]
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
+
+    @_connectionRequired
+    @_mayFail
+    def album(self, albumId: str) -> SpotifyResult[SpotifyAlbum]:
+        """Returns the tracks from an album"""
+        self._logger.debug("Getting album %s", albumId)
+        assert self._spotify is not None
+        album = self._spotify.album(albumId)
+        if spotifyAlbum := SpotifyAlbum.fromDict(JDict(album)):
+            return SpotifyResult.successResult(spotifyAlbum)
+        return SpotifyResult.errorResult(SpotifyState.NotFound)
 
     @_connectionRequired
     @_mayFail
@@ -396,24 +441,23 @@ class Spotify(Logged):
         self._logger.debug("Getting albums from artist %s", artistId)
         assert self._spotify is not None
         albums = self._spotify.artist_albums(artistId)
-        albums = JDict(albums).ensure("items", list)
-        return SpotifyResult.successResult([SpotifyAlbum(album) for album in albums])
+        albums = JDict(albums).ensure("items", JList).iterator().ensureCast(JDict)
+        spotifyAlbums = [SpotifyAlbum.fromDict(album) for album in albums]
+        return SpotifyResult.successResult([album for album in spotifyAlbums if album])
 
     @_connectionRequired
     @_mayFail
-    def recommendations(self,
-                        seedArtists: List[str],
-                        seedTracks: List[str],
-                        seedGenres: List[str]) -> SpotifyResult[List[SpotifyTrack]]:
+    def recommendations(
+        self, seedArtists: List[str], seedTracks: List[str], seedGenres: List[str]
+    ) -> SpotifyResult[List[SpotifyTrack]]:
         """Returns recommendations"""
         self._logger.debug("Getting recommendations")
         assert self._spotify is not None
         if len([*seedTracks, *seedArtists, *seedGenres]) < 1:
             return SpotifyResult.successResult([])
-        tracks = self._spotify.recommendations(seed_artists = seedArtists,
-                                               seed_tracks = seedTracks,
-                                               seed_genres = seedGenres,
-                                               limit = 10)
+        tracks = self._spotify.recommendations(
+            seed_artists=seedArtists, seed_tracks=seedTracks, seed_genres=seedGenres, limit=10
+        )
         tracks = JDict(tracks).ensure("tracks", list)
         return SpotifyResult.successResult([SpotifyTrack(track) for track in tracks])
 
@@ -447,7 +491,7 @@ class Spotify(Logged):
         assert self._spotify is not None
         result = self._spotify.current_user_followed_artists(limit=50)
         artists = JDict(result).ensureCast("artists", JDict)
-        fartists: List[Dict[str, Any]] = [ ]
+        fartists: List[Dict[str, Any]] = []
         fartists.extend(artists.ensure("items", list))
         total: int = artists.ensure("total", int)
 

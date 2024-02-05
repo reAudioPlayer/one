@@ -14,6 +14,7 @@ from db.table.songs import SongsTable
 from db.table.playlists import PlaylistsTable
 from db.table.smartPlaylists import SmartPlaylistTable
 from db.table.artists import ArtistsTable
+from db.table.albums import AlbumsTable
 from config.runtime import Runtime
 
 
@@ -24,6 +25,7 @@ class Database(metaclass=Singleton):
                  "_playlists",
                  "_artists",
                  "_smartPlaylists",
+                 "_albums",
                  "_autoCommit",
                  "_logger")
 
@@ -33,6 +35,7 @@ class Database(metaclass=Singleton):
         self._playlists: Optional[PlaylistsTable] = None
         self._smartPlaylists: Optional[SmartPlaylistTable] = None
         self._artists: Optional[ArtistsTable] = None
+        self._albums: Optional[AlbumsTable] = None
         self._autoCommit: Optional[asyncio.Task[None]] = None
         self._logger = logging.getLogger("Database")
 
@@ -51,12 +54,14 @@ class Database(metaclass=Singleton):
         self._songs = SongsTable(self._db)
         self._playlists = PlaylistsTable(self._db)
         self._artists = ArtistsTable(self._db)
+        self._albums = AlbumsTable(self._db)
         self._smartPlaylists = SmartPlaylistTable(self._db)
 
         await asyncio.gather(
             self._songs.create(),
             self._playlists.create(),
             self._artists.create(),
+            self._albums.create(),
             self._smartPlaylists.create()
         )
 
@@ -86,6 +91,12 @@ class Database(metaclass=Singleton):
         return self._artists
 
     @property
+    def albums(self) -> AlbumsTable:
+        """Return albums table"""
+        assert self._albums is not None
+        return self._albums
+
+    @property
     def smartPlaylists(self) -> SmartPlaylistTable:
         """Return smartPlaylists table"""
         assert self._smartPlaylists is not None
@@ -101,6 +112,8 @@ class Database(metaclass=Singleton):
         if self._playlists is None:
             return False
         if self._artists is None:
+            return False
+        if self._albums is None:
             return False
         if self._smartPlaylists is None:
             return False

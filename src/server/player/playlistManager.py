@@ -8,7 +8,9 @@ from helper.logged import Logged
 from dataModel.song import Song
 from db.database import Database
 from db.table.playlists import PlaylistModel
+from db.table.albums import AlbumModel
 from db.table.smartPlaylists import SmartPlaylistModel
+from meta.spotify import Spotify
 from player.iPlayerPlaylist import IPlayerPlaylist, PlaylistType
 from player.smartPlayerPlaylist import SmartPlayerPlaylist, SpecialPlayerPlaylist
 from player.classicPlayerPlaylist import ClassicPlayerPlaylist
@@ -69,6 +71,26 @@ class PlaylistManager(Logged):
         for smartPlaylist in smartPlaylists:
             smart = SmartPlayerPlaylist(smartPlaylist)
             self._playlists[smart.id] = smart
+        asyncio.create_task(self._fetchAllAlbums())
+
+    async def _fetchAllAlbums(self) -> None:
+        """fetches all albums"""
+
+        async def _implement(song: Song) -> None:
+            album = await AlbumModel.forSong(song, Spotify(), self._dbManager)
+            self._logger.debug("found album %s", album)
+            if album is None:
+                return
+            song.model.albumHash = album.hash
+            self._logger.debug("updating song %s", song.model.albumHash)
+
+        playlists = self._playlists.values()
+        for playlist in playlists:
+            for song in playlist:
+                self._logger.debug("fetch album for %s", song)
+                if song.albumInDb:
+                    continue
+                await _implement(song)
 
     async def addToPlaylist(self, playlistId: str, song: Song) -> bool:
         """adds a song to a playlist"""
@@ -159,7 +181,7 @@ class PlaylistManager(Logged):
         """creates a playlist"""
         plId = self.playlistLength
         name = name or f"My Smart Playlist #{plId + 1}"
-        playlist = SmartPlaylistModel(name, definition = "{\"limit\": 25}")
+        playlist = SmartPlaylistModel(name, definition='{"limit": 25}')
         id_ = await self._dbManager.smartPlaylists.insert(playlist)
         if id_:
             playlist.id = id_
