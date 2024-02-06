@@ -81,7 +81,6 @@ class PlaylistManager(Logged):
         async def _implement(song: Song) -> None:
             album = await AlbumModel.forSong(song, Spotify(), self._dbManager)
             self._logger.debug("found album %s", album)
-            self._logger.debug("found album with id %s", album._id)
             if album is None:
                 return
             song.model.albumHash = album.hash
