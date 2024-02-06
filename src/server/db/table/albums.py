@@ -88,16 +88,12 @@ class SpotifyAlbumData:
     @classmethod
     def disabled(cls) -> SpotifyAlbumData:
         """create from id"""
-        return SpotifyAlbumData(
-            "", [], 0, "", None, "", [], [], cls._DISABLED, "", 0, ""  # type: ignore
-        )
+        return SpotifyAlbumData("", [], 0, "", None, "", [], [], cls._DISABLED, "", 0, "")
 
     @classmethod
     def fromId(cls, id_: str) -> SpotifyAlbumData:
         """create from id"""
-        return SpotifyAlbumData(
-            id_, [], 0, "", None, "", [], [], cls._DISABLED, "", 0, ""  # type: ignore
-        )
+        return SpotifyAlbumData(id_, [], 0, "", None, "", [], [], cls._DISABLED, "", 0, "")
 
     @property
     def id(self) -> str:
@@ -159,6 +155,11 @@ class SpotifyAlbumData:
 
         releaseDateString = data.ensure("release_date", str, data.ensure("releaseDate", str))
         releaseDate = datetime.fromisoformat(releaseDateString)
+
+        import logging
+
+        logging.debug("fromDict")
+        logging.debug("data: %s", data)
 
         return (
             data.ensure("id", str),
@@ -431,11 +432,15 @@ class AlbumModel(IModel):
     async def _createModel(cls, song: Song, spotify: Spotify, db: Database) -> Optional[AlbumModel]:
         logger = Logged.getLogger("createModel")
         logger.debug("creating model for %s", song)
+        logger.debug("that would be %s", song.album)
 
         model = await db.albums.byName(song.album)
+
+        logger.debug("model by name %s", model)
+
         alreadyExists = model is not None
         albumId = model.spotifyModel.id if model and model.spotifyModel else None
-        logger.debug("model already exists: %s (id: %s)", alreadyExists, albumId)
+        logger.debug("model already exists: %s (spotify id: %s)", alreadyExists, albumId)
 
         if not alreadyExists:
             logger.debug("model does not exist, searching for album in db")
@@ -447,7 +452,10 @@ class AlbumModel(IModel):
                 albumId = spotifyAlbum.id if spotifyAlbum else None
                 logger.debug("found album id: %s", albumId)
             if not albumId:
-                return None
+                model = AlbumModel(song.album, "", song.model.cover, song.artist)
+                if not alreadyExists:
+                    model._id = await db.albums.insert(model)
+                return model
             if albumId:
                 spotifyAlbum = await cls._fetchMetadata(albumId, spotify)
                 if spotifyAlbum is None:
@@ -459,12 +467,12 @@ class AlbumModel(IModel):
                     ",".join([x.name for x in spotifyAlbum.artists]),
                 )
 
-        assert model is not None and albumId is not None
+        assert model is not None
         metadata: Optional[SpotifyAlbumData] = model.spotifyModel
 
-        logger.debug("refetch? %s", not metadata)
+        logger.debug("refetch? %s", not metadata and albumId)
 
-        if not metadata:
+        if not metadata and albumId:
             newMetadata = await cls._fetchMetadata(albumId, spotify)
             if not newMetadata:
                 return None
@@ -472,8 +480,10 @@ class AlbumModel(IModel):
             if newMetadata:
                 model.image = newMetadata.image
 
+        logger.debug("returning model %s", model)
+
         if not alreadyExists:
-            await db.albums.insert(model)
+            model._id = await db.albums.insert(model)
         return model
 
     @classmethod
@@ -500,7 +510,8 @@ class AlbumsTable(ITable[AlbumModel]):
 
     async def byName(self, name: str) -> Optional[AlbumModel]:
         """get artist by id"""
-        where = f"name = '{name}'"
+        escaped = name.replace("'", "''")
+        where = f"name = '{escaped}'"
         return await self.selectOne(append=f"WHERE {where}")
 
     async def byId(self, id_: str) -> Optional[AlbumModel]:
@@ -510,7 +521,8 @@ class AlbumsTable(ITable[AlbumModel]):
 
     async def byArtist(self, artistName: str) -> List[AlbumModel]:
         """get artist by id"""
-        where = f"anyArtist LIKE '%{artistName}%' OR allArtists LIKE '%{artistName}%'"
+        escaped = artistName.replace("'", "''")
+        where = f"anyArtist LIKE '%{escaped}%' OR allArtists LIKE '%{escaped}%'"
         return await self.select(append=f"WHERE {where}")
 
     async def search(self, query: str) -> List[AlbumModel]:
