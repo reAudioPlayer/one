@@ -156,7 +156,9 @@ const isDownloading = computed(() =>
                 </span>
             </div>
             <div v-if="withAlbum && !isMobile" class="album">
-                <Marquee :text="song.album" />
+                <router-link :to="song.album.href" class="linkOnHover">
+                    <Marquee :text="song.album.name" />
+                </router-link>
             </div>
             <div
                 v-if="selected || hovering || song.favourite"
