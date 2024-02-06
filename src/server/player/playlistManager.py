@@ -42,11 +42,12 @@ class OrderedUniqueList(List[T]):
 class PlaylistManager(Logged):
     """manages all playlists"""
 
-    __slots__ = ("_dbManager", "_playlists")
+    __slots__ = ("_dbManager", "_playlists", "_createAlbumsTask")
 
     def __init__(self) -> None:
         self._dbManager = Database()
         self._playlists: Dict[str, IPlayerPlaylist] = {}
+        self._createAlbumsTask: Optional[asyncio.Task[None]] = None
         super().__init__(self.__class__.__name__)
 
     async def init(self) -> None:
@@ -71,7 +72,8 @@ class PlaylistManager(Logged):
         for smartPlaylist in smartPlaylists:
             smart = SmartPlayerPlaylist(smartPlaylist)
             self._playlists[smart.id] = smart
-        asyncio.create_task(self._fetchAllAlbums())
+        if self._createAlbumsTask is None:
+            self._createAlbumsTask = asyncio.create_task(self._fetchAllAlbums())
 
     async def _fetchAllAlbums(self) -> None:
         """fetches all albums"""
@@ -79,6 +81,7 @@ class PlaylistManager(Logged):
         async def _implement(song: Song) -> None:
             album = await AlbumModel.forSong(song, Spotify(), self._dbManager)
             self._logger.debug("found album %s", album)
+            self._logger.debug("found album with id %s", album._id)
             if album is None:
                 return
             song.model.albumHash = album.hash
@@ -89,6 +92,7 @@ class PlaylistManager(Logged):
             for song in playlist:
                 self._logger.debug("fetch album for %s", song)
                 if song.albumInDb:
+                    self._logger.debug("song album is already in db %s", song)
                     continue
                 await _implement(song)
 

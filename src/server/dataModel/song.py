@@ -140,3 +140,9 @@ class Song(ISimpleTrack):
     def update(self, other: Song) -> None:
         """update from other"""
         self._model = other.model
+
+    def __str__(self) -> str:
+        return f"Song({self._model.artist} - {self._model.name} [{self._model.album}])"
+
+    def __repr__(self) -> str:
+        return str(self)
