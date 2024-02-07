@@ -39,7 +39,7 @@ class Releases(Logged):
         self._tracks.sort(key=lambda x: self._dateToInt(x.releaseDate), reverse=True)
 
     def _dateToInt(self, string: str) -> int:
-        return int(string.replace("-", ""))
+        return int(string.split("T")[0].replace("-", ""))
 
     def toDict(self) -> List[Dict[str, Any]]:
         """serialise"""

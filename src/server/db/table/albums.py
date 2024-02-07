@@ -156,11 +156,6 @@ class SpotifyAlbumData:
         releaseDateString = data.ensure("release_date", str, data.ensure("releaseDate", str))
         releaseDate = datetime.fromisoformat(releaseDateString)
 
-        import logging
-
-        logging.debug("fromDict")
-        logging.debug("data: %s", data)
-
         return (
             data.ensure("id", str),
             data.ensure("genres", list),
@@ -173,7 +168,7 @@ class SpotifyAlbumData:
             releaseDate,
             data.ensure("name", str),
             data.ensure("total_tracks", int),
-            data.ensure("images.[0].url", str),
+            data.chain().ensure("images.[0].url", str),
         )
 
     @staticmethod
@@ -307,6 +302,15 @@ class AlbumModel(IModel):
         if self._allArtists != other._allArtists:
             return False
         return True
+
+    @property
+    def id(self) -> Optional[int]:
+        """return id"""
+        return self._id
+
+    @id.setter
+    def id(self, value: Optional[int]) -> None:
+        self._id = value
 
     @property
     def name(self) -> str:
@@ -454,7 +458,7 @@ class AlbumModel(IModel):
             if not albumId:
                 model = AlbumModel(song.album, "", song.model.cover, song.artist)
                 if not alreadyExists:
-                    model._id = await db.albums.insert(model)
+                    model.id = await db.albums.insert(model)
                 return model
             if albumId:
                 spotifyAlbum = await cls._fetchMetadata(albumId, spotify)
@@ -483,7 +487,7 @@ class AlbumModel(IModel):
         logger.debug("returning model %s", model)
 
         if not alreadyExists:
-            model._id = await db.albums.insert(model)
+            model.id = await db.albums.insert(model)
         return model
 
     @classmethod

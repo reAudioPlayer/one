@@ -357,7 +357,9 @@ class Spotify(Logged, metaclass=Singleton):  # pylint: disable=too-many-public-m
         self._logger.debug("Searching for album %s", query)
         assert self._spotify is not None
         search = self._spotify.search(query, limit=10, type="album")
-        albums = JDict(search).chain().ensure("albums.items", JList).iterator().ensureCast(JDict)
+        albums = (
+            JDict(search).chain().ensureCast("albums.items", JList).iterator().ensureCast(JDict)
+        )
         spotifyAlbums = [SpotifyAlbum.fromDict(album) for album in albums]
         return SpotifyResult.successResult([album for album in spotifyAlbums if album])
 
@@ -441,8 +443,9 @@ class Spotify(Logged, metaclass=Singleton):  # pylint: disable=too-many-public-m
         self._logger.debug("Getting albums from artist %s", artistId)
         assert self._spotify is not None
         albums = self._spotify.artist_albums(artistId)
-        albums = JDict(albums).ensure("items", JList).iterator().ensureCast(JDict)
-        spotifyAlbums = [SpotifyAlbum.fromDict(album) for album in albums]
+        albums = JDict(albums).ensureCast("items", JList).iterator().ensureCast(JDict)
+        spotifyAlbums = [SpotifyAlbum.fromDict(JDict(album)) for album in albums]
+        self._logger.debug("found %d from artist %s", len(spotifyAlbums), artistId)
         return SpotifyResult.successResult([album for album in spotifyAlbums if album])
 
     @_connectionRequired
