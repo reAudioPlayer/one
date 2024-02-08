@@ -371,3 +371,7 @@ class SongsTable(ITable[SongModel]):
         return await self.select(
             append=f"WHERE artist = '{artist}' or artist LIKE '%, {artist}, %' or artist LIKE '%, {artist}' or artist LIKE '{artist}, %' or spotify LIKE '%\"{artist}\"%' COLLATE NOCASE"  # pylint: disable=line-too-long
         )
+
+    async def byAlbum(self, albumHash: str) -> List[SongModel]:
+        """get songs by album"""
+        return await self.select(append=f"WHERE albumHash = '{albumHash}'")

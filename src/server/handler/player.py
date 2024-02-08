@@ -40,6 +40,7 @@ class PlayerHandler:
             Object({"type": String().enum("playlist"), "id": String()}),
             Object({"type": String().enum("track"), "id": Integer()}),
             Object({"type": String().enum("artist"), "name": String()}),
+            Object({"type": String().enum("album"), "id": String()}),
         ),
         inBody=True,
     )
@@ -66,6 +67,13 @@ class PlayerHandler:
         if type_ == "artist":
             assert isinstance(name, str)
             playlist = await SongListPlayerPlaylist.artist(name)
+            await playlist.waitForLoad()
+            asyncio.create_task(self._player.loadPlaylist(playlist))
+            return web.Response()
+
+        if type_ == "album":
+            assert isinstance(id_, str)
+            playlist = await SongListPlayerPlaylist.album(id_)
             await playlist.waitForLoad()
             asyncio.create_task(self._player.loadPlaylist(playlist))
             return web.Response()

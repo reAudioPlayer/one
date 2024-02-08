@@ -57,6 +57,11 @@ const props = defineProps({
         required: false,
         default: null,
     },
+    album: {
+        type: String,
+        required: false,
+        default: null,
+    },
 });
 const emit = defineEmits(["update"]);
 
@@ -79,6 +84,11 @@ const playSong = async () => {
     }
     if (playlistId.value == "artist") {
         await playerStore.loadPlaylist("artist", props.artist);
+        playerStore.loadSong(null, props.index);
+        return;
+    }
+    if (playlistId.value == "album") {
+        await playerStore.loadPlaylist("album", props.album);
         playerStore.loadSong(null, props.index);
         return;
     }

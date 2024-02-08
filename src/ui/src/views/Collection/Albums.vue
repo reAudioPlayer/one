@@ -7,21 +7,37 @@
     <div class="padding-20">
         <CollectionHeader />
         <div class="albums">
-            Albums
+            <full-shelf heading="In your library">
+                <CardWithImageAndText
+                    v-for="item in artists"
+                    :title="item.name"
+                    :description="item.artists.join(', ')"
+                    :cover="item.image"
+                    @click="$router.push(item.href)"
+                    imageType="album"
+                />
+            </full-shelf>
         </div>
     </div>
 </template>
 
-<script>
-import CollectionHeader from '@/components/CollectionHeader.vue'
-    export default {
-        components: { CollectionHeader },
-        name: 'Albums',
-    }
+<script lang="ts" setup>
+import FullShelf from "@/components/Catalogue/FullShelf.vue";
+import CollectionHeader from "@/components/CollectionHeader.vue";
+import CardWithImageAndText from "@/containers/CardWithImageAndText.vue";
+import { onMounted, ref } from "vue";
+
+const artists = ref([]);
+
+onMounted(async () => {
+    const res = await fetch("/api/albums");
+    const data = await res.json();
+    artists.value = data.sort((a, b) => a.name.localeCompare(b.name));
+});
 </script>
 
 <style scoped>
-    .padding-20 {
-        padding: 20px;
-    }
+.padding-20 {
+    padding: 20px;
+}
 </style>
