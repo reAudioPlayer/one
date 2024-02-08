@@ -212,7 +212,7 @@ export const usePlayerStore = defineStore({
                 id: playlistId as any,
             } as any;
 
-            if (playlistId === "track") {
+            if (["track", "album"].includes(playlistId)) {
                 body.type = playlistId;
                 body.id = id;
             }

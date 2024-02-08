@@ -26,7 +26,7 @@ from config.runtime import Runtime
 from config.customData import LocalTrack, LocalCover
 
 
-class MetaHandler:
+class MetaHandler:  # pylint: disable=too-many-public-methods
     """handler for different 'meta' features (e.g. metadata, spotify, search)"""
 
     __slots__ = ("_spotify", "_dbManager", "_logger")
@@ -87,7 +87,7 @@ class MetaHandler:
     async def getArtists(self, _: web.Request) -> web.Response:
         """get(/api/artists)"""
         artists = await self._dbManager.artists.all()
-        return web.json_response(data = [ artist.toDict() for artist in artists ])
+        return web.json_response(data=[artist.toDict() for artist in artists])
 
     @withObjectPayload(Object({"name": String().min(1)}), inPath=True)
     async def getArtist(
@@ -112,6 +112,39 @@ class MetaHandler:
                 "songs": [track.toDict() for track in tracks],
             }
         )
+
+    @withObjectPayload(Object({"albumHash": String().min(1)}), inPath=True)
+    async def putAlbum(
+        self, payload: Dict[str, Any]
+    ) -> web.Response:  # pylint: disable=too-many-locals
+        """put(/api/albums/{albumHash})"""
+        albumHash: str = payload["albumHash"]
+        tracks = Song.list(await self._dbManager.songs.byAlbum(albumHash))
+        albumModel = await self._dbManager.albums.byId(albumHash)
+        if not albumModel:
+            return web.HTTPNotFound(text="album not found")
+        response = albumModel.toDict()
+        response["songs"] = [track.toDict() for track in tracks]
+        return web.json_response(data=response)
+
+    @withObjectPayload(Object({"albumHash": String().min(1)}), inPath=True)
+    async def getAlbum(
+        self, payload: Dict[str, Any]
+    ) -> web.Response:  # pylint: disable=too-many-locals
+        """get(/api/albums/{albumHash})"""
+        albumHash: str = payload["albumHash"]
+        tracks = Song.list(await self._dbManager.songs.byAlbum(albumHash))
+        albumModel = await self._dbManager.albums.byId(albumHash)
+        if not albumModel:
+            return web.HTTPNotFound(text="album not found")
+        response = albumModel.toDict(tracks)
+        response["songs"] = [track.toDict() for track in tracks]
+        return web.json_response(data=response)
+
+    async def getAlbums(self, _: web.Request) -> web.Response:
+        """get(/api/albums)"""
+        albums = await self._dbManager.albums.all()
+        return web.json_response(data=[album.toDict() for album in albums])
 
     @withObjectPayload(
         Object(
@@ -286,7 +319,7 @@ class MetaHandler:
         if not Runtime.args.withDocker:
             return web.HTTPExpectationFailed(text="must run in docker")
 
-        async for obj in (await request.multipart()):
+        async for obj in await request.multipart():
             if obj.filename:
                 file = LocalCover.createNew(obj.filename)
                 file.write(await obj.read())
@@ -298,7 +331,7 @@ class MetaHandler:
         if not Runtime.args.withDocker:
             return web.HTTPExpectationFailed(text="must run in docker")
 
-        async for obj in (await request.multipart()):
+        async for obj in await request.multipart():
             if obj.filename:
                 file = LocalTrack.createNew(obj.filename)
                 file.write(await obj.read())

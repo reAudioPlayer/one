@@ -89,10 +89,9 @@ class PlaylistManager(Logged):
         playlists = self._playlists.values()
         for playlist in playlists:
             for song in playlist:
-                self._logger.debug("fetch album for %s", song)
                 if song.albumInDb:
-                    self._logger.debug("song album is already in db %s", song)
                     continue
+                self._logger.debug("fetch album for %s", song)
                 await _implement(song)
 
     async def addToPlaylist(self, playlistId: str, song: Song) -> bool:

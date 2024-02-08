@@ -84,5 +84,6 @@ const onLoad = async () => {
         class="cover rounded-md"
         @error="onError"
         @load="onLoad"
+        lazy
     />
 </template>

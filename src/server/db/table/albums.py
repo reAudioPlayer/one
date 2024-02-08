@@ -154,7 +154,12 @@ class SpotifyAlbumData:
             tracks.append(BasicSpotifyItem.fromDict(item))
 
         releaseDateString = data.ensure("release_date", str, data.ensure("releaseDate", str))
-        releaseDate = datetime.fromisoformat(releaseDateString)
+        releaseDate = datetime.now()
+
+        try:
+            releaseDate = datetime.fromisoformat(releaseDateString)
+        except ValueError:
+            releaseDate = datetime.strptime(releaseDateString.split("-").pop(), "%Y")
 
         return (
             data.ensure("id", str),
@@ -341,7 +346,7 @@ class AlbumModel(IModel):
         """
         for albums from multiple artists, with no common artist
         """
-        return self._anyArtist.split(",")
+        return self._anyArtist.split(",") if self._anyArtist else []
 
     @anyArtist.setter
     def anyArtist(self, value: List[str]) -> None:
@@ -352,7 +357,7 @@ class AlbumModel(IModel):
         """
         for albums from common artists
         """
-        return self._allArtists.split(",")
+        return self._allArtists.split(",") if self._allArtists else []
 
     @allArtists.setter
     def allArtists(self, value: List[str]) -> None:
@@ -393,13 +398,21 @@ class AlbumModel(IModel):
         """force update"""
         self._fireChanged()
 
-    def toDict(self) -> Dict[str, Any]:
+    def toDict(self, songs: Optional[List[Song]] = None) -> Dict[str, Any]:
         """return dict"""
-        return {
+        value: Dict[str, Any] = {
+            "id": self.hash,
+            "href": f"/album/{self.hash}",
             "name": self.name,
             "spotify": self.spotify,
             "image": self.image,
+            "artists": self.allArtists or self.anyArtist,
         }
+        if not value["image"] and songs and len(songs) > 0:
+            value["image"] = songs[0].model.cover
+        if songs:
+            value["songs"] = [song.toDict() for song in songs]
+        return value
 
     @staticmethod
     async def _fetchMetadata(spotifyId: str, spotify: Spotify) -> Optional[SpotifyAlbum]:
@@ -423,11 +436,21 @@ class AlbumModel(IModel):
         return None
 
     @staticmethod
-    async def _findAlbumBySpotifySearch(albumName: str, spotify: Spotify) -> Optional[SpotifyAlbum]:
-        result = await asyncRunInThreadWithReturn(spotify.searchAlbum, albumName)
+    async def _findAlbumBySpotifySearch(song: Song, spotify: Spotify) -> Optional[SpotifyAlbum]:
+        result = await asyncRunInThreadWithReturn(
+            spotify.searchAlbum, f"{song.artist} {song.album}"
+        )
         if result:
             albums = result.unwrap()
-            firstAlbum = next((x for x in albums if x.name.lower() == albumName.lower()), None)
+            firstAlbum = next(
+                (
+                    x
+                    for x in albums
+                    if x.name.lower() == song.album.lower()
+                    and any(artist.name.lower() in song.artist.lower() for artist in x.artists)
+                ),
+                None,
+            )
             if firstAlbum:
                 return firstAlbum
         return None
@@ -436,11 +459,16 @@ class AlbumModel(IModel):
     async def _createModel(cls, song: Song, spotify: Spotify, db: Database) -> Optional[AlbumModel]:
         logger = Logged.getLogger("createModel")
         logger.debug("creating model for %s", song)
-        logger.debug("that would be %s", song.album)
 
-        model = await db.albums.byName(song.album)
-
-        logger.debug("model by name %s", model)
+        possibleModels = await db.albums.byName(song.album)
+        model = next(
+            (
+                x
+                for x in possibleModels
+                if any(artist in x.allArtists for artist in song.artist.split(","))
+            ),
+            None,
+        )
 
         alreadyExists = model is not None
         albumId = model.spotifyModel.id if model and model.spotifyModel else None
@@ -452,7 +480,7 @@ class AlbumModel(IModel):
             logger.debug("found album id: %s", albumId)
             if not albumId:
                 logger.debug("album not found in db, searching spotify")
-                spotifyAlbum = await cls._findAlbumBySpotifySearch(song.album, spotify)
+                spotifyAlbum = await cls._findAlbumBySpotifySearch(song, spotify)
                 albumId = spotifyAlbum.id if spotifyAlbum else None
                 logger.debug("found album id: %s", albumId)
             if not albumId:
@@ -484,8 +512,6 @@ class AlbumModel(IModel):
             if newMetadata:
                 model.image = newMetadata.image
 
-        logger.debug("returning model %s", model)
-
         if not alreadyExists:
             model.id = await db.albums.insert(model)
         return model
@@ -512,15 +538,16 @@ class AlbumsTable(ITable[AlbumModel]):
     def _model(self) -> Type[AlbumModel]:
         return AlbumModel
 
-    async def byName(self, name: str) -> Optional[AlbumModel]:
+    async def byName(self, name: str) -> List[AlbumModel]:
         """get artist by id"""
         escaped = name.replace("'", "''")
         where = f"name = '{escaped}'"
-        return await self.selectOne(append=f"WHERE {where}")
+        return await self.select(append=f"WHERE {where}")
 
     async def byId(self, id_: str) -> Optional[AlbumModel]:
         """get artist by id"""
-        where = f"spotify LIKE '%{id_}%'"
+        (intId,) = hashids.decode(id_)
+        where = f"id = {intId}"
         return await self.selectOne(append=f"WHERE {where}")
 
     async def byArtist(self, artistName: str) -> List[AlbumModel]:

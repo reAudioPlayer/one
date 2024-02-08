@@ -133,6 +133,11 @@ class Router:
         app.router.add_get("/api/artists/{name}", metaHandler.getArtist)
         app.router.add_put("/api/artists/{name}", metaHandler.putArtist)
 
+        # /api/albums
+        app.router.add_get("/api/albums", metaHandler.getAlbums)
+        app.router.add_get("/api/albums/{albumHash}", metaHandler.getAlbum)
+        app.router.add_put("/api/albums/{albumHash}", metaHandler.putAlbum)
+
         # /api/playlists/
         app.router.add_get("/api/playlists/new", playlistHandler.createPlaylist)
         app.router.add_get("/api/playlists", playlistHandler.getPlaylists)

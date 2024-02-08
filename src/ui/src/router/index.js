@@ -110,6 +110,13 @@ const routes = [{
     }
 },
 {
+    path: '/album/:hash',
+    component: () => import("@/views/Album.vue"),
+    meta: {
+        title: "Album - reAudioPlayer One"
+    }
+},
+{
     path: '/preferences',
     component: () => import("@/views/preferences/index.vue"),
     meta: {

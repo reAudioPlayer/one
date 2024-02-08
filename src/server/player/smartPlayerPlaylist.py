@@ -201,3 +201,15 @@ class SongListPlayerPlaylist(SpecialPlayerPlaylist):
             f"/artist/{artist}",
             songs,
         )
+
+    @classmethod
+    async def album(cls, albumHash: str) -> SongListPlayerPlaylist:
+        """playlist from a single artist"""
+        songs = Song.list(await Database().songs.byAlbum(albumHash))
+        return cls(
+            "Album",
+            "Album",
+            albumHash,
+            f"/album/{albumHash}",
+            songs,
+        )
