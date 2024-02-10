@@ -92,7 +92,7 @@ const showWebWavePlayer = computed(() => {
 });
 </script>
 <template>
-    <div class="player relative">
+    <div class="player">
         <AmbientBackground :src="player.song.cover" direction="to top right" />
 
         <HtmlAudio v-if="showWebPlayer" ref="playable" />
@@ -441,6 +441,10 @@ const showWebWavePlayer = computed(() => {
     background: var(--bg-base-lt);
     border-top: 1px solid var(--border-base);
     z-index: 2;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 .icon {

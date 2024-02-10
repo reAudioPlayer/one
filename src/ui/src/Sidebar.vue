@@ -215,7 +215,9 @@ div.sidebar {
     border-radius: 8px;
     max-height: 100%;
     z-index: 1;
-    position: relative;
+    position: fixed;
+    top: var(--h-header);
+    bottom: var(--h-player);
     overflow: hidden;
     border: var(--border-container);
 
