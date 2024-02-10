@@ -22,18 +22,35 @@ export interface ILyrics {
     lyrics?: ILine[] | null;
 }
 
-/*const getAccessToken = async () => {
+const getAccessToken = async () => {
     // CORS
-    const res = await fetch("https://open.spotify.com/get_access_token?reason=transport&productType=web_player");
+    const res = await fetch(
+        "https://open.spotify.com/get_access_token?reason=transport&productType=web_player"
+    );
     const data = await res.json();
     console.log(data.accessToken);
-};*/
+};
 
 const getLyrics = async (id: string) => {
-    //const res = await fetch("https://spclient.wg.spotify.com/color-lyrics/v2/track/" + id + "?format=json&market=from_token");
+    return {
+        error: "Lyrics temporarily not supported.",
+        lyrics: [],
+    };
+
     const res = await fetch(
-        "https://spotify-lyric-api-984e7b4face0.herokuapp.com/?trackid=" + id
+        "https://spclient.wg.spotify.com/color-lyrics/v2/track/" +
+            id +
+            "?format=json&market=from_token",
+        {
+            headers: {
+                Auhorization: "Bearer " + getAccessToken(),
+                "App-Platform": "WebPlayer",
+            },
+        }
     );
+    /*const res = await fetch(
+        "https://spotify-lyric-api-984e7b4face0.herokuapp.com/?trackid=" + id
+    );*/
     const data: IReturn = await res.json();
 
     return {

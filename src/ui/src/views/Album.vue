@@ -48,10 +48,12 @@ const load = async () => {
     const res = await fetch(`/api/albums/${albumHash.value}`);
     const data = await res.json();
     data.spotify = data.spotify ? JSON.parse(data.spotify) : null;
-    try {
-        data.spotify.releaseDate = new Date(data.spotify.releaseDate);
-    } catch {
-        data.spotify.releaseDate = null;
+    if (data.spotify) {
+        try {
+            data.spotify.releaseDate = new Date(data.spotify.releaseDate);
+        } catch {
+            data.spotify.releaseDate = null;
+        }
     }
     album.value = data;
     selectedSongId.value = null;

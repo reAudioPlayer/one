@@ -259,6 +259,10 @@ let submit = () => {
     box-shadow: 0 0 10px 0 var(--shadow);
     z-index: 10;
     border-bottom: var(--border-container);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
 }
 
 .logo {
