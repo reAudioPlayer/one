@@ -9,6 +9,7 @@ from enum import StrEnum
 
 from db.database import Database
 from db.table.artists import ArtistModel
+from db.table.albums import AlbumModel
 from dataModel.track import YoutubeTrack, ITrack
 from dataModel.song import Song
 from meta.spotify import Spotify, SpotifyArtist, SpotifyTrack
@@ -37,7 +38,7 @@ class SearchResult:
 
     def __init__(
         self,
-        item: ITrack | Song | ClassicPlayerPlaylist | SpotifyArtist | ArtistModel,
+        item: ITrack | Song | ClassicPlayerPlaylist | SpotifyArtist | ArtistModel | AlbumModel,
         confidence: float,
         scope: SearchScopes,
         type_: SearchScopes,
@@ -234,6 +235,21 @@ class Search:
             for playlist in playlists
         ]
 
+    async def _getLocalAlbums(self) -> List[SearchResult]:
+        """get local playlists"""
+        if not self._scope.album:
+            return []
+        albums = await Database().albums.search(self._query)
+        return [
+            SearchResult(
+                album,
+                Confidence.forAlbum(album, self._query, boost=0.5),
+                SearchScopes.Local,
+                SearchScopes.Album,
+            )
+            for album in albums
+        ]
+
     async def _getSpotifyArtists(self) -> List[SearchResult]:
         """get spotify artists"""
         if not self._scope.artist:
@@ -274,6 +290,7 @@ class Search:
             self._items.extend(await self._getLocalTracks())
             self._items.extend(await self._getLocalPlaylists())
             self._items.extend(await self._getLocalArtists())
+            self._items.extend(await self._getLocalAlbums())
 
         if self._scope.youtube:
             self._items.extend(await self._getYoutubeTracks())

@@ -557,13 +557,15 @@ class AlbumsTable(ITable[AlbumModel]):
         return await self.select(append=f"WHERE {where}")
 
     async def search(self, query: str) -> List[AlbumModel]:
-        """get songs by (non-sql) query (for the search function)"""
+        """get albums by (non-sql) query (for the search function)"""
 
         filters = query.replace("'", "''").split(";")
         filter_ = ""
 
         def createLike(word: str) -> str:
-            return f"(name LIKE '%{word}%')"
+            return (
+                f"(name LIKE '%{word}%' OR anyArtist LIKE '%{word}%' OR allArtists LIKE '%{word}%')"
+            )
 
         ands: List[str] = []
         for x in filters:

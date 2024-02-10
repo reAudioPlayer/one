@@ -32,7 +32,7 @@ const name = computed(() => {
 });
 
 const caption = computed(() => {
-    return props.item?.item?.artist;
+    return props.item?.item?.artist ?? props.item?.item?.artists.join(", ");
 });
 
 const type = computed(() => {

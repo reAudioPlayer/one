@@ -8,6 +8,7 @@ from typing import List
 from Levenshtein import distance as lev
 from dataModel.track import ISimpleTrack
 from db.table.playlists import PlaylistModel
+from db.table.albums import AlbumModel
 
 
 class Confidence:
@@ -61,6 +62,11 @@ class Confidence:
     def forPlaylist(cls, playlist: PlaylistModel, query: str, boost: float = 0) -> float:
         """get relevance of playlist"""
         return cls._forStrings([playlist.name], query, boost)
+
+    @classmethod
+    def forAlbum(cls, album: AlbumModel, query: str, boost: float = 0) -> float:
+        """get relevance of playlist"""
+        return cls._forStrings([album.name, *album.allArtists, *album.anyArtist], query, boost)
 
     @classmethod
     def forArtist(cls, name: str, query: str, boost: float = 0) -> float:

@@ -52,10 +52,12 @@ watch(
         }
     }
 );
-watch(() => player.progressPercent,
+watch(
+    () => player.progressPercent,
     (percent) => {
         progressPercent.value = percent;
-});
+    }
+);
 
 const setPlayerTo = (id: string) => {
     const connection = player.sharedPlayer.connections.find((c) => c.id === id);
@@ -88,8 +90,6 @@ const showWebPlayer = computed(() => {
 const showWebWavePlayer = computed(() => {
     return settings.player.type === "web/wave" && onThisDevice.value;
 });
-
-
 </script>
 <template>
     <div class="player relative">
@@ -229,6 +229,13 @@ const showWebWavePlayer = computed(() => {
                         v-if="player.loaded && player.hasLyrics"
                     >
                         mic
+                    </span>
+                </router-link>
+                <router-link to="/player" class="icon select-none">
+                    <span
+                        class="cursor-pointer material-symbols-rounded ms-fill"
+                    >
+                        queue_music
                     </span>
                 </router-link>
                 <IconDropdown
@@ -503,7 +510,7 @@ const showWebWavePlayer = computed(() => {
         grid-area: aux;
         justify-content: end;
         display: grid;
-        grid-template-columns: 20px 20px 20px minmax(auto, 8vw);
+        grid-template-columns: 20px 20px 20px 20px minmax(auto, 8vw);
         gap: 1em;
         align-items: center;
 
