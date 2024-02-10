@@ -27,7 +27,7 @@ interface IAlbum {
     spotify: null | {
         title: string;
         cover: string;
-        releaseDate: Date;
+        releaseDate: Date | null;
         artists: {
             name: string;
             id: string;
@@ -48,6 +48,11 @@ const load = async () => {
     const res = await fetch(`/api/albums/${albumHash.value}`);
     const data = await res.json();
     data.spotify = data.spotify ? JSON.parse(data.spotify) : null;
+    try {
+        data.spotify.releaseDate = new Date(data.spotify.releaseDate);
+    } catch {
+        data.spotify.releaseDate = null;
+    }
     album.value = data;
     selectedSongId.value = null;
     spotifyUrl.value = "";
@@ -79,13 +84,9 @@ watch(spotifyUrl, () => {
     spotifyUrlIcon.value = "save";
 });
 
-const onSpotifyUrlClick = () => {
-    if (spotifyUrlIcon.value == "link") {
-        openInNewTab(spotifyUrl.value);
-        return;
-    }
-    setSpotify(parseSpotifyId(spotifyUrl.value, "album"));
-};
+const releaseDate = computed(() => {
+    return album.value?.spotify?.releaseDate?.toLocaleDateString() ?? "";
+});
 
 onMounted(load);
 watch(
@@ -109,6 +110,7 @@ watch(
                         :src="album.image"
                         class="max-w-sm rounded-xl"
                         placeholder="library_music"
+                        :name="album.name"
                     />
                     <div class="track__info__details flex flex-col justify-end">
                         <h3 class="text-secondary my-0 text-2xl font-bold">
@@ -116,6 +118,12 @@ watch(
                                 :artist="album.artists.join(', ')"
                                 class="inline"
                             />
+                            <span
+                                class="text-muted text-base ml-4 font-light"
+                                v-if="releaseDate"
+                            >
+                                {{ releaseDate }}
+                            </span>
                         </h3>
                         <div class="trac__info__details__normal">
                             <div class="flex flew-row items-center">
