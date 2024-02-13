@@ -6,13 +6,20 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from "vue-router";
 import { computed, onMounted, ref, watch } from "vue";
-import { ISong, openInNewTab, parseSpotifyId } from "../common";
+import {
+    type ISong,
+    type ISpotifySong,
+    openInNewTab,
+    parseSpotifyId,
+} from "../common";
 import Cover from "../components/image/Cover.vue";
 import AmbientBackground from "../components/image/AmbientBackground.vue";
 import PlaylistHeader from "../components/songContainers/PlaylistHeader.vue";
 import PlaylistEntry from "../components/songContainers/PlaylistEntry.vue";
 import Loader from "../components/Loader.vue";
 import ArtistMarquee from "../components/ArtistMarquee.vue";
+import ExternalEntry from "../components/songContainers/ExternalEntry.vue";
+import { Notifications } from "../components/notifications/createNotification";
 
 const route = useRoute();
 const router = useRouter();
@@ -39,6 +46,7 @@ interface IAlbum {
 }
 
 const album = ref<IAlbum>(null);
+const spotifySongs = ref<ISpotifySong[]>([]);
 const selectedSongId = ref(null as number | null);
 const spotifyUrl = ref(null as string | null);
 const spotifyUrlIcon = ref("url");
@@ -61,9 +69,27 @@ const load = async () => {
     spotifyEnabled.value = false;
     if (album.value.spotify.url.length) {
         spotifyUrl.value = album.value.spotify.url;
+        fetchFromSpotify(album.value.spotify.id);
         spotifyEnabled.value = true;
     }
     spotifyUrlIcon.value = "link";
+};
+
+const fetchFromSpotify = async (id: string) => {
+    let fetchedId = null;
+
+    const res = await fetch(`/api/spotify/albums/${id}`);
+
+    if (!res) {
+        Notifications.addError(
+            "Failed to fetch album from Spotify",
+            res.text,
+            3000
+        );
+        return;
+    }
+
+    spotifySongs.value = await res.json();
 };
 
 const setSpotify = async (value: boolean | string) => {
@@ -136,11 +162,7 @@ watch(
                         </div>
                     </div>
                 </div>
-                <PlaylistHeader
-                    class="hideIfMobile mt-8"
-                    with-album
-                    with-more
-                />
+                <PlaylistHeader class="hideIfMobile mt-8" with-more />
                 <hr class="mb-4" />
                 <div class="items">
                     <PlaylistEntry
@@ -154,7 +176,6 @@ watch(
                         :selected="selectedSongId == element.id"
                         :song="element"
                         playlist-id="album"
-                        with-album
                         with-cover
                         with-more
                         :album="album.id"
@@ -166,6 +187,21 @@ watch(
                         @update="$emit('update')"
                     />
                 </div>
+                <Card v-if="spotifySongs?.length" class="p-4">
+                    <h2>All songs from this album</h2>
+                    <div class="items">
+                        <ExternalEntry
+                            v-for="(element, index) in spotifySongs"
+                            :index="index"
+                            :song="element"
+                            can-import
+                            cannot-add
+                            with-cover
+                            with-more
+                            @update="$emit('update')"
+                        />
+                    </div>
+                </Card>
             </div>
         </div>
     </div>
