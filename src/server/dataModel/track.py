@@ -512,9 +512,22 @@ class YoutubeTrack(ITrack):
         results = YoutubeTrack.YtMusic.search(
             f"{' '.join(track.artists)} {track.title}", filter="songs"
         )
-        if len(results) > 0:
-            return YoutubeTrack(results[0])
-        return None
+
+        if len(results) == 0:
+            return None
+
+        if "extended" not in track.title.lower():
+            for result in results:
+                if "extended" in result.get("title", "").lower():
+                    continue
+                return YoutubeTrack(result)
+
+        if "extended" in track.title.lower():
+            for result in results:
+                if "extended" in result.get("title", "").lower():
+                    return YoutubeTrack(result)
+
+        return YoutubeTrack(results.pop())
 
 
 class SoundcloudTrack(ITrack):

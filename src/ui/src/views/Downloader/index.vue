@@ -126,7 +126,7 @@ const requestDownload = async () => {
 
                                         <div class="flex flex-col">
                                             <span>
-                                                {{ state.song.album }}
+                                                {{ state.song.album.name }}
                                             </span>
                                             <span>
                                                 {{ state.song.artist }}

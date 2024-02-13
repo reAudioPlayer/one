@@ -73,6 +73,8 @@ const onClick = () => {
         router.push(`/artist/${props.item.item.name}`);
     } else if (type.value === "playlist") {
         router.push(props.item.item.href);
+    } else if (type.value === "album") {
+        router.push(props.item.item.href);
     } else if (isLocal.value) {
         if (type.value === "song") {
             router.push(props.item.item.href);
