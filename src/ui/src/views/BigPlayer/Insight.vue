@@ -135,7 +135,8 @@ onMounted(() => {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
+            maintainAspectRatio: true,
+            aspectRatio: 1,
             animation: false,
             scales: {
                 y: {
@@ -379,7 +380,9 @@ const formatLoudness = (loudness: number) => {
                 </div>
                 <h4>Stereo Field</h4>
                 <div class="container stereo-field">
-                    <canvas ref="stereoFieldChart"></canvas>
+                    <div class="inner">
+                        <canvas ref="stereoFieldChart"></canvas>
+                    </div>
                 </div>
             </Card>
         </div>
@@ -394,15 +397,21 @@ const formatLoudness = (loudness: number) => {
     gap: 1em;
     padding: 0.5em;
     grid-column: 1 / -1;
+    overflow: hidden;
 
     .stereo-field {
-        max-width: 400px;
         align-self: center;
         aspect-ratio: 1;
+        flex: 1;
+        position: relative;
+        height: 100%;
 
-        canvas {
-            width: 100%;
+        .inner {
+            position: absolute;
+            inset: 0;
+            aspect-ratio: 1;
             height: 100%;
+            margin: auto;
         }
     }
 
@@ -432,6 +441,8 @@ const formatLoudness = (loudness: number) => {
     grid-template-columns: 2fr 1fr;
     gap: 1em;
     padding: 1em;
+    height: 100%;
+    overflow: hidden;
 
     > h1 {
         grid-column: 1 / -1;
@@ -466,7 +477,7 @@ const formatLoudness = (loudness: number) => {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1em;
-    align-content: start;
+    overflow: hidden;
 
     .mode {
         padding: 0.5em;
