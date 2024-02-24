@@ -285,6 +285,10 @@ class Downloader(metaclass=Singleton):
         DOWNLOADING.append(filename)
         self._ydl.params["outtmpl"] = {"default": relName, "noplaylist": True}
 
+        while DOWNLOADING[0] != filename:
+            self._logger.debug("%s queued, position %s", filename, DOWNLOADING.index(filename))
+            await asyncio.sleep(2)
+
         try:
             err = await asyncRunInThreadWithReturn(self._ydl.download, [link])
             DOWNLOADING.remove(filename)
