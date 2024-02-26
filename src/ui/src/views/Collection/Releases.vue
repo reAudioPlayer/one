@@ -7,7 +7,7 @@
     <div v-if="loading" class="fill-page">
         <Loader />
     </div>
-    <div class="p-4 overflow-hidden h-full">
+    <div v-else class="p-4 overflow-hidden h-full">
         <add-album-to-playlist
             v-if="selectedElement"
             :id="

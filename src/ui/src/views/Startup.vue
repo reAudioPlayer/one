@@ -3,26 +3,38 @@
   - Licenced under the GNU General Public License v3.0
   -->
 
-<script setup>
+<script setup lang="ts">
 import Loader from "@/components/Loader";
-import Logo from "/src/assets/images/logo/logo.svg";
+// @ts-ignore
+import Logo from "/src/assets/images/logo/logo-text.svg";
 import { onMounted } from "vue";
 import { Notifications } from "@/components/notifications/createNotification";
 
 onMounted(() => {
     Notifications.clear();
-})
+});
 </script>
 <template>
     <div class="startup">
         <div class="wrap">
             <div class="logo">
+                <Loader />
                 <Logo />
             </div>
-            <Loader />
         </div>
     </div>
 </template>
+
+<style lang="scss">
+.startup .loader {
+    width: max-content;
+
+    .wrap {
+        width: 200px;
+        height: 200px;
+    }
+}
+</style>
 
 <style lang="scss" scoped>
 .startup {

@@ -142,7 +142,6 @@ export default {
                     var myregexp =
                         /audius.co\/([A-Za-z0-9]+)\/([A-Za-z0-9\-]+)/;
                     const matches = url.match(myregexp);
-                    console.log(matches, url);
 
                     if (matches?.[1] && matches?.[2]) {
                         fetch(
@@ -165,7 +164,6 @@ export default {
                     const matches = url.match(myregexp);
 
                     if (matches?.[1]) {
-                        console.log(matches);
                         this.el = `<iframe src="https://open.spotify.com/embed/${matches[1]}/${matches[2]}?utm_source=generator" width="100%" height="380" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>`;
 
                         this.minimised = false;

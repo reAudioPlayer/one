@@ -4,7 +4,7 @@
   -->
 
 <template>
-    <div class="padding-20">
+    <div class="padding-20" v-if="artists.length || spotifyArtists.length">
         <CollectionHeader />
         <div class="artists">
             <full-shelf heading="In your library">
@@ -30,6 +30,7 @@
             </full-shelf>
         </div>
     </div>
+    <div class="fill-page" v-else><Loader /></div>
 </template>
 
 <script lang="ts" setup>
@@ -38,6 +39,7 @@ import ArtistItem from "@/components/Catalogue/Items/Artist/ArtistItem.vue";
 import CollectionHeader from "@/components/CollectionHeader.vue";
 import CardWithImageAndText from "@/containers/CardWithImageAndText.vue";
 import { onMounted, ref } from "vue";
+import Loader from "../../components/Loader.vue";
 
 const spotifyArtists = ref([]);
 const artists = ref([]);
@@ -54,7 +56,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-    .padding-20 {
-        padding: 20px;
-    }
+.padding-20 {
+    padding: 20px;
+}
 </style>

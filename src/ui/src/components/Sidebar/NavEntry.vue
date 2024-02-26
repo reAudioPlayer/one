@@ -52,7 +52,6 @@ export default {
             if (this.$route.path.includes(this.href)) {
                 return true;
             }
-            console.log(this.parentHref);
             return (
                 this.parentHref && this.$route.path.includes(this.parentHref)
             );

@@ -6,8 +6,12 @@
 <template>
     <div class="miniPlayer">
         <audio ref="player" :src="src" />
-        <span v-if="display" class="material-icons-round circle"
-              @click="playPause">{{ playing ? "pause" : "play_arrow" }}</span>
+        <span
+            v-if="display"
+            class="material-icons-round circle"
+            @click="playPause"
+            >{{ playing ? "pause" : "play_arrow" }}</span
+        >
     </div>
 </template>
 
@@ -48,7 +52,6 @@ export default {
             }
 
             playInPicture(this.title, this.artist, this.src);
-            console.log(this.src);
         },
     },
 };

@@ -4,6 +4,8 @@ import { IFullPlaylist } from "../../common";
 import PlaylistEntry from "../songContainers/PlaylistEntry.vue";
 import PlaylistHeader from "../songContainers/PlaylistHeader.vue";
 
+const playlistScroll = ref(null);
+
 defineProps({
     playlist: {
         type: Object as () => IFullPlaylist,
@@ -17,9 +19,20 @@ defineProps({
 });
 
 const selectedSongId = ref(-1);
+
+defineExpose({
+    scrollToSong: (id: number) => {
+        const scroll = document.getElementById(
+            `bplayer-entry-${id}`
+        )?.offsetTop;
+        if (scroll >= 150) {
+            playlistScroll.value.scrollTop = scroll - 150;
+        }
+    },
+});
 </script>
 <template>
-    <div ref="playlist-scroll" class="playlist" v-if="playlist">
+    <div ref="playlistScroll" class="playlist" v-if="playlist">
         <PlaylistHeader />
         <PlaylistEntry
             v-for="(element, index) in useQueue

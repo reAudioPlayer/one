@@ -3,8 +3,8 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import {Playable, RepeatType, usePlayerStore} from "../store/player";
-import {Ref, ref} from "vue";
+import { Playable, RepeatType, usePlayerStore } from "../store/player";
+import { Ref, ref } from "vue";
 
 export type IConnectionType = "player" | "client";
 export interface IPlayer {
@@ -25,24 +25,25 @@ export const SharedPlayer = class implements Playable {
     }
 
     connect() {
-        console.log("attempting reconnect")
+        console.log("[sharedPlayer] attempting reconnect");
         const host = window.location.hostname;
-        const port = window.location.port == "5173" ? 1234 : window.location.port
+        const port =
+            window.location.port == "5173" ? 1234 : window.location.port;
         this.ws = new WebSocket(`ws://${host}:${port}/player/ws`);
         const playerStore = usePlayerStore();
         if (this.sendInfoTask) {
             clearInterval(this.sendInfoTask);
         }
-        this.sendInfoTask = setInterval(() => this.sendInfo(), 300);
+        this.sendInfoTask = window.setInterval(() => this.sendInfo(), 300);
 
         this.ws.onclose = () => {
-            console.log("disconnected")
+            console.log("[sharedPlayer] ws disconnected");
             setTimeout(() => this.connect(), 1000);
-        }
+        };
 
         this.ws.onopen = () => {
-            console.log("connected")
-        }
+            console.log("[sharedPlayer] ws connected");
+        };
 
         const handleCommand = (data: any) => {
             if (typeof data === "string") {
@@ -71,9 +72,9 @@ export const SharedPlayer = class implements Playable {
                         break;
                 }
             }
-        }
+        };
 
-        this.ws.onmessage = msg => {
+        this.ws.onmessage = (msg) => {
             msg = JSON.parse(msg.data);
             const type = msg.type;
 
@@ -100,7 +101,7 @@ export const SharedPlayer = class implements Playable {
                     handleCommand(msg.data);
                     break;
             }
-        }
+        };
     }
 
     sendInfo() {
@@ -112,20 +113,22 @@ export const SharedPlayer = class implements Playable {
             progress: playerStore.progress,
             volume: playerStore.volume,
             repeat: playerStore.repeat,
-        }
+        };
         this.send("info", data);
     }
 
     updateConnections(connections: IPlayer[]) {
         this.connections.value = connections;
-        this.me = connections.find(c => c.friendlyName.includes("(You)"));
+        this.me = connections.find((c) => c.friendlyName.includes("(You)"));
     }
 
     send(type: string, data: any) {
-        this.ws?.send(JSON.stringify({
-            type,
-            data
-        }));
+        this.ws?.send(
+            JSON.stringify({
+                type,
+                data,
+            })
+        );
     }
 
     sendCommand(data: any) {
@@ -176,4 +179,4 @@ export const SharedPlayer = class implements Playable {
             mute,
         });
     }
-}
+};

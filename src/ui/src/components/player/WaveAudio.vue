@@ -41,8 +41,11 @@ onMounted(() => {
         player.setProgress(audio.value.getCurrentTime());
     });
     audio.value.on("finish", () => {
+        if (forcePlay) return;
+
         forcePlay = true;
         player.onSongEnded();
+        console.log("Song ended");
     });
     audio.value.on("waveform-ready", () => {
         if (!audio.value) return;

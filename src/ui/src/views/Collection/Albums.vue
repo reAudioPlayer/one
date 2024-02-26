@@ -4,12 +4,12 @@
   -->
 
 <template>
-    <div class="padding-20">
+    <div class="padding-20" v-if="albums.length">
         <CollectionHeader />
         <div class="albums">
             <full-shelf heading="In your library">
                 <CardWithImageAndText
-                    v-for="item in artists"
+                    v-for="item in albums"
                     :title="item.name"
                     :description="item.artists.join(', ')"
                     :cover="item.image"
@@ -19,6 +19,7 @@
             </full-shelf>
         </div>
     </div>
+    <div class="fill-page" v-else><Loader /></div>
 </template>
 
 <script lang="ts" setup>
@@ -26,13 +27,14 @@ import FullShelf from "@/components/Catalogue/FullShelf.vue";
 import CollectionHeader from "@/components/CollectionHeader.vue";
 import CardWithImageAndText from "@/containers/CardWithImageAndText.vue";
 import { onMounted, ref } from "vue";
+import Loader from "../../components/Loader.vue";
 
-const artists = ref([]);
+const albums = ref([]);
 
 onMounted(async () => {
     const res = await fetch("/api/albums");
     const data = await res.json();
-    artists.value = data.sort((a, b) => a.name.localeCompare(b.name));
+    albums.value = data.sort((a, b) => a.name.localeCompare(b.name));
 });
 </script>
 

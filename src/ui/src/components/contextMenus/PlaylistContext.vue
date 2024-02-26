@@ -59,7 +59,6 @@ const show = (e: MouseEvent = null) => {
             top: e.clientY,
             left: e.clientX,
         });
-        console.log("show", contextmenu.value.visible);
         return;
     }
 
@@ -96,9 +95,10 @@ const uploadFileToGists = async () => {
     const syncable = await asSyncablePlaylist(props.playlist);
     const name = `${props.playlist.name}.one.playlist`;
     const jdata = await gistClient.save(
-        {[name]: syncable},
+        { [name]: syncable },
         props.playlist.name,
-        true);
+        true
+    );
     const file = jdata.files[name];
     const rawUrl = file.raw_url;
     // "https://gist.githubusercontent.com/{user}/{gist}/raw/{file}/{filename}"
@@ -112,7 +112,7 @@ const uploadFileToGists = async () => {
     popupContent.value = `Share this URL to import this playlist on another device: [${shareUrl.value}](${shareUrl.value})`;
     popupTitle.value = "Share " + props.playlist.name;
     markdownRef.value.show();
-}
+};
 
 onMounted(() => {
     document.addEventListener("click", hide);
@@ -139,7 +139,9 @@ onMounted(() => {
             <v-contextmenu-item v-if="canEdit" @click="edit">
                 Edit
             </v-contextmenu-item>
-            <v-contextmenu-item @click="confirmation.show()"> Delete </v-contextmenu-item>
+            <v-contextmenu-item @click="confirmation.show()">
+                Delete
+            </v-contextmenu-item>
             <v-contextmenu-submenu title="Export">
                 <v-contextmenu-item @click="downloadFile">
                     to file

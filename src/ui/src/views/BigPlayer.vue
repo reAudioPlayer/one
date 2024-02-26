@@ -40,13 +40,7 @@ onMounted(() => {
             return;
         }
 
-        const scroll = document.getElementById(
-            `bplayer-entry-${songId.value}`
-        )?.offsetTop;
-
-        if (scroll >= 354) {
-            playlistScroll.value.scrollTop = scroll - 354;
-        }
+        playlistScroll.value.scrollToSong(songId.value);
     }, 1000);
 });
 
@@ -92,7 +86,11 @@ const animate = ref(false); // animations
                 class="playlist-overflow drop-shadow-2xl relative"
                 :key="player.playlist.id"
             >
-                <Playlist :playlist="player.playlist" use-queue />
+                <Playlist
+                    ref="playlistScroll"
+                    :playlist="player.playlist"
+                    use-queue
+                />
             </Card>
             <div class="settings">
                 <span

@@ -123,7 +123,6 @@ const clickSuggestion = (value, shift = false) => {
 const randomSong = () => {
     const songs = data.playlists.flatMap((p) => p.songs);
     const song = songs[Math.floor(Math.random() * songs.length)];
-    console.log(song);
     return song;
 };
 
@@ -186,7 +185,6 @@ onMounted(() => {
 
     router.afterEach((to) => {
         query.value = to.params.query || "";
-        console.log(query.value);
     });
 
     // Ctrl+K

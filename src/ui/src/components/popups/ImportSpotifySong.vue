@@ -89,8 +89,6 @@ const createPlaylist = async (playlistId: string): Promise<string> => {
 const addSong = async (index: number, playlistId: string = null) => {
     playlistId ??= form.value.toObject().playlist;
 
-    console.log(playlistId);
-
     playlistId = await createPlaylist(playlistId);
 
     await addSongToPlaylist(playlistId, track.value);
