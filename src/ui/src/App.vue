@@ -24,7 +24,6 @@ const cover = ref(null);
 watch(
     () => playerStore.song.cover,
     () => {
-        console.log("cover changed");
         setCover();
     }
 );

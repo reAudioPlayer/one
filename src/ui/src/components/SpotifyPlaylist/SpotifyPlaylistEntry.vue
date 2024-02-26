@@ -13,17 +13,33 @@ a
             artist: artist,
             cover: cover,
             preview,
-            href: source
+            href: source,
         }"
     />
     <div
-        :class="{ 'selected': highlighted }"
-        class="playlistEntry" @click="onselect" @dblclick="() => { playAt(); onselect() }"
-        @mouseleave="hovering = false" @mouseover="hovering = true">
-        <mini-player :artist="artist" :class="{'hidden': !hovering }" :src="source" :title="title" class="miniPlayer" @click.stop />
+        :class="{ selected: highlighted }"
+        class="playlistEntry"
+        @click="onselect"
+        @dblclick="
+            () => {
+                playAt();
+                onselect();
+            }
+        "
+        @mouseleave="hovering = false"
+        @mouseover="hovering = true"
+    >
+        <mini-player
+            :artist="artist"
+            :class="{ hidden: !hovering }"
+            :src="source"
+            :title="title"
+            class="miniPlayer"
+            @click.stop
+        />
         <span v-if="!hovering" class="id" @click="edit">{{ index + 1 }}</span>
         <div class="track">
-            <img :src="cover || '/assets/img/music_placeholder.png'">
+            <img :src="cover || '/assets/img/music_placeholder.png'" />
             <div class="trackwrapper">
                 <span class="title">{{ title }}</span>
                 <span class="artist">{{ artist }}</span>
@@ -55,7 +71,7 @@ export default {
         added: Boolean,
         cover: String,
         album: String,
-        preview: String
+        preview: String,
     },
     data() {
         return {
@@ -81,13 +97,11 @@ export default {
             this.$emit("edit", this.index);
         },
         add() {
-            console.log("add");
             this.$emit("add", this.index);
         },
     },
     watch: {
         added() {
-            console.log("change");
             this.$refs.add.innerHTML = this.added ? "done" : "add";
         },
     },
@@ -114,7 +128,9 @@ div.playlistEntry.selected {
     background-color: var(--bg-hover-lt);
 }
 
-.id, .edit, .miniPlayer {
+.id,
+.edit,
+.miniPlayer {
     width: 50px;
     text-align: right;
     line-height: var(--h-playlistEntry);
@@ -135,7 +151,9 @@ div.playlistEntry.selected {
     flex-shrink: 0;
 }
 
-div.playlistEntry:hover .favourite, .showfavourite, div.playlistEntry:hover .more {
+div.playlistEntry:hover .favourite,
+.showfavourite,
+div.playlistEntry:hover .more {
     visibility: visible;
 }
 
@@ -143,7 +161,8 @@ div.playlistEntry:hover .favourite, .showfavourite, div.playlistEntry:hover .mor
     cursor: pointer;
 }
 
-.id:hover, .edit:hover {
+.id:hover,
+.edit:hover {
     cursor: pointer;
 }
 
@@ -163,7 +182,8 @@ div.playlistEntry:hover .favourite, .showfavourite, div.playlistEntry:hover .mor
     color: var(--fg-base);
 }
 
-.title.playing, .id.playing {
+.title.playing,
+.id.playing {
     color: var(--fg-secondary);
 }
 

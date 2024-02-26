@@ -91,8 +91,6 @@ const save = async (
         body: body(files, filename, description, isPublic),
     });
 
-    console.log(res);
-
     if (!res.ok) {
         Notifications.addError("Failed to create gist", "", 3000);
         return null;

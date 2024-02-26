@@ -5,7 +5,8 @@
 
 <script setup>
 import ImgCard from "@/components/explore/ImgCard.vue";
-import Marquee from "@/components/Marquee.vue";</script>
+import Marquee from "@/components/Marquee.vue";
+</script>
 
 <template>
     <div ref="container" class="explore" @scroll="onScroll">
@@ -13,7 +14,12 @@ import Marquee from "@/components/Marquee.vue";</script>
             <ImgCard :src="parseCover(song.cover)">
                 <div class="songContent">
                     <div class="play">
-                        <span id="loadPlaylist" class="material-symbols-rounded play" @click="() => loadPlaylist(song.id)">play_circle</span>
+                        <span
+                            id="loadPlaylist"
+                            class="material-symbols-rounded play"
+                            @click="() => loadPlaylist(song.id)"
+                            >play_circle</span
+                        >
                     </div>
                     <div class="info">
                         <router-link :to="href(song)" class="linkOnHover">
@@ -21,7 +27,10 @@ import Marquee from "@/components/Marquee.vue";</script>
                                 <marquee :text="song.title"></marquee>
                             </h1>
                         </router-link>
-                        <router-link :to="`/search/${song.artist}`" class="linkOnHover">
+                        <router-link
+                            :to="`/search/${song.artist}`"
+                            class="linkOnHover"
+                        >
                             <p>
                                 <marquee :text="song.artist"></marquee>
                             </p>
@@ -34,7 +43,7 @@ import Marquee from "@/components/Marquee.vue";</script>
 </template>
 
 <script>
-import {hashTrack, parseCover} from "@/common";
+import { hashTrack, parseCover } from "@/common";
 
 export default {
     data() {
@@ -43,45 +52,47 @@ export default {
             this.pick();
         });
         return {
-            playlists: [ ],
-            picks: [ ]
-        }
+            playlists: [],
+            picks: [],
+        };
     },
-    mounted() {
-
-    },
+    mounted() {},
     methods: {
         parseCover,
         pick() {
-            console.log("pick")
-            this.songs = this.playlists.map(playlist => playlist.songs).flat();
+            this.songs = this.playlists
+                .map((playlist) => playlist.songs)
+                .flat();
 
-            for (let i = 0; i < 4; i++)
-            {
-                this.picks.push(this.songs[Math.floor(Math.random() * this.songs.length)])
+            for (let i = 0; i < 4; i++) {
+                this.picks.push(
+                    this.songs[Math.floor(Math.random() * this.songs.length)]
+                );
             }
         },
         onScroll() {
-            if (this.$refs.container.clientHeight + this.$refs.container.scrollTop >= this.$refs.container.scrollHeight - 100) {
+            if (
+                this.$refs.container.clientHeight +
+                    this.$refs.container.scrollTop >=
+                this.$refs.container.scrollHeight - 100
+            ) {
                 this.pick();
             }
         },
         href(song) {
-            return `/track/${hashTrack(song.id)}`
+            return `/track/${hashTrack(song.id)}`;
         },
         loadPlaylist(id) {
-            console.log(id)
-
             fetch("/api/player/load", {
                 method: "POST",
                 body: JSON.stringify({
                     id,
-                    type: "track"
-                })
-            })
-        }
-    }
-}
+                    type: "track",
+                }),
+            });
+        },
+    },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -122,11 +133,11 @@ export default {
         font-size: 2em;
         margin-right: 20px;
         transform: translateY(6px);
-        font-variation-settings: 'FILL' 1;
+        font-variation-settings: "FILL" 1;
         text-align: center;
 
         &:hover {
-            font-variation-settings: 'FILL' 0;
+            font-variation-settings: "FILL" 0;
             cursor: pointer;
         }
     }

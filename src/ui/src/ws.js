@@ -3,8 +3,8 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import {usePlayerStore} from "@/store/player";
-import {useSettingsStore} from "@/store/settings";
+import { usePlayerStore } from "@/store/player";
+import { useSettingsStore } from "@/store/settings";
 
 export const connect = () => {
     console.log("attempting reconnect")
@@ -13,14 +13,14 @@ export const connect = () => {
     const ws = new WebSocket(`ws://${host}:${port}/ws`);
 
     ws.onclose = () => {
-        console.log("ws closed")
+        console.log("[main] ws closed")
         usePlayerStore().setReady(false);
 
         setTimeout(() => connect(), 1000);
     }
 
     ws.onopen = () => {
-        console.log("ws connected")
+        console.log("[main] ws connected")
         usePlayerStore().setReady(true);
     }
 

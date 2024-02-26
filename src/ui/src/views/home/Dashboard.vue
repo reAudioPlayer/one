@@ -30,6 +30,7 @@ import { parseCover } from "@/common";
                         :href="playlist?.href"
                         :name="playlist.name"
                         :type="playlist.type"
+                        :id="playlist.id"
                     />
                 </FlexShelf>
             </div>
@@ -71,9 +72,15 @@ import { parseCover } from "@/common";
         <div class="side">
             <div v-if="releases.length" class="releases">
                 <h2>
-                    <router-link class="linkOnHover" to="/collection/releases"
-                        >Out now</router-link
+                    <router-link
+                        class="linkOnHover flex items-center gap-2 !no-underline"
+                        to="/collection/releases"
                     >
+                        <span class="material-symbols-rounded ms-fill">
+                            radar
+                        </span>
+                        <span class="hover:underline"> Out now </span>
+                    </router-link>
                 </h2>
                 <FlexShelf>
                     <TrackCompact
@@ -90,9 +97,15 @@ import { parseCover } from "@/common";
 
             <div v-if="picks.length" class="disovery">
                 <h2>
-                    <router-link class="linkOnHover" to="/discover"
-                        >Discover</router-link
+                    <router-link
+                        class="linkOnHover flex items-center gap-2 !no-underline"
+                        to="/discover"
                     >
+                        <span class="material-symbols-rounded ms-fill">
+                            explore
+                        </span>
+                        <span class="hover:underline"> Discover </span>
+                    </router-link>
                 </h2>
                 <FlexShelf>
                     <TrackCompact
@@ -109,7 +122,12 @@ import { parseCover } from "@/common";
             </div>
 
             <div v-if="recommendations.length" class="recommendations">
-                <h2>Recommendations</h2>
+                <h2 class="flex items-center gap-2">
+                    <span class="material-symbols-rounded ms-fill">
+                        recommend
+                    </span>
+                    Suggested
+                </h2>
                 <FlexShelf>
                     <TrackCompact
                         v-for="(song, index) in recommendations"

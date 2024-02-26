@@ -52,13 +52,6 @@ var ATools = (function (my) {
         // finally display console logs?
         debug = false;
 
-    //
-    // Private
-    //
-    function log(out) {
-        if (debug) console.log("ATools:", out);
-        if (document.getElementById("stat")) document.getElementById("stat").innerText = out;
-    };
     function renderLoop() {
         raf = requestAnimationFrame(renderLoop);
 
@@ -136,10 +129,7 @@ var ATools = (function (my) {
                 data.push(renderedBuffer.getChannelData(i));
                 dataFS.push([]);
             }
-            //duration = data[0].length / srate;
-            //var millis = Math.ceil(duration * 1000);
             var framesize = fAna.srate / 100; // 44100 / 100 = 441
-            //console.log(data[0].length, framesize, data[0].length/framesize);
             var framecount = 0;
             var framesum = new Array(channels).fill(0);
 
@@ -148,7 +138,6 @@ var ATools = (function (my) {
             var chPeaks = new Array(channels).fill(0);
             var chMin = new Array(channels).fill(+Infinity);
             var chMax = new Array(channels).fill(-Infinity);
-            //console.log(dataFS);
             for (var i = 0; i < data[0].length; i++) {
                 peak = 0;
                 for (var j = 0; j < channels; j++) {
@@ -162,16 +151,13 @@ var ATools = (function (my) {
                 res.push(peak);
                 framecount++;
                 if (framecount > framesize) {
-                    //console.log(framecount, i, framesum[0]/framesize, framesum[1]/framesize);
                     for (var j = 0; j < channels; j++) {
-                        //console.log(j, framesum[j]/framesize);
                         dataFS[j].push(framesum[j] / framesize);
                         framesum[j] = 0;
                     }
                     framecount = 0;
                 }
             }
-            //console.log(i, i/framesize);
             for (var i = 0; i < channels; i++) {
                 console.info("Channel " + i + " found Min=" + chMin[i] + " = " + absoluteValueToDBFS(chMin[i]).toFixed(2) + "dB Max=" + chMax[i] + " = " + absoluteValueToDBFS(chMax[i]).toFixed(2) + "dB #Peaks=" + chPeaks[i]);
             }
@@ -373,7 +359,6 @@ var ATools = (function (my) {
         source.start();
 
         OAC.startRendering().then(function (renderedBuffer) {
-            log('Loudness Rendering completed successfully');
             var ebu_buffer = renderedBuffer.getChannelData(0);
             var worker = new Worker("workers/loudness.js");
             worker.postMessage({
@@ -382,17 +367,12 @@ var ATools = (function (my) {
                 width: width
             });
             numWorkers++;
-            log('Data to analyse posted to worker');
 
             worker.onmessage = function (e) {
                 var data = e.data;
                 if (data.type == "finished") {
-                    log('Message received from loudness worker');
                     loudness = data.loudness;
                     psr = data.psr;
-                    //console.log(psr);
-                    //drawLoudnessDiagram(loudness);
-                    //drawPSRDiagram(psr);
                     readyWorkers++;
                 }
                 if (data.type == "progress") {
@@ -495,7 +475,7 @@ var ATools = (function (my) {
 
             }
             log("Calc finished");
-            //log(dataTP);
+            console.log(dataTP);
             //playAudio(sbuf, 0);
         });
     };
@@ -597,16 +577,6 @@ var ATools = (function (my) {
         return color;
 
     };
-    function logProgress() {
-        /*
-        var total = 0;
-        for (let i = 0; i < workerProgress.length; i++) {
-          total += workerProgress[i];
-        }
-        total = total / workerProgress.length;
-        log("Workers Progress: "+ total.toFixed(1) +"%");
-        */
-    };
     function getLoudness() {
         return Math.round(10 * (loudness[Math.round(posF * loudness.length)])) / 10;
     };
@@ -614,8 +584,6 @@ var ATools = (function (my) {
         return Math.round(10 * psr[Math.round(posF * psr.length)]) / 10;
     };
     function getDBTP(c) {
-        //if (typeof tpeak == "undefined" || posF >= 1) return -200;
-        //return Math.round(10 * tpeak[Math.round(posF * tpeak.length)]) / 10; // old method via worker
         if (dataTP.length === 0) return -120;
         var x = Math.floor(dataTP[0].length / data[0].length * pos * sampleRate) - 1;
         return dataTP[c][x];
@@ -624,7 +592,6 @@ var ATools = (function (my) {
         // idea is to have a db value for each 1/100 second
         var x = Math.floor(pos * 100) - 1;
         if (dataFS.length === 0 || typeof dataFS[c] == "undefined") return 1 / 1000000000; // -180db
-        //console.log(dataFS[c][x], typeof dataFS[c][x]);
         return dataFS[c][x];
     };
     function jumpTo(e) { // LMB on waveform
@@ -864,7 +831,6 @@ function meter(type) {
         this.drawMeter();
     };
     this.clearMeter = function () {
-        //log("clearMeter");
         // clear/fade out old
         if (this.bgColor.length > 0) {
             this.ctx.fillStyle = 'rgba(' + this.bgColor[0] + ', ' + this.bgColor[1] + ', ' + this.bgColor[2] + ', ' + this.bgColor[3] + ')';
@@ -1076,14 +1042,10 @@ function meter(type) {
             case 'peak':
                 this.ctx.fillStyle = gradientV;
                 for (var i = 0; i < cnt; i++) { // channels
-                    //val[i] = this.getPeak(data[i]) * (Math.E - 1);
                     this.val[i] = ATools.getDBFS(i) * (Math.E - 1);
-                    //console.log("-infinity?? ", i, this.val[i], ATools.getDBFS(i));
-                    //this.val[i] = Math.max(val[i], this.val[i]*this.damp);
                     this.val[i] = this.doSmooth(this.val[i], val[i]);
                     // 74 dB range -50 - +24
                     var dB = ATools.absoluteValueToDBFS(this.val[i]); // top = +24db
-                    //this.ctx.fillRect(barwidth*i+padding, (1-this.val[i]/1.5) * this.height, barwidth-2*padding, this.height-((1-this.val[i]/1.5)*this.height));
                     dB -= 24;
                     var drawHeight = Math.abs(dB / 74) * this.height;
                     this.ctx.fillRect(barwidth * i + padding, drawHeight, barwidth - 2 * padding, this.height - drawHeight);
@@ -1094,7 +1056,6 @@ function meter(type) {
                         this.peak[i] = this.val[i];
                         this.peakTime[i] = ATools.pos;
                     } else if (ATools.pos - this.peakTime[i] > ATools.ana[0].context.sampleRate * this.PEAK_DURATION / 1000) {
-                        //this.peak[i] = this.peak[i]*this.damp;
                         this.peak[i] = this.doSmooth(this.peak[i], this.val[i]);
                     }
 
