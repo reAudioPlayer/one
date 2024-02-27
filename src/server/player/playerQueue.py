@@ -36,6 +36,7 @@ class PlayerQueue:
         """load playlist"""
         self._playlist = playlist
         self._songs = list(playlist)
+        self._cursor = -1
         self._resetQueue()
         self._fireOnChanged()
 
