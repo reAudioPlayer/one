@@ -128,54 +128,67 @@ const exportToFile = () => {
     <div ref="box" v-contextmenu:contextmenu>
         <slot />
         <v-contextmenu ref="contextmenu">
-            <v-contextmenu-item @click="preview"> Preview </v-contextmenu-item>
-            <v-contextmenu-submenu title="Find source">
-                <v-contextmenu-item
-                    v-for="name in Object.keys(sources)"
-                    :key="name"
-                    @click="openSource(name)"
-                >
-                    {{ name }}
-                </v-contextmenu-item>
-            </v-contextmenu-submenu>
+            <v-contextmenu-item @click="preview">
+                <span class="material-symbols-rounded">preview</span>
+                Preview
+            </v-contextmenu-item>
+            <v-contextmenu-item>
+                <span class="material-symbols-rounded">search</span>
+                <v-contextmenu-submenu title="Find source">
+
+                    <v-contextmenu-item
+                        v-for="name in Object.keys(sources)"
+                        :key="name"
+                        @click="openSource(name)"
+                    >
+                        {{ name }}
+                    </v-contextmenu-item>
+                </v-contextmenu-submenu>
+            </v-contextmenu-item>
             <v-contextmenu-divider />
-            <v-contextmenu-item @click="$emit('like')">{{
-                (song.favourite ? "Remove from" : "Save to") +
-                " your Liked Songs"
-            }}</v-contextmenu-item>
             <v-contextmenu-item v-if="!isAutoPlaylist" @click="remove">
+                <span class="material-symbols-rounded">delete</span>
                 Remove from this playlist
             </v-contextmenu-item>
-            <v-contextmenu-submenu title="Add to playlist">
-                <v-contextmenu-item @click="addToNew"
-                    >Add to new playlist</v-contextmenu-item
-                >
-                <v-contextmenu-divider />
-                <v-contextmenu-item
-                    v-for="playlist in playlists"
-                    :key="playlist.id"
-                    @click="addTo(playlist.id)"
-                >
-                    {{ playlist.name }}
-                </v-contextmenu-item>
-            </v-contextmenu-submenu>
+            <v-contextmenu-item>
+                <span class="material-symbols-rounded">playlist_add</span>
+                <v-contextmenu-submenu title="Add to playlist">
+                    <v-contextmenu-item @click="addToNew">
+                        Add to new playlist
+                    </v-contextmenu-item>
+                    <v-contextmenu-divider />
+                    <v-contextmenu-item
+                        v-for="playlist in playlists"
+                        :key="playlist.id"
+                        @click="addTo(playlist.id)"
+                    >
+                        {{ playlist.name }}
+                    </v-contextmenu-item>
+                </v-contextmenu-submenu>
+            </v-contextmenu-item>
             <v-contextmenu-divider />
             <v-contextmenu-item @click="editSong">
-                Update Metadata
+                <span class="material-symbols-rounded">edit</span>
+                Edit
             </v-contextmenu-item>
             <v-contextmenu-divider />
             <v-contextmenu-item @click="downloadSong(song.id)">
+                <span class="material-symbols-rounded">file_download</span>
                 Download
             </v-contextmenu-item>
             <v-contextmenu-item @click="removeSongFromCache(song.id)">
+                <span class="material-symbols-rounded">replay</span>
                 Uncache
             </v-contextmenu-item>
             <v-contextmenu-divider />
-            <v-contextmenu-submenu title="Export...">
-                <v-contextmenu-item @click="exportToFile()">
-                    to file
-                </v-contextmenu-item>
-            </v-contextmenu-submenu>
+            <v-contextmenu-item>
+                <span class="material-symbols-rounded">share</span>
+                <v-contextmenu-submenu title="Export...">
+                    <v-contextmenu-item @click="exportToFile()">
+                        to file
+                    </v-contextmenu-item>
+                </v-contextmenu-submenu>
+            </v-contextmenu-item>
         </v-contextmenu>
     </div>
 </template>

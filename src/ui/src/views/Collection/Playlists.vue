@@ -5,6 +5,7 @@
 
 <script setup lang="ts">
 import FullShelf from "@/components/Catalogue/FullShelf.vue";
+import Playlist from "/src/components/Catalogue/Items/home/Playlist.vue";
 import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem.vue";
 import CollectionHeader from "@/components/CollectionHeader.vue";
 import { useDataStore } from "../../store/data";
@@ -26,15 +27,14 @@ fetch("/api/spotify/playlists")
         <CollectionHeader />
         <div class="playlists">
             <full-shelf v-if="playlists.length" heading="Playlists">
-                <playlist-item
-                    v-for="(element, index) in playlists"
+                <Playlist
+                    v-for="(playlist, index) in playlists"
                     :key="index"
-                    :href="element.href"
-                    :cover="element.cover"
-                    :description="element.description"
-                    :title="element.name"
-                    :type="element.type"
-                    :spotify="false"
+                    :cover="playlist.cover"
+                    :href="playlist?.href"
+                    :name="playlist.name"
+                    :type="playlist.type"
+                    :id="playlist.id"
                 />
             </full-shelf>
             <full-shelf
