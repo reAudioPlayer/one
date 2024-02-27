@@ -20,6 +20,7 @@ from db.database import Database
 
 from player.iPlayerPlaylist import IPlayerPlaylist
 from player.playlistManager import PlaylistManager
+from player.playerQueue import PlayerQueue
 
 from downloader.downloader import Downloader
 
@@ -35,7 +36,7 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
         "_config",
         "_playlistManager",
         "_downloader",
-        "_playerPlaylist",
+        "_queue",
         "_song",
         "_preloaded",
         "_shuffle",
@@ -51,7 +52,7 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
         self._dbManager = Database()
         self._playlistManager = playlistManager
         self._downloader = downloader
-        self._playerPlaylist: Optional[IPlayerPlaylist] = None
+        self._queue = PlayerQueue()
         self._song: Optional[Song] = None
         self._preloaded: Optional[str] = None
         self._logger = logging.getLogger("player")
@@ -101,14 +102,14 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
         self._logger.debug("loadPlaylist [%s] (at %s)", playlist, atIndex)
         if not playlist:
             return False
-        if self._playerPlaylist and self._playerPlaylist == playlist:
+        if self._queue.playlist and self._queue.playlist == playlist:
             if atIndex is not None:
                 await self.at(atIndex)
                 return True
             return False
 
-        self._playerPlaylist = playlist
-        asyncio.create_task(self._onPlaylistChange(self._playerPlaylist))
+        self._queue.load(playlist)
+        asyncio.create_task(self._onPlaylistChange(playlist))
 
         if atIndex is not None:
             await self.at(atIndex)
@@ -118,51 +119,43 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
 
     async def unload(self) -> None:
         """unload and unbind song file"""
-        if not self._playerPlaylist:
-            return
-        current = self._playerPlaylist.current
+        current = self._queue.current
         cId = current.model.id if current else 0
         self._logger.debug("unload %d", cId)
 
     async def last(self) -> None:
         """last"""
-        if not self._playerPlaylist:
-            return
         await self.unload()
-        await self._preloadSong(self._playerPlaylist.last())
+        await self._preloadSong(self._queue.last())
         await self._loadSong()
 
     async def next(self) -> None:
         """next/skip"""
-        if not self._playerPlaylist:
-            return
         await self.unload()
 
-        await self._preloadSong(self._playerPlaylist.next())
+        await self._preloadSong(self._queue.next())
         await self._loadSong()
 
     async def at(self, index: int) -> bool:
         """play at"""
-        if not self._playerPlaylist:
+        if index < 0 or index >= len(self._queue):
             return False
-        if index < 0 or index >= len(self._playerPlaylist):
-            return False
-        if index == self._playerPlaylist.cursor:
+        if index == self._queue.cursor:
             return True
         await self.unload()
-        await self._preloadSong(self._playerPlaylist.at(index))
-        self._playerPlaylist.jumpTo(index)
+        await self._preloadSong(self._queue.at(index))
+        self._queue.jumpTo(index)
         await self._loadSong()
         return True
 
     async def _preloadSong(self, song: Optional[Song]) -> None:
-        if not self._playerPlaylist or not song:
+        if not self._queue or not song:
             return
-        initial = self._playerPlaylist.cursor
+        initial = self._queue.cursor
         while not await self._downloader.downloadSong(song.model):
             self._logger.debug("invalid [%s], preload next", song)
-            song = self._playerPlaylist.next()
-            assert initial != self._playerPlaylist.cursor, "no valid song"
+            song = self._queue.next()
+            assert initial != self._queue.cursor, "no valid song"
         self._preloaded = song.model.source
 
     @property
@@ -178,16 +171,13 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
     @shuffle.setter
     def shuffle(self, value: bool) -> None:
         self._shuffle = value
-        assert self._playerPlaylist
         if value:
-            self._playerPlaylist.shuffle()
+            self._queue.shuffle()
         else:
-            self._playerPlaylist.unshuffle()
+            self._queue.unshuffle()
 
     async def _loadSong(self, song: Optional[Song] = None) -> None:
-        if not self._playerPlaylist:
-            return
-        song = song or self._playerPlaylist.current
+        song = song or self._queue.current
         if not song:
             return
         self._logger.debug("load src=%s, preloaded=%s", song.model.source, self._preloaded)
@@ -203,4 +193,4 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
     @property
     def currentPlaylist(self) -> Optional[IPlayerPlaylist]:
         """currently loaded playlist"""
-        return self._playerPlaylist
+        return self._queue.playlist
