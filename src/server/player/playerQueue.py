@@ -123,8 +123,7 @@ class PlayerQueue:
         }
 
     def __iter__(self) -> Generator[Song, None, None]:
-        for song in self._songs:
-            yield song
+        yield from self._songs
 
     def __len__(self) -> int:
         return len(self._songs)
