@@ -47,7 +47,7 @@
         "light": "#7c828f5e"
     },
     "bg-hover-dk": {
-        "dark": "hsla(0,0%,100%,0.1)",
+        "dark": "#2a2a2a",
         "dynamic": "#00c48b42",
         "light": "#E3E7EB"
     },
@@ -95,11 +95,9 @@
         "light": "1px solid var(--border-base)",
         "dynamic": "1px solid transparent"
     },
-
     "ff-base": {
         "dark": "Poppins, sans-serif"
     },
-
     "h-playlistEntry": {
         "dark": "64px"
     },
@@ -112,7 +110,6 @@
     "h-header": {
         "dark": "64px"
     },
-
     "coverAsBackground": {
         "dark": false,
         "dynamic": true

@@ -35,5 +35,9 @@ export const connect = () => {
         if (jdata.path == "player.playlist") {
             player.setPlaylist(jdata.data);
         }
+
+        if (jdata.path == "player.queue") {
+            player.setQueue(jdata.data);
+        }
     }
 }

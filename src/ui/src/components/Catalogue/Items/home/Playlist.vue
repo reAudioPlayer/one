@@ -68,13 +68,13 @@ const player = usePlayerStore();
 
     .play {
         position: absolute;
-        bottom: -0.75rem;
-        right: -0.75rem;
+        bottom: -1rem;
+        right: -1rem;
         font-size: 2.5rem;
         color: var(--fg-base);
         background: var(--bg-base-lt);
-        border-radius: 1000vmax 0 0 0;
-        padding: 0.75rem 0 0 0.75rem;
+        border-radius: 1000vmax;
+        padding: 0.5rem;
 
         &:hover {
             color: var(--fg-secondary) !important;
