@@ -98,7 +98,7 @@ class IPlayerPlaylist(ABC):
 
     def last(self, peek: bool = False) -> Song:
         """
-        returns the last song
+        returns the previous song
         :param peek: if true, the cursor will not be moved
         """
         lastPosition = self._cursorPeek(-1)
