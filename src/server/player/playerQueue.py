@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
+from __future__ import annotations
+
 __copyright__ = "Copyright (c) 2024 https://github.com/reAudioPlayer"
 
-from typing import List, Optional, Dict, Any, Generator
+from typing import List, Optional, Dict, Any, Generator, Set, Callable, Coroutine
 import random
+import asyncio
 from dataModel.song import Song
 from player.iPlayerPlaylist import IPlayerPlaylist
 
@@ -11,19 +14,48 @@ from player.iPlayerPlaylist import IPlayerPlaylist
 class PlayerQueue:
     """the player queue"""
 
-    __slots__ = ("_songs", "_queue", "_cursor", "_playlist")
+    __slots__ = ("_songs", "_queue", "_cursor", "_playlist", "_onQueueChange")
 
     def __init__(self) -> None:
         self._songs: List[Song] = []
         self._queue: List[int] = []
         self._cursor = -1
         self._playlist: Optional[IPlayerPlaylist] = None
+        self._onQueueChange: Set[Callable[[PlayerQueue], Coroutine[None, None, None]]] = set()
+
+    @property
+    def onChange(self) -> Set[Callable[[PlayerQueue], Coroutine[None, None, None]]]:
+        """Returns the on strategy change event."""
+        return self._onQueueChange
+
+    def _fireOnChanged(self) -> None:
+        for callback in self._onQueueChange:
+            asyncio.create_task(callback(self))
 
     def load(self, playlist: IPlayerPlaylist) -> None:
         """load playlist"""
         self._playlist = playlist
         self._songs = list(playlist)
         self._resetQueue()
+        self._fireOnChanged()
+
+    def insert(self, index: int, song: Song) -> bool:
+        """insert song at index"""
+        if index > len(self._songs):
+            return False
+
+        prevIndex = self._queue[self._cursor]
+
+        self._songs.append(song)
+        self._queue.insert(index, len(self._songs) - 1)
+        self._fireOnChanged()
+
+        for i, songIndex in enumerate(self._queue):
+            if songIndex == prevIndex:
+                self._cursor = i
+                break
+
+        return True
 
     def _resetQueue(self) -> None:
         self._queue = list(range(len(self._songs)))
@@ -96,6 +128,7 @@ class PlayerQueue:
             if songIndex == prevIndex:
                 self._cursor = index
                 return
+        self._fireOnChanged()
 
     def unshuffle(self) -> None:
         """unshuffles the playlist"""
@@ -105,6 +138,7 @@ class PlayerQueue:
             if songIndex == prevIndex:
                 self._cursor = index
                 return
+        self._fireOnChanged()
 
     def hasSong(self, songId: int) -> bool:
         """checks if the playlist contains a song"""
@@ -114,6 +148,7 @@ class PlayerQueue:
     def queue(self) -> Generator[Song, None, None]:
         """return queue generator"""
         for index in self._queue:
+
             yield self._songs[index]
 
     def toDict(self) -> Dict[str, Any]:
