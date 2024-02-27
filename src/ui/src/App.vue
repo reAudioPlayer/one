@@ -165,11 +165,16 @@ export default {
     background: var(--fg-contrast) !important;
     font-family: var(--ff-base) !important;
     border: 1px solid var(--bg-hover-dk);
-    /*box-shadow: 2px 2px 8px 0 var(--hover-4) !important;
---webkit-box-shadow: 2px 2px 8px 0 var(--hover-4) !important;*/
-    box-shadow: none;
-    --webkit-box-shadow: none;
+    border-radius: 1em;
     color: var(--fg-base) !important;
+
+    .material-symbols-rounded {
+        font-size: 1rem;
+    }
+}
+
+.v-contextmenu-inner {
+    padding: 0.5em;
 }
 
 .v-contextmenu-divider {
@@ -178,9 +183,28 @@ export default {
 
 .v-contextmenu-item {
     color: var(--fg-base) !important;
-    margin: 5px;
-    padding: 10px 22px 10px 15px;
-    border-radius: 5px;
+    padding: 0.75em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+
+    .v-contextmenu-submenu {
+        position: relative;
+        width: 100%;
+        
+        > .v-contextmenu-item {
+            padding: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            gap: 1em;
+        }
+
+        .v-contextmenu-submenu__arrow {
+            position: relative;
+        }
+    }
 }
 
 .v-contextmenu-item--hover {

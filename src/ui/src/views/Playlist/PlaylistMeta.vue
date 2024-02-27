@@ -273,12 +273,14 @@ const uploadCover = async (e: Event) => {
                             id="addToPlaylist"
                             class="material-symbols-rounded ms-fill"
                             @click="($refs.addSongPopup as any).show()"
-                            >add_circle</span
                         >
+                            add_circle
+                        </span>
                         <span class="text-muted">Add a song</span>
                     </Card>
                     <Card
                         class="p-4 w-1/2 flex flex-col items-center justify-center"
+                        v-if="playlist.type != 'special'"
                     >
                         <span
                             id="addToPlaylist"

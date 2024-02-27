@@ -137,19 +137,24 @@ onMounted(() => {
         />
         <v-contextmenu ref="contextmenu">
             <v-contextmenu-item v-if="canEdit" @click="edit">
+                <span class="material-symbols-rounded">edit</span>
                 Edit
             </v-contextmenu-item>
             <v-contextmenu-item @click="confirmation.show()">
+                <span class="material-symbols-rounded">delete</span>
                 Delete
             </v-contextmenu-item>
-            <v-contextmenu-submenu title="Export">
-                <v-contextmenu-item @click="downloadFile">
-                    to file
-                </v-contextmenu-item>
-                <v-contextmenu-item @click="uploadFileToGists">
-                    to GitHub Gists
-                </v-contextmenu-item>
-            </v-contextmenu-submenu>
+            <v-contextmenu-item>
+                <span class="material-symbols-rounded">share</span>
+                <v-contextmenu-submenu title="Export...">
+                    <v-contextmenu-item @click="downloadFile">
+                        to file
+                    </v-contextmenu-item>
+                    <v-contextmenu-item @click="uploadFileToGists">
+                        to GitHub Gists
+                    </v-contextmenu-item>
+                </v-contextmenu-submenu>
+            </v-contextmenu-item>
         </v-contextmenu>
     </div>
 </template>
