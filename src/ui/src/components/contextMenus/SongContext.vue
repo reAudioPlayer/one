@@ -19,7 +19,7 @@ import {
 } from "../../api/song";
 import { Notifications } from "../notifications/createNotification";
 import { asSyncableSong, downloadSyncable } from "../../views/sync/collection";
-import { insertLast, insertNext } from "../../api/player";
+import { insertLast, insertNext, insertNow } from "../../api/player";
 
 const dataStore = useDataStore();
 
@@ -149,6 +149,12 @@ const exportToFile = () => {
             <v-contextmenu-item>
                 <span class="material-symbols-rounded">queue_music</span>
                 <v-contextmenu-submenu title="Add to queue">
+                    <v-contextmenu-item @click="() => insertNow(props.song.id)">
+                        <span class="material-symbols-rounded">
+                            play_arrow
+                        </span>
+                        Play Now
+                    </v-contextmenu-item>
                     <v-contextmenu-item
                         @click="() => insertNext(props.song.id)"
                     >

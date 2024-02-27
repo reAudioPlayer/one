@@ -48,3 +48,8 @@ export const insertLast = async (songId: number) => {
         }),
     });
 };
+
+export const insertNow = async (songId: number) => {
+    await insertNext(songId);
+    nextSong();
+};
