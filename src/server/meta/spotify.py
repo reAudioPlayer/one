@@ -162,6 +162,14 @@ def _mayFail(func: Callable[P, U]) -> Callable[P, U]:
                     return wrapper(self, *args, **kwargs)
 
                 return SpotifyResult.errorResult(SpotifyState.Unauthorised)
+            if "Refresh token revoked" in str(exc):
+                self.auth.invalidate()
+
+                if retryCount < 1:
+                    retryCount += 1
+                    return wrapper(self, *args, **kwargs)
+
+                return SpotifyResult.errorResult(SpotifyState.Unauthorised)
             return SpotifyResult.errorResult(SpotifyState.InternalError)
 
     return wrapper  # type: ignore
