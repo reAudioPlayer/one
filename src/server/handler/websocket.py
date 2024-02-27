@@ -12,6 +12,7 @@ from aiohttp.web_ws import WebSocketResponse
 
 from dataModel.song import Song
 from player.player import Player
+from player.playerQueue import PlayerQueue
 from player.iPlayerPlaylist import IPlayerPlaylist
 from helper.logged import Logged
 
@@ -52,12 +53,16 @@ class Websocket(Logged):
             self._onPlaylistChange
         )  # pylint: disable=protected-access
         self._player._songChangeCallback = self._onSongChange  # pylint: disable=protected-access
+        self._player.queue.onChange.add(self._onQueueChange)
 
     async def _onPlaylistChange(self, playlist: IPlayerPlaylist) -> None:
         await self.publish(Message({"path": "player.playlist", "data": playlist.id}))
 
     async def _onSongChange(self, song: Song) -> None:
         await self.publish(Message({"path": "player.song", "data": song.toDict()}))
+
+    async def _onQueueChange(self, queue: PlayerQueue) -> None:
+        await self.publish(Message({"path": "player.queue", "data": queue.toDict()}))
 
     async def _onPlayStateChange(self, playing: bool) -> None:
         await self.publish(Message({"path": "player.playState", "data": playing}))
@@ -75,6 +80,8 @@ class Websocket(Logged):
             await self._onPlaylistChange(self._player.currentPlaylist)
         if self._player.currentSong:
             await self._onSongChange(self._player.currentSong)
+        if self._player.queue:
+            await self._onQueueChange(self._player.queue)
 
         async for msg in ws:
             if msg.type == aiohttp.WSMsgType.TEXT:

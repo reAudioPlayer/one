@@ -43,6 +43,7 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
         "_logger",
         "_playlistChangeCallback",
         "_songChangeCallback",
+        "_queueChangeCallback",
         "_strategy",
         "_incrementPlayCountTask",
     )
@@ -60,6 +61,7 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
 
         self._playlistChangeCallback: Optional[Callable[[IPlayerPlaylist], Awaitable[None]]] = None
         self._songChangeCallback: Optional[Callable[[Song], Awaitable[None]]] = None
+        self._queueChangeCallback: Optional[Callable[[PlayerQueue], Awaitable[None]]] = None
         Player._INSTANCE = self  # pylint: disable=protected-access
         self._strategy: Optional[ICacheStrategy] = None
         Runtime.cache.onStrategyChange.add(self._onStrategyChange)
@@ -194,3 +196,8 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
     def currentPlaylist(self) -> Optional[IPlayerPlaylist]:
         """currently loaded playlist"""
         return self._queue.playlist
+
+    @property
+    def queue(self) -> PlayerQueue:
+        """queue"""
+        return self._queue

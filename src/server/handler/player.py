@@ -10,6 +10,7 @@ from aiohttp import web
 from pyaddict.schema import Object, String, Integer, OneOf
 from pyaddict import JDict
 
+from dataModel.song import Song
 from db.database import Database
 from helper.payloadParser import withObjectPayload
 from player.player import Player
@@ -149,3 +150,27 @@ class PlayerHandler:
         if self._player.currentPlaylist is None:
             return web.HTTPNotFound()
         return web.json_response(self._player.currentPlaylist.toDict())
+
+    async def getQueue(self, _: web.Request) -> web.Response:
+        """get(/api/player/queue)"""
+        return web.json_response(self._player.queue.toDict())
+
+    @withObjectPayload(
+        Object(
+            {
+                "id": Integer().min(0),  # index of song in playlist
+                "at": Integer().min(0),  # playlist id
+            }
+        ),
+        inBody=True,
+    )
+    async def putQueue(self, body: Dict[str, Any]) -> web.Response:
+        """put(/api/player/queue)"""
+        id_ = body["id"]
+        at = body["at"]
+
+        song = await self._dbManager.songs.byId(id_)
+        if song is None:
+            return web.HTTPNotFound()
+
+        return web.Response(status=200 if self._player.queue.insert(at, Song(song)) else 400)
