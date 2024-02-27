@@ -4,7 +4,7 @@
  */
 
 import { defineStore } from "pinia";
-import { parseCover, zeroPad } from "../common";
+import { ISong, parseCover, zeroPad } from "../common";
 import { useDataStore } from "./data";
 import { SharedPlayer } from "../api/sharedPlayer";
 import { getShuffle, nextSong, prevSong, setShuffle } from "../api/player";
@@ -52,6 +52,7 @@ export const usePlayerStore = defineStore({
         repeat: "repeat" as RepeatType,
         sharedPlayer: null as InstanceType<typeof SharedPlayer> | null,
         player: null as Playable | null,
+        queue: [] as ISong[],
     }),
     actions: {
         playPause() {
@@ -125,6 +126,9 @@ export const usePlayerStore = defineStore({
             if (this.player === player) return;
 
             this.player = player;
+        },
+        setQueue(data: { queue: ISong[] }) {
+            this.queue = data.queue;
         },
         async setSong(song) {
             if (song.id == this.song.id) return;

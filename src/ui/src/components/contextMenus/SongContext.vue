@@ -19,6 +19,7 @@ import {
 } from "../../api/song";
 import { Notifications } from "../notifications/createNotification";
 import { asSyncableSong, downloadSyncable } from "../../views/sync/collection";
+import { insertLast, insertNext } from "../../api/player";
 
 const dataStore = useDataStore();
 
@@ -135,7 +136,6 @@ const exportToFile = () => {
             <v-contextmenu-item>
                 <span class="material-symbols-rounded">search</span>
                 <v-contextmenu-submenu title="Find source">
-
                     <v-contextmenu-item
                         v-for="name in Object.keys(sources)"
                         :key="name"
@@ -146,6 +146,29 @@ const exportToFile = () => {
                 </v-contextmenu-submenu>
             </v-contextmenu-item>
             <v-contextmenu-divider />
+            <v-contextmenu-item>
+                <span class="material-symbols-rounded">queue_music</span>
+                <v-contextmenu-submenu title="Add to queue">
+                    <v-contextmenu-item
+                        @click="() => insertNext(props.song.id)"
+                    >
+                        <span class="material-symbols-rounded">
+                            add_to_queue
+                        </span>
+                        Play Next
+                    </v-contextmenu-item>
+                    <v-contextmenu-item
+                        @click="() => insertLast(props.song.id)"
+                    >
+                        <span class="material-symbols-rounded">
+                            queue_play_next
+                        </span>
+                        Play Last
+                    </v-contextmenu-item>
+                </v-contextmenu-submenu>
+            </v-contextmenu-item>
+            <v-contextmenu-divider />
+            <v-context-menu-divider />
             <v-contextmenu-item v-if="!isAutoPlaylist" @click="remove">
                 <span class="material-symbols-rounded">delete</span>
                 Remove from this playlist
