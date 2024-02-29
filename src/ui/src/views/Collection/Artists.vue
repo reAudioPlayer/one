@@ -4,8 +4,7 @@
   -->
 
 <template>
-    <div class="padding-20" v-if="artists.length || spotifyArtists.length">
-        <CollectionHeader />
+    <div v-if="!loading">
         <div class="artists">
             <full-shelf heading="In your library">
                 <CardWithImageAndText
@@ -36,13 +35,13 @@
 <script lang="ts" setup>
 import FullShelf from "@/components/Catalogue/FullShelf.vue";
 import ArtistItem from "@/components/Catalogue/Items/Artist/ArtistItem.vue";
-import CollectionHeader from "@/components/CollectionHeader.vue";
 import CardWithImageAndText from "@/containers/CardWithImageAndText.vue";
 import { onMounted, ref } from "vue";
 import Loader from "../../components/Loader.vue";
 
 const spotifyArtists = ref([]);
 const artists = ref([]);
+const loading = ref(true);
 
 onMounted(async () => {
     let res = await fetch("/api/spotify/artists");
@@ -52,6 +51,8 @@ onMounted(async () => {
     res = await fetch("/api/artists");
     data = await res.json();
     artists.value = data.sort((a, b) => a.name.localeCompare(b.name));
+
+    loading.value = false;
 });
 </script>
 

@@ -33,7 +33,6 @@
             :href="selectedElement.url"
             :title="selectedElement.title"
         />
-        <CollectionHeader />
         <div class="releases w-full">
             <div class="current">
                 <div class="w-max flex flex-col gap-4" v-if="nextInQueue">
@@ -236,7 +235,6 @@
 
 <script setup lang="ts">
 import AddAlbumToPlaylist from "../../components/popups/ImportSpotifyAlbum.vue";
-import CollectionHeader from "@/components/CollectionHeader.vue";
 import Loader from "../../components/Loader.vue";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import Card from "../../containers/Card.vue";
@@ -406,7 +404,7 @@ watch(
     grid-template-columns: 2fr 1fr;
     align-items: center;
     overflow-y: hidden;
-    height: calc(100% - 40px);
+    height: 100%;
 }
 
 .entry {
@@ -448,9 +446,8 @@ h5.selected {
 }
 
 .queue {
-    height: calc(100% - 220px);
+    height: calc(100% - 150px);
     overflow: hidden;
-    margin: 100px 0;
 }
 
 .queue > .entries {
