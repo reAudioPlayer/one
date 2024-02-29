@@ -248,6 +248,11 @@ export const usePlayerStore = defineStore({
                 body: JSON.stringify(body),
             });
         },
+        rearrangeQueue(from: number, to: number) {
+            fetch(`/api/player/queue/${from}/${to}`, {
+                method: "PUT",
+            });
+        },
     },
     getters: {
         playlist(state) {

@@ -55,6 +55,8 @@ main {
     display: grid;
     grid-template-rows: auto 1fr;
     margin: 10px;
+    margin-right: 0;
+    padding-right: 10px;
     height: calc(100% - 20px);
     overflow: auto;
     position: relative;

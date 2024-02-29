@@ -4,8 +4,8 @@
   -->
 
 <template>
-    <div v-if="!loading">
-        <div class="artists">
+    <div class="artists">
+        <FetchLoader :response="localArtistsPromise">
             <full-shelf heading="In your library">
                 <CardWithImageAndText
                     v-for="item in artists"
@@ -15,6 +15,8 @@
                     imageType="artist"
                 />
             </full-shelf>
+        </FetchLoader>
+        <FetchLoader :response="spotifyArtistsPromise">
             <full-shelf heading="Following on Spotify">
                 <artist-item
                     v-for="(element, index) in spotifyArtists"
@@ -27,9 +29,8 @@
                     show-follow-button
                 />
             </full-shelf>
-        </div>
+        </FetchLoader>
     </div>
-    <div class="fill-page" v-else><Loader /></div>
 </template>
 
 <script lang="ts" setup>
@@ -37,27 +38,31 @@ import FullShelf from "@/components/Catalogue/FullShelf.vue";
 import ArtistItem from "@/components/Catalogue/Items/Artist/ArtistItem.vue";
 import CardWithImageAndText from "@/containers/CardWithImageAndText.vue";
 import { onMounted, ref } from "vue";
-import Loader from "../../components/Loader.vue";
+import FetchLoader from "../../components/FetchLoader.vue";
 
 const spotifyArtists = ref([]);
 const artists = ref([]);
-const loading = ref(true);
+
+const localArtistsPromise = ref<Promise<Response> | null>(null);
+const spotifyArtistsPromise = ref<Promise<Response> | null>(null);
 
 onMounted(async () => {
-    let res = await fetch("/api/spotify/artists");
+    localArtistsPromise.value = fetch("/api/artists");
+    let res = await localArtistsPromise.value;
     let data = await res.json();
-    spotifyArtists.value = data.sort((a, b) => a.name.localeCompare(b.name));
-
-    res = await fetch("/api/artists");
-    data = await res.json();
     artists.value = data.sort((a, b) => a.name.localeCompare(b.name));
 
-    loading.value = false;
+    spotifyArtistsPromise.value = fetch("/api/spotify/artists");
+    res = await spotifyArtistsPromise.value;
+    data = await res.json();
+    spotifyArtists.value = data.sort((a, b) => a.name.localeCompare(b.name));
 });
 </script>
 
 <style scoped>
-.padding-20 {
-    padding: 20px;
+.artists {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
 }
 </style>

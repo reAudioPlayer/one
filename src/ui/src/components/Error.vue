@@ -9,49 +9,42 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: "Error",
-    props: {
-        msg: String
+<script lang="ts" setup>
+defineProps({
+    msg: {
+        type: String,
+        required: true,
     },
-    methods: {
-        toggleSidebar()
-        {
-            this.$emit("toggleSidebar")
-        }
-    }
-}
+});
 </script>
 
 <style>
 .error h1 p.smaller {
-	font-weight: normal;
-	font-size: 0.5em;
+    font-weight: normal;
+    font-size: 0.5em;
 }
- .error h1 p.muted {
-	color: var(--fg-base-dk);
+.error h1 p.muted {
+    color: var(--fg-base-dk);
 }
- .error h1 p.accent {
-	color: var(--fg-secondary);
+.error h1 p.accent {
+    color: var(--fg-secondary);
 }
- 
 </style>
 
 <style scoped>
-    .mobileMenu {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-    }
+.mobileMenu {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
 
-    .error {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-        align-content: center;
-        text-align: center;
-    }
+.error {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-content: center;
+    text-align: center;
+}
 </style>
