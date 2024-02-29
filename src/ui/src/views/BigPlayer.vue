@@ -90,6 +90,8 @@ const animate = ref(false); // animations
                     ref="playlistScroll"
                     :playlist="{ ...player.playlist, queue: player.queue }"
                     use-queue
+                    draggable
+                    @rearrange="player.rearrangeQueue"
                 />
             </Card>
             <div class="settings">

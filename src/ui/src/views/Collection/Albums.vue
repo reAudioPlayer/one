@@ -4,7 +4,7 @@
   -->
 
 <template>
-    <div v-if="!loading">
+    <FetchLoader :response="promise">
         <div class="albums">
             <full-shelf heading="In your library">
                 <CardWithImageAndText
@@ -17,24 +17,23 @@
                 />
             </full-shelf>
         </div>
-    </div>
-    <div class="fill-page" v-else><Loader /></div>
+    </FetchLoader>
 </template>
 
 <script lang="ts" setup>
 import FullShelf from "@/components/Catalogue/FullShelf.vue";
 import CardWithImageAndText from "@/containers/CardWithImageAndText.vue";
 import { onMounted, ref } from "vue";
-import Loader from "../../components/Loader.vue";
+import FetchLoader from "../../components/FetchLoader.vue";
 
 const albums = ref([]);
-const loading = ref(true);
+const promise = ref<Promise<Response> | null>(null);
 
 onMounted(async () => {
-    const res = await fetch("/api/albums");
+    promise.value = fetch("/api/albums");
+    const res = await promise.value;
     const data = await res.json();
     albums.value = data.sort((a, b) => a.name.localeCompare(b.name));
-    loading.value = false;
 });
 </script>
 
