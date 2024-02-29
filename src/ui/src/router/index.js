@@ -34,28 +34,28 @@ const routes = [{
 },
 {
     path: '/collection/albums',
-    component: () => import("@/views/Collection/Albums.vue"),
+    component: () => import("@/views/Collection/index.vue"),
     meta: {
         title: "Your Library - reAudioPlayer One"
     }
 },
 {
     path: '/collection/artists',
-    component: () => import("@/views/Collection/Artists.vue"),
+    component: () => import("@/views/Collection/index.vue"),
     meta: {
         title: "Your Library - reAudioPlayer One"
     }
 },
 {
     path: '/collection/playlists',
-    component: () => import("@/views/Collection/Playlists.vue"),
+    component: () => import("@/views/Collection/index.vue"),
     meta: {
         title: "Your Library - reAudioPlayer One"
     }
 },
 {
     path: '/collection/releases',
-    component: () => import("@/views/Collection/Releases.vue"),
+    component: () => import("@/views/Collection/index.vue"),
     meta: {
         title: "Releases - reAudioPlayer One"
     }
