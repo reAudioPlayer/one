@@ -87,6 +87,7 @@ class Router:
         # /api/player/queue
         app.router.add_get("/api/player/queue", playerHandler.getQueue)
         app.router.add_put("/api/player/queue", playerHandler.putQueue)
+        app.router.add_put("/api/player/queue/{old}/{new}", playerHandler.moveInQueue)
 
         # UNGROUPED
         app.router.add_get("/api/cors/{url:.*}", Router._corsAnywhere)

@@ -58,6 +58,24 @@ class PlayerQueue:
 
         return True
 
+    def move(self, index1: int, index2: int) -> bool:
+        """move song from index1 to index2"""
+        if index1 >= len(self._queue) or index2 >= len(self._queue):
+            return False
+
+        prevIndex = self._queue[self._cursor]
+
+        songIndex = self._queue.pop(index1)
+        self._queue.insert(index2, songIndex)
+        self._fireOnChanged()
+
+        for i, songIndex in enumerate(self._queue):
+            if songIndex == prevIndex:
+                self._cursor = i
+                break
+
+        return True
+
     def _resetQueue(self) -> None:
         self._queue = list(range(len(self._songs)))
 

@@ -174,3 +174,20 @@ class PlayerHandler:
             return web.HTTPNotFound()
 
         return web.Response(status=200 if self._player.queue.insert(at, Song(song)) else 400)
+
+    @withObjectPayload(
+        Object(
+            {
+                "old": Integer().min(0).coerce(),
+                "new": Integer().min(0).coerce(),
+            }
+        ),
+        inPath=True,
+    )
+    async def moveInQueue(self, body: Dict[str, Any]) -> web.Response:
+        """put(/api/player/queue)"""
+        id_ = body["old"]
+        at = body["new"]
+
+        success = self._player.queue.move(id_, at)
+        return web.Response(status=200 if success else 400)
