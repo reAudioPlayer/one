@@ -1,0 +1,1 @@
+import{e as r,o as _,c as o,a as s,_ as t}from"./index-a3df88a3.js";const n={class:"error"},a=["innerHTML"],c=r({__name:"Error",props:{msg:{type:String,required:!0}},setup(e){return(d,p)=>(_(),o("div",n,[s("h1",{innerHTML:e.msg},null,8,a)]))}});const l=t(c,[["__scopeId","data-v-03ad8ef0"]]);export{l as E};

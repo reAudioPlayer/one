@@ -10,16 +10,16 @@ import { nextTick, PropType, ref, watch } from "vue";
 const props = defineProps({
     modelValue: {
         type: String,
-        required: true
+        required: true,
     },
     icon: {
         type: String,
-        required: true
+        required: true,
     },
     options: {
         type: Array as PropType<IDropdownOption[]>,
-        required: true
-    }
+        required: true,
+    },
 });
 const options = ref(props.options);
 
@@ -27,15 +27,18 @@ const selectedValue = ref(props.modelValue);
 const expanded = ref(false);
 const emit = defineEmits(["update:modelValue"]);
 
-
-watch(props, (value) => {
-    selectedValue.value = value.modelValue;
-    options.value = value.options;
-}, {deep: true})
+watch(
+    props,
+    (value) => {
+        selectedValue.value = value.modelValue;
+        options.value = value.options;
+    },
+    { deep: true }
+);
 
 const select = (value: string) => {
     selectedValue.value = value;
-    emit("update:modelValue", value)
+    emit("update:modelValue", value);
     expanded.value = false;
 };
 
@@ -67,7 +70,7 @@ watch(expanded, (value) => {
                 trueDropdown.value.style.right = "0";
             }
         }
-    })
+    });
 });
 
 document.addEventListener("click", () => {
@@ -80,20 +83,29 @@ document.addEventListener("click", () => {
             class="dropdown__selected material-symbols-rounded ms-wght-400"
             @click.stop="expanded = !expanded"
         >
-            {{icon}}
+            {{ icon }}
         </span>
-        <div v-if="expanded" ref="trueDropdown" :class="{expanded}" class="dropdown__options">
+        <div
+            v-if="expanded"
+            ref="trueDropdown"
+            :class="{ expanded }"
+            class="dropdown__options"
+        >
             <div
                 v-for="option in options"
                 :key="option.value"
                 class="dropdown__option"
                 @click.stop="select(option.value)"
             >
-                <span class="material-symbols-rounded">{{option.icon}}</span>
+                <span class="material-symbols-rounded">{{ option.icon }}</span>
                 <span>
-                    {{option.label}}
+                    {{ option.label }}
                 </span>
-                <span v-if="selectedValue == option.value" class="material-symbols-rounded">check</span>
+                <span
+                    v-if="selectedValue == option.value"
+                    class="material-symbols-rounded"
+                    >check</span
+                >
             </div>
         </div>
     </div>

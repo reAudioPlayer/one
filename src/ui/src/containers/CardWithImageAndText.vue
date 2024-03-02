@@ -99,6 +99,7 @@ div.title {
         flex-direction: row;
         align-items: center;
         height: 100%;
+        justify-content: flex-start;
     }
 }
 

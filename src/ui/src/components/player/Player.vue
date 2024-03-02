@@ -92,7 +92,7 @@ const showWebWavePlayer = computed(() => {
 });
 </script>
 <template>
-    <div class="player">
+    <div class="player" :class="{ 'inset-0': mobileExpanded }">
         <AmbientBackground :src="player.song.cover" direction="to top right" />
 
         <HtmlAudio v-if="showWebPlayer" ref="playable" />
@@ -285,7 +285,6 @@ const showWebWavePlayer = computed(() => {
                         'on-this-device': onThisDevice,
                     }"
                     :options="playbackDevices"
-                    class="material-symbols-rounded"
                     icon="devices"
                     @click.stop
                 />
@@ -370,12 +369,7 @@ const showWebWavePlayer = computed(() => {
                             </span>
                         </div>
                         <div class="bottom">
-                            <WaveAudio
-                                v-if="showWebWavePlayer"
-                                ref="playable"
-                            />
                             <ProgressBar
-                                v-else
                                 v-model="progressPercent"
                                 :max="1000"
                                 @change="(e) => player.seekPercent(e / 10)"
@@ -385,7 +379,7 @@ const showWebWavePlayer = computed(() => {
                                     {{ player.displayProgress }}
                                 </span>
                                 <span class="text-xs text-muted text-left">
-                                    {{ player.song.duration }}
+                                    {{ player.displayDuration }}
                                 </span>
                             </div>
                         </div>
@@ -530,6 +524,8 @@ const showWebWavePlayer = computed(() => {
 }
 
 .mobile {
+    inset: 0;
+
     .small {
         display: grid;
         grid-template-columns: calc(var(--h-player-mobile) - 1em) 1fr 30px 30px;
@@ -549,9 +545,8 @@ const showWebWavePlayer = computed(() => {
         position: absolute;
         top: 0;
         left: 0;
-        width: 100vw;
-        height: calc(100vh - var(--h-sidebar));
-        max-height: calc(100vh - var(--h-sidebar));
+        width: 100%;
+        height: 100%;
         overflow: hidden;
         background: var(--bg-base);
         padding: 2em;
@@ -574,7 +569,7 @@ const showWebWavePlayer = computed(() => {
                 justify-content: center;
 
                 span {
-                    margin: auto 0;
+                    margin: auto;
                     font-size: 2rem;
 
                     &:nth-child(3) {

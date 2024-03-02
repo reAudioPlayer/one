@@ -377,6 +377,10 @@ const playOrPausePlaylist = () => {
     .multiselect {
         overflow-x: hidden;
     }
+
+    @media screen and (max-width: 1000px) {
+        display: none;
+    }
 }
 
 .playlist-type {
@@ -393,6 +397,17 @@ const playOrPausePlaylist = () => {
 
     &.w-1\/2 {
         min-width: 100px;
+    }
+}
+
+.features {
+    @media screen and (max-width: 1000px) {
+        flex-wrap: wrap;
+
+        > div {
+            min-width: 80px;
+            flex: 1;
+        }
     }
 }
 
