@@ -6,7 +6,7 @@
 <template>
     <div class="parent">
         <CollectionHeader class="header" />
-        <main>
+        <main class="collection">
             <component :is="component" />
         </main>
     </div>
@@ -37,11 +37,19 @@ const component = computed(() => {
 });
 </script>
 
-<style scoped lang="scss">
-main {
+<style lang="scss">
+main.collection {
     position: relative;
-}
+    overflow: hidden;
 
+    > div {
+        overflow: auto;
+        height: 100%;
+        padding-right: 10px;
+    }
+}
+</style>
+<style scoped lang="scss">
 .header {
     position: sticky;
     top: 0;
@@ -56,7 +64,6 @@ main {
     grid-template-rows: auto 1fr;
     margin: 10px;
     margin-right: 0;
-    padding-right: 10px;
     height: calc(100% - 20px);
     overflow: auto;
     position: relative;

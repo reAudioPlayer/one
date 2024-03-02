@@ -5,14 +5,16 @@
 
 <template>
     <div class="fixedPlaylistHeader" :style="{ '--colour': accentColour }">
+        <AmbientBackground v-if="playlist.cover" :src="playlist.cover" />
         <div class="upperWrapper">
             <span
                 id="loadPlaylist"
                 class="material-symbols-rounded hideIfMobile ms-fill"
                 @click="this.$emit('loadPlaylist')"
-                >play_circle</span
             >
-            <h3 class="font-bold">{{ title }}</h3>
+                {{ playOrPauseIcon }}
+            </span>
+            <h3 class="font-black">{{ playlist.name }}</h3>
         </div>
         <div class="padding-20 darkback">
             <PlaylistHeader
@@ -24,21 +26,28 @@
     </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import PlaylistHeader from "@/components/songContainers/PlaylistHeader.vue";
+import AmbientBackground from "@/components/image/AmbientBackground.vue";
+import { PropType, computed } from "vue";
+import { IFullPlaylist } from "../../common";
+import { usePlayerStore } from "../../store/player";
 
-export default {
-    name: "FixedPlaylistHeader",
-    components: {
-        PlaylistHeader,
+const player = usePlayerStore();
+
+const props = defineProps({
+    accentColour: {
+        type: String,
     },
-    props: {
-        title: String,
-        accentColour: {
-            type: String,
-        },
+    playlist: {
+        type: Object as PropType<IFullPlaylist>,
+        required: true,
     },
-};
+});
+
+const playOrPauseIcon = computed(() =>
+    player.playlistPlayOrPauseIcon(props.playlist.id)
+);
 </script>
 
 <style lang="scss" scoped>
@@ -50,8 +59,6 @@ $mobileWidth: 950px;
 }
 
 .darkback {
-    backdrop-filter: blur(100px);
-
     padding-top: 10px;
     padding-bottom: 10px;
 }
@@ -64,7 +71,6 @@ $mobileWidth: 950px;
     padding: 10px;
     display: flex;
     flex-direction: row;
-    backdrop-filter: blur(100px);
 
     @media screen and (max-width: $mobileWidth) {
         justify-content: center;
@@ -76,11 +82,7 @@ $mobileWidth: 950px;
     line-height: 35px;
     width: 42px;
     vertical-align: middle;
-}
-
-#loadPlaylist:hover {
     cursor: pointer;
-    font-size: 2.6em;
 }
 
 h3 {
@@ -94,15 +96,28 @@ h3 {
     }
 }
 
+@keyframes slideDown {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 .fixedPlaylistHeader {
     position: fixed;
     top: var(--h-header);
     left: calc(var(--w-sidebar) + 40px);
     right: -3px;
     padding-right: 3px;
-    background: var(--bg-base-lt);
     border: var(--border-container);
     border-top: none;
+    backdrop-filter: blur(100px);
+
+    animation: slideDown 0.3s ease-in-out;
 
     z-index: 100;
     overflow: clip;

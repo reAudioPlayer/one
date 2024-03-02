@@ -20,8 +20,6 @@ import PlaylistHeader from "../../components/songContainers/PlaylistHeader.vue";
 import AmbientBackground from "../../components/image/AmbientBackground.vue";
 import { useDataStore } from "../../store/data";
 import PlaylistMeta from "./PlaylistMeta.vue";
-import { ISyncableOne, ISyncableSong } from "../sync/collection";
-import { addSongs } from "../../api/song";
 
 const props = defineProps({
     id: {

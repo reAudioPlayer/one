@@ -34,6 +34,25 @@ import { parseCover } from "@/common";
                     />
                 </FlexShelf>
             </div>
+            <div v-if="breaking.length" class="breaking">
+                <h2>
+                    <router-link
+                        class="linkOnHover"
+                        to="/collection/tracks/breaking"
+                    >
+                        Breaking Songs
+                    </router-link>
+                </h2>
+                <PlaylistHeader />
+                <PlaylistEntry
+                    v-for="(element, index) in breaking"
+                    :key="index"
+                    :index="index"
+                    playlist-id="breaking"
+                    :song="element"
+                    with-cover
+                />
+            </div>
             <div v-if="liked.length" class="liked">
                 <h2>
                     <router-link class="linkOnHover" to="/collection/tracks"
@@ -45,25 +64,7 @@ import { parseCover } from "@/common";
                     v-for="(element, index) in liked"
                     :key="index"
                     :index="index"
-                    :playlist-id="-1"
-                    :song="element"
-                    with-cover
-                />
-            </div>
-            <div v-if="breaking.length" class="breaking">
-                <h2>
-                    <router-link
-                        class="linkOnHover"
-                        to="/collection/tracks/breaking"
-                        >Breaking Songs</router-link
-                    >
-                </h2>
-                <PlaylistHeader />
-                <PlaylistEntry
-                    v-for="(element, index) in breaking"
-                    :key="index"
-                    :index="index"
-                    :playlist-id="-2"
+                    playlist-id="liked"
                     :song="element"
                     with-cover
                 />
