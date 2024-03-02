@@ -30,9 +30,17 @@ const settings = useSettingsStore();
             />
             <nav-entry
                 :minimised="minimised"
+                href="/preferences"
+                icon="settings"
+                name="Settings"
+                class="showIfMobile"
+            />
+            <nav-entry
+                :minimised="minimised"
                 href="/discover"
                 icon="explore"
                 name="Discover"
+                class="hideIfMobile"
             />
             <br v-if="settings.sidebar.news || settings.sidebar.sports" />
             <nav-entry
@@ -223,12 +231,13 @@ div.sidebar {
 
     @media screen and (max-width: $mobileWidth) {
         flex-direction: row;
-        width: 100vw;
         position: absolute;
-        bottom: 0;
-        margin: 0;
-        max-width: 100vw;
+        inset: 0;
         border-radius: 0;
+        max-width: unset;
+        width: 100%;
+        height: max-content;
+        margin: 0;
     }
 }
 

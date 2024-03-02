@@ -192,7 +192,7 @@ export default {
     .v-contextmenu-submenu {
         position: relative;
         width: 100%;
-        
+
         > .v-contextmenu-item {
             padding: 0;
             width: 100%;
@@ -242,9 +242,9 @@ div.interface {
     max-height: calc(100vh - var(--h-player) - var(--h-header));
 
     @media only screen and (max-width: 750px) {
-        max-height: calc(
-            100vh - var(--h-player-mobile) - var(--h-header) - var(--h-sidebar)
-        );
+        max-height: calc(100vh - var(--h-player-mobile));
+        overflow: auto;
+        flex-direction: column;
     }
 }
 
@@ -253,6 +253,7 @@ div.appRoot {
     flex-direction: column;
     width: 100vw;
     height: 100vh;
+    height: 100svh;
 }
 
 html,

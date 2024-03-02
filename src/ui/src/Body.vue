@@ -53,9 +53,10 @@ div.body {
     @media screen and (max-width: $mobileWidth) {
         max-width: 100vw;
         max-height: calc(
-            100vh - var(--player-height-mobile) - var(--sidebar-height) -
-                var(--header-height)
+            100vh - var(--player-height-mobile) - var(--sidebar-height)
         );
+        padding-left: 0;
+        margin-bottom: 0;
     }
 }
 </style>

@@ -65,7 +65,7 @@ watch(playlist, () => {
 });
 
 const canRearrange = computed(() => {
-    return playlist.value.type === "classic";
+    return playlist.value.type === "classic" && document.body.clientWidth > 950;
 });
 
 const canAdd = computed(() => {

@@ -4,7 +4,9 @@
   -->
 
 <template>
-    <div class="header grid grid-cols-3 justify-between drop-shadow-md">
+    <div
+        class="header hideIfMobile grid grid-cols-3 justify-between drop-shadow-md"
+    >
         <Logo class="hideIfMobile logo" @click="$router.push('/')" />
         <div class="search flex flex-row">
             <nav-entry
