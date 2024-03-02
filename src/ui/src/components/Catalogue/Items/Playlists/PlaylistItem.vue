@@ -103,6 +103,9 @@ div.title {
 .item {
     padding: 20px;
     height: calc(100% - 40px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
     @media screen and (max-width: $mobileWidth) {
         display: flex;

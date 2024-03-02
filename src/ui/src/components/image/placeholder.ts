@@ -25,7 +25,7 @@ const imgSrc = "/assets/img/bg-1024x1024.png";
 
 export const generatePlaceholder = async (
     name: string,
-    size: number = 1024
+    size: number = 512
 ): Promise<string> => {
     await document.fonts.ready;
 
@@ -59,7 +59,7 @@ export const generatePlaceholder = async (
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
             ctx.fillStyle = "white";
-            ctx.font = `900 100px 'Poppins'`;
+            ctx.font = `900 50px 'Poppins'`;
             ctx.textAlign = "center";
             ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
             ctx.shadowBlur = 50;
@@ -81,9 +81,9 @@ export const generatePlaceholder = async (
             ctx.fillText(" reAudioPlayer ".repeat(100), 2, 8 + 2);
 
             // white line in 50px above bottom, horizontal padding of 100px
-            const paddingX = 30;
+            const paddingX = 20;
             ctx.fillStyle = "white";
-            ctx.font = `600 14px 'Poppins'`;
+            ctx.font = `600 10px 'Poppins'`;
             ctx.textAlign = "left";
             ctx.fillText(
                 name?.toUpperCase() ?? name,

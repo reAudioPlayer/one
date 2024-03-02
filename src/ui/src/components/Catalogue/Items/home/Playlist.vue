@@ -10,9 +10,9 @@
                 <Cover :src="cover" type="playlist" :name="name" />
                 <span
                     class="material-symbols-rounded ms-fill play"
-                    @click.stop.prevent="player.loadPlaylist(id)"
+                    @click.stop.prevent="playPause"
                 >
-                    play_circle
+                    {{ playOrPauseIcon }}
                 </span>
             </div>
             <div class="title">
@@ -28,8 +28,10 @@
 import Cover from "@/components/image/Cover.vue";
 import Card from "@/containers/Card.vue";
 import { usePlayerStore } from "@/store/player";
+import PlaylistEntry from "../../../songContainers/PlaylistEntry.vue";
+import { computed } from "vue";
 
-defineProps({
+const props = defineProps({
     name: {
         type: String,
         required: true,
@@ -53,6 +55,18 @@ defineProps({
 });
 
 const player = usePlayerStore();
+
+const playOrPauseIcon = computed(() => {
+    return player.playlistPlayOrPauseIcon(props.id);
+});
+
+const playPause = () => {
+    if (player.playlistId == props.id) {
+        player.playPause();
+    } else {
+        player.loadPlaylist(props.id);
+    }
+};
 </script>
 
 <style lang="scss" scoped>

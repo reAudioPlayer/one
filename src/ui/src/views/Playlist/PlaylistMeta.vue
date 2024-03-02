@@ -17,7 +17,7 @@ import IconDropdown from "../../components/inputs/IconDropdown.vue";
 import EditableText from "../../components/EditableText.vue";
 import MultiSelect from "../../components/inputs/MultiSelect.vue";
 import FixedPlaylistHeader from "../../components/Playlist/FixedPlaylistHeader.vue";
-import { deletePlaylist, updatePlaylistMetadata } from "../../api/playlist";
+import { updatePlaylistMetadata } from "../../api/playlist";
 import { useDataStore } from "../../store/data";
 import AddNewSong from "../../components/popups/AddNewSong.vue";
 import PlaylistContext from "../../components/contextMenus/PlaylistContext.vue";
@@ -180,6 +180,18 @@ const uploadCover = async (e: Event) => {
     const src = await upload("/api/config/images", imgUpload.value!.files[0]);
     updatePlaylistMetadata({ ...playlist.value, cover: src });
 };
+
+const playOrPauseIcon = computed(() =>
+    player.playlistPlayOrPauseIcon(playlist.value.id)
+);
+
+const playOrPausePlaylist = () => {
+    if (player.playlistId === playlist.value.id) {
+        player.playPause();
+    } else {
+        player.loadPlaylist(playlist.value.id);
+    }
+};
 </script>
 
 <template>
@@ -188,8 +200,8 @@ const uploadCover = async (e: Event) => {
             v-if="playlist"
             ref="fixedHeading"
             :class="{ hidden: fixedHeaderHidden }"
-            :title="playlist.name"
-            @loadPlaylist="player.loadPlaylist(playlist.id)"
+            :playlist="playlist"
+            @loadPlaylist="playOrPausePlaylist"
         />
         <AddNewSong ref="addSongPopup" @update="data.fetchPlaylists()" />
         <div v-observe-visibility="onObserveVisibility" class="upper relative">
@@ -209,7 +221,7 @@ const uploadCover = async (e: Event) => {
                 @change="uploadCover"
                 v-if="!canEdit"
             />
-            <div class="track__info__details flex flex-col justify-end">
+            <div class="track__info__details">
                 <div class="trac__info__details__normal">
                     <div
                         class="flex flex-row items-center gap-2 playlist-type"
@@ -225,9 +237,9 @@ const uploadCover = async (e: Event) => {
                     <div class="flex flew-row items-center">
                         <span
                             class="text-5xl cursor-pointer material-symbols-rounded ms-fill my-auto"
-                            @click="player.loadPlaylist(playlist.id)"
+                            @click="playOrPausePlaylist"
                         >
-                            play_circle
+                            {{ playOrPauseIcon }}
                         </span>
                         <h1 class="font-black text-5xl ml-4 w-full flex-1">
                             <EditableText v-model="title">
@@ -349,12 +361,6 @@ const uploadCover = async (e: Event) => {
     </PlaylistContext>
 </template>
 
-<style lang="scss">
-.upper .cover {
-    max-width: 30rem !important;
-}
-</style>
-
 <style scoped lang="scss">
 .filters {
     background: var(--bg-base-dk);
@@ -391,15 +397,30 @@ const uploadCover = async (e: Event) => {
 }
 
 .upper {
-    display: grid;
-    grid-template-columns: fit-content(100%) minmax(500px, 1fr);
+    display: flex;
+    align-items: center;
     gap: 2rem;
 
     .cover {
-        min-width: 384px;
         aspect-ratio: 1 / 1;
         position: relative;
         z-index: 1;
+        max-height: 25vw;
+        min-height: 10vw;
+        animation: size;
+        animation-timeline: scroll();
+    }
+
+    @keyframes size {
+        to {
+            max-height: 40px;
+        }
+    }
+
+    .track__info__details {
+        overflow: auto;
+        flex: 1;
+        margin-top: auto;
     }
 
     @media (max-width: 1000px) {
@@ -409,11 +430,6 @@ const uploadCover = async (e: Event) => {
 
         .cover {
             min-width: 20vw;
-        }
-
-        .track__info__details {
-            overflow: auto;
-            width: 100%;
         }
     }
 }

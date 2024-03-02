@@ -253,6 +253,12 @@ export const usePlayerStore = defineStore({
                 method: "PUT",
             });
         },
+        playlistPlayOrPauseIcon(playlist: string | PlaylistType) {
+            if (this.playlistId === playlist) {
+                return this.playing ? "pause_circle" : "play_circle";
+            }
+            return "play_circle";
+        },
     },
     getters: {
         playlist(state) {

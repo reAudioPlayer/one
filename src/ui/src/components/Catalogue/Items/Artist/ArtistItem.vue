@@ -4,7 +4,11 @@
   -->
 
 <template>
-    <Card class="wrapper" with-hover @click.stop="$router.push('/artist/' + name)">
+    <Card
+        class="wrapper"
+        with-hover
+        @click.stop="$router.push('/artist/' + name)"
+    >
         <add-artist-to-playlist
             ref="import"
             :artist="{
@@ -16,15 +20,19 @@
         />
         <div class="item">
             <img :src="cover" />
-            <h4>{{ name }}</h4>
-            <p v-html="description" />
-            <button
-                v-if="showFollowButton"
-                class="followButton"
-                @click.stop="follow"
-            >
-                {{ following ? "unfollow" : "Follow" }}
-            </button>
+            <div class="flex gap-2 items-center justify-between">
+                <div>
+                    <h4>{{ name }}</h4>
+                    <p v-html="description" />
+                </div>
+                <span
+                    v-if="showFollowButton"
+                    class="material-symbols-rounded text-muted text-md"
+                    @click.stop="follow"
+                >
+                    {{ following ? "person_check" : "person_add" }}
+                </span>
+            </div>
         </div>
     </Card>
 </template>
@@ -106,7 +114,14 @@ p.note {
 }
 
 .item {
-    height: calc(100% - 40px);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.item span.material-symbols-rounded:hover {
+    color: var(--fg-base);
 }
 
 img {
