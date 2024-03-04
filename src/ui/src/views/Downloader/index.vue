@@ -7,7 +7,7 @@ import { type ISong, bytesToDisplay } from "../../common";
 import Cover from "../../components/image/Cover.vue";
 import Loader from "../../components/Loader.vue";
 import { fetchMetadata } from "../../api/song";
-import Form from "../../components/popups/components/Form.vue";
+import Form, { IOption } from "../../components/popups/components/Form.vue";
 import { useDownloaderStore } from "../../store/downloader";
 
 const downloader = useDownloaderStore();
@@ -27,13 +27,17 @@ const reDownload = (songId: number) => {
 const song: ISong = {
     title: "",
     artist: "",
-    album: "",
+    album: {
+        name: "",
+        href: "",
+        id: "",
+    },
     cover: "",
     source: "",
     href: "",
 };
 const form = ref(null);
-const formOptions = ref([
+const formOptions = ref<IOption[]>([
     {
         name: "source",
         type: "text",
@@ -72,7 +76,7 @@ const formOptions = ref([
         name: "album",
         type: "text",
         icon: "album",
-        value: song.album,
+        value: song.album.name,
     },
     {
         name: "cover",

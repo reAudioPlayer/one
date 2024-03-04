@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import AmbientBackground from "../../components/image/AmbientBackground.vue";
-import IconButton from "../../components/inputs/IconButton.vue";
-import { usePlayerStore } from "../../store/player";
-import Loader from "../../components/Loader.vue";
+import AmbientBackground from "@/components/image/AmbientBackground.vue";
+import IconButton from "@/components/inputs/IconButton.vue";
+import { usePlayerStore } from "@/store/player";
+import Loader from "@/components/Loader.vue";
+// @ts-ignore
 import { translate } from "google-translate-api-browser";
 
 const playerStore = usePlayerStore();

@@ -4,51 +4,51 @@
   -->
 
 <script lang="ts" setup>
-import {PropType} from "vue";
+import { PropType } from "vue";
 import Cover from "../../image/Cover.vue";
 
 interface IIcon {
     name: string;
-    onClick (): void;
+    onClick(): void;
 }
 
 const props = defineProps({
     title: {
         type: String,
-        required: true
+        required: true,
     },
     subtitle: {
         type: String,
-        required: true
+        default: "",
     },
     cover: {
         type: String,
-        required: true
+        required: true,
     },
     icons: {
         type: Array as PropType<IIcon[]>,
-        required: true
-    }
-})
+        required: true,
+    },
+});
 </script>
 <template>
-<div class="padding-20 playlisteditor">
-    <Cover type="playlist" :name="title" :src="cover" class="cover" />
-    <div class="details">
-        <div class="detailswrapper">
-            <span
-                v-for="(icon, index) in icons"
-                :key="index"
-                class="material-icons-round"
-                @click="icon.onClick"
-            >
-                {{icon.name}}
-            </span>
+    <div class="padding-20 playlisteditor">
+        <Cover type="playlist" :name="title" :src="cover" class="cover" />
+        <div class="details">
+            <div class="detailswrapper">
+                <span
+                    v-for="(icon, index) in icons"
+                    :key="index"
+                    class="material-icons-round"
+                    @click="icon.onClick"
+                >
+                    {{ icon.name }}
+                </span>
+            </div>
+            <h1>{{ title }}</h1>
+            <h6>{{ subtitle }}</h6>
         </div>
-        <h1>{{title}}</h1>
-        <h6>{{subtitle}}</h6>
     </div>
-</div>
 </template>
 
 <style lang="scss" scoped>
@@ -79,7 +79,7 @@ $mobileWidth: 950px;
     }
 }
 
-.playlisteditor>.details {
+.playlisteditor > .details {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -87,7 +87,7 @@ $mobileWidth: 950px;
     align-self: end;
 }
 
-.playlisteditor>.details>h1 {
+.playlisteditor > .details > h1 {
     font-size: 2em;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -97,8 +97,8 @@ $mobileWidth: 950px;
     }
 }
 
-.playlisteditor>.details>.detailswrapper {
-    font-size: .8em;
+.playlisteditor > .details > .detailswrapper {
+    font-size: 0.8em;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -108,7 +108,7 @@ $mobileWidth: 950px;
     }
 }
 
-.playlisteditor>.details>.detailswrapper>.material-icons-round {
+.playlisteditor > .details > .detailswrapper > .material-icons-round {
     line-height: 15px;
     font-size: 15px;
     cursor: pointer;
@@ -118,8 +118,8 @@ $mobileWidth: 950px;
     }
 }
 
-.playlisteditor>.details>h5 {
-    font-size: .8em;
+.playlisteditor > .details > h5 {
+    font-size: 0.8em;
     margin: 0;
 }
 </style>

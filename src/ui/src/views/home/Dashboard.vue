@@ -18,9 +18,15 @@ import { parseCover } from "@/common";
         <div class="main">
             <div v-if="playlists.length" class="playlists">
                 <h2>
-                    <router-link class="linkOnHover" to="/collection/playlists"
-                        >Playlists</router-link
+                    <router-link
+                        class="linkOnHover flex items-center gap-2 !no-underline"
+                        to="/collection/playlists"
                     >
+                        <span class="material-symbols-rounded ms-fill">
+                            library_music
+                        </span>
+                        <span class="hover:underline"> Playlists </span>
+                    </router-link>
                 </h2>
                 <FlexShelf>
                     <Playlist
@@ -32,10 +38,13 @@ import { parseCover } from "@/common";
             <div v-if="breaking.length" class="breaking">
                 <h2>
                     <router-link
-                        class="linkOnHover"
+                        class="linkOnHover flex items-center gap-2 !no-underline"
                         to="/collection/tracks/breaking"
                     >
-                        Breaking Songs
+                        <span class="material-symbols-rounded ms-fill">
+                            trending_up
+                        </span>
+                        <span class="hover:underline"> Breaking Songs </span>
                     </router-link>
                 </h2>
                 <PlaylistHeader />
@@ -50,9 +59,15 @@ import { parseCover } from "@/common";
             </div>
             <div v-if="liked.length" class="liked">
                 <h2>
-                    <router-link class="linkOnHover" to="/collection/tracks"
-                        >Liked Songs</router-link
+                    <router-link
+                        class="linkOnHover flex items-center gap-2 !no-underline"
+                        to="/collection/tracks"
                     >
+                        <span class="material-symbols-rounded ms-fill">
+                            favorite
+                        </span>
+                        <span class="hover:underline"> Liked Songs </span>
+                    </router-link>
                 </h2>
                 <PlaylistHeader />
                 <PlaylistEntry

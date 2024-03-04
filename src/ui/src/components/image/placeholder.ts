@@ -9,13 +9,13 @@ const renderedIcons: Map<string, string> = storage
     ? new Map(JSON.parse(storage))
     : new Map<string, string>();
 
-export const getCover = (
+export const getCover = async (
     cover: string | null,
     placeholder: string,
     size: number = 500
 ) => {
     if (!cover) {
-        return generatePlaceholder(placeholder, size);
+        return await generatePlaceholder(placeholder, size);
     }
 
     return cover;

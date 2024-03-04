@@ -5,7 +5,7 @@
 
 <script lang="ts" setup>
 import Card from "../../containers/Card.vue";
-import { IFullPlaylist, ISong } from "../../common";
+import { IFullPlaylist, ISmartPlaylist, ISong } from "../../common";
 import { computed, PropType } from "vue";
 import { IDiff, IPlaylistDiff } from "./diff";
 import Cover from "../../components/image/Cover.vue";
@@ -13,7 +13,7 @@ import SongDiff from "./SongDiff.vue";
 
 const props = defineProps({
     playlist: {
-        type: Object as PropType<IFullPlaylist>,
+        type: Object as PropType<IFullPlaylist | ISmartPlaylist>,
         required: true,
     },
     diff: {
@@ -123,7 +123,7 @@ const getPlaylistDiff = (playlist: IFullPlaylist): IPlaylistDiff => {
             />
             <pre>
                 <code v-if="playlist.type === 'smart'">
-{{ JSON.stringify(playlist.definition, null, 4) }}
+{{ JSON.stringify((playlist as ISmartPlaylist).definition, null, 4) }}
                 </code>
             </pre>
         </Card>

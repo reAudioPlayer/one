@@ -4,7 +4,7 @@
   -->
 
 <script lang="ts" setup>
-import { PropType, ref, watch } from "vue";
+import { PropType, computed, onMounted, ref, watch } from "vue";
 import { generatePlaceholder, getCover } from "./placeholder";
 import { parseAnyCover } from "../../common";
 import { applyBoxShadow } from "../../helpers/accent";
@@ -16,7 +16,7 @@ const props = defineProps({
         required: true,
     },
     type: {
-        type: String as PropType<"track" | "playlist">,
+        type: String as PropType<"track" | "playlist" | "artist" | "album">,
         required: false,
         default: "track",
     },
@@ -43,7 +43,8 @@ const props = defineProps({
 const imgSrc = ref(null as string | null);
 
 const onError = async () => {
-    imgSrc.value = await generatePlaceholder(props.name);
+    console.error("Failed to load cover", props.src);
+    cover.value = await generatePlaceholder(props.name);
 
     if (!imgSrc.value) {
         setTimeout(() => {
@@ -75,12 +76,24 @@ const onLoad = async () => {
 
     applyBoxShadow(element.value, src, props.ambientOpacity);
 };
+const cover = ref(null as string | null);
+
+watch(
+    () => props.src,
+    async () => {
+        cover.value = await getCover(imgSrc.value, props.name);
+    }
+);
+
+onMounted(async () => {
+    cover.value = await getCover(imgSrc.value, props.name);
+});
 </script>
 <template>
     <img
         ref="element"
         :alt="props.type"
-        :src="getCover(imgSrc, name)"
+        :src="cover"
         class="cover rounded-md"
         @error="onError"
         @load="onLoad"

@@ -5,15 +5,15 @@
 
 <script lang="ts" setup>
 import { PropType } from "vue";
-import { IYesNoNotification } from "./NotificationHandler.vue";
+import type { IYesNoNotification } from "./createNotification";
 import Card from "../../containers/Card.vue";
 
 const props = defineProps({
     notification: {
         type: Object as PropType<IYesNoNotification>,
-        required: true
-    }
-})
+        required: true,
+    },
+});
 
 const emit = defineEmits(["remove"]);
 
@@ -22,20 +22,18 @@ const no = () => {
     if (props.notification.onNo) {
         props.notification.onNo();
     }
-}
+};
 
 const yes = () => {
     emit("remove", props.notification.id);
     if (props.notification.onYes) {
         props.notification.onYes();
     }
-}
+};
 </script>
 
 <template>
-    <Card
-        class="notification"
-    >
+    <Card class="notification">
         <div class="message">
             <h4>
                 {{ notification.message }}
@@ -45,21 +43,11 @@ const yes = () => {
             </span>
         </div>
         <div class="yes-no">
-            <div
-                class="yes option"
-                @click="yes"
-            >
-                <span class="material-symbols-rounded">
-                    check
-                </span>
+            <div class="yes option" @click="yes">
+                <span class="material-symbols-rounded"> check </span>
             </div>
-            <div
-                class="no option"
-                @click="no"
-            >
-                <span class="material-symbols-rounded">
-                    close
-                </span>
+            <div class="no option" @click="no">
+                <span class="material-symbols-rounded"> close </span>
             </div>
         </div>
     </Card>
@@ -75,14 +63,14 @@ const yes = () => {
     background: var(--fg-contrast);
 
     .message {
-        padding: .5em 1em;
+        padding: 0.5em 1em;
 
         h4 {
             margin: 0;
         }
 
         .details {
-            font-size: .8em;
+            font-size: 0.8em;
         }
     }
 }

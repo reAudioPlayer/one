@@ -235,7 +235,7 @@ const onSpotifyUrlClick = () => {
                                 <ButtonCard
                                     icon="edit"
                                     label="Edit"
-                                    @click="$refs.updatePopup.show()"
+                                    @click="($refs.updatePopup as any).show()"
                                 />
                                 <ButtonCard
                                     icon="download"
@@ -289,7 +289,7 @@ const onSpotifyUrlClick = () => {
                                 Math.round(-60 + circle.value) + 'dB'
                             "
                             class="circle"
-                            max="60"
+                            :max="60"
                         />
                         <ProgressCircle
                             v-else
@@ -298,7 +298,7 @@ const onSpotifyUrlClick = () => {
                                 Math.round(circle.value * 100) + '%'
                             "
                             class="circle"
-                            max="1"
+                            :max="1"
                         />
                         <p
                             class="text-muted mb-0 text-center text-sm capitalize flex justify-center"

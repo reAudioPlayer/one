@@ -5,21 +5,21 @@
 
 <script lang="ts" setup>
 import { computed, PropType, ref } from "vue";
-import { ISong } from "../../common";
-import { playInPicture } from "../../api/playerInPicture";
-import { useDataStore } from "../../store/data";
+import { IBaseSong, ISong } from "@/common";
+import { playInPicture } from "@/api/playerInPicture";
+import { useDataStore } from "@/store/data";
 import {
     createPlaylistWithMetadata,
     removeSongFromPlaylist,
-} from "../../api/playlist";
+} from "@/api/playlist";
 import {
     addSong as addSongToPlaylist,
     downloadSong,
     removeSongFromCache,
-} from "../../api/song";
+} from "@/api/song";
 import { Notifications } from "../notifications/createNotification";
-import { asSyncableSong, downloadSyncable } from "../../views/sync/collection";
-import { insertLast, insertNext, insertNow } from "../../api/player";
+import { asSyncableSong, downloadSyncable } from "@/views/sync/collection";
+import { insertLast, insertNext, insertNow } from "@/api/player";
 
 const dataStore = useDataStore();
 
@@ -40,15 +40,19 @@ const props = defineProps({
 
 const emit = defineEmits(["update", "edit"]);
 
-const isAutoPlaylist = computed(() => props.playlistId == -1);
 const preview = () => {
     playInPicture(props.song.artist, props.song.title, props.song.source);
 };
 
-const addTo = async (playlistId: number) => {
-    if (playlistId == -1) return;
+const isAutoPlaylist = computed(() => {
+    return (
+        dataStore.playlists.find((x) => x.id === props.playlistId)?.type !==
+        "classic"
+    );
+});
 
-    await addSongToPlaylist(playlistId, props.song);
+const addTo = async (playlistId: string) => {
+    await addSongToPlaylist(playlistId, props.song as any);
     Notifications.addSuccess(
         props.song.title,
         `Added to ${playlists.value.find((p) => p.id == playlistId)?.name}`,
@@ -59,6 +63,7 @@ const addTo = async (playlistId: number) => {
 
 const addToNew = async () => {
     const playlistId = await createPlaylistWithMetadata(
+        "classic",
         props.song.title,
         props.song.artist,
         props.song.cover

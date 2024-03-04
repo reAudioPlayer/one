@@ -264,7 +264,7 @@ const showWebWavePlayer = computed(() => {
             <audio
                 v-if="isMobile && !onThisDevice"
                 id="hijackVolume"
-                @volumechange="player.setVolume($event.target.volume * 100)"
+                @volumechange="(e: any) => player.setVolume(e.target.volume * 100)"
             />
             <div
                 v-show="!mobileExpanded"

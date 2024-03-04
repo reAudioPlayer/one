@@ -48,7 +48,7 @@ export const parsePlaylistCover = (cover: string) => {
 
 export const parseAnyCover = (
     cover: string,
-    type: "track" | "playlist" = "track"
+    type: "track" | "playlist" | "artist" | "album" = "track"
 ) => {
     const isPlaylist = type == "playlist";
     const parse = isPlaylist ? parsePlaylistCover : parseCover;
@@ -79,26 +79,37 @@ export interface IMetadata {
     plays: number;
 }
 
-export interface ISong {
+interface ISongAlbum {
+    name: string;
+    id: string | null;
+    href: string;
+}
+
+export interface IBaseSong {
     source: string;
     href: string;
     id?: number;
     title: string;
     artist: string;
     artists?: string[];
-    album: {
-        name: string;
-        id: string | null;
-        href: string;
-    };
+    album: string | ISongAlbum;
     cover: string;
     favourite?: boolean;
     duration?: number;
     metadata?: IMetadata;
 }
 
-export interface IBrowseSong extends ISong {
-    track: ISong;
+export interface ISong extends IBaseSong {
+    album: ISongAlbum;
+}
+
+export interface IExternalSong extends IBaseSong {
+    added?: boolean;
+    album: string;
+}
+
+export interface IBrowseSong extends IExternalSong {
+    track: IExternalSong;
 }
 
 export interface IPlaylistMeta {
@@ -120,11 +131,12 @@ export interface IFullPlaylist extends IPlaylist {
     cursor: number;
 }
 
-export interface ISpotifySong extends ISong {
+export interface ISpotifySong extends IBaseSong {
     added?: boolean;
     artists: string[];
     source: string;
     url?: string;
+    album: string;
 }
 
 export interface ISpotifyAlbum {
@@ -172,7 +184,7 @@ export interface ISmartPlaylistDefinition {
     filter: IFilter;
 }
 
-export interface ISmartPlaylist {
+export interface ISmartPlaylist extends IPlaylistMeta {
     id: string;
     name: string;
     description: string;

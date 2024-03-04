@@ -4,14 +4,19 @@
   -->
 
 <script lang="ts" setup>
-import { IDropdownOption, openInNewTab, parseCover, toTitleCase } from "../../../common";
+import {
+    IDropdownOption,
+    openInNewTab,
+    parseCover,
+    toTitleCase,
+} from "../../../common";
 import { PropType } from "vue";
 import Dropdown from "../../inputs/Dropdown.vue";
 import TextInputWithIcon from "../../inputs/TextInputWithIcon.vue";
 import Cover from "../../image/Cover.vue";
 
-interface IOption {
-    value: string;
+export interface IOption {
+    value?: string;
     name: string;
     type: "text" | "number" | "upload" | "dropdown";
     icon?: string;
@@ -21,43 +26,41 @@ interface IOption {
     imagePreview?: boolean;
     onUpload?: (file: File) => void;
     onChange?: (value: unknown) => void;
-    options: IDropdownOption[];
+    options?: IDropdownOption[];
 }
 
 const props = defineProps({
     options: {
         type: Array as PropType<IOption[]>,
-        required: true
-    }
-})
+        required: true,
+    },
+});
 
 const toObject = () => {
     const obj: Record<string, unknown> = {};
-    props.options.forEach(option => {
+    props.options.forEach((option) => {
         obj[option.name] = option.value;
-    })
+    });
     return obj;
-}
+};
 
 defineExpose({
-    toObject
-})
+    toObject,
+});
 </script>
 
 <template>
     <div class="form">
-        <div
-            v-for="option in options"
-            :key="option.name"
-            class="option"
-        >
-            <h4>{{toTitleCase(option.name)}}</h4>
+        <div v-for="option in options" :key="option.name" class="option">
+            <h4>{{ toTitleCase(option.name) }}</h4>
             <div class="content">
                 <!-- INPUT TYPES -->
                 <template v-if="option.type == 'upload'">
                     <span
                         class="material-symbols-rounded icon-button"
-                        @click="() => $refs['upload-' + option.name]?.[0]?.click()"
+                        @click="
+                            () => $refs['upload-' + option.name]?.[0]?.click()
+                        "
                     >
                         file_upload
                     </span>
@@ -66,7 +69,9 @@ defineExpose({
                         :accept="option.accept"
                         style="display: none"
                         type="file"
-                        @change="option?.onUpload($event.target.files[0])"
+                        @change="
+                            option?.onUpload(($event.target as any).files[0])
+                        "
                     />
 
                     <TextInputWithIcon
@@ -77,10 +82,7 @@ defineExpose({
                         type="text"
                         @change="option?.onChange(option.value)"
                     />
-                    <div
-                        v-if="option.imagePreview"
-                        class="imagePreview"
-                    >
+                    <div v-if="option.imagePreview" class="imagePreview">
                         <Cover
                             :src="parseCover(option.value)"
                             class="cover"
@@ -102,15 +104,23 @@ defineExpose({
                         :placeholder="option.placeholder"
                         :required="option.required"
                         :type="option.type"
-                        @change="option.onChange ? option?.onChange(option.value) : null"
+                        @change="
+                            option.onChange
+                                ? option?.onChange(option.value)
+                                : null
+                        "
                     />
                 </template>
                 <template v-else>
                     <input
                         v-model="option.value"
                         :type="option.type"
-                        @change="option.onChange ? option?.onChange(option.value) : null"
-                    >
+                        @change="
+                            option.onChange
+                                ? option?.onChange(option.value)
+                                : null
+                        "
+                    />
                 </template>
             </div>
         </div>

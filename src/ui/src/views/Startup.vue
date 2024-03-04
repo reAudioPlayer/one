@@ -4,7 +4,7 @@
   -->
 
 <script setup lang="ts">
-import Loader from "@/components/Loader";
+import Loader from "@/components/Loader.vue";
 // @ts-ignore
 import Logo from "/src/assets/images/logo/logo-text.svg";
 import { onMounted } from "vue";

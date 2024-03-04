@@ -3,7 +3,8 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import { ISong } from "../../common";
+import { IDropdownOption, ISong } from "../../common";
+import { IOption } from "../popups/components/Form.vue";
 
 export interface IPlaylistFilters {
     search: string;
@@ -46,8 +47,12 @@ export const applyFilters = (
             const artistMatch = artist?.length
                 ? artist.includes(song.artist)
                 : true;
-            const titleMatch = title?.length ? title.includes(song.title) : true;
-            const albumMatch = album?.length ? album.includes(song.album.name) : true;
+            const titleMatch = title?.length
+                ? title.includes(song.title)
+                : true;
+            const albumMatch = album?.length
+                ? album.includes(song.album.name)
+                : true;
 
             return {
                 ...song,
@@ -78,9 +83,9 @@ export const titleOptions = (songs: ISong[]) => {
 
 export const albumOptions = (songs: ISong[]) => {
     return songs.map((song) => ({
-        label: song.album,
-        value: song.album,
-    }));
+        label: song.album.name,
+        value: song.album.name,
+    })) as IDropdownOption[];
 };
 
 export const artistOptions = (songs: ISong[]) => {

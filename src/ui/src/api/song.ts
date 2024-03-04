@@ -3,7 +3,13 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import { IMetadata, ISong, ISpotifySong, unhashTrack } from "../common";
+import {
+    IExternalSong,
+    IMetadata,
+    ISong,
+    ISpotifySong,
+    unhashTrack,
+} from "../common";
 import { createPlaylist } from "./playlist";
 import { useDownloaderStore } from "../store/downloader";
 import { useDataStore } from "../store/data";
@@ -49,7 +55,7 @@ export const updateSongProperty = async (
     await updateDataStore();
 };
 
-export const fetchMetadata = async (src: string): Promise<ISong> => {
+export const fetchMetadata = async (src: string): Promise<IExternalSong> => {
     const res = await fetch("/api/browse/track", {
         method: "POST",
         body: JSON.stringify({
@@ -59,7 +65,7 @@ export const fetchMetadata = async (src: string): Promise<ISong> => {
     return await res.json();
 };
 
-const songToJson = (song: ISong) => ({
+const songToJson = (song: IExternalSong) => ({
     source: song.source,
     title: song.title,
     artist: song.artist,
@@ -73,7 +79,7 @@ const songToJson = (song: ISong) => ({
  * @param playlistId the id of the playlist to add the song to
  * @param song the song to add
  */
-export const addSong = async (playlistId: string, song: ISong) => {
+export const addSong = async (playlistId: string, song: IExternalSong) => {
     if (playlistId === "new") {
         playlistId = await createPlaylist();
     }
@@ -91,7 +97,7 @@ export const addSong = async (playlistId: string, song: ISong) => {
  * @param playlistId the id of the playlist to add the song to
  * @param songs the songs to add
  */
-export const addSongs = async (playlistId: string, songs: ISong[]) => {
+export const addSongs = async (playlistId: string, songs: IExternalSong[]) => {
     if (playlistId === "new") {
         playlistId = await createPlaylist();
     }

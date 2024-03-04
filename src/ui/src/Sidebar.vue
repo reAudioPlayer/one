@@ -8,6 +8,7 @@ import { usePlayerStore } from "@/store/player";
 import { useDataStore } from "@/store/data";
 import { computed } from "vue";
 import { useSettingsStore } from "@/store/settings";
+import NavEntry from "@/components/Sidebar/NavEntry.vue";
 
 const player = usePlayerStore();
 const data = useDataStore();
@@ -22,21 +23,21 @@ const settings = useSettingsStore();
         <div class="static">
             <nav-entry
                 :hasChildSites="true"
-                :minimised="minimised"
+                minimised
                 href="/collection/playlists"
                 icon="library_music"
                 name="Your Library"
                 parentHref="/collection"
             />
             <nav-entry
-                :minimised="minimised"
+                minimised
                 href="/preferences"
                 icon="settings"
                 name="Settings"
                 class="showIfMobile"
             />
             <nav-entry
-                :minimised="minimised"
+                minimised
                 href="/discover"
                 icon="explore"
                 name="Discover"
@@ -46,7 +47,7 @@ const settings = useSettingsStore();
             <nav-entry
                 v-if="settings.sidebar.news"
                 :hasChildSites="true"
-                :minimised="minimised"
+                minimised
                 href="/news"
                 icon="newspaper"
                 name="News"
@@ -54,14 +55,14 @@ const settings = useSettingsStore();
             <nav-entry
                 v-if="settings.sidebar.sports"
                 :hasChildSites="true"
-                :minimised="minimised"
+                minimised
                 href="/sports"
                 icon="sports_soccer"
                 name="Sports"
             />
             <br class="hideIfMobile" />
             <nav-entry
-                :minimised="minimised"
+                minimised
                 class="hideIfMobile"
                 href="/playlist/create"
                 icon="add_circle"
@@ -77,7 +78,7 @@ const settings = useSettingsStore();
                 :key="index"
                 :href="element.href"
                 :img="element.cover"
-                :minimised="minimised"
+                minimised
                 :name="element.name"
             />
         </div>
@@ -89,43 +90,6 @@ const settings = useSettingsStore();
         />
     </div>
 </template>
-
-<script lang="ts">
-import NavEntry from "@/components/Sidebar/NavEntry.vue";
-import { computed } from "vue";
-import { useSettingsStore } from "@/store/settings";
-
-export default {
-    name: "Sidebar",
-    components: {
-        NavEntry,
-    },
-    watch: {
-        minimised() {
-            this.collapseSidebar();
-        },
-    },
-    mounted() {
-        this.collapseSidebar();
-    },
-    computed: {
-        minimised() {
-            return true;
-        },
-    },
-    methods: {
-        hideCover() {
-            this.$emit("expandCover", false);
-        },
-        collapseSidebar() {
-            document.documentElement.style.setProperty(
-                "--w-sidebar",
-                this.minimised ? "44px" : "200px"
-            );
-        },
-    },
-};
-</script>
 
 <style lang="scss" scoped>
 $mobileWidth: 750px;

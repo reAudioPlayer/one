@@ -30,6 +30,7 @@
 <script lang="ts">
 import Cover from "@/components/image/Cover.vue";
 import Card from "@/containers/Card.vue";
+import { PropType } from "vue";
 
 export default {
     components: { Card, Cover },
@@ -43,7 +44,7 @@ export default {
             default: null,
         },
         imageType: {
-            type: String,
+            type: String as PropType<"track" | "playlist" | "artist" | "album">,
             default: "playlist",
         },
     },

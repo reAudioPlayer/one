@@ -183,10 +183,10 @@ let query = ref("");
 const search = ref(null);
 
 onMounted(() => {
-    query.value = router.currentRoute.value.params.query || "";
+    query.value = String(router.currentRoute.value.params.query || "");
 
     router.afterEach((to) => {
-        query.value = to.params.query || "";
+        query.value = String(to.params.query || "");
     });
 
     // Ctrl+K
