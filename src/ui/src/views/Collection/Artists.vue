@@ -34,8 +34,8 @@
 </template>
 
 <script lang="ts" setup>
-import FullShelf from "@/components/Catalogue/FullShelf.vue";
-import ArtistItem from "@/components/Catalogue/Items/Artist/ArtistItem.vue";
+import FullShelf from "@/components/catalogue/FullShelf.vue";
+import ArtistItem from "@/components/catalogue/Items/Artist/ArtistItem.vue";
 import CardWithImageAndText from "@/containers/CardWithImageAndText.vue";
 import { onMounted, ref } from "vue";
 import FetchLoader from "../../components/FetchLoader.vue";

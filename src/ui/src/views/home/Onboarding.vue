@@ -34,15 +34,15 @@
                     <h2>Import from Spotify</h2>
                 </div>
                 <div class="spotify-playlists">
-                    <playlist-item
-                        v-for="(element, index) in spotifyPlaylists"
-                        :key="index"
-                        :cover="element.cover"
-                        :description="element.description"
-                        :title="element.name"
-                        :id="element.id"
-                        :spotify="true"
-                        :href="`https://open.spotify.com/playlist/${element.id}`"
+                    <PlaylistItem
+                        v-for="playlist in spotifyPlaylists"
+                        :playlist="{
+                            ...playlist,
+                            type: 'classic',
+                            plays: 0,
+                            href: `https://open.spotify.com/playlist/${playlist.id}`
+                        }"
+                        is-spotify
                     />
                 </div>
             </Card>
@@ -55,11 +55,11 @@ import {authoriseSpotify} from "../../api/config";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 import Card from "../../containers/Card.vue";
-import SpotifyLogo from "../../assets/images/src/spotify.svg";
+import SpotifyLogo from "@/assets/images/src/spotify.svg";
 import Form from "../../components/popups/components/Form.vue";
-import PlaylistItem from '@/components/Catalogue/Items/Playlists/PlaylistItem.vue'
-import IconButton from "../../components/inputs/IconButton.vue";
-import {createPlaylistWithMetadata} from "../../api/playlist";
+import PlaylistItem from "@/components/playlist/PlaylistCard.vue";
+import IconButton from "@/components/inputs/IconButton.vue";
+import {createPlaylistWithMetadata} from "@/api/playlist";
 
 const spotifyPlaylists = ref([]);
 const spotifyEnabled = ref(false);

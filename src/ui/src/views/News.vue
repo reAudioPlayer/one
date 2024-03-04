@@ -18,8 +18,8 @@
 </template>
 
 <script>
-import FullShelf from '../components/Catalogue/FullShelf.vue'
-import NewsItemBig from '../components/Catalogue/Items/News/NewsItemBig.vue'
+import FullShelf from '../components/catalogue/FullShelf.vue'
+import NewsItemBig from '../components/catalogue/Items/News/NewsItemBig.vue'
 import Loader from "@/components/Loader.vue";
 
 export default {

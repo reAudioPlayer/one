@@ -7,8 +7,8 @@
 import { usePlayerStore } from "../store/player";
 import { useDataStore } from "../store/data";
 import { computed, onMounted, ref, watch } from "vue";
-import Playlist from "../components/Playlist/Playlist.vue";
-import PlaylistItem from "../components/Catalogue/Items/Playlists/PlaylistItem.vue";
+import Playlist from "@/components/playlist/Playlist.vue";
+import PlaylistItem from "@/components/playlist/PlaylistCard.vue";
 import Cover from "@/components/image/Cover.vue";
 
 const player = usePlayerStore();
@@ -126,11 +126,7 @@ const animate = ref(false); // animations
                     <div class="playlists">
                         <playlist-item
                             v-for="playlist in playlists"
-                            :key="playlist.id"
-                            :cover="playlist.cover"
-                            :description="playlist.description"
-                            :title="playlist.name"
-                            @click.stop="() => player.loadPlaylist(playlist.id)"
+                            :playlist="playlist"
                         />
                     </div>
                 </div>

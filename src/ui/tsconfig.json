@@ -6,6 +6,11 @@
         "noEmit": false,
         "noImplicitThis": false,
         "allowSyntheticDefaultImports": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["src/*"]
+        },
+        "allowJs": true,
     }
 }
