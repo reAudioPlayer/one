@@ -1,5 +1,15 @@
-import { IFullPlaylist, ISong, ISmartPlaylist } from "../../common";
-import { createPlaylistWithMetadata, getSmartPlaylistDefinition, updateSmartPlaylistDefinition } from "../../api/playlist";
+import {
+    IFullPlaylist,
+    ISong,
+    ISmartPlaylist,
+    IExternalSong,
+    IBaseSong,
+} from "../../common";
+import {
+    createPlaylistWithMetadata,
+    getSmartPlaylistDefinition,
+    updateSmartPlaylistDefinition,
+} from "../../api/playlist";
 import { addSongs } from "../../api/song";
 import { Notifications } from "../../components/notifications/createNotification";
 import { useDataStore } from "../../store/data";
@@ -42,7 +52,7 @@ interface ISyncable {
 
 export interface ISyncableSong extends ISyncable {
     type: "song";
-    song: ISong;
+    song: IBaseSong;
 }
 
 export interface ISyncablePlaylist extends ISyncable {
@@ -155,7 +165,7 @@ const addSongsToPlaylist = async (songs: ISyncableSong[]) => {
 
     await addSongs(
         playlist.id,
-        songs.map((x) => x.song)
+        songs.map((x) => x.song as any)
     );
     Notifications.addSuccess(
         `Added ${songs.length} songs to ${playlist.name}`,
@@ -180,7 +190,7 @@ const addPlaylist = async (playlist: ISyncablePlaylist) => {
         );
         return;
     }
-    await addSongs(id, toAdd.songs);
+    await addSongs(id, toAdd.songs as any);
 };
 
 const addPlaylists = async (playlists: ISyncablePlaylist[]) => {
@@ -208,4 +218,4 @@ export const importSyncables = (items: ISyncableOne[]) => {
         playlists.push(...collection.collection);
     }
     addPlaylists(playlists);
-}
+};

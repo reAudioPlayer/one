@@ -5,25 +5,25 @@
 
 <script lang="ts" setup>
 import Template from "./components/Template.vue";
-import Form from "./components/Form.vue";
+import Form, { IOption } from "./components/Form.vue";
 import { ref } from "vue";
 import {
     hashTrack,
     IBrowseSong,
     IMetadata,
     isLink,
-    ISong,
-    unhashPlaylist,
+    ISpotifySong,
 } from "../../common";
 import { addSong, fetchMetadata } from "../../api/song";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
-const emit = defineEmits(["update"]);
+const emit = defineEmits(["update", "close"]);
 
-const song: ISong = {
+const song: ISpotifySong = {
     title: "",
     artist: "",
+    artists: [],
     album: "",
     cover: "",
     source: "",
@@ -50,7 +50,7 @@ const upload = async (endpoint: string, file: File) => {
 
 const fetchedMetadata = ref(null as IMetadata | null);
 
-const options = ref([
+const options = ref<IOption[]>([
     {
         name: "source",
         type: "upload",

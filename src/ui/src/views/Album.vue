@@ -83,7 +83,7 @@ const fetchFromSpotify = async (id: string) => {
     if (!res) {
         Notifications.addError(
             "Failed to fetch album from Spotify",
-            res.text,
+            await res.text(),
             3000
         );
         return;

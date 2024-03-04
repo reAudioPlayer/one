@@ -7,9 +7,9 @@
 import { ref } from "vue";
 import ClosableNotification from "./ClosableNotification.vue";
 import YesNoNotification from "./YesNoNotification.vue";
-import { IFullNotification } from "./createNotification";
+import { IFullNotification, IYesNoNotification } from "./createNotification";
 
-const closableNotifications = [ "success", "error", "info", "warning" ];
+const closableNotifications = ["success", "error", "info", "warning"];
 
 const notifications = ref<IFullNotification[]>([]);
 
@@ -24,34 +24,33 @@ const add = (notification: IFullNotification) => {
 };
 
 const remove = (id: string) => {
-    notifications.value = notifications.value.filter(notification => notification.id != id);
+    notifications.value = notifications.value.filter(
+        (notification) => notification.id != id
+    );
 };
 
 const clear = () => {
     notifications.value = [];
 };
 
-window.addEventListener('notification.add', e => {
+window.addEventListener("notification.add", (e) => {
     const notification = (e as CustomEvent).detail;
     add(notification);
 });
 
-window.addEventListener('notification.remove', e => {
+window.addEventListener("notification.remove", (e) => {
     const id = (e as CustomEvent).detail;
     remove(id);
 });
 
-window.addEventListener('notification.clear', () => {
+window.addEventListener("notification.clear", () => {
     clear();
 });
 </script>
 
 <template>
     <div class="notifications">
-        <template
-            v-for="notification in notifications"
-            :key="notification.id"
-        >
+        <template v-for="notification in notifications" :key="notification.id">
             <ClosableNotification
                 v-if="closableNotifications.includes(notification.type)"
                 :notification="notification"
@@ -59,7 +58,7 @@ window.addEventListener('notification.clear', () => {
             />
             <YesNoNotification
                 v-else-if="notification.type == 'yes-no'"
-                :notification="notification"
+                :notification="notification as IYesNoNotification"
                 @remove="remove"
             />
         </template>

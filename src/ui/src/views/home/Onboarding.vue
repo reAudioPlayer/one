@@ -11,13 +11,13 @@
         <div class="grid grid-cols-2 gap-4 mt-8">
             <Card class="p-4">
                 <div class="flex flex-row items-center">
-                    <span class="material-symbols-rounded ms-wght-700 text-4xl mr-4">add</span>
+                    <span
+                        class="material-symbols-rounded ms-wght-700 text-4xl mr-4"
+                        >add</span
+                    >
                     <h2>Create your first playlist</h2>
                 </div>
-                <Form
-                    ref="createForm"
-                    :options="createFormOptions.fields"
-                />
+                <Form ref="createForm" :options="createFormOptions.fields" />
                 <div class="flex flex-row justify-end w-full">
                     <IconButton
                         @click="createFormOptions.submit.action()"
@@ -28,9 +28,7 @@
             </Card>
             <Card v-if="spotifyPlaylists.length" class="p-4">
                 <div class="flex flex-row items-center">
-                    <SpotifyLogo
-                        class="spotify mr-4"
-                    />
+                    <SpotifyLogo class="spotify mr-4" />
                     <h2>Import from Spotify</h2>
                 </div>
                 <div class="spotify-playlists">
@@ -40,7 +38,7 @@
                             ...playlist,
                             type: 'classic',
                             plays: 0,
-                            href: `https://open.spotify.com/playlist/${playlist.id}`
+                            href: `https://open.spotify.com/playlist/${playlist.id}`,
                         }"
                         is-spotify
                     />
@@ -51,62 +49,63 @@
 </template>
 
 <script lang="ts" setup>
-import {authoriseSpotify} from "../../api/config";
-import {ref} from "vue";
-import {useRouter} from "vue-router";
-import Card from "../../containers/Card.vue";
+import { authoriseSpotify } from "@/api/config";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import Card from "@/containers/Card.vue";
+// @ts-ignore
 import SpotifyLogo from "@/assets/images/src/spotify.svg";
-import Form from "../../components/popups/components/Form.vue";
+import Form, {
+    type IOption,
+} from "../../components/popups/components/Form.vue";
 import PlaylistItem from "@/components/playlist/PlaylistCard.vue";
 import IconButton from "@/components/inputs/IconButton.vue";
-import {createPlaylistWithMetadata} from "@/api/playlist";
+import { createPlaylistWithMetadata } from "@/api/playlist";
 
 const spotifyPlaylists = ref([]);
 const spotifyEnabled = ref(false);
 const createForm = ref(null);
 const router = useRouter();
 
-authoriseSpotify().then(x => {
+authoriseSpotify().then((x) => {
     spotifyEnabled.value = x;
 });
 
 fetch("/api/spotify/playlists")
-    .then(x => x.json())
-    .then(jdata => {
-        spotifyPlaylists.value = jdata
-    })
+    .then((x) => x.json())
+    .then((jdata) => {
+        spotifyPlaylists.value = jdata;
+    });
 
-const redirect = to => {
+const redirect = (to) => {
     router.push(to);
-}
+};
 
 const createFormOptions = {
     fields: [
         {
-            name: 'name',
-            label: 'Name',
-            placeholder: 'Playlist name',
-            icon: 'title',
-            type: 'text',
+            name: "name",
+            placeholder: "Playlist name",
+            icon: "title",
+            type: "text",
             required: true,
         },
         {
-            name: 'description',
-            label: 'Description',
-            placeholder: 'Playlist description',
-            icon: 'description',
-            type: 'text',
+            name: "description",
+            placeholder: "Playlist description",
+            icon: "description",
+            type: "text",
             required: false,
         },
-    ],
+    ] as IOption[],
     submit: {
-        label: 'Create',
+        label: "Create",
         action: async () => {
             const data = createForm.value.toObject();
             await createPlaylistWithMetadata(data.name, data.description);
         },
     },
-}
+};
 </script>
 
 <style lang="scss">

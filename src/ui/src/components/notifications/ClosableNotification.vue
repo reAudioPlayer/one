@@ -5,28 +5,25 @@
 
 <script lang="ts" setup>
 import { PropType } from "vue";
-import { INotification } from "./NotificationHandler.vue";
+import type { INotification } from "./createNotification";
 import Card from "../../containers/Card.vue";
 
 const props = defineProps({
     notification: {
         type: Object as PropType<INotification>,
-        required: true
-    }
-})
+        required: true,
+    },
+});
 
 const emit = defineEmits(["remove"]);
 
 const remove = (id: string) => {
     emit("remove", id);
-}
+};
 </script>
 
 <template>
-    <Card
-        :class="notification.type"
-        class="notification"
-    >
+    <Card :class="notification.type" class="notification">
         <div class="message">
             <h4>
                 {{ notification.message }}
@@ -46,7 +43,7 @@ const remove = (id: string) => {
 
 <style lang="scss" scoped>
 .notification {
-    padding: .5em 1em;
+    padding: 0.5em 1em;
     display: flex;
     flex-direction: row;
     gap: 2em;
@@ -71,12 +68,13 @@ const remove = (id: string) => {
         background-color: var(--warning);
     }
 
-    h4, p {
+    h4,
+    p {
         margin: 0;
     }
 
     .details {
-        font-size: .8em;
+        font-size: 0.8em;
     }
 }
 

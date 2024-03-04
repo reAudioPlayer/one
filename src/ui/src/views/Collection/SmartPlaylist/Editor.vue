@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import IconButton from "../../../components/inputs/IconButton.vue";
-import IconDropdown from "../../../components/inputs/IconDropdown.vue";
-import TextInputWithIcon from "../../../components/inputs/TextInputWithIcon.vue";
+import IconButton from "@/components/inputs/IconButton.vue";
+import IconDropdown from "@/components/inputs/IconDropdown.vue";
+import TextInputWithIcon from "@/components/inputs/TextInputWithIcon.vue";
 import { debounce } from "lodash";
-import { IPlaylist, ISmartPlaylistDefinition } from "../../../common";
+import { IFullPlaylist, ISmartPlaylistDefinition } from "@/common";
 import {
     peekSmartPlaylist,
     getSmartPlaylistDefinition,
     updateSmartPlaylistDefinition,
     deletePlaylist,
-} from "../../../api/playlist";
-import Playlist from "../../../components/Playlist/Playlist.vue";
-import Card from "../../../containers/Card.vue";
+} from "@/api/playlist";
+import Playlist from "@/components/Playlist/Playlist.vue";
+import Card from "@/containers/Card.vue";
 import { useRoute } from "vue-router";
 import { useRouter } from "vue-router";
-import { useDataStore } from "../../../store/data";
+import { useDataStore } from "@/store/data";
 
 const route = useRoute();
 const router = useRouter();
@@ -23,10 +23,9 @@ const playlistId = computed(() => route.params.id as string);
 const dataStore = useDataStore();
 
 const smartPlaylist = ref<ISmartPlaylistDefinition>({
-    name: "",
-    description: "",
     direction: "asc",
     sort: "id",
+    limit: 25,
     filter: {
         title: [],
         artist: [],
@@ -35,7 +34,7 @@ const smartPlaylist = ref<ISmartPlaylistDefinition>({
     },
 });
 
-const playlist = ref<IPlaylist | null>();
+const playlist = ref<IFullPlaylist | null>();
 watch(
     [
         () => smartPlaylist.value.sort,
@@ -88,7 +87,12 @@ const icons = {
 onMounted(async () => {
     smartPlaylist.value = await getSmartPlaylistDefinition(playlistId.value);
     if (!smartPlaylist.value.filter) {
-        smartPlaylist.value.filter = {};
+        smartPlaylist.value.filter = {
+            title: [],
+            artist: [],
+            album: [],
+            duration: {},
+        };
     }
 
     const plFilter = smartPlaylist.value.filter;

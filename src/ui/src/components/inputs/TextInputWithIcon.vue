@@ -33,7 +33,11 @@ import { PropType, ref, watch } from "vue";
 const props = defineProps({
     icon: String,
     placeholder: String,
-    modelValue: String,
+    modelValue: {
+        type: String as PropType<string | number>,
+        required: false,
+        default: "",
+    },
     type: {
         type: String,
         required: false,

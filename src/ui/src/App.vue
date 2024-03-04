@@ -41,7 +41,7 @@ const setPlaceholder = async () => {
 setCover();
 
 const coverAsBackground = computed(() => {
-    return window.getCurrentThemeProperty("coverAsBackground");
+    return (window as any).getCurrentThemeProperty("coverAsBackground");
 });
 
 onMounted(() => {

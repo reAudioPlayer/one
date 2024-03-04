@@ -130,7 +130,7 @@ const suggestOffset = computed(() => ({
     width: inputElement.value?.offsetWidth + "px",
 }));
 
-const suggestions = ref<string[]>([]);
+const suggestions = ref<any[]>([]);
 const onInput = debounce(async () => {
     suggestions.value = (await props.suggest(value.value)).slice(0, 5);
 }, 300);

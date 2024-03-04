@@ -6,7 +6,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from "vue-router";
 import { computed, onMounted, ref, watch } from "vue";
-import { ISong, openInNewTab, parseSpotifyId } from "../common";
+import { ISong, openInNewTab, parseSpotifyId, ISpotifySong } from "@/common";
 import Cover from "../components/image/Cover.vue";
 import AmbientBackground from "../components/image/AmbientBackground.vue";
 import FactCard from "../containers/FactCard.vue";
@@ -34,7 +34,7 @@ interface IArtist {
         genres: string[];
         followers: number;
         popularity: number;
-        topTracks: ISong[];
+        topTracks: ISpotifySong[];
         related: IArtist[];
     };
 }

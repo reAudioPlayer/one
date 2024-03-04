@@ -8,7 +8,12 @@ import Loader from "@/components/Loader.vue";
 import GistClient from "../../api/gistClient";
 import { diffLib, IPlaylistDiff } from "./diff";
 import PlaylistDiff from "./PlaylistDiff.vue";
-import { IFullPlaylist, ISmartPlaylist, ISong } from "../../common";
+import {
+    IExternalSong,
+    IFullPlaylist,
+    ISmartPlaylist,
+    ISong,
+} from "../../common";
 import { computed, ref, onMounted, watch } from "vue";
 import IconButton from "../../components/inputs/IconButton.vue";
 import {
@@ -87,7 +92,7 @@ const merge = async () => {
     const promises = [] as Promise<any>[];
 
     const modifyPlaylist = (diff: IPlaylistDiff) => {
-        promises.push(addSongs(diff.id, diff.added));
+        promises.push(addSongs(diff.id, diff.added as any[]));
 
         for (const song of diff.removed) {
             promises.push(removeSongFromPlaylist(diff.id, song.id));
@@ -103,7 +108,10 @@ const merge = async () => {
     };
 
     for (const playlist of diff.value.added) {
+        if (playlist.playlist.type === "special") continue;
+
         base.value.collection.push(playlist);
+
         promises.push(
             createPlaylistWithMetadata(
                 playlist.playlist.type,

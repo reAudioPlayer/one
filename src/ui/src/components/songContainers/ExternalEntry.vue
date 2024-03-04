@@ -4,7 +4,7 @@
   -->
 
 <script lang="ts" setup>
-import { isMobile, ISong } from "../../common";
+import { isMobile, ISong, ISpotifySong } from "../../common";
 import { computed, PropType, ref } from "vue";
 import Marquee from "../Marquee.vue";
 import { usePlayerStore } from "../../store/player";
@@ -16,38 +16,38 @@ import ArtistMarquee from "../ArtistMarquee.vue";
 
 const props = defineProps({
     song: {
-        type: Object as PropType<ISong>,
-        required: true
+        type: Object as PropType<ISpotifySong>,
+        required: true,
     },
     index: {
         type: Number,
-        required: true
+        required: true,
     },
     withCover: {
         type: Boolean,
         required: false,
-        default: false
+        default: false,
     },
     withAlbum: {
         type: Boolean,
         required: false,
-        default: false
+        default: false,
     },
     selected: {
         type: Boolean,
         required: false,
-        default: false
+        default: false,
     },
     playlistId: {
         type: Number,
         required: false,
-        default: null
+        default: null,
     },
     canImport: {
         type: Boolean,
         required: false,
-        default: false
-    }
+        default: false,
+    },
 });
 const emit = defineEmits(["update", "add"]);
 
@@ -58,43 +58,45 @@ const hovering = ref(false);
 const toggleFavourite = () => {
     props.song.favourite = !props.song.favourite;
     favouriteSong(props.song.id, props.song.favourite);
-}
+};
 
-const playlistId = computed(() => props.playlistId == null ? playerStore.playlist.id : props.playlistId);
+const playlistId = computed(() =>
+    props.playlistId == null ? playerStore.playlist.id : props.playlistId
+);
 const playSong = () => {
-    playInPicture(props.song.title, props.song.artist, props.song.source || props.song.href);
-}
+    playInPicture(
+        props.song.title,
+        props.song.artist,
+        props.song.source || props.song.href
+    );
+};
 
 const updatePopup = ref(null);
 const edit = () => {
     updatePopup.value.show();
-}
+};
 
 const update = () => {
     emit("update");
-}
+};
 
 const addOrImport = () => {
     if (props.canImport) {
         updatePopup.value.show();
     } else {
-        emit('add');
+        emit("add");
     }
-}
+};
 </script>
 <template>
-    <ImportSpotifySong
-        v-if="canImport"
-        ref="updatePopup"
-        :song="song"
-    />
+    <ImportSpotifySong v-if="canImport" ref="updatePopup" :song="song" />
     <div
         :class="{
             playing,
             selected,
             hovering,
             withCover,
-            withAlbum
+            withAlbum,
         }"
         class="playlist-entry"
         @dblclick="playSong"
@@ -102,16 +104,13 @@ const addOrImport = () => {
         @mouseleave="hovering = false"
     >
         <div
-            :class="{'material-symbols-rounded': hovering}"
+            :class="{ 'material-symbols-rounded': hovering }"
             class="index text-right"
             @click="playSong"
         >
-            {{hovering ? "play_arrow" : index + 1}}
+            {{ hovering ? "play_arrow" : index + 1 }}
         </div>
-        <div
-            v-if="withCover"
-            class="cover"
-        >
+        <div v-if="withCover" class="cover">
             <Cover :src="song.cover" type="track" />
         </div>
         <div class="artist-title">
@@ -126,13 +125,13 @@ const addOrImport = () => {
                 </component>
             </span>
             <span class="artist">
-                <ArtistMarquee :artist="song.artist" class="text-muted text-xs" />
+                <ArtistMarquee
+                    :artist="song.artist"
+                    class="text-muted text-xs"
+                />
             </span>
         </div>
-        <div
-            v-if="withAlbum && !isMobile"
-            class="album"
-        >
+        <div v-if="withAlbum && !isMobile" class="album">
             <Marquee :text="song.album" />
         </div>
         <div
@@ -171,9 +170,12 @@ const addOrImport = () => {
         overflow: hidden;
     }
 
-    .index, .album, .duration, .icon {
+    .index,
+    .album,
+    .duration,
+    .icon {
         margin: auto 0;
-        font-size: .9rem;
+        font-size: 0.9rem;
         color: var(--fg-base-dk);
 
         &.index {
@@ -228,7 +230,7 @@ const addOrImport = () => {
         grid-template-rows: 1fr 1fr;
 
         .artist {
-            font-size: .8rem;
+            font-size: 0.8rem;
             color: var(--fg-base-dk);
         }
 
@@ -239,13 +241,16 @@ const addOrImport = () => {
     }
 
     &.playing {
-        .title, .index {
+        .title,
+        .index {
             color: var(--fg-secondary);
         }
     }
 
-    &.hovering, &.selected {
-        .artist, .album {
+    &.hovering,
+    &.selected {
+        .artist,
+        .album {
             color: var(--fg-base);
         }
     }
@@ -255,16 +260,17 @@ const addOrImport = () => {
         border-radius: 10px;
         grid-template-columns: 30px 40px 1fr 1fr 30px 40px;
 
-        .index, .duration {
-            font-size: .7rem;
+        .index,
+        .duration {
+            font-size: 0.7rem;
         }
 
         .artist-title {
             grid-column-end: 5;
-            font-size: .8rem;
+            font-size: 0.8rem;
 
             .artist {
-                font-size: .65rem;
+                font-size: 0.65rem;
             }
         }
     }

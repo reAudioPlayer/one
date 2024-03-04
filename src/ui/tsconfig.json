@@ -7,10 +7,17 @@
         "noImplicitThis": false,
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,
+        "skipLibCheck": true,
         "baseUrl": ".",
         "paths": {
             "@/*": ["src/*"]
         },
         "allowJs": true,
-    }
+    },
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.js",
+        "src/**/*.tsx",
+        "src/**/*.jsx"
+    ],
 }

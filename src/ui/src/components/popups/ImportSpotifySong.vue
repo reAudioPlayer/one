@@ -5,11 +5,11 @@
 
 <script lang="ts" setup>
 import Template from "./components/Template.vue";
-import Form from "./components/Form.vue";
+import Form, { IOption } from "./components/Form.vue";
 import TrackInfo from "./components/TrackInfo.vue";
 
 import { PropType, Ref, ref } from "vue";
-import { ISong, ISpotifySong, openInNewTab } from "../../common";
+import { IExternalSong, ISong, ISpotifySong, openInNewTab } from "../../common";
 import { useDataStore } from "../../store/data";
 import { addSong as addSongToPlaylist } from "../../api/song";
 import { createPlaylistWithMetadata } from "../../api/playlist";
@@ -24,7 +24,7 @@ const props = defineProps({
     },
 });
 
-const options = ref([
+const options = ref<IOption[]>([
     {
         name: "playlist",
         type: "dropdown",
@@ -91,7 +91,7 @@ const addSong = async (index: number, playlistId: string = null) => {
 
     playlistId = await createPlaylist(playlistId);
 
-    await addSongToPlaylist(playlistId, track.value);
+    await addSongToPlaylist(playlistId, track.value as any);
     props.song.added = true;
     Notifications.addSuccess(
         track.value.title,
