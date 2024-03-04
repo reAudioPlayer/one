@@ -4,9 +4,9 @@
   -->
 
 <script setup lang="ts">
-import FlexShelf from "/src/components/Catalogue/FlexShelf.vue";
-import Playlist from "/src/components/Catalogue/Items/home/Playlist.vue";
-import TrackCompact from "/src/components/Catalogue/Items/home/TrackCompact.vue";
+import FlexShelf from "@/components/catalogue/FlexShelf.vue";
+import Playlist from "@/components/playlist/PlaylistCard.vue";
+import TrackCompact from "/src/components/catalogue/Items/home/TrackCompact.vue";
 import PlaylistHeader from "@/components/songContainers/PlaylistHeader.vue";
 import PlaylistEntry from "@/components/songContainers/PlaylistEntry.vue";
 
@@ -24,13 +24,8 @@ import { parseCover } from "@/common";
                 </h2>
                 <FlexShelf>
                     <Playlist
-                        v-for="(playlist, index) in playlists"
-                        :key="index"
-                        :cover="playlist.cover"
-                        :href="playlist?.href"
-                        :name="playlist.name"
-                        :type="playlist.type"
-                        :id="playlist.id"
+                        v-for="playlist in playlists"
+                        :playlist="playlist"
                     />
                 </FlexShelf>
             </div>

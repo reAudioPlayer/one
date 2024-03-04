@@ -10,7 +10,7 @@ import Playlist from "./components/Playlist.vue";
 import TrackInfo from "./components/TrackInfo.vue";
 
 import {PropType, Ref, ref} from "vue";
-import {ISpotifyPlaylist, ISpotifySong, openInNewTab} from "../../common";
+import {ISpotifyPlaylist, ISpotifySong, openInNewTab} from "@/common";
 import {useDataStore} from "../../store/data";
 import {addSong as addSongToPlaylist} from "../../api/song";
 import {createPlaylistWithMetadata} from "../../api/playlist";

@@ -146,7 +146,7 @@ const routes = [{
 },
 {
     path: '/sing-along',
-    component: () => import("@/views/SingAlong/index.vue"),
+    component: () => import("@/views/singAlong/index.vue"),
     meta: {
         title: "Sing Along - reAudioPlayer One"
     }

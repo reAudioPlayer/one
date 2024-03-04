@@ -64,7 +64,8 @@ main.collection {
     grid-template-rows: auto 1fr;
     margin: 10px;
     margin-right: 0;
-    height: calc(100% - 20px);
+    margin-bottom: 0;
+    height: calc(100% - 10px);
     overflow: auto;
     position: relative;
 }

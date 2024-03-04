@@ -15,11 +15,11 @@ import {
     filterApplied,
     IFilteredSong,
     IPlaylistFilters,
-} from "./applyFilters";
+} from "@/components/playlist/applyFilters";
 import PlaylistHeader from "../../components/songContainers/PlaylistHeader.vue";
 import AmbientBackground from "../../components/image/AmbientBackground.vue";
 import { useDataStore } from "../../store/data";
-import PlaylistMeta from "./PlaylistMeta.vue";
+import PlaylistMeta from "@/components/playlist/PlaylistMeta.vue";
 
 const props = defineProps({
     id: {
@@ -169,3 +169,4 @@ const onPlaylistRearrange = (type) => {
     }
 }
 </style>
+../../components/playlist/applyFilters

@@ -4,9 +4,8 @@
   -->
 
 <script setup lang="ts">
-import FullShelf from "@/components/Catalogue/FullShelf.vue";
-import Playlist from "/src/components/Catalogue/Items/home/Playlist.vue";
-import PlaylistItem from "@/components/Catalogue/Items/Playlists/PlaylistItem.vue";
+import FullShelf from "@/components/catalogue/FullShelf.vue";
+import Playlist from "@/components/playlist/PlaylistCard.vue";
 import FetchLoader from "../../components/FetchLoader.vue";
 import { useDataStore } from "../../store/data";
 import { ref, computed, onMounted } from "vue";
@@ -29,13 +28,8 @@ onMounted(async () => {
     <div class="playlists">
         <full-shelf v-if="playlists.length" heading="Playlists">
             <Playlist
-                v-for="(playlist, index) in playlists"
-                :key="index"
-                :cover="playlist.cover"
-                :href="playlist?.href"
-                :name="playlist.name"
-                :type="playlist.type"
-                :id="playlist.id"
+                v-for="playlist in playlists"
+                :playlist="playlist"
             />
         </full-shelf>
         <FetchLoader
@@ -48,21 +42,26 @@ onMounted(async () => {
                 heading="Import From Spotify"
                 v-if="spotifyPlaylists.length"
             >
-                <playlist-item
-                    title="Liked"
-                    description="your liked tracks"
-                    :spotify="true"
-                    id="liked"
+                <Playlist
+                    :playlist="{
+                        href: '/liked',
+                        name: 'Liked',
+                        description: 'your liked tracks',
+                        type: 'classic',
+                        cover: null,
+                        id: 'liked',
+                        plays: 0
+                    }"
+                    is-spotify
                 />
-                <playlist-item
-                    v-for="(element, index) in spotifyPlaylists"
-                    :key="index"
-                    :cover="element.cover"
-                    :description="element.description"
-                    :title="element.name"
-                    :id="element.id"
-                    :spotify="true"
-                    :href="`https://open.spotify.com/playlist/${element.id}`"
+                <Playlist
+                    v-for="playlist in spotifyPlaylists"
+                    :playlist="{
+                        ...playlist,
+                        href: `https://open.spotify.com/playlist/${playlist.id}`,
+                        type: 'classic'
+                    }"
+                    is-spotify
                 />
             </full-shelf>
         </FetchLoader>

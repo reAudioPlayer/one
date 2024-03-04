@@ -4,12 +4,11 @@
  */
 
 import { defineStore } from "pinia";
-import { ISong, parseCover, zeroPad } from "../common";
+import { ISong, parseCover, zeroPad } from "@/common";
 import { useDataStore } from "./data";
-import { SharedPlayer } from "../api/sharedPlayer";
-import { getShuffle, nextSong, prevSong, setShuffle } from "../api/player";
-import { computed } from "vue";
-import { type ILyrics, findLyrics } from "../views/SingAlong/lyrics";
+import { SharedPlayer } from "@/api/sharedPlayer";
+import { getShuffle, nextSong, prevSong, setShuffle } from "@/api/player";
+import { type ILyrics, findLyrics } from "@/views/singAlong/lyrics";
 
 type PlaylistType = "playlist" | "track" | "artist";
 export type RepeatType = "repeat" | "repeat_one_on" | "repeat_on";

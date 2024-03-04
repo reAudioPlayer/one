@@ -74,8 +74,8 @@
 </template>
 
 <script>
-import FullShelf from "../components/Catalogue/FullShelf.vue";
-import FootballItem from "../components/Catalogue/Items/Sports/FootballItem.vue";
+import FullShelf from "../components/catalogue/FullShelf.vue";
+import FootballItem from "../components/catalogue/Items/Sports/FootballItem.vue";
 import TextInputWithIcon from "@/components/inputs/TextInputWithIcon.vue";
 import { Notifications } from "@/components/notifications/createNotification";
 
