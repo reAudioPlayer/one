@@ -41,6 +41,7 @@ const props = defineProps({
 });
 
 const imgSrc = ref(null as string | null);
+const cover = ref(null as string | null);
 
 const onError = async () => {
     console.error("Failed to load cover", props.src);
@@ -76,7 +77,6 @@ const onLoad = async () => {
 
     applyBoxShadow(element.value, src, props.ambientOpacity);
 };
-const cover = ref(null as string | null);
 
 watch(
     () => props.src,
