@@ -112,6 +112,12 @@ watch(
     props,
     () => {
         for (const option of options.value.map((x) => x.name)) {
+            if (option == "album") {
+                options.value.find((x) => x.name == option).value =
+                    props.song?.album?.name;
+                continue;
+            }
+
             options.value.find((x) => x.name == option).value =
                 props.song?.[option];
         }
