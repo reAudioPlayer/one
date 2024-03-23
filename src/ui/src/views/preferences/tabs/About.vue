@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { version } from "../../../../package.json";
 import Markdown from "../../../components/popups/Markdown.vue";
 
-const BACKEND_VERSION = "0.11.2";
+const BACKEND_VERSION = "1.0.0";
 
 const latestVersion = ref("");
 const changes = ref("");
