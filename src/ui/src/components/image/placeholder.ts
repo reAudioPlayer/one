@@ -14,11 +14,8 @@ export const getCover = async (
     placeholder: string,
     size: number = 500
 ) => {
-    if (!cover) {
-        return await generatePlaceholder(placeholder, size);
-    }
-
-    return cover;
+    if (cover) return cover;
+    return await generatePlaceholder(placeholder, size);
 };
 
 const imgSrc = "/assets/img/bg-1024x1024.png";

@@ -36,6 +36,7 @@
                     <SearchResultItem
                         v-for="item in showAllSongs ? songs : songs.slice(0, 4)"
                         :item="item"
+                        show-download
                     />
                 </div>
             </div>
@@ -45,21 +46,33 @@
                     v-if="artists.length"
                 >
                     <h2>Artists</h2>
-                    <SearchResultItem v-for="item in artists" :item="item" />
+                    <SearchResultItem
+                        v-for="item in artists"
+                        :item="item"
+                        show-download
+                    />
                 </div>
                 <div
                     class="list flex-1 min-w-[40vw] playlists"
                     v-if="playlists.length"
                 >
                     <h2>Playlists</h2>
-                    <SearchResultItem v-for="item in playlists" :item="item" />
+                    <SearchResultItem
+                        v-for="item in playlists"
+                        :item="item"
+                        show-download
+                    />
                 </div>
                 <div
                     class="list flex-1 min-w-[40vw] albums"
                     v-if="albums.length"
                 >
                     <h2>Albums</h2>
-                    <SearchResultItem v-for="item in albums" :item="item" />
+                    <SearchResultItem
+                        v-for="item in albums"
+                        :item="item"
+                        show-download
+                    />
                 </div>
             </div>
         </template>

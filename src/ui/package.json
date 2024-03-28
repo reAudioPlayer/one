@@ -1,6 +1,6 @@
 {
   "name": "reaudioplayer.one",
-  "version": "0.11.49",
+  "version": "1.0.2",
   "scripts": {
     "dev": "vite",
     "preview": "vite preview --port 8080",

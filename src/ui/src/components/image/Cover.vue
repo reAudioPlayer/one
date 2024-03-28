@@ -40,31 +40,12 @@ const props = defineProps({
     },
 });
 
-const imgSrc = ref(null as string | null);
 const cover = ref(null as string | null);
 
 const onError = async () => {
     console.error("Failed to load cover", props.src);
-    cover.value = await generatePlaceholder(props.name);
-
-    if (!imgSrc.value) {
-        setTimeout(() => {
-            onError();
-        }, 100);
-        return;
-    }
+    cover.value = await generatePlaceholder(props.name ?? "N/A");
 };
-
-const updateSrc = () => {
-    imgSrc.value = parseAnyCover(props.src, props.type);
-
-    if (!imgSrc.value) {
-        onError();
-    }
-};
-
-watch(() => props.src, updateSrc);
-updateSrc();
 
 const element = ref(null as HTMLImageElement | null);
 const onLoad = async () => {
@@ -73,20 +54,19 @@ const onLoad = async () => {
 
     if (!window.getCurrentThemeProperty("supportsAmbient")) return;
 
-    const src = await getCover(imgSrc.value, props.name);
-
+    const src = await getCover(cover.value, props.name ?? "N/A");
     applyBoxShadow(element.value, src, props.ambientOpacity);
 };
 
 watch(
     () => props.src,
     async () => {
-        cover.value = await getCover(imgSrc.value, props.name);
+        cover.value = await getCover(props.src, props.name ?? "N/A");
     }
 );
 
 onMounted(async () => {
-    cover.value = await getCover(imgSrc.value, props.name);
+    cover.value = await getCover(props.src, props.name ?? "N/A");
 });
 </script>
 <template>

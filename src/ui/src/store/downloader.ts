@@ -7,6 +7,7 @@ import { defineStore } from "pinia";
 
 import { ISong } from "../common";
 import { downloadSong } from "../api/song";
+import { useRouter } from "vue-router";
 
 export interface IStatus {
     songId: number;
@@ -33,6 +34,7 @@ export const useDownloaderStore = defineStore({
         ws: null as WebSocket | null,
         states: {} as States,
         onDownload: [] as ((songId: number) => void)[],
+        prefill: null as ISong | null,
     }),
     getters: {
         empty() {
@@ -98,6 +100,11 @@ export const useDownloaderStore = defineStore({
                 status: "pending",
             };
             this._fireDownload(songId);
+        },
+        downloadViaDownloader(song: ISong) {
+            this.prefill = song;
+            const router = useRouter();
+            router.push("/download");
         },
         downloadOther(song: ISong) {
             this.send({

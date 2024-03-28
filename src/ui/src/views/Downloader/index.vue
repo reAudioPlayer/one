@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import Card from "../../containers/Card.vue";
 import IconButton from "../../components/inputs/IconButton.vue";
 import { Notifications } from "../../components/notifications/createNotification";
@@ -93,6 +93,16 @@ const requestDownload = async () => {
     console.log("[downloader] requestDownload", song);
     downloader.downloadOther(song);
 };
+
+onMounted(() => {
+    if (downloader.prefill != null) {
+        formOptions.value = formOptions.value.map((x) => {
+            x.value = downloader.prefill?.[x.name] ?? x.value;
+            return x;
+        });
+        formOptions.value.find((x) => x.name === "source")?.onChange?.(downloader.prefill.source);
+    }
+});
 </script>
 <template>
     <div class="downloader py-2 pr-2 grid gap-4 grid-cols-2 items-start">

@@ -213,7 +213,7 @@ export default {
 </style>
 
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;500;700;900&display=swap");
 </style>
 
 <style lang="scss">

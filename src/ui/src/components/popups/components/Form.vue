@@ -50,9 +50,8 @@ defineExpose({
 </script>
 
 <template>
-    <div class="form">
+    <div class="form flex flex-col gap-4">
         <div v-for="option in options" :key="option.name" class="option">
-            <h4>{{ toTitleCase(option.name) }}</h4>
             <div class="content">
                 <!-- INPUT TYPES -->
                 <template v-if="option.type == 'upload'">
@@ -80,11 +79,13 @@ defineExpose({
                         :icon="option.icon"
                         class="addSong cover"
                         type="text"
-                        @change="option?.onChange(option.value)"
+                        label="Cover"
+                        :placeholder="option.placeholder"
+                        @change="option?.onChange?.(option.value)"
                     />
                     <div v-if="option.imagePreview" class="imagePreview">
                         <Cover
-                            :src="parseCover(option.value)"
+                            :src="option.value"
                             class="cover"
                             @click="openInNewTab(option.value)"
                         />
@@ -101,6 +102,7 @@ defineExpose({
                     <TextInputWithIcon
                         v-model="option.value"
                         :icon="option.icon"
+                        :label="option.name"
                         :placeholder="option.placeholder"
                         :required="option.required"
                         :type="option.type"
@@ -131,6 +133,7 @@ defineExpose({
 .content {
     display: flex;
     flex-direction: row;
+    align-items: center;
 
     .icon-button {
         margin-right: 10px;
