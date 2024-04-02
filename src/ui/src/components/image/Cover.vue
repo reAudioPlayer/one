@@ -4,10 +4,9 @@
   -->
 
 <script lang="ts" setup>
-import { PropType, computed, onMounted, ref, watch } from "vue";
+import { PropType, onMounted, ref, watch } from "vue";
 import { generatePlaceholder, getCover } from "./placeholder";
-import { parseAnyCover } from "../../common";
-import { applyBoxShadow } from "../../helpers/accent";
+import { applyBoxShadow } from "@/helpers/accent";
 import window from "@/themes";
 
 const props = defineProps({
@@ -54,19 +53,18 @@ const onLoad = async () => {
 
     if (!window.getCurrentThemeProperty("supportsAmbient")) return;
 
-    const src = await getCover(cover.value, props.name ?? "N/A");
-    applyBoxShadow(element.value, src, props.ambientOpacity);
+    applyBoxShadow(element.value, cover.value!, props.ambientOpacity);
 };
 
 watch(
     () => props.src,
     async () => {
-        cover.value = await getCover(props.src, props.name ?? "N/A");
+        cover.value = await getCover(props.src, props.name ?? "N/A", 500, props.type);
     }
 );
 
 onMounted(async () => {
-    cover.value = await getCover(props.src, props.name ?? "N/A");
+    cover.value = await getCover(props.src, props.name ?? "N/A", 500, props.type);
 });
 </script>
 <template>

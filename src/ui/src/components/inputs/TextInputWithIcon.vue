@@ -17,9 +17,9 @@
             >
                 {{ icon }}
             </span>
-            <div class="relative">
+            <div class="relative flex-1">
                 <span
-                    class="uppercase text-sm label-placeholder font-thin"
+                    class="text-sm label-placeholder capitalize"
                     :class="{ atTop: !!value }"
                     v-if="label"
                 >
@@ -27,7 +27,7 @@
                 </span>
                 <input
                     v-model="value"
-                    :type="type"
+                    :type="type == 'password' && show ? 'text' : type"
                     :placeholder="placeholder"
                     @input="onChange"
                     @keyup="onKeyUp"
@@ -35,6 +35,13 @@
                     ref="element"
                 />
             </div>
+            <span
+                class="material-symbols-rounded cursor-pointer"
+                v-if="type == 'password'"
+                @click="show = !show"
+            >
+                {{ show ? "visibility" : "visibility_off" }}
+            </span>
         </div>
     </div>
 </template>
@@ -56,7 +63,7 @@ const props = defineProps({
         default: "",
     },
     type: {
-        type: String,
+        type: String as PropType<"text" | "number" | "password">,
         required: false,
         default: "text",
     },
@@ -76,6 +83,7 @@ const props = defineProps({
 });
 
 const value = ref(props.modelValue);
+const show = ref(false);
 watch(
     () => props.modelValue,
     (nValue) => {
@@ -111,7 +119,7 @@ const element = ref<HTMLElement>();
 
 defineExpose({
     focus: () => {
-        element.value.focus();
+        element.value?.focus();
     },
 });
 </script>
@@ -140,6 +148,7 @@ defineExpose({
             top: 0;
             transform: translateY(0);
             font-size: 0.75rem;
+            font-weight: 100;
         }
     }
 
@@ -161,6 +170,7 @@ defineExpose({
         top: 0;
         transform: translateY(0);
         font-size: 0.75rem;
+        font-weight: 100;
     }
 }
 
@@ -178,7 +188,7 @@ input[type="password"] {
     border-radius: 5px;
     color: var(--font-colour);
     padding: 10px;
-    width: auto;
+    width: 100%;
     flex-grow: 1;
     font-family: var(--font-family);
 

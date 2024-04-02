@@ -3,6 +3,9 @@
  * Licenced under the GNU General Public License v3.0
  */
 
+
+import { parseAnyCover } from "@/common";
+
 const VERSION = 2.0;
 const storage = window.localStorage.getItem("renderedIcons");
 const renderedIcons: Map<string, string> = storage
@@ -12,9 +15,10 @@ const renderedIcons: Map<string, string> = storage
 export const getCover = async (
     cover: string | null,
     placeholder: string,
-    size: number = 500
+    size: number = 500,
+    type: "track" | "playlist" | "artist" | "album" = "track"
 ) => {
-    if (cover) return cover;
+    if (cover) return parseAnyCover(cover, type);
     return await generatePlaceholder(placeholder, size);
 };
 

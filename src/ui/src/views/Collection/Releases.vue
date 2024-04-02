@@ -40,6 +40,7 @@
                         class="rounded-3xl"
                         v-if="nextInQueue"
                         :src="nextInQueue.cover"
+                        with-ambient
                     />
                     <div class="flex justify-between w-full items-center">
                         <div class="flex gap-4 items-center">
@@ -403,7 +404,6 @@ watch(
     display: grid;
     grid-template-columns: 2fr 1fr;
     align-items: center;
-    overflow-y: hidden;
     height: 100%;
 }
 

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import Checkbox from "../../../components/inputs/Checkbox.vue";
 import { computed, ref, watch } from "vue";
-import PasswordInputWithIcon from "../../../components/inputs/PasswordInputWithIcon.vue";
 import IconButton from "../../../components/inputs/IconButton.vue";
 import { getConfig, IConfig, setConfig } from "../../../api/config";
 import TextInputWithIcon from "../../../components/inputs/TextInputWithIcon.vue";
@@ -150,15 +149,17 @@ watch(() => config.value?.github?.githubPat, autoFillGistId);
     </details>
     <hr class="my-4" />
     <h5>Client ID:</h5>
-    <PasswordInputWithIcon
+    <TextInputWithIcon
         v-model="spotifyClient.id"
         :disabled="!spotifyEnabled"
+        type="password"
         icon="token"
     />
     <h5 class="mt-4">Client Secret:</h5>
-    <PasswordInputWithIcon
+    <TextInputWithIcon
         v-model="spotifyClient.secret"
         :disabled="!spotifyEnabled"
+        type="password"
         icon="lock"
     />
     <IconButton
@@ -171,10 +172,11 @@ watch(() => config.value?.github?.githubPat, autoFillGistId);
 
     <h3 class="mt-[10px]">Github</h3>
     <h5 class="mt-4">PAT:</h5>
-    <PasswordInputWithIcon
+    <TextInputWithIcon
         v-if="config"
         v-model="config.github.githubPat"
         icon="lock"
+        type="password"
     />
     <h5 class="mt-4">Gist ID:</h5>
     <TextInputWithIcon

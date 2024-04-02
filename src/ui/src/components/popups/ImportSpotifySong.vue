@@ -96,7 +96,9 @@ const addSong = async (index: number, playlistId: string = null) => {
     Notifications.addSuccess(
         track.value.title,
         `Added to ${data.playlists.find((p) => p.id == playlistId)?.name}`,
-        3000
+        3000,
+        undefined,
+        data.playlists.find((p) => p.id == playlistId)?.href
     );
 };
 

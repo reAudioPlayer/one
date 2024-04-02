@@ -79,7 +79,7 @@ defineExpose({
                         :icon="option.icon"
                         class="addSong cover"
                         type="text"
-                        label="Cover"
+                        :label="option.name"
                         :placeholder="option.placeholder"
                         @change="option?.onChange?.(option.value)"
                     />
