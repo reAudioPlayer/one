@@ -84,6 +84,7 @@ onMounted(() => {
     <div id="popup-target"></div>
     <div id="dropdown-target"></div>
     <div id="autocomplete-target"></div>
+    <div id="fullscreen-target"></div>
     <Notifications />
 </template>
 

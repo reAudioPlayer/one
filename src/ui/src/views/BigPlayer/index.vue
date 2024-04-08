@@ -4,15 +4,18 @@
   -->
 
 <script lang="ts" setup>
-import { usePlayerStore } from "../store/player";
-import { useDataStore } from "../store/data";
+import { usePlayerStore } from "../../store/player";
+import { useDataStore } from "../../store/data";
 import { computed, onMounted, ref, watch } from "vue";
 import Playlist from "@/components/playlist/Playlist.vue";
 import PlaylistItem from "@/components/playlist/PlaylistCard.vue";
 import Cover from "@/components/image/Cover.vue";
+import BiggerPlayer from "./BiggerPlayer.vue";
 
 const player = usePlayerStore();
 const data = useDataStore();
+
+const biggerPlayer = ref<typeof BiggerPlayer>();
 
 const playing = computed(() => player.playing);
 const cover = computed(() => player.song.cover);
@@ -46,8 +49,7 @@ onMounted(() => {
 
 let maximised = ref(false);
 const toggleMaximise = () => {
-    maximised.value = !maximised.value;
-    emit("maximise", maximised.value);
+    biggerPlayer.value?.show();
 };
 const noPlaylist = ref(false); // hide playlist
 const animate = ref(false); // animations
@@ -55,6 +57,7 @@ const animate = ref(false); // animations
 
 <template>
     <div class="bigPlayer">
+        <BiggerPlayer ref="biggerPlayer" />
         <template v-if="player.loaded">
             <div class="upNow">
                 <Cover

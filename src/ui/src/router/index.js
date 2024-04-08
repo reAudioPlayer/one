@@ -195,7 +195,7 @@ const routes = [{
 },
 {
     path: '/player',
-    component: () => import("@/views/BigPlayer.vue"),
+    component: () => import("@/views/BigPlayer/index.vue"),
     meta: {
         title: "reAudioPlayer One"
     }
