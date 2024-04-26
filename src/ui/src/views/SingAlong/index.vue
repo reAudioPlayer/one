@@ -63,7 +63,7 @@ const translateLine = async (index: number) => {
     }
     const res = await translate(line.words, {
         to: "en",
-        corsUrl: "http://localhost:1234/api/cors/",
+        corsUrl: "/api/cors/",
     });
     line.originalWorlds = line.words;
     line.words = res.text;

@@ -8,34 +8,39 @@ import { Notifications } from "../components/notifications/createNotification";
 export const isFirstRun = async (): Promise<boolean> => {
     const res = await fetch("/api/config/first-time");
     return await res.json();
-}
+};
 
-export const setSpotifyConfig = async (id: string, secret: string): Promise<void> => {
+export const setSpotifyConfig = async (
+    id: string,
+    secret: string
+): Promise<void> => {
     await fetch("/api/config/spotify", {
         method: "POST",
         body: JSON.stringify({
             id,
-            secret
-        })
-    })
-}
+            secret,
+        }),
+    });
+};
 
 export const authoriseSpotify = async (): Promise<boolean> => {
     const res = await fetch("/api/spotify/authorise");
     if (res.status == 200) {
         Notifications.addYesNo(
-          "Do you want to authorise reAudioPlayer ONE to access your Spotify account?",
+            "Do you want to authorise reAudioPlayer ONE to access your Spotify account?",
             "You will be redirected to Spotify to authorise reAudioPlayer ONE to access your account.",
-          null,
-          async () => {
-              window.location.href = await res.text();
-          }
-        )
+            null,
+            async () => {
+                window.location.href = (await res.text()).replace(
+                    "{origin}",
+                    window.location.origin
+                );
+            }
+        );
         return false;
     }
     return res.status == 204;
-}
-
+};
 
 export type CacheStrategy = "all" | "playlist" | "current" | "current-next";
 export interface ICacheConfig {
@@ -55,11 +60,11 @@ export interface IConfig {
 export const getConfig = async (): Promise<IConfig> => {
     const res = await fetch("/api/config");
     return await res.json();
-}
+};
 
 export const setConfig = async (config: IConfig): Promise<void> => {
     await fetch("/api/config", {
         method: "PUT",
-        body: JSON.stringify(config)
-    })
-}
+        body: JSON.stringify(config),
+    });
+};

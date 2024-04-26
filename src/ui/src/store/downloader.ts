@@ -8,6 +8,7 @@ import { defineStore } from "pinia";
 import { ISong } from "../common";
 import { downloadSong } from "../api/song";
 import { useRouter } from "vue-router";
+import { getWsOrigin } from "@/ws";
 
 export interface IStatus {
     songId: number;
@@ -48,12 +49,7 @@ export const useDownloaderStore = defineStore({
         initialise() {
             const connect = () => {
                 console.log("[downloader] attempting reconnect");
-                const host = window.location.hostname;
-                const port =
-                    window.location.port === "5173"
-                        ? 1234
-                        : window.location.port;
-                this.ws = new WebSocket(`ws://${host}:${port}/download/ws`);
+                this.ws = new WebSocket(getWsOrigin() + "/download/ws");
 
                 this.ws.onclose = () => {
                     console.log("[downloader] ws closed");
