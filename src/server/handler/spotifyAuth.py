@@ -188,7 +188,7 @@ class SpotifyAuth(Logged):
 
                     data["expires_at"] = data["expires_in"] + int(time())
 
-                    with open(".cache", "w", encoding="utf8") as file:
+                    with open(".cache", "w+", encoding="utf8") as file:
                         file.write(json.dumps(data))
 
                     clearCache()
