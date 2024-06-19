@@ -6,24 +6,14 @@
 import { defineStore } from "pinia";
 
 import { ISong } from "../common";
-import { downloadSong } from "../api/song";
 import { useRouter } from "vue-router";
 import { getWsOrigin } from "@/ws";
 
 export interface IStatus {
-    songId: number;
-    filename: string;
+    id: number;
     status: "downloading" | "finished" | "downloaded" | "error" | "pending";
-    downloaded: number;
-    total: number;
-    percent: number;
-    speed: string;
-    elapsed: string;
-    eta: number;
-    action?: string;
-    song?: ISong;
-    chunk?: string;
     internal: boolean;
+    song: ISong;
 }
 
 export type States = Record<number, IStatus>;
@@ -64,19 +54,15 @@ export const useDownloaderStore = defineStore({
                 this.ws.onmessage = (msg) => {
                     const data = JSON.parse(msg.data) as IStatus;
 
-                    if (data.action) {
-                        return;
-                    }
-
                     if (data.status == "finished") {
-                        this.states[data.songId] = {
-                            ...this.states[data.songId],
+                        this.states[data.song.id] = {
+                            ...this.states[data.song.id],
                             ...data,
                         };
                         return;
                     }
 
-                    this.states[data.songId] = data;
+                    this.states[data.song.id] = data;
                 };
             };
 

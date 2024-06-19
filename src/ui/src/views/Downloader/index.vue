@@ -100,7 +100,9 @@ onMounted(() => {
             x.value = downloader.prefill?.[x.name] ?? x.value;
             return x;
         });
-        formOptions.value.find((x) => x.name === "source")?.onChange?.(downloader.prefill.source);
+        formOptions.value
+            .find((x) => x.name === "source")
+            ?.onChange?.(downloader.prefill.source);
     }
 });
 </script>
@@ -166,7 +168,7 @@ onMounted(() => {
                                         >
                                         {{ state.chunk }}
                                     </div>
-                                    <div class="info">
+                                    <div class="info" v-if="false">
                                         <span class="material-symbols-rounded"
                                             >percent</span
                                         >
@@ -178,7 +180,7 @@ onMounted(() => {
                                     </div>
                                     <div
                                         class="info"
-                                        v-if="state.speed !== '0'"
+                                        v-if="false && state.speed !== '0'"
                                     >
                                         <span class="material-symbols-rounded"
                                             >speed</span
@@ -188,8 +190,9 @@ onMounted(() => {
                                     <div
                                         class="info"
                                         v-if="
-                                            state.elapsed !== '0' ||
-                                            state.eta !== 0
+                                            false &&
+                                            (state.elapsed !== '0' ||
+                                                state.eta !== 0)
                                         "
                                     >
                                         <span class="material-symbols-rounded"
@@ -250,21 +253,21 @@ onMounted(() => {
                                 <span
                                     class="material-symbols-rounded cursor-pointer finished"
                                     v-else-if="state.status == 'finished'"
-                                    @click="downloader.download(state.songId)"
+                                    @click="downloader.download(state.song.id)"
                                 >
                                     download_for_offline
                                 </span>
                                 <span
                                     class="material-symbols-rounded cursor-pointer downloaded"
                                     v-else-if="state.status == 'downloaded'"
-                                    @click="reDownload(state.songId)"
+                                    @click="reDownload(state.song.id)"
                                 >
                                     download_done
                                 </span>
                                 <span
                                     class="material-symbols-rounded cursor-pointer error"
                                     v-else-if="state.status == 'error'"
-                                    @click="reDownload(state.songId)"
+                                    @click="reDownload(state.song.id)"
                                 >
                                     error
                                 </span>

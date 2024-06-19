@@ -1,1 +1,0 @@
-import{e as r,o,c as s,a as t,_ as n}from"./index-CHcGmgsV.js";const a={class:"error"},c=["innerHTML"],_=r({__name:"Error",props:{msg:{type:String,required:!0}},setup(e){return(i,p)=>(o(),s("div",a,[t("h1",{innerHTML:e.msg},null,8,c)]))}}),m=n(_,[["__scopeId","data-v-03ad8ef0"]]);export{m as E};
