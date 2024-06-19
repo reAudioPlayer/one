@@ -6,9 +6,7 @@
 <script lang="ts" setup>
 import { usePlayerStore } from "../../store/player";
 import { useDataStore } from "../../store/data";
-import { computed, onMounted, ref, watch } from "vue";
-import Playlist from "@/components/playlist/Playlist.vue";
-import PlaylistItem from "@/components/playlist/PlaylistCard.vue";
+import { computed, ref, watch } from "vue";
 import Cover from "@/components/image/Cover.vue";
 import { getCover } from "../../components/image/placeholder";
 import { debounce } from "lodash";

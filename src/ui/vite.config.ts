@@ -42,13 +42,9 @@ export default defineConfig({
         }),
     ],
     resolve: {
-        alias: [
-            {
-                find: "@",
-                replacement: fileURLToPath(new URL("./src", import.meta.url)),
-            },
-        ],
-        extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue"],
+        alias: {
+            "@": fileURLToPath(new URL("./src", import.meta.url)),
+        },
     },
     server: {
         proxy: {

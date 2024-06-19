@@ -102,7 +102,7 @@
 
 <script setup>
 import { ref } from "vue";
-import TrackCompact from "@/components/catalogue/Items/home/TrackCompact";
+import TrackCompact from "@/components/catalogue/Items/home/TrackCompact.vue";
 import Cover from "@/components/image/Cover.vue";
 import Marquee from "@/components/Marquee.vue";
 import { usePlayerStore } from "@/store/player";

@@ -3,26 +3,28 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-import {usePlayerStore} from "./store/player";
-import {ref, watch} from "vue";
-import {useSettingsStore} from "./store/settings";
+import { usePlayerStore } from "./store/player";
+import { ref, watch } from "vue";
+import { useSettingsStore } from "./store/settings";
 
-const video = document.createElement('video');
-video.style.position = 'absolute';
-video.style.top = '0';
-video.style.left = '0';
+const video = document.createElement("video");
+video.style.position = "absolute";
+video.style.top = "-500px";
+video.style.left = "-500px";
 video.style.width = "500px";
 video.style.height = "500px";
 video.style.zIndex = "-1000";
 document.body.appendChild(video);
 
-export const pictureInPictureStatus = ref<"loading" | "ready" | "error">("error");
+export const pictureInPictureStatus = ref<"loading" | "ready" | "error">(
+    "error"
+);
 export const requestPictureInPicture = async () => {
     if (pictureInPictureStatus.value == "error") return false;
     if (pictureInPictureStatus.value == "loading") return false;
 
     await video.requestPictureInPicture();
-}
+};
 
 export const initPictureInPicture = () => {
     const playerStore = usePlayerStore();
@@ -35,7 +37,7 @@ export const initPictureInPicture = () => {
         if (playerStore.song.id < 0) return false;
 
         worker?.terminate();
-        worker = new Worker('/assets/ffmpeg/ffmpeg-worker-mp4.js');
+        worker = new Worker("/assets/ffmpeg/ffmpeg-worker-mp4.js");
         pictureInPictureStatus.value = "loading";
         console.log("loading new cover", cover);
 
@@ -44,37 +46,37 @@ export const initPictureInPicture = () => {
         const url = URL.createObjectURL(blob);
 
         // clear video;
-        video.src = '';
+        video.src = "";
 
-        const filename = 't.jpg';
+        const filename = "t.jpg";
 
         const images = [];
         const img = new Image();
         img.src = url;
-        img.style.width = '100%';
-        img.style.height = '100%';
+        img.style.width = "100%";
+        img.style.height = "100%";
 
         img.onload = () => {
-            const canvas = document.createElement('canvas')
+            const canvas = document.createElement("canvas");
             canvas.width = img.width;
             canvas.height = img.height;
 
-            const ctx = canvas.getContext('2d')
-            ctx.drawImage(img, 0, 0)
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
 
-            const imgString = canvas.toDataURL('image/jpeg', 1)
-            const data = convertDataURIToBinary(imgString)
+            const imgString = canvas.toDataURL("image/jpeg", 1);
+            const data = convertDataURIToBinary(imgString);
             images.push({
                 name: filename,
-                data
+                data,
             });
 
             console.log("loaded image", images);
             requestAnimationFrame(finalizeVideo);
-        }
+        };
 
         function convertDataURIToBinary(dataURI) {
-            var base64 = dataURI.replace(/^data[^,]+,/, '');
+            var base64 = dataURI.replace(/^data[^,]+,/, "");
             var raw = window.atob(base64);
             var rawLength = raw.length;
 
@@ -99,61 +101,72 @@ export const initPictureInPicture = () => {
                         console.error(msg.data);
                         break;
                     case "exit":
-                        pictureInPictureStatus.value = msg.data == 0 ? "ready" : "error";
+                        pictureInPictureStatus.value =
+                            msg.data == 0 ? "ready" : "error";
                         break;
 
-                    case 'done':
+                    case "done":
                         const blob = new Blob([msg.data.MEMFS[0].data], {
-                            type: "video/mp4"
+                            type: "video/mp4",
                         });
-                        done(blob)
+                        done(blob);
                         break;
                 }
             };
 
             worker.postMessage({
-                type: 'run',
+                type: "run",
                 TOTAL_MEMORY: 268435456,
                 arguments: [
                     //"-r", "20",
-                    "-i", filename,
-                    "-c:v", "libx264",
-                    "-crf", "1",
-                    "-pix_fmt", "yuv420p",
-                    "-vb", "20M",
-                    "-preset", "veryfast",
-                    "out.mp4"],
-                MEMFS: images
+                    "-i",
+                    filename,
+                    "-c:v",
+                    "libx264",
+                    "-crf",
+                    "1",
+                    "-pix_fmt",
+                    "yuv420p",
+                    "-vb",
+                    "20M",
+                    "-preset",
+                    "veryfast",
+                    "out.mp4",
+                ],
+                MEMFS: images,
             });
         }
 
-        const done = output => {
+        const done = (output) => {
             video.src = webkitURL.createObjectURL(output);
 
             /*video.onload = () => {
                 video.requestPictureInPicture();
             }*/
-        }
-    }
+        };
+    };
 
-    watch(() => settingsStore.player.pictureInPicture, async (enabled) => {
-        console.log("pictureInPicture enabled", enabled);
+    watch(
+        () => settingsStore.player.pictureInPicture,
+        async (enabled) => {
+            console.log("pictureInPicture enabled", enabled);
 
-        if (enabled) {
-            initPictureInPicture();
-            enabled = true;
-            pictureInPictureStatus.value = "error";
-            await load(playerStore.song.cover);
-        } else {
-            worker?.terminate();
-            enabled = false;
-            pictureInPictureStatus.value = "error";
+            if (enabled) {
+                initPictureInPicture();
+                enabled = true;
+                pictureInPictureStatus.value = "error";
+                await load(playerStore.song.cover);
+            } else {
+                worker?.terminate();
+                enabled = false;
+                pictureInPictureStatus.value = "error";
+            }
         }
-    });
+    );
 
     if (!settingsStore.player.pictureInPicture) return false;
 
     watch(() => playerStore.song.cover, load);
 
     return true;
-}
+};

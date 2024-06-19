@@ -11,7 +11,7 @@ import {
     updateSmartPlaylistDefinition,
     deletePlaylist,
 } from "@/api/playlist";
-import Playlist from "@/components/Playlist/Playlist.vue";
+import Playlist from "@/components/playlist/Playlist.vue";
 import Card from "@/containers/Card.vue";
 import { useRoute } from "vue-router";
 import { useRouter } from "vue-router";

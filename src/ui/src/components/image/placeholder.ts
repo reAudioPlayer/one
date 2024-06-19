@@ -3,7 +3,6 @@
  * Licenced under the GNU General Public License v3.0
  */
 
-
 import { parseAnyCover } from "@/common";
 
 const VERSION = 2.0;
@@ -40,8 +39,8 @@ export const generatePlaceholder = async (
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     canvas.style.position = "fixed";
-    canvas.style.top = "0";
-    canvas.style.left = "0";
+    canvas.style.top = -size + "px";
+    canvas.style.left = -size + "px";
     canvas.style.opacity = "0";
     document.body.appendChild(canvas);
 
