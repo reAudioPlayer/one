@@ -10,7 +10,7 @@ from multidict import MultiDict
 from pyaddict.schema import Object, Integer
 
 from db.database import Database
-from downloader.downloader import Downloader
+from downloader.newDownloader import Downloader
 from helper.payloadParser import withObjectPayload
 from player.player import Player
 
@@ -23,36 +23,27 @@ class DownloadHandler:
         self._downloader = downloader
         self._player = player
 
-    async def downloadTrack(self, request: web.Request) -> web.Response:
+    async def downloadTrack(self, request: web.Request) -> web.StreamResponse:
         """get(/api/tracks/{id}/download)"""
         id_ = int(request.match_info["id"])
-        song = self._downloader.getSongById(id_)
+        song = await self._dbManager.songs.byId(id_)
 
         if not song:
-            return web.HTTPExpectationFailed(text="not downloaded")
+            raise web.HTTPNotFound(text="song not found")
 
-        pathAndName = f"./_cache/{song.id}.dl.mp3"
+        pathAndName = f"./_cache/{song.id}.mp3"
 
         if not self._downloader.pop(id_):
             return web.HTTPExpectationFailed(text="not downloaded")
 
         filename = f"{song.artist} - {song.name}".replace(",", "%2C")  # header
 
-        res = web.FileResponse(
+        return web.FileResponse(
             pathAndName,
             headers=MultiDict({"Content-Disposition": f"Attachment;filename={filename}.mp3"}),
         )
 
-        # NOTE, not:
-        # return res
-        # because we need to remove the file after it has been sent
-
-        await res.prepare(request)
-        await res.write_eof()
-        os.remove(pathAndName)
-        return web.Response()
-
-    @withObjectPayload( # type: ignore
+    @withObjectPayload(  # type: ignore
         Object(
             {
                 "id": Integer().coerce(),
@@ -71,7 +62,7 @@ class DownloadHandler:
             return web.Response()
         return web.Response(status=404)
 
-    @withObjectPayload( # type: ignore
+    @withObjectPayload(  # type: ignore
         Object(
             {
                 "id": Integer().coerce(),

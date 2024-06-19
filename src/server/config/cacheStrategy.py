@@ -11,7 +11,7 @@ from player.iPlayerPlaylist import IPlayerPlaylist
 from dataModel.song import Song
 from helper.singleton import Singleton
 from helper.songCache import SongCache
-from downloader.downloader import Downloader
+from downloader.newDownloader import Downloader
 from config.runtime import CacheStrategy
 
 if TYPE_CHECKING:
@@ -76,7 +76,7 @@ class CacheAllStrategy(ICacheStrategy, metaclass=Singleton):
         async def _task() -> None:
             for playlist in self._player.playlistManager.playlists:
                 for song in playlist:
-                    await self._downloader.downloadSong(song.model)
+                    await self._downloader.downloadSong(song, internal=True)
 
         asyncio.create_task(_task())
 
@@ -88,7 +88,7 @@ class CachePlaylistStrategy(ICacheStrategy, metaclass=Singleton):
         assert self._playlist is not None
         SongCache.prune(self._playlist)
         for song in self._playlist:
-            await self._downloader.downloadSong(song.model)
+            await self._downloader.downloadSong(song, internal = True)
 
     async def onStrategyLoad(self) -> None:
         await super().onStrategyLoad()
@@ -115,4 +115,4 @@ class CacheCurrentNextStrategy(ICacheStrategy, metaclass=Singleton):
         assert self._playlist is not None
         currentSong, nextSong = song, self._playlist.next(True)
         SongCache.prune([currentSong, nextSong])
-        await self._downloader.downloadSong(nextSong.model)
+        await self._downloader.downloadSong(nextSong, internal = True)
