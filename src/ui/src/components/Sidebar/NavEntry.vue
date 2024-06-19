@@ -4,7 +4,7 @@
   -->
 
 <template>
-    <router-link :to="href" class="link">
+    <router-link :to="href" class="link" :title="name">
         <div :class="{ active, img: showImg }" class="navEntry">
             <span v-if="icon" class="material-icons-round icon">{{
                 icon

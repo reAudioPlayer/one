@@ -65,7 +65,6 @@ watch(
     () => {
         title.value = playlist.value?.name.trim() ?? "";
         description.value = playlist.value?.description.trim() ?? "";
-        resetFilters();
     }
 );
 
@@ -305,7 +304,10 @@ const playOrPausePlaylist = () => {
                         <span class="text-muted">More...</span>
                     </Card>
                 </div>
-                <div v-if="playlist.songs" class="filters relative overflow-clip">
+                <div
+                    v-if="playlist.songs"
+                    class="filters relative overflow-clip"
+                >
                     <TextInputWithIcon
                         v-model="filters.search"
                         icon="search"

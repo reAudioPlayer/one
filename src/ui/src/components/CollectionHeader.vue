@@ -33,7 +33,12 @@ export default {
 .wrapper {
     display: flex;
     flex-direction: row;
-    margin-bottom: 20px;
+    padding: 1em;
+    border: var(--border-container);
+    border-top: none;
+    background: none;
+    backdrop-filter: blur(100px);
+    border-radius: 0 0 20px 20px;
 }
 
 .link {

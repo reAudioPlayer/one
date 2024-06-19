@@ -7,7 +7,7 @@
     <div v-if="loading" class="fill-page">
         <Loader />
     </div>
-    <div v-else class="p-4 overflow-hidden h-full">
+    <div v-else>
         <add-album-to-playlist
             v-if="selectedElement"
             :id="
@@ -157,9 +157,16 @@
                     </h5>
                 </div>
                 <div
-                    class="flex justify-end mb-2"
+                    class="flex justify-between mb-2"
                     v-if="activeQueue === 'unseen' && queue.length"
                 >
+                    <span
+                        class="cursor-pointer text-sm text-muted hover:text-primary flex items-center gap-2"
+                        @click="forceReload"
+                    >
+                        Refresh
+                        <span class="material-symbols-rounded"> refresh </span>
+                    </span>
                     <span
                         class="cursor-pointer text-sm text-muted hover:text-primary flex items-center gap-2"
                         @click="queue.forEach(seeRelease)"
@@ -359,6 +366,20 @@ const SEEN_KEY = "reap.releases.seen";
 const REMEMBER_KEY = "reap.releases.remember";
 const nextInQueue = ref<IRelease | null>(null);
 
+const forceReload = () => {
+    loading.value = true;
+    fetch("/api/releases", {
+        headers: {
+            "X-Cache-Control": "no-cache",
+        },
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            releases.value = data;
+            loading.value = false;
+        });
+};
+
 onMounted(async () => {
     loading.value = true;
     const res = await fetch("/api/releases");
@@ -446,7 +467,7 @@ h5.selected {
 }
 
 .queue {
-    height: calc(100% - 150px);
+    height: calc(100% - 220px);
     overflow: hidden;
 }
 
