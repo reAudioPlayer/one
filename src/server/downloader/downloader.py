@@ -152,7 +152,7 @@ class Downloader(metaclass=Singleton):
                 else:
                     song = Song.fromDict(data).model
                     self._logger.info("download custom song %s", song)
-                asyncio.create_task(self.downloadSong(song, True, True))
+                asyncio.create_task(self.downloadSong(song, True))
                 return {"action": "download", "status": "ok", "songId": song.id}
             return {
                 "action": data.optionalGet("action", str),
@@ -197,7 +197,7 @@ class Downloader(metaclass=Singleton):
         tag.save(version=eyed3.id3.ID3_V2_3)
 
     async def downloadSong(
-        self, song: SongModel, forExport: bool = False, withMetadata: bool = False
+        self, song: SongModel, withMetadata: bool = False
     ) -> bool:
         """downloads a song"""
         filename = Song(song).downloadPath()

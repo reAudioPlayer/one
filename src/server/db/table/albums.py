@@ -88,12 +88,12 @@ class SpotifyAlbumData:
     @classmethod
     def disabled(cls) -> SpotifyAlbumData:
         """create from id"""
-        return SpotifyAlbumData("", [], 0, "", None, "", [], [], cls._DISABLED, "", 0, "", "")
+        return SpotifyAlbumData("", [], 0, "", None, "", [], [], cls._DISABLED, "", 0, "")
 
     @classmethod
     def fromId(cls, id_: str) -> SpotifyAlbumData:
         """create from id"""
-        return SpotifyAlbumData(id_, [], 0, "", None, "", [], [], cls._DISABLED, "", 0, "", "")
+        return SpotifyAlbumData(id_, [], 0, "", None, "", [], [], cls._DISABLED, "", 0, "")
 
     @property
     def id(self) -> str:
