@@ -21,7 +21,7 @@ from eyed3.id3 import Tag  # type: ignore
 
 from helper.asyncThread import asyncRunInThreadWithReturn
 from helper.singleton import Singleton
-from config.customData import LocalTrack
+from config.customData import LocalTrack, LocalCover
 from db.database import Database
 from db.table.songs import SongModel
 from dataModel.song import Song
@@ -96,6 +96,11 @@ class Downloader(metaclass=Singleton):
             os.mkdir("./_cache")
 
     async def _getCover(self, song: SongModel) -> bytes:
+        if song.cover.startswith("local:"):
+            cover = LocalCover.fromDisplayPath(song.cover)
+            with open(cover.absPath, "rb") as file:
+                return file.read()
+
         async with aiohttp.ClientSession() as session:
             async with session.get(song.cover) as resp:
                 if resp.status != 200:
