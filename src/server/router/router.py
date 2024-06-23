@@ -11,7 +11,7 @@ from config.runtime import Runtime
 
 from helper.nginx import Nginx
 
-from downloader.newDownloader import Downloader
+from downloader.downloader import Downloader
 from handler.download import DownloadHandler
 from handler.meta import MetaHandler
 from handler.player import PlayerHandler

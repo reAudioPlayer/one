@@ -22,7 +22,7 @@ from player.iPlayerPlaylist import IPlayerPlaylist
 from player.playlistManager import PlaylistManager
 from player.playerQueue import PlayerQueue
 
-from downloader.newDownloader import Downloader
+from downloader.downloader import Downloader
 
 if TYPE_CHECKING:
     from config.runtime import CacheStrategy

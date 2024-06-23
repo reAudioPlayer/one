@@ -11,7 +11,7 @@ from player.iPlayerPlaylist import IPlayerPlaylist
 from dataModel.song import Song
 from helper.singleton import Singleton
 from helper.songCache import SongCache
-from downloader.newDownloader import Downloader
+from downloader.downloader import Downloader
 from config.runtime import CacheStrategy
 
 if TYPE_CHECKING:

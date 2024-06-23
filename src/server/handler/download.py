@@ -10,7 +10,7 @@ from multidict import MultiDict
 from pyaddict.schema import Object, Integer
 
 from db.database import Database
-from downloader.newDownloader import Downloader
+from downloader.downloader import Downloader
 from helper.payloadParser import withObjectPayload
 from player.player import Player
 

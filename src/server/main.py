@@ -15,7 +15,7 @@ import aiohttp_cors  # type: ignore
 
 from db.database import Database
 
-from downloader.newDownloader import Downloader
+from downloader.downloader import Downloader
 
 from handler.download import DownloadHandler
 from handler.news import NewsHandler
