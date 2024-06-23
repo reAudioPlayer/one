@@ -97,10 +97,8 @@ class Song(ISimpleTrack):
         result["metadata"] = self.metadata.toDict()
         return result
 
-    def downloadPath(self, forExport: bool = False) -> str:
+    def downloadPath(self) -> str:
         """return download path"""
-        if forExport:
-            return f"{self.model.id}.dl"
         return str(self.model.id)
 
     @classmethod

@@ -3,8 +3,10 @@ import { computed, ref, type PropType } from "vue";
 import type { ISearchResultItem } from "./search";
 import Cover from "../../components/image/Cover.vue";
 import { useRouter } from "vue-router";
+import {useDownloaderStore} from "@/store/downloader";
 import ImportSpotifySong from "../../components/popups/ImportSpotifySong.vue";
 import ImportSpotifyAlbum from "../../components/popups/ImportSpotifyAlbum.vue";
+import { ISong } from "../../common";
 
 const router = useRouter();
 
@@ -18,6 +20,10 @@ const props = defineProps({
         default: false,
     },
     noHover: {
+        type: Boolean,
+        default: false,
+    },
+    showDownload: {
         type: Boolean,
         default: false,
     },
@@ -65,6 +71,10 @@ const isAudius = computed(() => {
     return props.item?.scope === "audius";
 });
 
+const isDownloadable = computed(() => {
+    return type.value === "song" && !isLocal.value && props.showDownload;
+});
+
 const importSpotifySong = ref<typeof ImportSpotifySong>();
 const importSpotifyAlbum = ref<typeof ImportSpotifyAlbum>();
 
@@ -90,6 +100,18 @@ const onClick = () => {
             importSpotifySong.value.show();
         }
     }
+};
+
+const instantDownload = () => {
+    const downloader = useDownloaderStore();
+    downloader.downloadViaDownloader({
+        album: props.item!.item!.album,
+        artist: props.item!.item!.artist,
+        title: props.item!.item!.title,
+        source: props.item!.item!.href,
+        href: props.item!.item!.href,
+        cover: props.item!.item!.cover,
+    } as ISong)
 };
 </script>
 <template>
@@ -117,12 +139,16 @@ const onClick = () => {
                 <span class="material-symbols-rounded tag">
                     {{ fallbackIcon }}
                 </span>
+                <span :name="item.scope" v-if="!isLocal" class="uppercase tag">
+                    {{ item.scope }}
+                </span>
                 <span
-                    :name="item.scope"
-                    v-if="!isLocal"
-                    class="uppercase tag"
-                    >{{ item.scope }}</span
+                    class="material-symbols-rounded tag hover:!highlight hover:text-primary"
+                    v-if="isDownloadable"
+                    @click.stop="instantDownload"
                 >
+                    file_download
+                </span>
             </div>
         </div>
     </div>

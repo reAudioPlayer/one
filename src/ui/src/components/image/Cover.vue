@@ -4,10 +4,9 @@
   -->
 
 <script lang="ts" setup>
-import { PropType, computed, onMounted, ref, watch } from "vue";
+import { PropType, onMounted, ref, watch } from "vue";
 import { generatePlaceholder, getCover } from "./placeholder";
-import { parseAnyCover } from "../../common";
-import { applyBoxShadow } from "../../helpers/accent";
+import { applyBoxShadow } from "@/helpers/accent";
 import window from "@/themes";
 
 const props = defineProps({
@@ -40,31 +39,12 @@ const props = defineProps({
     },
 });
 
-const imgSrc = ref(null as string | null);
 const cover = ref(null as string | null);
 
 const onError = async () => {
     console.error("Failed to load cover", props.src);
-    cover.value = await generatePlaceholder(props.name);
-
-    if (!imgSrc.value) {
-        setTimeout(() => {
-            onError();
-        }, 100);
-        return;
-    }
+    cover.value = await generatePlaceholder(props.name ?? "N/A");
 };
-
-const updateSrc = () => {
-    imgSrc.value = parseAnyCover(props.src, props.type);
-
-    if (!imgSrc.value) {
-        onError();
-    }
-};
-
-watch(() => props.src, updateSrc);
-updateSrc();
 
 const element = ref(null as HTMLImageElement | null);
 const onLoad = async () => {
@@ -73,20 +53,18 @@ const onLoad = async () => {
 
     if (!window.getCurrentThemeProperty("supportsAmbient")) return;
 
-    const src = await getCover(imgSrc.value, props.name);
-
-    applyBoxShadow(element.value, src, props.ambientOpacity);
+    applyBoxShadow(element.value, cover.value!, props.ambientOpacity);
 };
 
 watch(
     () => props.src,
     async () => {
-        cover.value = await getCover(imgSrc.value, props.name);
+        cover.value = await getCover(props.src, props.name ?? "N/A", 500, props.type);
     }
 );
 
 onMounted(async () => {
-    cover.value = await getCover(imgSrc.value, props.name);
+    cover.value = await getCover(props.src, props.name ?? "N/A", 500, props.type);
 });
 </script>
 <template>

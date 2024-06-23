@@ -119,7 +119,9 @@ const addAll = async () => {
     Notifications.addSuccess(
         props.album.title,
         `Added ${songs.value.length} songs to ${data.playlists[playlistId].name}`,
-        3000
+        3000,
+        undefined,
+        data.playlists[playlistId].href
     );
 };
 

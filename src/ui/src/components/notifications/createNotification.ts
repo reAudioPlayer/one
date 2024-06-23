@@ -9,6 +9,8 @@ export interface INotification {
     details?: string;
     type: "success" | "error" | "info" | "warning" | "yes-no";
     timeout?: number;
+    onClick?: () => void;
+    redirect?: string;
 }
 
 export interface IYesNoNotification extends INotification {
@@ -29,13 +31,15 @@ const triggerNotification = (notification: IFullNotification) => {
         detail: notification,
     });
     window.dispatchEvent(notificationEvent);
-}
+};
 
 export const Notifications = {
     addSuccess(
         message: string,
         details?: string,
-        timeout?: number
+        timeout?: number,
+        onClick?: () => void,
+        redirect?: string
     ) {
         const id = Math.random().toString(36).substring(7);
         const notification: IFullNotification = {
@@ -44,14 +48,18 @@ export const Notifications = {
             details,
             type: "success",
             timeout,
-        }
+            onClick,
+            redirect,
+        };
         triggerNotification(notification);
         return id;
     },
     addError(
         message: string,
         details?: string,
-        timeout?: number
+        timeout?: number,
+        onClick?: () => void,
+        redirect?: string
     ) {
         const id = Math.random().toString(36).substring(7);
         const notification: IFullNotification = {
@@ -60,14 +68,18 @@ export const Notifications = {
             details,
             type: "error",
             timeout,
-        }
+            onClick,
+            redirect,
+        };
         triggerNotification(notification);
         return id;
     },
     addInfo(
         message: string,
         details?: string,
-        timeout?: number
+        timeout?: number,
+        onClick?: () => void,
+        redirect?: string
     ) {
         const id = Math.random().toString(36).substring(7);
         const notification: IFullNotification = {
@@ -76,14 +88,18 @@ export const Notifications = {
             details,
             type: "info",
             timeout,
-        }
+            onClick,
+            redirect,
+        };
         triggerNotification(notification);
         return id;
     },
     addWarning(
         message: string,
         details?: string,
-        timeout?: number
+        timeout?: number,
+        onClick?: () => void,
+        redirect?: string
     ) {
         const id = Math.random().toString(36).substring(7);
         const notification: IFullNotification = {
@@ -92,7 +108,9 @@ export const Notifications = {
             details,
             type: "warning",
             timeout,
-        }
+            onClick,
+            redirect,
+        };
         triggerNotification(notification);
         return id;
     },
@@ -102,7 +120,9 @@ export const Notifications = {
         timeout?: number,
         onYes?: () => void,
         onNo?: () => void,
-        onTimeout?: () => void
+        onTimeout?: () => void,
+        onClick?: () => void,
+        redirect?: string
     ) {
         const id = Math.random().toString(36).substring(7);
         const notification: IYesNoNotification = {
@@ -114,7 +134,9 @@ export const Notifications = {
             onYes,
             onNo,
             onTimeout,
-        }
+            onClick,
+            redirect,
+        };
         triggerNotification(notification);
         return id;
     },
@@ -127,5 +149,5 @@ export const Notifications = {
     clear() {
         const notificationEvent = new CustomEvent("notification.clear");
         window.dispatchEvent(notificationEvent);
-    }
-}
+    },
+};

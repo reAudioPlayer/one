@@ -21,6 +21,7 @@ import { updatePlaylistMetadata } from "@/api/playlist";
 import { useDataStore } from "@/store/data";
 import AddNewSong from "@/components/popups/AddNewSong.vue";
 import PlaylistContext from "@/components/contextMenus/PlaylistContext.vue";
+import AmbientBackground from "../image/AmbientBackground.vue";
 
 const props = defineProps({
     playlist: {
@@ -64,7 +65,6 @@ watch(
     () => {
         title.value = playlist.value?.name.trim() ?? "";
         description.value = playlist.value?.description.trim() ?? "";
-        resetFilters();
     }
 );
 
@@ -304,7 +304,10 @@ const playOrPausePlaylist = () => {
                         <span class="text-muted">More...</span>
                     </Card>
                 </div>
-                <div v-if="playlist.songs" class="filters mt-4">
+                <div
+                    v-if="playlist.songs"
+                    class="filters relative overflow-clip"
+                >
                     <TextInputWithIcon
                         v-model="filters.search"
                         icon="search"
@@ -370,7 +373,7 @@ const playOrPausePlaylist = () => {
     flex-wrap: nowrap;
     gap: 0.5rem;
     padding: 0.5rem;
-    border-radius: 1000em;
+    border-radius: 1em;
     align-items: center;
     border: var(--border-container);
 

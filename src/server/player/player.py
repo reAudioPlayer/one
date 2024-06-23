@@ -154,7 +154,7 @@ class Player(metaclass=Singleton):  # pylint: disable=too-many-instance-attribut
         if not self._queue or not song:
             return
         initial = self._queue.cursor
-        while not await self._downloader.downloadSong(song.model):
+        while not await self._downloader.downloadSong(song, internal=True):
             self._logger.debug("invalid [%s], preload next", song)
             song = self._queue.next()
             assert initial != self._queue.cursor, "no valid song"

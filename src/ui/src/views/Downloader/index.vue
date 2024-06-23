@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import Card from "../../containers/Card.vue";
 import IconButton from "../../components/inputs/IconButton.vue";
 import { Notifications } from "../../components/notifications/createNotification";
@@ -93,6 +93,18 @@ const requestDownload = async () => {
     console.log("[downloader] requestDownload", song);
     downloader.downloadOther(song);
 };
+
+onMounted(() => {
+    if (downloader.prefill != null) {
+        formOptions.value = formOptions.value.map((x) => {
+            x.value = downloader.prefill?.[x.name] ?? x.value;
+            return x;
+        });
+        formOptions.value
+            .find((x) => x.name === "source")
+            ?.onChange?.(downloader.prefill.source);
+    }
+});
 </script>
 <template>
     <div class="downloader py-2 pr-2 grid gap-4 grid-cols-2 items-start">
@@ -156,7 +168,7 @@ const requestDownload = async () => {
                                         >
                                         {{ state.chunk }}
                                     </div>
-                                    <div class="info">
+                                    <div class="info" v-if="false">
                                         <span class="material-symbols-rounded"
                                             >percent</span
                                         >
@@ -168,7 +180,7 @@ const requestDownload = async () => {
                                     </div>
                                     <div
                                         class="info"
-                                        v-if="state.speed !== '0'"
+                                        v-if="false && state.speed !== '0'"
                                     >
                                         <span class="material-symbols-rounded"
                                             >speed</span
@@ -178,8 +190,9 @@ const requestDownload = async () => {
                                     <div
                                         class="info"
                                         v-if="
-                                            state.elapsed !== '0' ||
-                                            state.eta !== 0
+                                            false &&
+                                            (state.elapsed !== '0' ||
+                                                state.eta !== 0)
                                         "
                                     >
                                         <span class="material-symbols-rounded"
@@ -240,21 +253,21 @@ const requestDownload = async () => {
                                 <span
                                     class="material-symbols-rounded cursor-pointer finished"
                                     v-else-if="state.status == 'finished'"
-                                    @click="downloader.download(state.songId)"
+                                    @click="downloader.download(state.song.id)"
                                 >
                                     download_for_offline
                                 </span>
                                 <span
                                     class="material-symbols-rounded cursor-pointer downloaded"
                                     v-else-if="state.status == 'downloaded'"
-                                    @click="reDownload(state.songId)"
+                                    @click="reDownload(state.song.id)"
                                 >
                                     download_done
                                 </span>
                                 <span
                                     class="material-symbols-rounded cursor-pointer error"
                                     v-else-if="state.status == 'error'"
-                                    @click="reDownload(state.songId)"
+                                    @click="reDownload(state.song.id)"
                                 >
                                     error
                                 </span>

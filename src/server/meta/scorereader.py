@@ -47,6 +47,7 @@ class Match:
 class OneFootballMatch(Match):
     """https://www.onefootball.com/"""
     def __init__(self, url: str) -> None:
+        nurl = ""
         if "/team" in url:
             nurl = OneFootballTeam.getFirstMatch(url)
         if "/competition" in url:

@@ -5,7 +5,7 @@
 
 <script lang="ts" setup>
 import { computed, PropType, ref } from "vue";
-import { IBaseSong, ISong } from "@/common";
+import type { ISong } from "@/common";
 import { playInPicture } from "@/api/playerInPicture";
 import { useDataStore } from "@/store/data";
 import {
@@ -56,7 +56,9 @@ const addTo = async (playlistId: string) => {
     Notifications.addSuccess(
         props.song.title,
         `Added to ${playlists.value.find((p) => p.id == playlistId)?.name}`,
-        3000
+        3000,
+        undefined,
+        playlists.value.find((p) => p.id == playlistId)?.href
     );
     emit("update");
 };

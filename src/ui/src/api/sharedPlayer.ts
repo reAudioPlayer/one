@@ -3,6 +3,7 @@
  * Licenced under the GNU General Public License v3.0
  */
 
+import { getWsOrigin } from "@/ws";
 import { Playable, RepeatType, usePlayerStore } from "../store/player";
 import { Ref, ref } from "vue";
 
@@ -26,10 +27,7 @@ export const SharedPlayer = class implements Playable {
 
     connect() {
         console.log("[sharedPlayer] attempting reconnect");
-        const host = window.location.hostname;
-        const port =
-            window.location.port == "5173" ? 1234 : window.location.port;
-        this.ws = new WebSocket(`ws://${host}:${port}/player/ws`);
+        this.ws = new WebSocket(getWsOrigin() + "/player/ws");
         const playerStore = usePlayerStore();
         if (this.sendInfoTask) {
             clearInterval(this.sendInfoTask);

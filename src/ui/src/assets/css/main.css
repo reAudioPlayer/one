@@ -38,6 +38,14 @@
         background-color: var(--fg-secondary-dk);
     }
 
+    .highlight {
+        background: var(--bg-hover-dk);
+    }
+
+    .border-primary {
+        border-color: var(--fg-base);
+    }
+ 
     p {
         @apply my-2;
     }

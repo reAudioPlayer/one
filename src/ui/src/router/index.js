@@ -27,35 +27,35 @@ const routes = [{
 {
     name: "Search",
     path: '/search/:query',
-    component: () => import("@/views/Search/index.vue"),
+    component: () => import("@/views/search/index.vue"),
     meta: {
         title: "Search - reAudioPlayer One"
     }
 },
 {
     path: '/collection/albums',
-    component: () => import("@/views/Collection/index.vue"),
+    component: () => import("@/views/collection/index.vue"),
     meta: {
         title: "Your Library - reAudioPlayer One"
     }
 },
 {
     path: '/collection/artists',
-    component: () => import("@/views/Collection/index.vue"),
+    component: () => import("@/views/collection/index.vue"),
     meta: {
         title: "Your Library - reAudioPlayer One"
     }
 },
 {
     path: '/collection/playlists',
-    component: () => import("@/views/Collection/index.vue"),
+    component: () => import("@/views/collection/index.vue"),
     meta: {
         title: "Your Library - reAudioPlayer One"
     }
 },
 {
     path: '/collection/releases',
-    component: () => import("@/views/Collection/index.vue"),
+    component: () => import("@/views/collection/index.vue"),
     meta: {
         title: "Releases - reAudioPlayer One"
     }
@@ -83,7 +83,7 @@ const routes = [{
 },
 {
     path: '/playlist/:id/edit',
-    component: () => import("@/views/Collection/SmartPlaylist/Editor.vue"),
+    component: () => import("@/views/collection/SmartPlaylist/Editor.vue"),
     meta: {
         title: "Smart Playlist Editor - reAudioPlayer One"
     }
@@ -153,7 +153,7 @@ const routes = [{
 },
 {
     path: '/download',
-    component: () => import("@/views/Downloader/index.vue"),
+    component: () => import("@/views/downloader/index.vue"),
     meta: {
         title: "Download - reAudioPlayer One"
     }
@@ -188,14 +188,14 @@ const routes = [{
 },
 {
     path: '/player/insights',
-    component: () => import("@/views/BigPlayer/Insight.vue"),
+    component: () => import("@/views/bigPlayer/Insight.vue"),
     meta: {
         title: "Insights - reAudioPlayer One"
     }
 },
 {
     path: '/player',
-    component: () => import("@/views/BigPlayer.vue"),
+    component: () => import("@/views/bigPlayer/index.vue"),
     meta: {
         title: "reAudioPlayer One"
     }

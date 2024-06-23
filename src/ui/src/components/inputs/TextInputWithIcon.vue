@@ -5,41 +5,65 @@
 
 <template>
     <div
-        class="text-input-with-icon rounded-3xl flex items-center px-4"
+        class="text-input-with-icon rounded-xl flex flex-col justify-center px-4"
         :class="{ expanded }"
     >
-        <span
-            :class="{ 'cursor-pointer': onClick }"
-            class="material-symbols-rounded ms-wght-200"
-            @click="onClick"
-        >
-            {{ icon }}
-        </span>
-        <input
-            v-model="value"
-            :placeholder="placeholder"
-            :type="type"
-            @input="onChange"
-            @keyup="onKeyUp"
-            @focusout="$emit('focusout')"
-            ref="element"
-        />
+        <div class="flex flex-row gap-2 items-center">
+            <span
+                v-if="icon"
+                :class="{ 'cursor-pointer': onClick }"
+                class="material-symbols-rounded ms-wght-200"
+                @click="onClick"
+            >
+                {{ icon }}
+            </span>
+            <div class="relative flex-1">
+                <span
+                    class="text-sm label-placeholder capitalize"
+                    :class="{ atTop: !!value }"
+                    v-if="label"
+                >
+                    {{ label }}
+                </span>
+                <input
+                    v-model="value"
+                    :type="type == 'password' && show ? 'text' : type"
+                    :placeholder="placeholder"
+                    @input="onChange"
+                    @keyup="onKeyUp"
+                    @focusout="$emit('focusout')"
+                    ref="element"
+                />
+            </div>
+            <span
+                class="material-symbols-rounded cursor-pointer"
+                v-if="type == 'password'"
+                @click="show = !show"
+            >
+                {{ show ? "visibility" : "visibility_off" }}
+            </span>
+        </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { PropType, ref, watch } from "vue";
+import { PropType, computed, ref, watch } from "vue";
 
 const props = defineProps({
     icon: String,
-    placeholder: String,
+    label: String,
+    placeholder: {
+        type: String,
+        required: false,
+        default: "",
+    },
     modelValue: {
         type: String as PropType<string | number>,
         required: false,
         default: "",
     },
     type: {
-        type: String,
+        type: String as PropType<"text" | "number" | "password">,
         required: false,
         default: "text",
     },
@@ -59,6 +83,7 @@ const props = defineProps({
 });
 
 const value = ref(props.modelValue);
+const show = ref(false);
 watch(
     () => props.modelValue,
     (nValue) => {
@@ -94,7 +119,7 @@ const element = ref<HTMLElement>();
 
 defineExpose({
     focus: () => {
-        element.value.focus();
+        element.value?.focus();
     },
 });
 </script>
@@ -118,10 +143,34 @@ defineExpose({
         input {
             color: var(--fg-base);
         }
+
+        .label-placeholder {
+            top: 0;
+            transform: translateY(0);
+            font-size: 0.75rem;
+            font-weight: 100;
+        }
     }
 
     &.expanded {
         border-radius: 1em 1em 0 0;
+    }
+}
+
+.label-placeholder {
+    color: var(--fg-base-lt);
+    transition: all 0.2s;
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+
+    &.atTop {
+        top: 0;
+        transform: translateY(0);
+        font-size: 0.75rem;
+        font-weight: 100;
     }
 }
 
@@ -139,7 +188,7 @@ input[type="password"] {
     border-radius: 5px;
     color: var(--font-colour);
     padding: 10px;
-    width: auto;
+    width: 100%;
     flex-grow: 1;
     font-family: var(--font-family);
 
@@ -151,5 +200,10 @@ input[type="password"] {
         background: var(--hover-1);
         border: 1px solid var(--font-colour);
     }
+}
+
+.text-input-with-icon:has(.label-placeholder) input {
+    padding-bottom: 5px;
+    margin-top: 10px;
 }
 </style>

@@ -36,37 +36,28 @@ const component = computed(() => {
     }
 });
 </script>
-
-<style lang="scss">
-main.collection {
-    position: relative;
-    overflow: hidden;
-
-    > div {
-        overflow: auto;
-        height: 100%;
-        padding-right: 10px;
-    }
-}
-</style>
 <style scoped lang="scss">
 .header {
-    position: sticky;
+    position: absolute;
     top: 0;
     z-index: 100;
     width: 100%;
     background-color: var(--bg-base);
-    padding-bottom: 1em;
+}
+
+main {
+    position: relative;
+    height: 100%;
+    padding: 1em;
+    padding-top: calc(70px + 1em);
+
+    > div {
+        height: 100%;
+    }
 }
 
 .parent {
-    display: grid;
-    grid-template-rows: auto 1fr;
-    margin: 10px;
-    margin-right: 0;
-    margin-bottom: 0;
-    height: calc(100% - 10px);
-    overflow: auto;
+    height: 100%;
     position: relative;
 }
 </style>

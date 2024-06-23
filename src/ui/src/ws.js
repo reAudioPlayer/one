@@ -6,11 +6,16 @@
 import { usePlayerStore } from "@/store/player";
 import { useSettingsStore } from "@/store/settings";
 
-export const connect = () => {
-    console.log("attempting reconnect")
+export const getWsOrigin = () => {
+    const protocol = window.location.protocol == "https:" ? "wss" : "ws";
     const host = window.location.hostname;
     const port = window.location.port == 5173 ? 1234 : window.location.port
-    const ws = new WebSocket(`ws://${host}:${port}/ws`);
+    return `${protocol}://${host}:${port}`;
+}
+
+export const connect = () => {
+    console.log("attempting reconnect")
+    const ws = new WebSocket(getWsOrigin() + "/ws");
 
     ws.onclose = () => {
         console.log("[main] ws closed")

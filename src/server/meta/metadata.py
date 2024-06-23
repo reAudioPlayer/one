@@ -4,7 +4,7 @@ __copyright__ = "Copyright (c) 2022 https://github.com/reAudioPlayer"
 
 from typing import Any, Dict, Optional
 
-import validators  # type: ignore
+import validators
 
 from meta.spotify import Spotify
 from dataModel.track import ITrack, SoundcloudTrack, YoutubeTrack, SpotifyTrack

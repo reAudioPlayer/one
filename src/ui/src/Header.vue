@@ -74,8 +74,8 @@ import router from "./router";
 import { onMounted, ref, computed } from "vue";
 import InputWithAutoComplete from "@/components/inputs/InputWithAutoComplete.vue";
 import { useDownloaderStore } from "./store/downloader";
-import SearchResultItem from "./views/Search/SearchResultItem.vue";
-import { TYPES } from "./views/Search/search";
+import SearchResultItem from "./views/search/SearchResultItem.vue";
+import { TYPES } from "./views/search/search";
 import { useDataStore } from "./store/data";
 import { usePlayerStore } from "./store/player";
 

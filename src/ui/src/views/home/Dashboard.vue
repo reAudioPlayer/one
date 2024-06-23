@@ -158,6 +158,7 @@ import { parseCover } from "@/common";
 <script lang="ts">
 import { useDataStore } from "../../store/data";
 import { getPlaylist } from "../../api/playlist";
+import { Notifications } from "../../components/notifications/createNotification";
 
 export default {
     name: "Home",
@@ -183,6 +184,22 @@ export default {
             .then((x) => x.json())
             .then((jdata) => {
                 this.releases = jdata.slice(0, 3);
+
+                const todaysReleases = jdata.filter(
+                    (song) =>
+                        new Date(song.releaseDate).toDateString() ===
+                        new Date().toDateString()
+                );
+
+                if (todaysReleases.length) {
+                    Notifications.addInfo(
+                        "New releases",
+                        `There are ${todaysReleases.length} new releases today`,
+                        5000,
+                        undefined,
+                        "/collection/releases"
+                    );
+                }
             });
         this.pick();
     },

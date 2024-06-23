@@ -6,22 +6,14 @@
 import { defineStore } from "pinia";
 
 import { ISong } from "../common";
-import { downloadSong } from "../api/song";
+import { useRouter } from "vue-router";
+import { getWsOrigin } from "@/ws";
 
 export interface IStatus {
-    songId: number;
-    filename: string;
+    id: number;
     status: "downloading" | "finished" | "downloaded" | "error" | "pending";
-    downloaded: number;
-    total: number;
-    percent: number;
-    speed: string;
-    elapsed: string;
-    eta: number;
-    action?: string;
-    song?: ISong;
-    chunk?: string;
     internal: boolean;
+    song: ISong;
 }
 
 export type States = Record<number, IStatus>;
@@ -33,6 +25,7 @@ export const useDownloaderStore = defineStore({
         ws: null as WebSocket | null,
         states: {} as States,
         onDownload: [] as ((songId: number) => void)[],
+        prefill: null as ISong | null,
     }),
     getters: {
         empty() {
@@ -46,12 +39,7 @@ export const useDownloaderStore = defineStore({
         initialise() {
             const connect = () => {
                 console.log("[downloader] attempting reconnect");
-                const host = window.location.hostname;
-                const port =
-                    window.location.port === "5173"
-                        ? 1234
-                        : window.location.port;
-                this.ws = new WebSocket(`ws://${host}:${port}/download/ws`);
+                this.ws = new WebSocket(getWsOrigin() + "/download/ws");
 
                 this.ws.onclose = () => {
                     console.log("[downloader] ws closed");
@@ -66,19 +54,15 @@ export const useDownloaderStore = defineStore({
                 this.ws.onmessage = (msg) => {
                     const data = JSON.parse(msg.data) as IStatus;
 
-                    if (data.action) {
-                        return;
-                    }
-
                     if (data.status == "finished") {
-                        this.states[data.songId] = {
-                            ...this.states[data.songId],
+                        this.states[data.song.id] = {
+                            ...this.states[data.song.id],
                             ...data,
                         };
                         return;
                     }
 
-                    this.states[data.songId] = data;
+                    this.states[data.song.id] = data;
                 };
             };
 
@@ -98,6 +82,11 @@ export const useDownloaderStore = defineStore({
                 status: "pending",
             };
             this._fireDownload(songId);
+        },
+        downloadViaDownloader(song: ISong) {
+            this.prefill = song;
+            const router = useRouter();
+            router.push("/download");
         },
         downloadOther(song: ISong) {
             this.send({

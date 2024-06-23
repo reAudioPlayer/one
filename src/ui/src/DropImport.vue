@@ -7,7 +7,7 @@ import {
     ISyncableOne,
     ISyncablePlaylist,
     ISyncableSong,
-importSyncables,
+    importSyncables,
 } from "./views/sync/collection";
 import { addSongs } from "./api/song";
 import {
@@ -86,10 +86,6 @@ const onDragleave = (e) => {
     </div>
 </template>
 <style scoped>
-.dropzone * {
-    pointer-events: none;
-}
-
 .dropzone.drophover::after {
     content: " ";
     display: block;

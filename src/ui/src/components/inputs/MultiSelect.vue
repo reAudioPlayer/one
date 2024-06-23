@@ -155,7 +155,7 @@ window.addEventListener("click", () => {
 
     &__selected {
         background: var(--bg-base-lt);
-        border-radius: 1000vmax;
+        border-radius: 0.75em;
         color: var(--font-colour);
         padding: 0px 10px;
         width: auto;
@@ -171,7 +171,7 @@ window.addEventListener("click", () => {
         border: var(--border-container);
 
         &.expanded {
-            border-radius: 1em 1em 0 0;
+            border-radius: 0.75em 0.75em 0 0;
         }
 
         &:focus-within, &:hover {

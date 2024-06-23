@@ -7,6 +7,7 @@
 import { PropType } from "vue";
 import type { IYesNoNotification } from "./createNotification";
 import Card from "../../containers/Card.vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
     notification: {
@@ -16,6 +17,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["remove"]);
+const router = useRouter();
 
 const no = () => {
     emit("remove", props.notification.id);
@@ -30,10 +32,20 @@ const yes = () => {
         props.notification.onYes();
     }
 };
+
+const click = () => {
+    emit("remove", props.notification.id);
+    if (props.notification.onClick) {
+        props.notification.onClick();
+    }
+    if (props.notification.redirect) {
+        router.push(props.notification.redirect);
+    }
+};
 </script>
 
 <template>
-    <Card class="notification">
+    <Card class="notification" @click.stop.prevent="click">
         <div class="message">
             <h4>
                 {{ notification.message }}
@@ -43,10 +55,10 @@ const yes = () => {
             </span>
         </div>
         <div class="yes-no">
-            <div class="yes option" @click="yes">
+            <div class="yes option" @click.stop.prevent="yes">
                 <span class="material-symbols-rounded"> check </span>
             </div>
-            <div class="no option" @click="no">
+            <div class="no option" @click.stop.prevent="no">
                 <span class="material-symbols-rounded"> close </span>
             </div>
         </div>
@@ -61,6 +73,7 @@ const yes = () => {
     overflow: hidden;
     filter: var(--drop-shadow);
     background: var(--fg-contrast);
+    cursor: pointer;
 
     .message {
         padding: 0.5em 1em;

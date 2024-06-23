@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """reAudioPlayer ONE"""
+
 from __future__ import annotations
 
 __copyright__ = "Copyright (c) 2023 https://github.com/reAudioPlayer"
@@ -282,19 +283,22 @@ class SongModel(IModel, ITrack):  # pylint: disable=too-many-public-methods
         self._fireChanged()
 
     @property
+    def hash(self) -> str:
+        """return hash"""
+        return str(hashids.encode(self.id))
+
+    @property
     def url(self) -> str:
         """return url"""
-        return f"/track/{hashids.encode(self.id)}"
+        return f"/track/{self.hash}"
 
     @property
     def albumUrl(self) -> str:
         """return album url"""
         return f"/album/{self._albumHash}"
 
-    def downloadPath(self, forExport: bool = False) -> str:
+    def downloadPath(self) -> str:
         """return download path"""
-        if forExport:
-            return f"{self.id}.dl"
         return str(self.id)
 
     def toDict(self) -> Dict[str, Any]:
@@ -303,7 +307,11 @@ class SongModel(IModel, ITrack):  # pylint: disable=too-many-public-methods
             "id": self.id,
             "title": self.name,
             "artist": self.artist,
-            "album": {"name": self._album, "id": self._albumHash, "href": self.albumUrl},
+            "album": {
+                "name": self._album,
+                "id": self._albumHash,
+                "href": self.albumUrl,
+            },
             "cover": self.cover,
             "favourite": self.favourite,
             "duration": self.duration,

@@ -3,6 +3,8 @@
  * Licenced under the GNU General Public License v3.0
  */
 
+import { parseAnyCover } from "@/common";
+
 const VERSION = 2.0;
 const storage = window.localStorage.getItem("renderedIcons");
 const renderedIcons: Map<string, string> = storage
@@ -12,13 +14,11 @@ const renderedIcons: Map<string, string> = storage
 export const getCover = async (
     cover: string | null,
     placeholder: string,
-    size: number = 500
+    size: number = 500,
+    type: "track" | "playlist" | "artist" | "album" = "track"
 ) => {
-    if (!cover) {
-        return await generatePlaceholder(placeholder, size);
-    }
-
-    return cover;
+    if (cover) return parseAnyCover(cover, type);
+    return await generatePlaceholder(placeholder, size);
 };
 
 const imgSrc = "/assets/img/bg-1024x1024.png";
@@ -39,8 +39,8 @@ export const generatePlaceholder = async (
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     canvas.style.position = "fixed";
-    canvas.style.top = "0";
-    canvas.style.left = "0";
+    canvas.style.top = -size + "px";
+    canvas.style.left = -size + "px";
     canvas.style.opacity = "0";
     document.body.appendChild(canvas);
 

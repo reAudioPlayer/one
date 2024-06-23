@@ -7,6 +7,7 @@
 import { PropType } from "vue";
 import type { INotification } from "./createNotification";
 import Card from "../../containers/Card.vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
     notification: {
@@ -16,14 +17,33 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["remove"]);
+const router = useRouter();
 
 const remove = (id: string) => {
     emit("remove", id);
 };
+
+const click = () => {
+    emit("remove", props.notification.id);
+    if (props.notification.onClick) {
+        props.notification.onClick();
+    }
+    console.log(props.notification.redirect);
+    if (props.notification.redirect) {
+        router.push(props.notification.redirect);
+    }
+};
 </script>
 
 <template>
-    <Card :class="notification.type" class="notification">
+    <Card
+        :class="{
+            [notification.type]: true,
+            'cursor-pointer': notification.redirect || notification.onClick,
+        }"
+        class="notification"
+        @click.stop.prevent="click"
+    >
         <div class="message">
             <h4>
                 {{ notification.message }}
@@ -34,7 +54,7 @@ const remove = (id: string) => {
         </div>
         <span
             class="material-symbols-rounded close"
-            @click="remove(notification.id)"
+            @click.stop.prevent="remove(notification.id)"
         >
             close
         </span>
